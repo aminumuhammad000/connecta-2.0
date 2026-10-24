@@ -1694,110 +1694,117 @@ export default function HomePage() {
         </section>
 
         {/* ================================================================= */}
-        {/* TRUST & VERIFICATION (WHO CONNECTA SERVES STYLE GRAND CONTAINER)   */}
+        {/* THE CONNECTA TRUST STANDARD (EXACT MATCH TO core objectives.png)   */}
         {/* ================================================================= */}
-        <section className="py-20 bg-white">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="bg-[#0A1E2E] text-white rounded-3xl p-8 sm:p-14 lg:p-16 relative overflow-hidden shadow-2xl">
-              {/* Halftone / Pattern */}
-              <div
-                className="absolute inset-0 opacity-[0.05] pointer-events-none"
-                style={{
-                  backgroundImage: 'radial-gradient(#FFFFFF 1.5px, transparent 1.5px)',
-                  backgroundSize: '18px 18px',
-                }}
-              />
+        <section id="trust-standard" className="py-20 lg:py-28 bg-[#F4FBF7] relative overflow-hidden border-y border-emerald-100">
+          {/* Halftone Dot Pattern from core objectives.png */}
+          <div
+            className="absolute inset-0 opacity-[0.14] pointer-events-none"
+            style={{
+              backgroundImage: 'radial-gradient(#03CF6A 2px, transparent 2px)',
+              backgroundSize: '24px 24px',
+            }}
+          />
 
-              <div className="relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-                <div className="space-y-6">
-                  <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-full border-2 border-white flex items-center justify-center font-bold text-lg shrink-0">
-                      ↓
-                    </div>
-                    <h2 className="text-3xl sm:text-5xl font-black tracking-tight text-white">
-                      The Connecta Trust Standard
-                    </h2>
-                  </div>
-                  <p className="text-sm sm:text-base text-slate-300 leading-relaxed">
-                    Anyone can post an ad online. Connecta ensures that every provider badge reflects actual verified credentials, physical workshop audits, and verified performance history.
-                  </p>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
-                    <div className="p-4 rounded-2xl bg-white/10 backdrop-blur-md border border-white/15 space-y-2">
-                      <div className="flex items-center gap-2">
-                        <CornerDownRight className="w-4 h-4 text-[#10B981] stroke-[2.5]" />
-                        <h4 className="text-sm font-bold text-white">ID & Business Checks</h4>
-                      </div>
-                      <p className="text-xs text-slate-300 leading-relaxed">
-                        Verification of National Identification Number (NIN), Voter Card, or CAC business certificate.
-                      </p>
-                    </div>
-
-                    <div className="p-4 rounded-2xl bg-white/10 backdrop-blur-md border border-white/15 space-y-2">
-                      <div className="flex items-center gap-2">
-                        <CornerDownRight className="w-4 h-4 text-[#F59E0B] stroke-[2.5]" />
-                        <h4 className="text-sm font-bold text-white">Itemized Quotations</h4>
-                      </div>
-                      <p className="text-xs text-slate-300 leading-relaxed">
-                        Labor, replacement parts, and visit fees calculated upfront in kobo minor units with zero hidden fees.
-                      </p>
-                    </div>
-
-                    <div className="p-4 rounded-2xl bg-white/10 backdrop-blur-md border border-white/15 space-y-2">
-                      <div className="flex items-center gap-2">
-                        <CornerDownRight className="w-4 h-4 text-[#4D78FF] stroke-[2.5]" />
-                        <h4 className="text-sm font-bold text-white">Photo Evidence Log</h4>
-                      </div>
-                      <p className="text-xs text-slate-300 leading-relaxed">
-                        Technicians upload before and after work photos directly to the booking for mutual protection.
-                      </p>
-                    </div>
-
-                    <div className="p-4 rounded-2xl bg-white/10 backdrop-blur-md border border-white/15 space-y-2">
-                      <div className="flex items-center gap-2">
-                        <CornerDownRight className="w-4 h-4 text-[#8B7CFF] stroke-[2.5]" />
-                        <h4 className="text-sm font-bold text-white">Verified Reviews</h4>
-                      </div>
-                      <p className="text-xs text-slate-300 leading-relaxed">
-                        Customer reviews can only be submitted after a verified booking is marked completed.
-                      </p>
-                    </div>
-                  </div>
+          <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            {/* Header with Circle ↓ Badge */}
+            <div className="text-center max-w-3xl mx-auto mb-14 space-y-3">
+              <span className="text-xs font-bold text-[#03CF6A] bg-emerald-50 px-3.5 py-1.5 rounded-full border border-emerald-200">
+                Guaranteed Artisan Accountability
+              </span>
+              <div className="flex items-center justify-center gap-3">
+                <div className="w-9 h-9 rounded-full border-2 border-[#0A1020] flex items-center justify-center font-bold text-lg shrink-0">
+                  ↓
                 </div>
+                <h2 className="text-3xl sm:text-5xl font-black text-[#0A1020] tracking-tight">
+                  The Connecta Trust Standard
+                </h2>
+              </div>
+              <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
+                Anyone can post an ad online. Connecta ensures that every provider badge reflects actual verified credentials, physical workshop audits, transparent Naira pricing, and escrow protection.
+              </p>
+            </div>
 
-                <div className="space-y-6">
-                  <div className="relative h-80 sm:h-96 rounded-3xl overflow-hidden border border-white/20 shadow-2xl">
-                    <Image
-                      src="/images/services/electrician_working_on_electrical_panel.jpg"
-                      alt="Verified electrician performing electrical panel maintenance"
-                      fill
-                      className="object-cover opacity-85"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#0A1E2E] via-transparent to-transparent" />
-                    <div className="absolute bottom-6 left-6 right-6 p-5 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 text-xs space-y-1.5">
-                      <div className="font-bold text-white flex items-center gap-1.5 text-sm">
-                        <BadgeCheck className="w-5 h-5 text-[#10B981]" />
-                        <span>Verified Artisan Seal</span>
-                      </div>
-                      <div className="text-slate-300 leading-relaxed">
-                        Conferred only upon manual inspection of identity records, workshop location, and trade qualifications.
-                      </div>
-                    </div>
+            {/* Vertically Stacked Cards (Exact Visual Match to core objectives.png) */}
+            <div className="space-y-6 sm:space-y-8">
+              {/* Card 1: Vibrant Golden Amber (#F39200) */}
+              <div className="bg-[#F39200] text-white rounded-3xl p-7 sm:p-10 lg:p-12 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-[1.01] relative overflow-hidden">
+                <div className="space-y-4">
+                  <div className="flex items-center gap-3 sm:gap-4">
+                    <ArrowDownRight className="w-8 h-8 sm:w-10 sm:h-10 text-white stroke-[2.8] shrink-0" />
+                    <h3 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight">
+                      Rigorous Identity & Workshop Audits:
+                    </h3>
                   </div>
-
-                  {/* Colorful Verification Pills */}
-                  <div className="flex flex-wrap gap-2.5">
-                    {TRUST_GUARANTEES.map((g, idx) => (
-                      <span
-                        key={idx}
-                        className={`${g.color} text-xs font-bold px-3.5 py-1.5 rounded-full shadow-md`}
-                      >
-                        {g.title}
-                      </span>
-                    ))}
+                  <p className="text-base sm:text-lg lg:text-xl font-normal sm:font-medium leading-relaxed text-white/95">
+                    Every artisan undergoes mandatory multi-point screening—validating National Identification Numbers (NIN), CAC business registration certificates, trade apprenticeship guarantors, and physically inspected workshop premises across Kano metropolitan.
+                  </p>
+                </div>
+                <div className="mt-8 pt-5 border-t border-white/20 flex flex-wrap items-center justify-between gap-3 text-xs sm:text-sm font-bold text-white/90">
+                  <div className="flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-white animate-pulse" />
+                    <span>NIN & CAC Verified Profile</span>
                   </div>
+                  <span className="bg-white/20 px-3 py-1 rounded-full">Physical Workshop Inspection Required</span>
                 </div>
               </div>
+
+              {/* Card 2: Vibrant Emerald Green (#03CF6A) */}
+              <div className="bg-[#03CF6A] text-white rounded-3xl p-7 sm:p-10 lg:p-12 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-[1.01] relative overflow-hidden">
+                <div className="space-y-4">
+                  <div className="flex items-center gap-3 sm:gap-4">
+                    <ArrowDownRight className="w-8 h-8 sm:w-10 sm:h-10 text-white stroke-[2.8] shrink-0" />
+                    <h3 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight">
+                      Transparent Line-Item Quoting in Kobo:
+                    </h3>
+                  </div>
+                  <p className="text-base sm:text-lg lg:text-xl font-normal sm:font-medium leading-relaxed text-white/95">
+                    Say goodbye to vague estimates and sudden surprises. Every quote provides an auditable breakdown of genuine parts, labor, and transport calculated in Nigerian Naira kobo minor units, with on-site change orders requiring your explicit digital sign-off.
+                  </p>
+                </div>
+                <div className="mt-8 pt-5 border-t border-white/20 flex flex-wrap items-center justify-between gap-3 text-xs sm:text-sm font-bold text-white/90">
+                  <div className="flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-white animate-pulse" />
+                    <span>Exact Integer Minor Units</span>
+                  </div>
+                  <span className="bg-white/20 px-3 py-1 rounded-full">Zero Hidden Fees • Formal Change Orders</span>
+                </div>
+              </div>
+
+              {/* Card 3: Royal Purple / Deep Indigo (#453478) */}
+              <div className="bg-[#453478] text-white rounded-3xl p-7 sm:p-10 lg:p-12 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-[1.01] relative overflow-hidden">
+                <div className="space-y-4">
+                  <div className="flex items-center gap-3 sm:gap-4">
+                    <ArrowDownRight className="w-8 h-8 sm:w-10 sm:h-10 text-white stroke-[2.8] shrink-0" />
+                    <h3 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight">
+                      Protected Escrow & Photo Evidence Safeguards:
+                    </h3>
+                  </div>
+                  <p className="text-base sm:text-lg lg:text-xl font-normal sm:font-medium leading-relaxed text-white/95">
+                    Your payment is safely locked in escrow until the repair is fully inspected and approved by you. Technicians upload before-and-after photo evidence directly into the platform, ensuring auditable dispute protection and verified-only customer reviews.
+                  </p>
+                </div>
+                <div className="mt-8 pt-5 border-t border-white/20 flex flex-wrap items-center justify-between gap-3 text-xs sm:text-sm font-bold text-white/90">
+                  <div className="flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-white animate-pulse" />
+                    <span>Safe Escrow Milestone Release</span>
+                  </div>
+                  <span className="bg-white/20 px-3 py-1 rounded-full">10MB Photo Evidence Protocol</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Tactile Trust Guarantees Cloud */}
+            <div className="mt-12 flex flex-wrap justify-center gap-2.5 max-w-4xl mx-auto">
+              {TRUST_GUARANTEES.map((g, idx) => (
+                <span
+                  key={idx}
+                  className={`${g.color} text-xs sm:text-sm font-bold px-4 py-2 rounded-full shadow-md flex items-center gap-1.5`}
+                >
+                  <Check className="w-3.5 h-3.5 stroke-[3]" />
+                  <span>{g.title}</span>
+                </span>
+              ))}
             </div>
           </div>
         </section>
