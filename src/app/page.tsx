@@ -1,8 +1,9 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import {
   Wrench,
   Zap,
@@ -351,8 +352,31 @@ const FAQS = [
   },
 ]
 
+const SEARCH_SUGGESTIONS = [
+  { query: 'Solar Installation', category: 'Electrical & Solar' },
+  { query: 'Solar Inverter Troubleshooting', category: 'Electrical & Solar' },
+  { query: 'Screen Replacement', category: 'Phone Repair' },
+  { query: 'iPhone Battery Replacement', category: 'Phone Repair' },
+  { query: 'Borehole Servicing', category: 'Plumbing & Pipes' },
+  { query: 'AC Cleaning & Gas Refill', category: 'AC & Cooling' },
+  { query: 'Car Diagnostics & OBD2 Scan', category: 'Auto Mechanics' },
+  { query: 'House Wiring & Breaker Tripping', category: 'Electrical' },
+  { query: 'Water Pipe Leak Repair', category: 'Plumbing' },
+  { query: 'Laptop Screen & Thermal Paste', category: 'Computer Repair' },
+  { query: 'Custom Wardrobes & Furniture', category: 'Woodwork' },
+  { query: 'POP Ceiling & Wall Painting', category: 'Painting & Finishing' },
+  { query: 'Submersible Water Pump Fixing', category: 'Plumbing' },
+  { query: 'Brake Pad Replacement', category: 'Auto Mechanics' },
+  { query: 'Phone Charging Port Fix', category: 'Phone Repair' },
+]
+
 export default function HomePage() {
+  const router = useRouter()
   const [searchQuery, setSearchQuery] = useState('')
+  const [isSearchFocused, setIsSearchFocused] = useState(false)
+  const [activeSuggestionIndex, setActiveSuggestionIndex] = useState(-1)
+  const searchContainerRef = useRef<HTMLDivElement>(null)
+
   const [openFaq, setOpenFaq] = useState<number | null>(0)
   const [phraseIndex, setPhraseIndex] = useState(0)
   const [selectedTradeTab, setSelectedTradeTab] = useState('all')
@@ -361,6 +385,65 @@ export default function HomePage() {
     selectedTradeTab === 'all'
       ? CATEGORIES
       : CATEGORIES.filter((c) => c.group === selectedTradeTab)
+
+  // Real-time suggestions (Google Search style)
+  const suggestions = searchQuery.trim()
+    ? SEARCH_SUGGESTIONS.filter((s) =>
+        s.query.toLowerCase().includes(searchQuery.trim().toLowerCase())
+      )
+    : SEARCH_SUGGESTIONS.slice(0, 5)
+
+  const showSuggestions = isSearchFocused && suggestions.length > 0
+
+  // Click outside to close Google-style suggestions dropdown
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        searchContainerRef.current &&
+        !searchContainerRef.current.contains(event.target as Node)
+      ) {
+        setIsSearchFocused(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
+  const handleSelectSuggestion = (query: string) => {
+    setSearchQuery(query)
+    setIsSearchFocused(false)
+    router.push(`/requests/new?q=${encodeURIComponent(query)}`)
+  }
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (!showSuggestions) {
+      if (e.key === 'Enter') {
+        router.push(`/requests/new?q=${encodeURIComponent(searchQuery)}`)
+      }
+      return
+    }
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault()
+      setActiveSuggestionIndex((prev) =>
+        prev < suggestions.length - 1 ? prev + 1 : 0
+      )
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault()
+      setActiveSuggestionIndex((prev) =>
+        prev > 0 ? prev - 1 : suggestions.length - 1
+      )
+    } else if (e.key === 'Enter') {
+      e.preventDefault()
+      if (activeSuggestionIndex >= 0 && activeSuggestionIndex < suggestions.length) {
+        handleSelectSuggestion(suggestions[activeSuggestionIndex].query)
+      } else {
+        router.push(`/requests/new?q=${encodeURIComponent(searchQuery)}`)
+      }
+    } else if (e.key === 'Escape') {
+      setIsSearchFocused(false)
+    }
+  }
 
   // Chowdeck-style cycling text motion
   useEffect(() => {
@@ -470,18 +553,42 @@ export default function HomePage() {
                 Discover vetted electricians, plumbers, repair technicians, and carpenters. Compare transparent line-item quotes and hire with confidence.
               </p>
 
-              {/* Chowdeck-style Search Capsule */}
-              <div className="pt-2 max-w-2xl mx-auto">
-                <div className="bg-white p-2 sm:p-2.5 rounded-full shadow-2xl border border-slate-200/90 flex items-center gap-2">
+              {/* Google-style Search Capsule with Real-time Suggestions Dropdown */}
+              <div ref={searchContainerRef} className="pt-2 max-w-2xl mx-auto relative z-40">
+                <div
+                  className={`bg-white p-2 sm:p-2.5 transition-all duration-200 shadow-2xl border border-slate-200/90 flex items-center gap-2 ${
+                    showSuggestions
+                      ? 'rounded-t-3xl rounded-b-none border-b-transparent shadow-2xl'
+                      : 'rounded-full'
+                  }`}
+                >
                   <div className="flex-1 flex items-center gap-3 pl-4">
                     <Search className="w-5 h-5 text-slate-400 shrink-0" />
                     <input
                       type="text"
                       value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
+                      onChange={(e) => {
+                        setSearchQuery(e.target.value)
+                        setIsSearchFocused(true)
+                        setActiveSuggestionIndex(-1)
+                      }}
+                      onFocus={() => setIsSearchFocused(true)}
+                      onKeyDown={handleKeyDown}
                       placeholder="What needs fixing? (e.g. inverter fault, screen, pipe leak)"
                       className="w-full bg-transparent text-sm text-[#0A1020] placeholder:text-slate-400 focus:outline-none"
                     />
+                    {searchQuery && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSearchQuery('')
+                          setActiveSuggestionIndex(-1)
+                        }}
+                        className="text-slate-400 hover:text-slate-700 p-1 text-xs font-bold"
+                      >
+                        ✕
+                      </button>
+                    )}
                   </div>
                   <Link
                     href={`/requests/new?q=${encodeURIComponent(searchQuery)}`}
@@ -491,20 +598,82 @@ export default function HomePage() {
                     <CornerDownRight className="w-4 h-4 stroke-[2.5]" />
                   </Link>
                 </div>
-              </div>
 
-              {/* Quick tags */}
-              <div className="flex flex-wrap items-center justify-center gap-2 pt-1 text-xs text-slate-500">
-                <span className="font-semibold text-slate-700">Trending in Kano:</span>
-                {['Solar Installation', 'Screen Replacement', 'Borehole Servicing', 'AC Cleaning', 'Car Diagnostics'].map((tag) => (
-                  <Link
-                    key={tag}
-                    href={`/requests/new?q=${encodeURIComponent(tag)}`}
-                    className="px-3.5 py-1.5 rounded-full bg-white hover:bg-[#0A1020] hover:text-white text-slate-700 border border-slate-200 transition-all shadow-xs font-semibold"
-                  >
-                    {tag}
-                  </Link>
-                ))}
+                {/* Google Search Style Suggestions Dropdown */}
+                {showSuggestions && (
+                  <div className="absolute top-full left-0 right-0 bg-white rounded-b-3xl shadow-2xl border border-t-0 border-slate-200/90 overflow-hidden text-left z-50">
+                    <div className="border-t border-slate-100" />
+                    <div className="py-2">
+                      {!searchQuery.trim() && (
+                        <div className="px-5 py-2 text-[11px] font-extrabold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+                          <Sparkles className="w-3 h-3 text-[#F59E0B]" />
+                          <span>Trending Searches in Nigeria</span>
+                        </div>
+                      )}
+                      {suggestions.map((item, idx) => {
+                        const isSelected = activeSuggestionIndex === idx
+                        return (
+                          <div
+                            key={item.query}
+                            onMouseDown={() => handleSelectSuggestion(item.query)}
+                            onMouseEnter={() => setActiveSuggestionIndex(idx)}
+                            className={`px-5 py-3 flex items-center justify-between cursor-pointer transition-colors ${
+                              isSelected
+                                ? 'bg-slate-100/90 text-[#4D78FF]'
+                                : 'hover:bg-slate-50 text-[#0A1020]'
+                            }`}
+                          >
+                            <div className="flex items-center gap-3.5 flex-1 min-w-0">
+                              <Search
+                                className={`w-4 h-4 shrink-0 ${
+                                  isSelected ? 'text-[#4D78FF]' : 'text-slate-400'
+                                }`}
+                              />
+                              <span className="text-sm font-medium truncate">
+                                {searchQuery.trim() ? (
+                                  <>
+                                    <span className="text-slate-900 font-normal">
+                                      {item.query.slice(
+                                        0,
+                                        item.query
+                                          .toLowerCase()
+                                          .indexOf(searchQuery.trim().toLowerCase()) +
+                                          searchQuery.trim().length
+                                      )}
+                                    </span>
+                                    <span className="font-bold text-slate-900">
+                                      {item.query.slice(
+                                        item.query
+                                          .toLowerCase()
+                                          .indexOf(searchQuery.trim().toLowerCase()) +
+                                          searchQuery.trim().length
+                                      )}
+                                    </span>
+                                  </>
+                                ) : (
+                                  <span className="font-semibold text-slate-800">
+                                    {item.query}
+                                  </span>
+                                )}
+                              </span>
+                            </div>
+
+                            <div className="flex items-center gap-2 shrink-0 ml-3">
+                              <span className="text-[10px] font-bold text-slate-500 bg-slate-100 px-2.5 py-0.5 rounded-full border border-slate-200">
+                                {item.category}
+                              </span>
+                              <CornerDownRight className="w-3.5 h-3.5 text-slate-400" />
+                            </div>
+                          </div>
+                        )
+                      })}
+                    </div>
+                    <div className="px-5 py-2.5 bg-slate-50/90 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400 font-medium">
+                      <span>Click to search instantly</span>
+                      <span className="font-bold text-slate-500">Connecta Search</span>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 
