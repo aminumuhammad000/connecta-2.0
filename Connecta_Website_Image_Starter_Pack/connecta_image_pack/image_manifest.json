@@ -1,0 +1,66 @@
+[
+  {
+    "filename": "electrician_working_on_electrical_panel.jpg",
+    "category": "electrician",
+    "description": "Electrician using a drill on an indoor electrical panel",
+    "source": "https://www.pexels.com/photo/a-man-is-working-on-an-electrical-panel-27928762/",
+    "download_url": "https://images.pexels.com/photos/27928762/pexels-photo-27928762.jpeg?cs=srgb&dl=pexels-ranjeet-860714737-27928762.jpg&fm=jpg",
+    "photographer": "ranjeet"
+  },
+  {
+    "filename": "phone_repair_technician.jpg",
+    "category": "phone-repair",
+    "description": "Technician repairing a smartphone under a microscope",
+    "source": "https://www.pexels.com/photo/a-person-repairing-a-smartphone-6754839/",
+    "download_url": "https://images.pexels.com/photos/6754839/pexels-photo-6754839.jpeg?cs=srgb&dl=pexels-tima-miroshnichenko-6754839.jpg&fm=jpg",
+    "photographer": "Tima Miroshnichenko"
+  },
+  {
+    "filename": "carpenter_working_in_nigeria.jpg",
+    "category": "carpentry",
+    "description": "Carpenter working on a wooden frame in Lagos, Nigeria",
+    "source": "https://www.pexels.com/photo/carpenter-working-on-construction-16368372/",
+    "download_url": "https://images.pexels.com/photos/16368372/pexels-photo-16368372.jpeg?cs=srgb&dl=pexels-david-iloba-28486424-16368372.jpg&fm=jpg",
+    "photographer": "David Iloba"
+  },
+  {
+    "filename": "air_conditioner_repair_technician.jpg",
+    "category": "air-conditioner-repair",
+    "description": "Technician repairing an air-conditioning unit",
+    "source": "https://www.pexels.com/photo/man-repairing-an-aircon-5463580/",
+    "download_url": "https://images.pexels.com/photos/5463580/pexels-photo-5463580.jpeg?cs=srgb&dl=pexels-jose-andres-pacheco-cortes-3641213-5463580.jpg&fm=jpg",
+    "photographer": "José Andrés Pacheco Cortes"
+  },
+  {
+    "filename": "computer_repair_technician.jpg",
+    "category": "computer-repair",
+    "description": "Technician repairing a laptop in a workshop",
+    "source": "https://www.pexels.com/photo/technician-repairing-laptop-in-workshop-33531806/",
+    "download_url": "https://images.pexels.com/photos/33531806/pexels-photo-33531806.jpeg?cs=srgb&dl=pexels-bulat843-1243575272-33531806.jpg&fm=jpg",
+    "photographer": "Bulat843"
+  },
+  {
+    "filename": "car_mechanic_repairing_engine.jpg",
+    "category": "car-mechanic",
+    "description": "Mechanic working on a car engine",
+    "source": "https://www.pexels.com/photo/mechanic-repairing-a-car-8478243/",
+    "download_url": "https://images.pexels.com/photos/8478243/pexels-photo-8478243.jpeg?cs=srgb&dl=pexels-19x14-8478243.jpg&fm=jpg",
+    "photographer": "Sergey Meshkov"
+  },
+  {
+    "filename": "house_painter_painting_wall.jpg",
+    "category": "painting",
+    "description": "Painter applying paint to an interior wall",
+    "source": "https://www.pexels.com/photo/man-painting-the-wall-6474471/",
+    "download_url": "https://images.pexels.com/photos/6474471/pexels-photo-6474471.jpeg?cs=srgb&dl=pexels-tima-miroshnichenko-6474471.jpg&fm=jpg",
+    "photographer": "Tima Miroshnichenko"
+  },
+  {
+    "filename": "cleaning_or_maintenance_technician.jpg",
+    "category": "cleaning-maintenance",
+    "description": "Technician operating cleaning or maintenance equipment; verify image fit before using as a plumbing image",
+    "source": "https://www.pexels.com/photo/technician-working-on-a-cleaning-machine-33388390/",
+    "download_url": "https://images.pexels.com/photos/33388390/pexels-photo-33388390.jpeg?cs=srgb&dl=pexels-bulat843-1243575272-33388390.jpg&fm=jpg",
+    "photographer": "Bulat843"
+  }
+]

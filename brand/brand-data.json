@@ -1,0 +1,1086 @@
+{
+  "id": "qelE4K27Ri",
+  "brand": {
+    "logo": {
+      "lockup": "jEif3iD7",
+      "symbol": "CXjKtdZ-",
+      "stacked": "e6H7pGMj",
+      "variants": [],
+      "wordmark": "b5tN1I6I"
+    },
+    "name": "Connecta 02",
+    "slug": "connecta-02",
+    "type": {
+      "families": [
+        {
+          "id": "4vzKSS",
+          "role": "primary",
+          "family": "Geist",
+          "weight": 500,
+          "usedFor": "Everything, from headlines to captions",
+          "bodyWeight": 400
+        }
+      ]
+    },
+    "about": null,
+    "palette": {
+      "colors": [
+        {
+          "id": "lbmfgzlE",
+          "dark": "#1a73e8",
+          "name": "Azure",
+          "light": "#1a73e8"
+        },
+        {
+          "id": "O5DTzTzt",
+          "dark": "#ffffff",
+          "name": "White",
+          "light": "#ffffff"
+        },
+        {
+          "id": "OmmEu6bz",
+          "dark": "#10b981",
+          "name": "Green",
+          "light": "#10b981"
+        },
+        {
+          "id": "J3zpAbGQ",
+          "dark": "#f59e0b",
+          "name": "Amber",
+          "light": "#f59e0b"
+        },
+        {
+          "id": "Dyr_a_E8",
+          "dark": "#111827",
+          "name": "Midnight",
+          "light": "#111827"
+        }
+      ]
+    },
+    "website": null,
+    "headerColor": "O5DTzTzt",
+    "pictureCorners": null,
+    "badge": true
+  },
+  "assets": [
+    {
+      "id": "e6H7pGMj",
+      "mime": "image/png",
+      "name": "connecta-app-blue-192.png",
+      "size": 4853,
+      "width": 192,
+      "height": 192,
+      "dataUrl": "https://sbpnnhnkctojddgfkyym.supabase.co/storage/v1/object/public/assets/bca72220-2ac5-4948-95d6-5c1d5bc08c19/qelE4K27Ri/e6H7pGMj.png",
+      "createdAt": 1792872980167
+    },
+    {
+      "id": "b5tN1I6I",
+      "mime": "image/png",
+      "name": "connecta-app-light-192.png",
+      "size": 5366,
+      "width": 192,
+      "height": 192,
+      "dataUrl": "https://sbpnnhnkctojddgfkyym.supabase.co/storage/v1/object/public/assets/bca72220-2ac5-4948-95d6-5c1d5bc08c19/qelE4K27Ri/b5tN1I6I.png",
+      "createdAt": 1792872977132
+    },
+    {
+      "id": "jEif3iD7",
+      "mime": "image/png",
+      "name": "connecta-logo-140x36.png",
+      "size": 3026,
+      "width": 140,
+      "height": 36,
+      "dataUrl": "https://sbpnnhnkctojddgfkyym.supabase.co/storage/v1/object/public/assets/bca72220-2ac5-4948-95d6-5c1d5bc08c19/qelE4K27Ri/jEif3iD7.png",
+      "createdAt": 1792872970008
+    },
+    {
+      "id": "CXjKtdZ-",
+      "mime": "image/svg+xml",
+      "name": "connecta-header-icon.svg",
+      "size": 535,
+      "width": 100,
+      "height": 100,
+      "dataUrl": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiB2aWV3Qm94PSIwIDAgMTAwIDEwMCIgPgo8cGF0aCBkPSJNIDY5LDIyIEMgNTYsMTAgMzksMTAgMjcsMjIgQyAxNSwzNCAxNCw1MSAyMSw2MyIKICAgICAgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMUE3M0U4IiBzdHJva2Utd2lkdGg9IjE3IiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPHBhdGggZD0iTSAyMSw2MyBDIDI4LDc1IDQwLDgyIDUyLDgwIgogICAgICBmaWxsPSJub25lIiBzdHJva2U9IiNGNTlFMEIiIHN0cm9rZS13aWR0aD0iMTciIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8cGF0aCBkPSJNIDUyLDgwIEMgNjQsNzggNzMsNjggNzYsNTYiCiAgICAgIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzEwQjk4MSIgc3Ryb2tlLXdpZHRoPSIxNyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+Cjwvc3ZnPg==",
+      "createdAt": 1792872965415
+    }
+  ],
+  "sections": [
+    {
+      "id": "Bri5xU6V",
+      "title": "Introduction",
+      "blocks": [
+        {
+          "id": "rta_HPT8",
+          "text": "",
+          "type": "intro",
+          "label": "Overview",
+          "placeholder": "We help small teams do their best work. This is an introduction to who we are, what we stand for, and how we show up in the world."
+        },
+        {
+          "id": "HfqZmfrJ",
+          "text": "",
+          "type": "labelText",
+          "label": "Who we are",
+          "placeholder": "We started with a simple belief: good work should feel effortless. Today we make tools for teams who care about craft, used by people who would rather be making things than managing them."
+        },
+        {
+          "id": "soKCuGPv",
+          "text": "",
+          "type": "labelText",
+          "label": "What we stand for",
+          "points": [
+            {
+              "id": "e4CGPH0Y",
+              "text": "",
+              "title": "",
+              "textPlaceholder": "We say and show things plainly. If it needs explaining, we simplify it.",
+              "titlePlaceholder": "Clarity over cleverness"
+            },
+            {
+              "id": "XB4ADvaB",
+              "text": "",
+              "title": "",
+              "textPlaceholder": "Small things add up. We sweat the spacing, the wording and the timing.",
+              "titlePlaceholder": "Craft in the details"
+            },
+            {
+              "id": "rtTFqioS",
+              "text": "",
+              "title": "",
+              "textPlaceholder": "We design for the person using it, on their busiest day, not for ourselves.",
+              "titlePlaceholder": "People first"
+            }
+          ],
+          "placeholder": "Three beliefs sit behind everything we make and every decision in this guide."
+        },
+        {
+          "id": "_SyTM3Zz",
+          "text": "",
+          "type": "labelText",
+          "label": "About this guide",
+          "placeholder": "This guide shows how the brand looks, sounds and behaves. Use it whenever you make something in our name, so everything we put into the world feels like it came from the same place."
+        },
+        {
+          "id": "BEWqGCf0",
+          "text": "",
+          "type": "labelText",
+          "label": "Contact",
+          "contacts": [
+            {
+              "id": "l-uG6N",
+              "value": "",
+              "placeholder": "brand@yourcompany.com"
+            },
+            {
+              "id": "tvy0YZ",
+              "value": "",
+              "placeholder": "yourcompany.com/press"
+            }
+          ],
+          "placeholder": "Questions about the brand, or need a file that is not here? Write to the brand team and we will help."
+        }
+      ]
+    },
+    {
+      "id": "MRaTcllE",
+      "title": "Strategy",
+      "blocks": [
+        {
+          "id": "4nPu-iR5",
+          "text": "",
+          "type": "intro",
+          "label": "Overview",
+          "placeholder": "Memorable brands are built from the inside, out. Rooted in ideas around what our company stands for, it\u2019s this vision that drives our visual identity, who we are and what we believe in."
+        },
+        {
+          "id": "EzKw3j0T",
+          "text": "",
+          "type": "labelText",
+          "label": "Mission",
+          "placeholder": "Our mission is to help small teams do their best work by removing the friction between having an idea and shipping it. We build tools that stay out of the way, so the people using them can focus on what matters."
+        },
+        {
+          "id": "F9tmvVOt",
+          "text": "",
+          "type": "labelText",
+          "label": "Brand",
+          "placeholder": "We believe good work should feel effortless. Everything we make, from the product to the way we write, is designed to be clear, calm and considered. This idea underpins the whole identity."
+        }
+      ]
+    },
+    {
+      "id": "ZKD15F9d",
+      "title": "Logo",
+      "blocks": [
+        {
+          "id": "9gh0BSeX",
+          "text": "",
+          "type": "logoGrid",
+          "label": "Logos",
+          "placeholder": "Our logo is the most visible expression of the brand. It comes in four forms, each suited to a different amount of space. Use the lockup wherever there is room, and the symbol on its own only where the name is already clear."
+        },
+        {
+          "id": "QjBd1T9O",
+          "text": "",
+          "type": "clearspace",
+          "label": "Clearspace",
+          "unitRatio": 0.5,
+          "placeholder": "Give the logo room to breathe. Keep a clear area around every side, measured with the symbol as the unit, and never let type, images or other marks cross into it."
+        },
+        {
+          "id": "4b177hbu",
+          "text": "",
+          "type": "logoColors",
+          "label": "Logo colors",
+          "placeholder": "The logo appears in a single color taken from the palette, chosen for contrast against its background. Never recolor it outside the palette, and never place it on a background it can\u2019t be read against."
+        }
+      ]
+    },
+    {
+      "id": "xwX50Bhd",
+      "title": "Color",
+      "blocks": [
+        {
+          "id": "BfXiDsmT",
+          "text": "",
+          "type": "palette",
+          "label": "Palette",
+          "placeholder": "Our palette is small on purpose. The first color leads and appears most; the others support it. Use them in the proportions shown here, and take values from the tiles rather than sampling them from screen."
+        },
+        {
+          "id": "-eEn9Emn",
+          "text": "",
+          "type": "proportion",
+          "label": "Proportion",
+          "placeholder": "Roughly how much of each color appears across a piece. The lead color carries most of the weight; the others are there to support and accent it."
+        },
+        {
+          "id": "9wJY4bnG",
+          "text": "",
+          "type": "contrast",
+          "label": "Contrast",
+          "placeholder": "Pairings that stay legible. Each is checked against the WCAG standard: AAA and AA work for text at any size, AA Large only for headings and large type."
+        },
+        {
+          "id": "RNecGcG0",
+          "rows": [
+            [
+              "",
+              "",
+              ""
+            ],
+            [
+              "",
+              "",
+              ""
+            ],
+            [
+              "",
+              "",
+              ""
+            ]
+          ],
+          "text": "",
+          "type": "table",
+          "label": "Color modes",
+          "columns": [
+            "Color mode",
+            "Application",
+            "Notes"
+          ],
+          "placeholder": "No color system shows the full range of what we see. Each mode suits a medium: RGB and Pantone give the most vibrant color on screen and in print, while CMYK covers everyday printing with some loss of range.",
+          "placeholderRows": [
+            [
+              "RGB",
+              "Screen",
+              "Most vibrant, the truest depiction of the palette"
+            ],
+            [
+              "Pantone",
+              "Print",
+              "Vibrant, the preferred method for printing"
+            ],
+            [
+              "CMYK",
+              "Print",
+              "Less vibrant; printers should match Pantones where possible"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "HU1NwBKH",
+      "title": "Typography",
+      "blocks": [
+        {
+          "id": "om7u6sKN",
+          "meta": {},
+          "text": "",
+          "type": "typeface",
+          "label": "Typeface",
+          "placeholder": "One family does the work across the brand. It is clean, clearly legible and made for screens, with enough character in the display sizes to feel like ours."
+        },
+        {
+          "id": "KxV_tYnr",
+          "text": "",
+          "type": "typeTester",
+          "label": "Try it",
+          "sample": "",
+          "placeholder": "Set anything in the typeface. Change the size and weight to see how it behaves at every scale."
+        },
+        {
+          "id": "ref6_T-d",
+          "text": "",
+          "type": "typeScale",
+          "label": "Hierarchy",
+          "roles": [
+            {
+              "id": "T3Q8kj",
+              "name": "Display",
+              "size": 64,
+              "kerning": "Metrics",
+              "familyId": null,
+              "tracking": -2.5,
+              "lineHeight": 1,
+              "wordSpacing": null
+            },
+            {
+              "id": "mxGL0s",
+              "name": "Heading",
+              "size": 40,
+              "kerning": "Metrics",
+              "familyId": null,
+              "tracking": -1.5,
+              "lineHeight": 1.1,
+              "wordSpacing": null
+            },
+            {
+              "id": "VbnaZP",
+              "name": "Subheading",
+              "size": 24,
+              "kerning": "Metrics",
+              "familyId": "text",
+              "tracking": 0,
+              "lineHeight": 1.25,
+              "wordSpacing": null
+            },
+            {
+              "id": "OdGZJx",
+              "name": "Body",
+              "size": 16,
+              "kerning": "Metrics",
+              "familyId": "text",
+              "tracking": 0,
+              "lineHeight": 1.4,
+              "wordSpacing": null
+            },
+            {
+              "id": "S5d_pH",
+              "name": "Caption",
+              "size": 12,
+              "kerning": "Metrics",
+              "familyId": "text",
+              "tracking": 1,
+              "lineHeight": 1.4,
+              "wordSpacing": null
+            }
+          ],
+          "printRoles": [
+            {
+              "id": "tEjNCC",
+              "name": "Display",
+              "size": 48,
+              "kerning": "Metrics",
+              "familyId": null,
+              "tracking": -2.5,
+              "lineHeight": 1.05,
+              "wordSpacing": 92.5
+            },
+            {
+              "id": "njVOTW",
+              "name": "Heading",
+              "size": 28,
+              "kerning": "Metrics",
+              "familyId": null,
+              "tracking": -1.5,
+              "lineHeight": 1.1,
+              "wordSpacing": 95
+            },
+            {
+              "id": "PeCFrz",
+              "name": "Subheading",
+              "size": 18,
+              "kerning": "Metrics",
+              "familyId": "text",
+              "tracking": -1,
+              "lineHeight": 1.15,
+              "wordSpacing": 97.5
+            },
+            {
+              "id": "mTwE72",
+              "name": "Body",
+              "size": 10,
+              "kerning": "Metrics",
+              "familyId": "text",
+              "tracking": 0,
+              "lineHeight": 1.25,
+              "wordSpacing": 100
+            },
+            {
+              "id": "Q03ESZ",
+              "name": "Caption",
+              "size": 8,
+              "kerning": "Metrics",
+              "familyId": "text",
+              "tracking": 1,
+              "lineHeight": 1.25,
+              "wordSpacing": 100
+            }
+          ],
+          "placeholder": "Hierarchy tells people what to read first. We build it with size and weight, then position, capitals and color. Use these steps and nothing in between."
+        }
+      ]
+    },
+    {
+      "id": "_RTFoTju",
+      "title": "Motion",
+      "blocks": [
+        {
+          "id": "GxFxKCIp",
+          "text": "",
+          "type": "intro",
+          "label": "Overview",
+          "placeholder": "We move on one curve and three timings. Small things are quick, most moves take the base timing, and big moments are slow. Keep to those and almost everything will feel like us."
+        },
+        {
+          "id": "okPtiL1N",
+          "text": "",
+          "type": "motionPrinciples",
+          "items": [
+            {
+              "id": "Q-eahQ",
+              "text": "",
+              "title": ""
+            },
+            {
+              "id": "28UgA8",
+              "text": "",
+              "title": ""
+            },
+            {
+              "id": "nEOm9s",
+              "text": "",
+              "title": ""
+            }
+          ],
+          "label": "Principles",
+          "placeholder": "Three ideas behind every move. Everything else in this section follows from them."
+        },
+        {
+          "id": "NmJ2hbZg",
+          "text": "",
+          "type": "motionCurves",
+          "label": "Curve",
+          "placeholder": "Our signature curve. Use it for anything that moves, in place of the defaults in your tools."
+        },
+        {
+          "id": "klMvSFjj",
+          "text": "",
+          "type": "motionInUse",
+          "label": "In use",
+          "placeholder": "Our logo, and the components every website and app has, each moving on our curve."
+        },
+        {
+          "id": "adQ-od2d",
+          "text": "",
+          "type": "dosDonts",
+          "label": "Do and don\u2019t",
+          "pairs": [
+            {
+              "do": "",
+              "id": "U-BZ5H",
+              "dont": "",
+              "context": "",
+              "placeholder": {
+                "do": "Move things to show where they came from or where they went.",
+                "dont": "Animate just to decorate.",
+                "context": "Purpose"
+              }
+            },
+            {
+              "do": "",
+              "id": "52rYhp",
+              "dont": "",
+              "context": "",
+              "placeholder": {
+                "do": "Use our durations: quick for small things, slow for big moments.",
+                "dont": "Make anyone wait for an animation to finish.",
+                "context": "Timing"
+              }
+            },
+            {
+              "do": "",
+              "id": "K2U20v",
+              "dont": "",
+              "context": "",
+              "placeholder": {
+                "do": "Respect the reduced motion setting: fade instead of move.",
+                "dont": "Spin, flash or shake large areas of the screen.",
+                "context": "Comfort"
+              }
+            }
+          ],
+          "placeholder": "A few rules that keep motion feeling like us."
+        }
+      ]
+    },
+    {
+      "id": "diVUMbWz",
+      "title": "Photography",
+      "blocks": [
+        {
+          "id": "uCJ8Z4DW",
+          "text": "",
+          "type": "intro",
+          "label": "Overview",
+          "placeholder": "Our photography is honest and unstaged. We shoot real people and real places in natural light, with calm compositions and room around the subject, so every image feels observed rather than arranged."
+        },
+        {
+          "id": "cOQ8AZSY",
+          "text": "",
+          "type": "labelText",
+          "label": "Principles",
+          "points": [
+            {
+              "id": "B4OxUm22",
+              "text": "",
+              "title": "",
+              "textPlaceholder": "Daylight, from a window or outdoors. Soft shadows, no flash and no colored gels.",
+              "titlePlaceholder": "Natural light"
+            },
+            {
+              "id": "lP35ZlVQ",
+              "text": "",
+              "title": "",
+              "textPlaceholder": "People doing what they actually do, in places they actually work. Nothing posed for the camera.",
+              "titlePlaceholder": "Real moments"
+            },
+            {
+              "id": "rtfFUqIF",
+              "text": "",
+              "title": "",
+              "textPlaceholder": "One clear subject with space around it, so type and the logo have somewhere to sit.",
+              "titlePlaceholder": "Room to breathe"
+            }
+          ],
+          "placeholder": "Three qualities make a photograph ours. Check a new image against each of them before it is used."
+        },
+        {
+          "id": "pFpZjY4x",
+          "text": "",
+          "type": "gallery",
+          "label": "Style",
+          "images": [],
+          "placeholder": "A small set of images that sets the tone. New photography should sit comfortably beside these."
+        },
+        {
+          "id": "BpVmx8Ia",
+          "rows": [
+            [
+              "",
+              ""
+            ],
+            [
+              "",
+              ""
+            ],
+            [
+              "",
+              ""
+            ],
+            [
+              "",
+              ""
+            ],
+            [
+              "",
+              ""
+            ]
+          ],
+          "text": "",
+          "type": "table",
+          "label": "Treatment",
+          "columns": [
+            "Aspect",
+            "Guidance"
+          ],
+          "placeholder": "How an image is shot and finished. These settings keep photographs from different shoots looking like one set.",
+          "placeholderRows": [
+            [
+              "Light",
+              "Natural and soft, from one direction"
+            ],
+            [
+              "Color",
+              "True to life, slightly warm, never filtered"
+            ],
+            [
+              "Composition",
+              "Subject off center, with clear space on one side"
+            ],
+            [
+              "Depth",
+              "Shallow focus for people, deep focus for places"
+            ],
+            [
+              "Crop",
+              "Wide for headers at 2:1, portrait for cards at 4:5"
+            ]
+          ]
+        },
+        {
+          "id": "AJy4WjGe",
+          "text": "",
+          "type": "dosDonts",
+          "label": "Do and don\u2019t",
+          "pairs": [
+            {
+              "do": "",
+              "id": "yC_Of5",
+              "dont": "",
+              "context": "",
+              "placeholder": {
+                "do": "Show people at work, looking at what they are doing.",
+                "dont": "Use models smiling at the camera.",
+                "context": "People"
+              }
+            },
+            {
+              "do": "",
+              "id": "fAvq1R",
+              "dont": "",
+              "context": "",
+              "placeholder": {
+                "do": "Correct exposure and white balance, then stop.",
+                "dont": "Add filters, vignettes or heavy contrast.",
+                "context": "Editing"
+              }
+            },
+            {
+              "do": "",
+              "id": "LvK3Ks",
+              "dont": "",
+              "context": "",
+              "placeholder": {
+                "do": "Place type on the calm part of the image.",
+                "dont": "Set type across faces or busy detail.",
+                "context": "Type on images"
+              }
+            },
+            {
+              "do": "",
+              "id": "AS2B8G",
+              "dont": "",
+              "context": "",
+              "placeholder": {
+                "do": "Commission or shoot our own photography.",
+                "dont": "Use stock images that other brands also use.",
+                "context": "Sources"
+              }
+            }
+          ],
+          "placeholder": "The most common decisions when choosing or editing a photograph, with the right call beside the wrong one."
+        }
+      ]
+    },
+    {
+      "id": "c9ZiyRH4",
+      "title": "Applications",
+      "blocks": [
+        {
+          "id": "dFHhbehA",
+          "text": "",
+          "type": "intro",
+          "label": "Overview",
+          "placeholder": "Here you\u2019ll find a selection of the brand in use, showing how the elements of our identity work together to create one clear, cohesive experience."
+        },
+        {
+          "id": "6hwyi5sd",
+          "text": "",
+          "type": "gallery",
+          "label": "In use",
+          "images": [],
+          "placeholder": ""
+        },
+        {
+          "id": "JmWAXzyA",
+          "text": "The brand on social media. The profile picture and banner are the same on every network, and both files are in Resources, ready to upload.",
+          "type": "social",
+          "label": "Social media",
+          "placeholder": "The brand on social media. The profile picture and banner are the same on every network, and both files are in Resources, ready to upload."
+        },
+        {
+          "id": "fbPY3EyP",
+          "text": "Our symbol on the header color is the app icon. It is what people see in a browser tab and in the dock.",
+          "type": "appIcon",
+          "label": "App icon",
+          "placeholder": "Our symbol on the header color is the app icon. It is what people see in a browser tab and in the dock."
+        },
+        {
+          "id": "xO2sRHxt",
+          "text": "One signature for everyone, drawn from the brand. Type your details into it, copy it, and paste it into Gmail, Outlook or Apple Mail.",
+          "type": "signature",
+          "label": "Email signature",
+          "placeholder": "One signature for everyone, drawn from the brand. Type your details into it, copy it, and paste it into Gmail, Outlook or Apple Mail."
+        }
+      ]
+    },
+    {
+      "id": "uG_l207V",
+      "title": "Illustration",
+      "blocks": [
+        {
+          "id": "KCAPx235",
+          "text": "",
+          "type": "intro",
+          "label": "Overview",
+          "placeholder": "Illustration explains what a photograph can\u2019t. Ours is flat and geometric, drawn from the shapes in the symbol and colored from the palette, and used where an idea needs simplifying rather than decorating."
+        },
+        {
+          "id": "hhRiAsi4",
+          "text": "",
+          "type": "gallery",
+          "label": "Style",
+          "images": [],
+          "layout": "grid",
+          "placeholder": "A small set of illustrations that sets the style. New drawings should look like they belong to this family."
+        },
+        {
+          "id": "Nn5vHw3a",
+          "text": "",
+          "type": "figures",
+          "label": "Depth",
+          "images": [],
+          "placeholder": "Gradients and layering give a flat drawing depth. A gradient runs between two brand colors, or from the subject into the background, never into a color outside the palette."
+        },
+        {
+          "id": "qKvESiId",
+          "text": "",
+          "type": "figures",
+          "label": "Texture",
+          "images": [],
+          "placeholder": "A fine grain adds warmth to large flat areas. Keep it around one pixel, apply it to whole shapes or the whole drawing, and never let it soften an edge."
+        },
+        {
+          "id": "eoN_oh2O",
+          "text": "",
+          "type": "gallery",
+          "label": "Patterns",
+          "images": [],
+          "layout": "grid",
+          "placeholder": "Patterns built from the illustration shapes, in palette colors. Use them as backgrounds and bands, never behind body text."
+        }
+      ]
+    },
+    {
+      "id": "GYbIGo2y",
+      "title": "Iconography",
+      "blocks": [
+        {
+          "id": "CEr4uzbW",
+          "text": "",
+          "type": "intro",
+          "label": "Overview",
+          "placeholder": "Icons help people find their way. Ours are simple, drawn on one grid with one stroke, and used to support the words around them rather than replace them."
+        },
+        {
+          "id": "feFmAE2J",
+          "text": "",
+          "type": "iconLibrary",
+          "label": "Icons",
+          "placeholder": "Our icons are designed to complement the symbol. They share the same corners, clean lines and simple shapes, so they feel like part of one family wherever they appear."
+        },
+        {
+          "id": "YRl1oUqC",
+          "grid": 24,
+          "text": "",
+          "type": "iconGrid",
+          "label": "Icon grid",
+          "placeholder": "Every icon is drawn on the same grid with the same stroke. The keylines guide consistent proportions across different shapes."
+        },
+        {
+          "id": "qvRPa4lv",
+          "text": "",
+          "type": "iconPrinciples",
+          "items": [
+            {
+              "id": "kpaQOc",
+              "caption": "",
+              "placeholder": "Simple shapes that read at a glance."
+            },
+            {
+              "id": "PHMnCh",
+              "caption": "",
+              "placeholder": "One stroke weight across the whole set."
+            },
+            {
+              "id": "cvCmA0",
+              "caption": "",
+              "placeholder": "Open forms and consistent corners."
+            }
+          ],
+          "label": "Principles",
+          "placeholder": "A few qualities run through the whole set. New icons should follow them so they sit comfortably next to the rest."
+        },
+        {
+          "id": "sxI7tleF",
+          "text": "",
+          "type": "iconSizes",
+          "label": "Sizes",
+          "sizes": [
+            16,
+            24,
+            32,
+            48
+          ],
+          "placeholder": "Icons are drawn for a small set of sizes. Use these sizes rather than scaling freely, so strokes stay crisp and consistent."
+        }
+      ]
+    },
+    {
+      "id": "UEF-zo_z",
+      "title": "Language",
+      "blocks": [
+        {
+          "id": "MRuxRyTq",
+          "text": "",
+          "type": "intro",
+          "label": "Overview",
+          "placeholder": "How we write is as much a part of the brand as how we look. Our words should feel like they come from one person: someone clear, warm and sure of what they are saying."
+        },
+        {
+          "id": "E9hB0twb",
+          "text": "",
+          "type": "voice",
+          "label": "Voice",
+          "traits": [
+            {
+              "id": "Fh3LuT",
+              "are": "",
+              "word": "",
+              "areNot": "",
+              "description": "",
+              "placeholder": {
+                "are": "Plain\nSpecific\nBrief\nConfident",
+                "word": "Clear",
+                "areNot": "Vague\nWordy\nTechnical\nClever for its own sake",
+                "description": "We say what we mean in as few words as it takes. One idea at a time, with the most useful thing first."
+              }
+            },
+            {
+              "id": "1iCXlh",
+              "are": "",
+              "word": "",
+              "areNot": "",
+              "description": "",
+              "placeholder": {
+                "are": "Friendly\nEncouraging\nPatient\nHuman",
+                "word": "Warm",
+                "areNot": "Overfamiliar\nGushing\nCute\nChatty",
+                "description": "We write to one person, not an audience. We are on their side, and it shows in how we explain things."
+              }
+            },
+            {
+              "id": "7UZDdT",
+              "are": "",
+              "word": "",
+              "areNot": "",
+              "description": "",
+              "placeholder": {
+                "are": "Honest\nDecisive\nUpfront\nHelpful",
+                "word": "Direct",
+                "areNot": "Blunt\nPushy\nCold\nHedging",
+                "description": "We make a recommendation and stand behind it. If something went wrong, we say so and say what happens next."
+              }
+            }
+          ],
+          "placeholder": "Three qualities define how we sound, wherever we show up. Choose one to see what it means in practice."
+        },
+        {
+          "id": "CcSYu_P5",
+          "text": "",
+          "type": "examples",
+          "items": [
+            {
+              "id": "DOOHrH",
+              "line": "",
+              "text": "",
+              "title": "",
+              "placeholder": {
+                "line": "Your guidelines, live in one place.",
+                "text": "Lead with the claim, then explain it. If a reader stops after the first line, they should still have the answer.",
+                "title": "Say the thing first"
+              }
+            },
+            {
+              "id": "2-lj-R",
+              "line": "",
+              "text": "",
+              "title": "",
+              "placeholder": {
+                "line": "Publish the change. Everyone sees it.",
+                "text": "Short sentences, one instruction each. A second idea gets a sentence of its own.",
+                "title": "One idea per sentence"
+              }
+            },
+            {
+              "id": "WS8bol",
+              "line": "",
+              "text": "",
+              "title": "",
+              "placeholder": {
+                "line": "This color is used in 14 places.",
+                "text": "Use the word the reader already knows, and real numbers wherever you have them.",
+                "title": "Plain over clever"
+              }
+            },
+            {
+              "id": "ILq3zS",
+              "line": "",
+              "text": "",
+              "title": "",
+              "placeholder": {
+                "line": "Upload failed. The file is over 10 MB.",
+                "text": "When something goes wrong, drop the personality. Say what happened and what to do next.",
+                "title": "Calm when things break"
+              }
+            }
+          ],
+          "label": "In practice",
+          "placeholder": "The voice is easiest to understand in real copy. Each line here shows one rule at work."
+        },
+        {
+          "id": "1Atwm3hE",
+          "text": "",
+          "type": "dosDonts",
+          "label": "Do and don\u2019t",
+          "pairs": [
+            {
+              "do": "",
+              "id": "it7WoZ",
+              "dont": "",
+              "context": "",
+              "placeholder": {
+                "do": "Guidelines that stay up to date.",
+                "dont": "A unified ecosystem for brand expression at scale.",
+                "context": "Headlines"
+              }
+            },
+            {
+              "do": "",
+              "id": "um4Z7g",
+              "dont": "",
+              "context": "",
+              "placeholder": {
+                "do": "Publish guide",
+                "dont": "Get started",
+                "context": "Buttons"
+              }
+            },
+            {
+              "do": "",
+              "id": "8l1m4y",
+              "dont": "",
+              "context": "",
+              "placeholder": {
+                "do": "No colors yet. Add one to begin.",
+                "dont": "Looks like it\u2019s a bit lonely in here.",
+                "context": "Empty states"
+              }
+            },
+            {
+              "do": "",
+              "id": "6oBptV",
+              "dont": "",
+              "context": "",
+              "placeholder": {
+                "do": "We couldn\u2019t save your changes. Try again.",
+                "dont": "Oops, something went wrong on our end.",
+                "context": "Errors"
+              }
+            }
+          ],
+          "placeholder": "The same rules, side by side, in the places our copy shows up most."
+        },
+        {
+          "id": "bQIUJ5gs",
+          "text": "",
+          "type": "labelText",
+          "label": "Writing tips",
+          "points": [
+            {
+              "id": "GHWe1X0R",
+              "text": "",
+              "title": "",
+              "textPlaceholder": "Read it out loud. If a sentence sounds stiff, rewrite it the way you would say it.",
+              "titlePlaceholder": "Write like you speak"
+            },
+            {
+              "id": "scrDwJL6",
+              "text": "",
+              "title": "",
+              "textPlaceholder": "Put the most useful thing first. Background and detail can follow.",
+              "titlePlaceholder": "Lead with the point"
+            },
+            {
+              "id": "Dyxeh4OO",
+              "text": "",
+              "title": "",
+              "textPlaceholder": "People are busy. If you can say the same thing in fewer words, do.",
+              "titlePlaceholder": "Cut what you can"
+            },
+            {
+              "id": "SwuH3Ml0",
+              "text": "",
+              "title": "",
+              "textPlaceholder": "No hedging. Readers should be able to rely on what we tell them.",
+              "titlePlaceholder": "Say it like you mean it"
+            },
+            {
+              "id": "B2kjI6Rf",
+              "text": "",
+              "title": "",
+              "textPlaceholder": "A launch and an error are different moments. Keep the voice and adjust the tone.",
+              "titlePlaceholder": "Consider the context"
+            }
+          ],
+          "placeholder": "A few habits keep the voice consistent, whoever is writing."
+        }
+      ]
+    },
+    {
+      "id": "vmCw9qHV",
+      "title": "Resources",
+      "blocks": [
+        {
+          "id": "d21o8TWA",
+          "text": "",
+          "type": "intro",
+          "label": "Overview",
+          "placeholder": "Everything you need to work with the brand lives here, always up to date: logo files, color values, typefaces, icons and templates. If something is missing, ask the brand team before improvising."
+        },
+        {
+          "id": "DxYG1elk",
+          "text": "",
+          "type": "resources",
+          "items": [],
+          "label": "Downloads",
+          "placeholder": ""
+        }
+      ]
+    }
+  ],
+  "createdAt": 1792872990055,
+  "updatedAt": 1792874152177
+}
