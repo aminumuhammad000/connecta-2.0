@@ -1000,6 +1000,127 @@ export default function HomePage() {
         </section>
 
         {/* ================================================================= */}
+        {/* PLATFORM FEATURES (EXACT POST-IT MASKING TAPE LAYOUT FROM IMAGE)  */}
+        {/* ================================================================= */}
+        <section id="features" className="py-24 bg-[#F5F7FC] relative overflow-hidden border-y border-slate-200">
+          {/* Halftone / Dot pattern from program feature.png */}
+          <div
+            className="absolute inset-0 opacity-[0.06] pointer-events-none"
+            style={{
+              backgroundImage: 'radial-gradient(#10B981 1.5px, transparent 1.5px)',
+              backgroundSize: '20px 20px',
+            }}
+          />
+
+          <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            {/* Header with Circle Down Arrow */}
+            <div className="flex items-center gap-3.5 mb-16 sm:mb-20">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 sm:border-[2.5px] border-[#00C466] text-[#00C466] flex items-center justify-center font-bold text-xl sm:text-2xl shrink-0">
+                ↓
+              </div>
+              <h2 className="text-3xl sm:text-5xl lg:text-6xl font-black text-[#0A2614] tracking-tight">
+                Platform Features
+              </h2>
+            </div>
+
+            {/* Staggered Zig-Zag Cards with Masking Tape and Dog-Ear Curl */}
+            <div className="space-y-8 sm:space-y-0 relative pb-6">
+              {/* Card 1: Describe The Service You Want (Top Left - Emerald Green) */}
+              <div className="w-full md:w-[70%] mr-auto relative z-10 transition-transform hover:-translate-y-1 duration-300">
+                {/* Masking Tape on Top */}
+                <div
+                  className="absolute -top-3.5 left-1/3 sm:left-1/4 w-28 sm:w-36 h-7 sm:h-8 bg-[#D99026]/85 backdrop-blur-xs rounded-xs shadow-xs z-30 pointer-events-none transform -rotate-1"
+                  style={{ boxShadow: '0 2px 4px rgba(0,0,0,0.18)' }}
+                />
+
+                <div className="bg-[#00C466] text-white rounded-2xl sm:rounded-3xl p-8 sm:p-12 shadow-2xl relative">
+                  {/* Curled paper corner flap at bottom-left */}
+                  <div className="absolute -bottom-3 left-0 w-8 sm:w-10 h-3 bg-[#008044] rounded-bl-sm transform origin-top-left -skew-x-12 shadow-xs pointer-events-none" />
+
+                  <div className="space-y-3">
+                    <h3 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white tracking-tight leading-snug">
+                      Describe The Service You Want
+                    </h3>
+                    <p className="text-sm sm:text-base font-medium text-white/95 leading-relaxed">
+                      (No Guesswork) Simply explain the fault, attach photos or short video evidence, and select your urgency—emergency dispatch, today, or scheduled.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Card 2: Find The Nearest (Middle Right - Deep Royal Purple) */}
+              <div className="w-full md:w-[68%] ml-auto md:-mt-8 relative z-20 transition-transform hover:-translate-y-1 duration-300">
+                {/* Masking Tape on Top */}
+                <div
+                  className="absolute -top-3.5 right-1/4 sm:right-1/3 w-28 sm:w-36 h-7 sm:h-8 bg-[#D99026]/85 backdrop-blur-xs rounded-xs shadow-xs z-30 pointer-events-none transform rotate-1"
+                  style={{ boxShadow: '0 2px 4px rgba(0,0,0,0.18)' }}
+                />
+
+                <div className="bg-[#3D2F6B] text-white rounded-2xl sm:rounded-3xl p-8 sm:p-12 shadow-2xl relative">
+                  {/* Curled paper corner flap at bottom-right */}
+                  <div className="absolute -bottom-3 right-0 w-8 sm:w-10 h-3 bg-[#241A45] rounded-br-sm transform origin-top-right skew-x-12 shadow-xs pointer-events-none" />
+
+                  <div className="space-y-3">
+                    <h3 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white tracking-tight leading-snug">
+                      Find The Nearest Verified Artisan
+                    </h3>
+                    <p className="text-sm sm:text-base font-medium text-white/95 leading-relaxed">
+                      Connect instantly with nearby background-checked technicians within your neighborhood, minimizing travel delays and high transport fees.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Card 3: Multi-Tier Verification System (Lower Left - Deep Midnight Navy) */}
+              <div className="w-full md:w-[70%] mr-auto md:-mt-8 relative z-30 transition-transform hover:-translate-y-1 duration-300">
+                {/* Masking Tape on Top */}
+                <div
+                  className="absolute -top-3.5 left-1/4 sm:left-1/3 w-28 sm:w-36 h-7 sm:h-8 bg-[#D99026]/85 backdrop-blur-xs rounded-xs shadow-xs z-30 pointer-events-none transform -rotate-1"
+                  style={{ boxShadow: '0 2px 4px rgba(0,0,0,0.18)' }}
+                />
+
+                <div className="bg-[#0B132B] text-white rounded-2xl sm:rounded-3xl p-8 sm:p-12 shadow-2xl relative">
+                  {/* Curled paper corner flap at bottom-left */}
+                  <div className="absolute -bottom-3 left-0 w-8 sm:w-10 h-3 bg-[#050A17] rounded-bl-sm transform origin-top-left -skew-x-12 shadow-xs pointer-events-none" />
+
+                  <div className="space-y-3">
+                    <h3 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white tracking-tight leading-snug">
+                      Rigorous Verification System
+                    </h3>
+                    <p className="text-sm sm:text-base font-medium text-white/95 leading-relaxed">
+                      Every artisan passes government NIN or CAC validation, physical workshop address inspection, apprenticeship guarantor verification, and work quality checks.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Card 4: Secure Escrow (Bottom Right - Deep Forest Green) */}
+              <div className="w-full md:w-[68%] ml-auto md:-mt-8 relative z-40 transition-transform hover:-translate-y-1 duration-300">
+                {/* Masking Tape on Top */}
+                <div
+                  className="absolute -top-3.5 right-1/3 w-28 sm:w-36 h-7 sm:h-8 bg-[#D99026]/85 backdrop-blur-xs rounded-xs shadow-xs z-30 pointer-events-none transform rotate-1"
+                  style={{ boxShadow: '0 2px 4px rgba(0,0,0,0.18)' }}
+                />
+
+                <div className="bg-[#063B23] text-white rounded-2xl sm:rounded-3xl p-8 sm:p-12 shadow-2xl relative">
+                  {/* Curled paper corner flap at bottom-right */}
+                  <div className="absolute -bottom-3 right-0 w-8 sm:w-10 h-3 bg-[#032113] rounded-br-sm transform origin-top-right skew-x-12 shadow-xs pointer-events-none" />
+
+                  <div className="space-y-3">
+                    <h3 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white tracking-tight leading-snug">
+                      Secure Escrow & Itemized Quotes
+                    </h3>
+                    <p className="text-sm sm:text-base font-medium text-white/95 leading-relaxed">
+                      Receive transparent line-item pricing in Naira. Your payment is held safely in escrow and only released when you confirm the repair is fully completed to your satisfaction.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ================================================================= */}
         {/* SUPPORTED SERVICE TRADES (CHOWDECK-STYLE STAGGERED ALLEY)         */}
         {/* ================================================================= */}
         <section id="services" className="py-20 lg:pb-32 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
