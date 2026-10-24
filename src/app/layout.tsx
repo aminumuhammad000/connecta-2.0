@@ -13,16 +13,32 @@ const geistMono = Geist_Mono({
 });
 
 export const viewport: Viewport = {
-  themeColor: "#1A73E8",
+  themeColor: "#0A1020",
   width: "device-width",
   initialScale: 1,
 };
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://connecta.ng"),
-  title: "Connecta — Trusted Local Services & Skilled Technicians",
+  title: {
+    default: "Find Trusted Local Service Professionals | Connecta",
+    template: "%s | Connecta",
+  },
   description:
-    "Connect with verified local professionals: plumbers, electricians, phone and computer technicians, mechanics, and carpenters in Kano and across Nigeria. Request quotes, compare, and book with confidence.",
+    "Find plumbers, electricians, repair technicians, carpenters, and other local professionals with Connecta. Discover services, review available work evidence, and make more informed choices.",
+  keywords: [
+    "local services",
+    "electrician Kano",
+    "plumber Kano",
+    "phone repair Kano",
+    "auto mechanic Kano",
+    "carpenter Kano",
+    "AC repair Nigeria",
+    "verified artisans",
+  ],
+  alternates: {
+    canonical: "https://connecta.ng",
+  },
   icons: {
     icon: [
       { url: "/brand/favicon/favicon.ico", sizes: "any" },
@@ -35,9 +51,9 @@ export const metadata: Metadata = {
   },
   manifest: "/brand/app-icons/site.webmanifest",
   openGraph: {
-    title: "Connecta — Trusted Local Services & Skilled Technicians",
+    title: "Find Trusted Local Service Professionals | Connecta",
     description:
-      "Find and book verified artisans and repair specialists with transparent quotes and trusted reviews.",
+      "Find plumbers, electricians, repair technicians, carpenters, and other local professionals with Connecta. Discover services, review available work evidence, and make more informed choices.",
     url: "https://connecta.ng",
     siteName: "Connecta",
     images: [
@@ -45,12 +61,65 @@ export const metadata: Metadata = {
         url: "/brand/social/connecta-social-avatar-512.png",
         width: 512,
         height: 512,
-        alt: "Connecta Logo",
+        alt: "Connecta — Local Service Marketplace",
       },
     ],
     locale: "en_NG",
     type: "website",
   },
+  twitter: {
+    card: "summary_large_image",
+    title: "Find Trusted Local Service Professionals | Connecta",
+    description:
+      "Find plumbers, electricians, repair technicians, carpenters, and other local professionals with Connecta.",
+    images: ["/brand/social/connecta-social-avatar-512.png"],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+};
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "https://connecta.ng/#organization",
+      name: "Connecta",
+      url: "https://connecta.ng",
+      logo: "https://connecta.ng/brand/social/connecta-social-avatar-512.png",
+      description:
+        "Connecta is a local services marketplace connecting customers with verified artisans and technical repair professionals across Nigeria.",
+      address: {
+        "@type": "PostalAddress",
+        addressLocality: "Kano",
+        addressRegion: "Kano State",
+        addressCountry: "NG",
+      },
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://connecta.ng/#website",
+      url: "https://connecta.ng",
+      name: "Connecta",
+      publisher: {
+        "@id": "https://connecta.ng/#organization",
+      },
+      potentialAction: {
+        "@type": "SearchAction",
+        target: "https://connecta.ng/?q={search_term_string}",
+        "query-input": "required name=search_term_string",
+      },
+    },
+  ],
 };
 
 export default function RootLayout({
@@ -63,7 +132,13 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-[#F8FAFC] text-[#111827]">
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+      </head>
+      <body className="min-h-full flex flex-col bg-[#F5F7FC] text-[#0A1020]">
         {children}
       </body>
     </html>

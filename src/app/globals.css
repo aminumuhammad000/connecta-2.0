@@ -1,22 +1,26 @@
 @import "tailwindcss";
 
 :root {
-  --background: #F8FAFC;
-  --foreground: #111827;
-  --brand-azure: #1A73E8;
-  --brand-azure-hover: #1557b0;
+  --background: #F5F7FC;
+  --foreground: #0A1020;
+  --brand-navy: #0A1020;
+  --brand-blue: #4D78FF;
+  --brand-blue-hover: #3b63e6;
+  --brand-cloud: #F5F7FC;
+  --brand-violet: #8B7CFF;
   --brand-green: #10B981;
   --brand-amber: #F59E0B;
-  --brand-midnight: #111827;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --color-brand-azure: var(--brand-azure);
+  --color-brand-navy: var(--brand-navy);
+  --color-brand-blue: var(--brand-blue);
+  --color-brand-cloud: var(--brand-cloud);
+  --color-brand-violet: var(--brand-violet);
   --color-brand-green: var(--brand-green);
   --color-brand-amber: var(--brand-amber);
-  --color-brand-midnight: var(--brand-midnight);
   --font-sans: var(--font-geist-sans), sans-serif;
   --font-mono: var(--font-geist-mono), monospace;
 }
