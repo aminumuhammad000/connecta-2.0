@@ -388,38 +388,39 @@ export default function HomePage() {
               </div>
             </Link>
 
-            <div className="hidden lg:flex items-center gap-2 text-[11px] font-bold bg-slate-100 text-slate-800 px-3 py-1.5 rounded-full border border-slate-200 shadow-2xs">
-              <span className="inline-flex items-center overflow-hidden rounded-xs w-4 h-3 border border-black/15 shadow-2xs shrink-0" aria-label="Nigeria Flag">
+            <div className="hidden lg:inline-flex items-center gap-2 text-[11px] font-extrabold text-[#0A1020] bg-slate-50 hover:bg-slate-100 px-3 py-1.5 rounded-full border border-slate-200/90 shadow-2xs transition-colors">
+              <span className="inline-flex items-center overflow-hidden rounded-xs w-4 h-2.5 border border-slate-300 shadow-2xs shrink-0" aria-label="Nigeria">
                 <span className="w-1/3 h-full bg-[#008751]" />
                 <span className="w-1/3 h-full bg-white" />
                 <span className="w-1/3 h-full bg-[#008751]" />
               </span>
-              <span>Nigeria</span>
+              <span className="tracking-wider uppercase text-[10px] text-slate-700">Nigeria</span>
+              <span className="w-1.5 h-1.5 rounded-full bg-[#10B981] animate-pulse" />
             </div>
           </div>
 
-          <nav className="hidden md:flex items-center gap-1.5 text-xs font-semibold text-slate-700">
+          <nav className="hidden md:flex items-center gap-1 text-xs font-bold text-[#0A1020]">
             <Link
               href="#services"
-              className="px-3.5 py-1.5 rounded-full hover:bg-slate-100 hover:text-[#0A1020] transition-colors"
+              className="px-3.5 py-1.5 rounded-full hover:bg-slate-100 hover:text-[#4D78FF] transition-all"
             >
               Services
             </Link>
             <Link
               href="#how-it-works"
-              className="px-3.5 py-1.5 rounded-full hover:bg-slate-100 hover:text-[#0A1020] transition-colors"
+              className="px-3.5 py-1.5 rounded-full hover:bg-slate-100 hover:text-[#4D78FF] transition-all"
             >
               How It Works
             </Link>
             <Link
               href="#about"
-              className="px-3.5 py-1.5 rounded-full hover:bg-slate-100 hover:text-[#0A1020] transition-colors"
+              className="px-3.5 py-1.5 rounded-full hover:bg-slate-100 hover:text-[#4D78FF] transition-all"
             >
               About
             </Link>
             <Link
               href="#faq"
-              className="px-3.5 py-1.5 rounded-full hover:bg-slate-100 hover:text-[#0A1020] transition-colors"
+              className="px-3.5 py-1.5 rounded-full hover:bg-slate-100 hover:text-[#4D78FF] transition-all"
             >
               FAQs
             </Link>
@@ -428,15 +429,15 @@ export default function HomePage() {
           <div className="flex items-center gap-2 sm:gap-3">
             <Link
               href="/provider/register"
-              className="text-xs font-semibold text-slate-700 hover:text-[#4D78FF] transition-colors px-3 py-1.5 hidden sm:inline-block"
+              className="text-xs font-bold text-slate-700 hover:text-[#4D78FF] transition-colors px-3 py-1.5 hidden sm:inline-block"
             >
-              Become a Provider
+              Join as an Artisan
             </Link>
             <Link
               href="/requests/new"
-              className="inline-flex items-center justify-center rounded-full bg-[#4D78FF] hover:bg-[#3b63e6] px-4 sm:px-5 py-2 text-xs font-bold text-white shadow-md transition-all hover:scale-[1.02]"
+              className="inline-flex items-center justify-center rounded-full bg-[#4D78FF] hover:bg-[#3b63e6] px-5 sm:px-6 py-2.5 text-xs sm:text-sm font-extrabold text-white shadow-md transition-all hover:scale-[1.02]"
             >
-              Request a Quote
+              Fix Something
             </Link>
           </div>
         </header>
@@ -457,11 +458,6 @@ export default function HomePage() {
 
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <div className="max-w-4xl mx-auto text-center space-y-6">
-              <div className="inline-flex items-center gap-2 rounded-full bg-blue-50/90 px-4 py-1.5 text-xs font-bold text-[#4D78FF] border border-blue-200 shadow-sm">
-                <ShieldCheck className="w-4 h-4 text-[#10B981]" />
-                <span>Verified Local Service Marketplace</span>
-              </div>
-
               {/* Chowdeck-style Large Heading with Animated Text Motion */}
               <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-[#0A1020] leading-[1.08]">
                 Find trusted local pros for{' '}
@@ -491,7 +487,7 @@ export default function HomePage() {
                     href={`/requests/new?q=${encodeURIComponent(searchQuery)}`}
                     className="inline-flex items-center gap-2 rounded-full bg-[#0A1020] hover:bg-[#4D78FF] px-6 py-3 text-xs sm:text-sm font-bold text-white transition-all hover:scale-[1.02] shrink-0 shadow-md"
                   >
-                    <span>Request Quotes</span>
+                    <span>Find a Repairer</span>
                     <CornerDownRight className="w-4 h-4 stroke-[2.5]" />
                   </Link>
                 </div>
