@@ -1511,22 +1511,22 @@ export default function HomePage() {
         </section>
 
         {/* ================================================================= */}
-        {/* FEATURED VERIFIED SPECIALISTS (VISION/MISSION ADAPTATION)         */}
+        {/* FEATURED VERIFIED SPECIALISTS (CLEAN TACTILE CARDS)               */}
         {/* ================================================================= */}
-        <section className="py-20 bg-white border-y border-slate-200 relative overflow-hidden">
+        <section className="py-20 lg:py-28 bg-[#F8FAFC] border-y border-slate-200 relative overflow-hidden">
           {/* Subtle Halftone Background */}
           <div
-            className="absolute inset-0 opacity-[0.035] pointer-events-none"
+            className="absolute inset-0 opacity-[0.04] pointer-events-none"
             style={{
-              backgroundImage: 'radial-gradient(#0A1020 1px, transparent 1px)',
-              backgroundSize: '22px 22px',
+              backgroundImage: 'radial-gradient(#10B981 1.5px, transparent 1.5px)',
+              backgroundSize: '24px 24px',
             }}
           />
 
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <div className="max-w-2xl mx-auto text-center mb-14 space-y-3">
-              <span className="text-xs font-bold text-[#10B981] bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
-                Verified Local Professionals
+              <span className="text-xs font-bold text-[#10B981] bg-emerald-50 px-3.5 py-1.5 rounded-full border border-emerald-200">
+                Verified Local Master Artisans
               </span>
               <div className="flex items-center justify-center gap-3">
                 <div className="w-9 h-9 rounded-full border-2 border-[#0A1020] flex items-center justify-center font-bold text-lg shrink-0">
@@ -1536,85 +1536,87 @@ export default function HomePage() {
                   Featured Verified Specialists
                 </h2>
               </div>
-              <p className="text-sm text-slate-600">
-                Real local specialists with verified government identity, workshop locations, and proven track records.
+              <p className="text-sm sm:text-base text-slate-600">
+                Real local specialists with verified government identity, workshop locations, and proven track records in Kano.
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-7 items-stretch">
               {FEATURED_PROVIDERS.map((provider) => (
                 <div
                   key={provider.id}
-                  className={`${provider.cardBg} text-white rounded-3xl p-7 shadow-2xl relative overflow-hidden flex flex-col justify-between border border-white/10 group`}
+                  className="bg-white rounded-[28px] border-[2px] border-black p-5 sm:p-6 shadow-md hover:shadow-2xl transition-all duration-300 flex flex-col justify-between group hover:-translate-y-1"
                 >
-                  {/* Halftone / Dot pattern */}
-                  <div
-                    className="absolute inset-0 opacity-[0.06] pointer-events-none"
-                    style={{
-                      backgroundImage: 'radial-gradient(#FFFFFF 1.5px, transparent 1.5px)',
-                      backgroundSize: '18px 18px',
-                    }}
-                  />
+                  <div className="space-y-4">
+                    {/* Artisan Photo Frame with Floating Badges */}
+                    <div className="relative h-56 sm:h-60 w-full rounded-2xl overflow-hidden bg-slate-100 border border-black/10">
+                      <Image
+                        src={provider.avatar}
+                        alt={provider.name}
+                        fill
+                        sizes="(max-width: 768px) 100vw, 33vw"
+                        className="object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/25" />
 
-                  <div className="space-y-6 relative z-10">
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="flex items-center gap-4">
-                        <div className="relative w-16 h-16 rounded-2xl overflow-hidden border-2 border-white shadow-lg shrink-0">
-                          <Image
-                            src={provider.avatar}
-                            alt={provider.name}
-                            fill
-                            className="object-cover"
-                          />
-                        </div>
-                        <div>
-                          <div className="flex items-center gap-1.5">
-                            <h4 className="text-lg font-black">{provider.name}</h4>
-                            <BadgeCheck className="w-5 h-5 text-[#10B981]" />
-                          </div>
-                          <div className="text-xs text-white/80">{provider.business}</div>
-                          <div className="text-xs font-bold text-[#10B981] mt-0.5">{provider.trade}</div>
-                        </div>
+                      {/* Top-Left NIN Verified Pill */}
+                      <div className="absolute top-3 left-3 bg-[#0C513F] text-white px-3 py-1 rounded-full text-[11px] font-extrabold flex items-center gap-1.5 shadow-md">
+                        <BadgeCheck className="w-3.5 h-3.5 text-[#10B981]" />
+                        <span>NIN Verified</span>
                       </div>
-                    </div>
 
-                    {/* Skill / Spec Details Box */}
-                    <div className="p-4 rounded-2xl bg-white/10 backdrop-blur-md border border-white/15 text-xs text-white/90 space-y-2">
-                      <div className="flex items-center justify-between">
-                        <span className="text-white/60">Workshop Area:</span>
-                        <span className="font-bold">{provider.location}</span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-white/60">Experience:</span>
-                        <span className="font-bold">{provider.experience}</span>
-                      </div>
-                      <div className="flex items-center justify-between pt-1 border-t border-white/10">
-                        <span className="text-white/60">Recent Job:</span>
-                        <span className="font-bold text-amber-200">{provider.recentJob}</span>
-                      </div>
-                    </div>
-
-                    {/* Badges / Rating row */}
-                    <div className="flex items-center justify-between text-xs font-bold text-white/90">
-                      <div className="flex items-center gap-1.5 bg-white/10 px-3 py-1.5 rounded-full border border-white/10">
-                        <Star className="w-4 h-4 fill-[#F59E0B] text-[#F59E0B]" />
+                      {/* Top-Right Rating Pill */}
+                      <div className="absolute top-3 right-3 bg-white/95 backdrop-blur-md px-2.5 py-1 rounded-full text-xs font-black text-slate-900 flex items-center gap-1 shadow-md border border-white/60">
+                        <Star className="w-3.5 h-3.5 fill-[#F59E0B] text-[#F59E0B]" />
                         <span>{provider.rating.toFixed(2)}</span>
-                        <span className="font-normal text-white/70">({provider.reviews} reviews)</span>
+                        <span className="text-[10px] text-slate-500 font-semibold">({provider.reviews})</span>
                       </div>
-                      <span className="bg-white/10 px-3 py-1.5 rounded-full border border-white/10">
-                        {provider.jobs} Completed
-                      </span>
+
+                      {/* Bottom-Left Neighborhood & Jobs Badge */}
+                      <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between text-xs text-white font-bold">
+                        <span className="bg-black/60 backdrop-blur-md px-3 py-1 rounded-full border border-white/20 flex items-center gap-1">
+                          <MapPin className="w-3 h-3 text-[#10B981]" />
+                          <span>{provider.location}</span>
+                        </span>
+                        <span className="bg-emerald-500/90 backdrop-blur-md px-2.5 py-1 rounded-full text-[10px] font-extrabold">
+                          {provider.jobs} Jobs Done
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Name & Trade Title */}
+                    <div className="pt-1 space-y-1">
+                      <div className="flex items-center justify-between">
+                        <h3 className="text-xl sm:text-2xl font-black text-[#0A1020] tracking-tight group-hover:text-[#10B981] transition-colors">
+                          {provider.name}
+                        </h3>
+                        <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200">
+                          {provider.experience}
+                        </span>
+                      </div>
+                      <p className="text-xs font-bold text-[#10B981]">{provider.trade}</p>
+                      <p className="text-xs text-slate-500 font-medium">{provider.business}</p>
+                    </div>
+
+                    {/* Recent Verified Work Pill */}
+                    <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/80 text-xs space-y-1">
+                      <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Recent Completed Job:</div>
+                      <div className="font-extrabold text-[#0A1020] truncate">{provider.recentJob}</div>
                     </div>
                   </div>
 
-                  <div className="mt-8 pt-6 border-t border-white/20 relative z-10">
+                  {/* CTA Action Button */}
+                  <div className="pt-5 mt-4 border-t border-slate-100 space-y-2">
                     <Link
                       href={`/requests/new?providerId=${provider.id}`}
-                      className="w-full py-3.5 rounded-full bg-white hover:bg-[#10B981] text-[#0A1020] hover:text-white text-xs font-extrabold text-center transition-all shadow-lg flex items-center justify-center gap-2"
+                      className="w-full py-3.5 rounded-full bg-[#0A1020] hover:bg-[#10B981] text-white text-xs sm:text-sm font-extrabold transition-all duration-300 flex items-center justify-center gap-2 shadow-sm hover:shadow-md hover:scale-[1.02]"
                     >
-                      <span>Request Quotation</span>
+                      <span>Request Quote from {provider.name.split(' ')[0]}</span>
                       <CornerDownRight className="w-4 h-4 stroke-[2.5]" />
                     </Link>
+                    <div className="text-[10px] font-semibold text-center text-slate-400">
+                      ₦ Itemized Kobo Quoting · Safe Escrow Protection
+                    </div>
                   </div>
                 </div>
               ))}
