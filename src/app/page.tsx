@@ -33,6 +33,7 @@ import {
   ArrowDown,
   ArrowUpRight,
   CornerDownRight,
+  Check,
 } from 'lucide-react'
 
 const DYNAMIC_PHRASES = [
@@ -52,7 +53,10 @@ const CATEGORIES = [
     alt: 'Electrician working on an electrical distribution panel in Kano',
     desc: 'Fault finding, house wiring, inverter & solar installations, breaker repair',
     badge: 'High Demand',
+    badgeColor: 'bg-[#D97706] text-white',
     speed: 'Avg 45 min arrival',
+    themeBg: 'bg-[#1E1B4B]',
+    accentColor: '#10B981',
   },
   {
     name: 'Phone & Tablet Repair',
@@ -61,7 +65,10 @@ const CATEGORIES = [
     alt: 'Technician repairing smartphone motherboard and screen',
     desc: 'Screens, battery replacements, charging ports, board micro-soldering',
     badge: 'Same Day',
+    badgeColor: 'bg-[#10B981] text-white',
     speed: 'Under 1 hr repair',
+    themeBg: 'bg-[#0A1020]',
+    accentColor: '#4D78FF',
   },
   {
     name: 'Carpentry & Woodwork',
@@ -69,7 +76,11 @@ const CATEGORIES = [
     image: '/images/services/carpenter_working_in_nigeria.jpg',
     alt: 'Carpenter working on wooden construction in Nigeria',
     desc: 'Custom furniture, door fittings, roof woodwork, wardrobe framing',
+    badge: 'Master Guild',
+    badgeColor: 'bg-[#D97706] text-white',
     speed: 'Certified timber',
+    themeBg: 'bg-[#2E1A47]',
+    accentColor: '#F59E0B',
   },
   {
     name: 'AC & Refrigeration',
@@ -78,7 +89,10 @@ const CATEGORIES = [
     alt: 'Technician inspecting and servicing air conditioner unit',
     desc: 'AC gas refill, compressor maintenance, duct cleaning, installation',
     badge: 'Seasonal Rush',
+    badgeColor: 'bg-[#4D78FF] text-white',
     speed: 'Genuine gas top-up',
+    themeBg: 'bg-[#0A2614]',
+    accentColor: '#10B981',
   },
   {
     name: 'Computer & Laptop Repair',
@@ -86,7 +100,11 @@ const CATEGORIES = [
     image: '/images/services/computer_repair_technician.jpg',
     alt: 'Technician repairing laptop hardware in workshop',
     desc: 'Hardware upgrades, OS reinstallation, screens & thermal paste fixes',
+    badge: 'Bench Lab',
+    badgeColor: 'bg-[#8B7CFF] text-white',
     speed: 'Hardware diagnostic',
+    themeBg: 'bg-[#1E1B4B]',
+    accentColor: '#8B7CFF',
   },
   {
     name: 'Auto Mechanics & Diagnostics',
@@ -95,7 +113,10 @@ const CATEGORIES = [
     alt: 'Mechanic servicing car engine diagnostics in workshop',
     desc: 'Engine diagnostics, brake repairs, suspension, routine maintenance',
     badge: 'Mobile Service',
+    badgeColor: 'bg-[#E67E00] text-white',
     speed: 'OBD2 scan included',
+    themeBg: 'bg-[#0A1020]',
+    accentColor: '#F59E0B',
   },
   {
     name: 'Painting & Wall Finishing',
@@ -103,7 +124,11 @@ const CATEGORIES = [
     image: '/images/services/house_painter_painting_wall.jpg',
     alt: 'Painter applying smooth coat to interior wall',
     desc: 'Interior and exterior painting, POP plastering, waterproofing',
+    badge: 'Craft Precision',
+    badgeColor: 'bg-[#10B981] text-white',
     speed: 'Clean site cleanup',
+    themeBg: 'bg-[#2E1A47]',
+    accentColor: '#10B981',
   },
   {
     name: 'Plumbing & Pipe Maintenance',
@@ -112,7 +137,10 @@ const CATEGORIES = [
     alt: 'Maintenance specialist working on piping equipment',
     desc: 'Water pipe leaks, borehole pumps, kitchen & bathroom installations',
     badge: 'Emergency Ready',
+    badgeColor: 'bg-[#DC2626] text-white',
     speed: 'Pressure testing',
+    themeBg: 'bg-[#0A2614]',
+    accentColor: '#4D78FF',
   },
 ]
 
@@ -130,6 +158,8 @@ const FEATURED_PROVIDERS = [
     experience: '8 yrs exp',
     avatar: '/images/services/electrician_working_on_electrical_panel.jpg',
     recentJob: '3.5kVA Inverter Installation in Bompai',
+    cardBg: 'bg-[#1E1B4B]',
+    accentPill: 'bg-[#10B981] text-white',
   },
   {
     id: 'p2',
@@ -144,6 +174,8 @@ const FEATURED_PROVIDERS = [
     experience: '10 yrs exp',
     avatar: '/images/services/phone_repair_technician.jpg',
     recentJob: 'iPhone 13 OLED & Battery Replacement',
+    cardBg: 'bg-[#0A1020]',
+    accentPill: 'bg-[#4D78FF] text-white',
   },
   {
     id: 'p3',
@@ -158,6 +190,8 @@ const FEATURED_PROVIDERS = [
     experience: '12 yrs exp',
     avatar: '/images/services/carpenter_working_in_nigeria.jpg',
     recentJob: 'Solid Mahogany Office Desks',
+    cardBg: 'bg-[#D97706]',
+    accentPill: 'bg-[#0A1020] text-white',
   },
 ]
 
@@ -176,23 +210,54 @@ const WHO_CONNECTA_SERVES = [
   { title: 'And Many More...', color: 'bg-[#064E3B] text-white' },
 ]
 
+const TRUST_GUARANTEES = [
+  { title: 'NIN Identity Verified', color: 'bg-[#10B981] text-white' },
+  { title: 'CAC Business Registration', color: 'bg-[#2E1A47] text-white' },
+  { title: 'Physical Workshop Inspection', color: 'bg-[#0A1020] text-white' },
+  { title: 'Itemized Labor & Parts in Kobo', color: 'bg-[#F59E0B] text-white' },
+  { title: '10MB Photo Evidence Protocol', color: 'bg-[#4D78FF] text-white' },
+  { title: 'Zero Middleman Markups', color: 'bg-[#064E3B] text-white' },
+  { title: 'Verified-Only Completed Reviews', color: 'bg-[#8B7CFF] text-white' },
+  { title: 'Auditable Dispute Mediation', color: 'bg-[#10B981] text-white' },
+  { title: 'Escrow Payment Safeguards', color: 'bg-[#D97706] text-white' },
+]
+
+const PROVIDER_BENEFITS = [
+  { title: 'Zero Upfront Listing Fees', color: 'bg-[#10B981] text-white' },
+  { title: 'Instant NGN Bank Payouts', color: 'bg-[#4D78FF] text-white' },
+  { title: 'Direct Customer Leads', color: 'bg-[#F59E0B] text-white' },
+  { title: 'Official Verified Artisan Badge', color: 'bg-[#2E1A47] text-white' },
+  { title: 'In-App Photo Evidence Records', color: 'bg-[#0A1020] text-white' },
+  { title: 'Trade Guild Recognition', color: 'bg-[#064E3B] text-white' },
+  { title: 'Transparent Change Order Approvals', color: 'bg-[#8B7CFF] text-white' },
+]
+
 const THREE_STAGES = [
   {
     number: '01',
     title: 'Describe Your Issue & Location',
-    desc: 'Tell us what needs fixing in your home, vehicle, or device. Add photos and choose your urgency (emergency, today, or scheduled).',
+    desc: 'Tell us what needs fixing in your home, vehicle, or device. Add photos and select your urgency—emergency dispatch, today, or scheduled.',
+    cardBg: 'bg-[#1E1B4B]',
+    accentColor: '#10B981',
+    footerMeta: 'Instant Broadcast • Kano Metropolitan',
     icon: Search,
   },
   {
     number: '02',
-    title: 'Compare Verified Quotes',
-    desc: 'Eligible local technicians in Kano review your problem and submit transparent line-item estimates detailing labor, parts, and duration.',
+    title: 'Compare Itemized Quotes',
+    desc: 'Eligible local technicians in Kano review your issue and submit transparent line-item estimates detailing labor, materials, and time in kobo.',
+    cardBg: 'bg-[#10B981]',
+    accentColor: '#FFFFFF',
+    footerMeta: 'Labor + Parts in Kobo • Certified Transparent',
     icon: FileSearch,
   },
   {
     number: '03',
-    title: 'Confirm Appointment & Track Work',
-    desc: 'Select the best quote. Track technician arrival, review before/after photo evidence, pay in NGN, and leave a verified review.',
+    title: 'Verified Execution & Escrow',
+    desc: 'Select the best quote. Track technician arrival, review before/after photo evidence, pay securely in NGN, and leave a verified review.',
+    cardBg: 'bg-[#0A1020]',
+    accentColor: '#4D78FF',
+    footerMeta: 'Before & After Evidence • Verified Review',
     icon: BadgeCheck,
   },
 ]
@@ -204,6 +269,8 @@ const REVIEWS = [
     author: 'Amina Bello',
     neighborhood: 'Nassarawa GRA, Kano',
     service: 'Solar Inverter Troubleshooting',
+    cardBg: 'bg-[#1E1B4B]',
+    tagColor: 'bg-[#10B981] text-white',
     rating: 5,
   },
   {
@@ -212,6 +279,8 @@ const REVIEWS = [
     author: 'Usman Farouk',
     neighborhood: 'Sabon Gari, Kano',
     service: 'Screen Replacement',
+    cardBg: 'bg-[#0A1020]',
+    tagColor: 'bg-[#4D78FF] text-white',
     rating: 5,
   },
   {
@@ -220,6 +289,8 @@ const REVIEWS = [
     author: 'Fatima Sanusi',
     neighborhood: 'Bompai Industrial, Kano',
     service: 'Custom Office Cabinetry',
+    cardBg: 'bg-[#D97706]',
+    tagColor: 'bg-[#0A1020] text-white',
     rating: 5,
   },
 ]
@@ -339,8 +410,9 @@ export default function HomePage() {
         </header>
       </div>
 
-      {/* Hero Section with Chowdeck-Style Large Text Motion & Alley Arrangements */}
+      {/* Main Content */}
       <main className="flex-1">
+        {/* Hero Section with Chowdeck-Style Large Text Motion & Alley Arrangements */}
         <section className="pt-16 pb-20 lg:pt-24 lg:pb-28 overflow-hidden relative">
           {/* Subtle Halftone Pattern */}
           <div
@@ -388,7 +460,7 @@ export default function HomePage() {
                     className="inline-flex items-center gap-2 rounded-full bg-[#0A1020] hover:bg-[#4D78FF] px-6 py-3 text-xs sm:text-sm font-bold text-white transition-all hover:scale-[1.02] shrink-0 shadow-md"
                   >
                     <span>Request Quotes</span>
-                    <ArrowRight className="w-4 h-4" />
+                    <CornerDownRight className="w-4 h-4 stroke-[2.5]" />
                   </Link>
                 </div>
               </div>
@@ -400,7 +472,7 @@ export default function HomePage() {
                   <Link
                     key={tag}
                     href={`/requests/new?q=${encodeURIComponent(tag)}`}
-                    className="px-3 py-1 rounded-full bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 transition-colors shadow-2xs"
+                    className="px-3.5 py-1.5 rounded-full bg-white hover:bg-[#0A1020] hover:text-white text-slate-700 border border-slate-200 transition-all shadow-xs font-semibold"
                   >
                     {tag}
                   </Link>
@@ -408,7 +480,7 @@ export default function HomePage() {
               </div>
             </div>
 
-            {/* Chowdeck-Style Alley Arrangement (Dual Parallel Rows with Photos & Badges) */}
+            {/* Chowdeck-Style Alley Arrangement with Vision/Mission Styling */}
             <div className="mt-16 sm:mt-20 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
               {CATEGORIES.slice(0, 4).map((cat, idx) => (
                 <div
@@ -426,7 +498,7 @@ export default function HomePage() {
                       className="object-cover group-hover:scale-105 transition-transform duration-500"
                     />
                     {cat.badge && (
-                      <span className="absolute top-3 left-3 text-[10px] font-bold text-white bg-[#0A1020]/80 backdrop-blur-md px-3 py-1 rounded-full border border-white/20">
+                      <span className={`absolute top-3 left-3 text-[10px] font-bold px-3 py-1 rounded-full shadow-md ${cat.badgeColor}`}>
                         {cat.badge}
                       </span>
                     )}
@@ -436,18 +508,21 @@ export default function HomePage() {
                   </div>
 
                   <div className="p-3 pt-4">
-                    <h3 className="text-base font-extrabold text-[#0A1020] group-hover:text-[#4D78FF] transition-colors">
-                      {cat.name}
-                    </h3>
+                    <div className="flex items-center gap-1.5">
+                      <CornerDownRight className="w-4 h-4 text-[#4D78FF] shrink-0 stroke-[2.5]" />
+                      <h3 className="text-base font-extrabold text-[#0A1020] group-hover:text-[#4D78FF] transition-colors">
+                        {cat.name}
+                      </h3>
+                    </div>
                     <p className="text-xs text-slate-500 mt-1 line-clamp-2">
                       {cat.desc}
                     </p>
                     <Link
                       href={`/requests/new?category=${cat.slug}`}
-                      className="mt-4 w-full py-2 rounded-xl bg-slate-50 group-hover:bg-[#4D78FF] group-hover:text-white text-slate-700 text-xs font-bold text-center transition-all flex items-center justify-center gap-1.5"
+                      className="mt-4 w-full py-2.5 rounded-xl bg-slate-50 group-hover:bg-[#0A1020] group-hover:text-white text-slate-700 text-xs font-bold text-center transition-all flex items-center justify-center gap-1.5"
                     >
                       <span>Get Instant Quotes</span>
-                      <ArrowUpRight className="w-3.5 h-3.5" />
+                      <CornerDownRight className="w-3.5 h-3.5 stroke-[2.5]" />
                     </Link>
                   </div>
                 </div>
@@ -456,54 +531,122 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* Connecta Brand Character & Toolkit Showcase */}
-        <section className="py-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* ================================================================= */}
+        {/* BRAND CHARACTER & TOOLKIT SHOWCASE (ADAPTED TO VISION/MISSION)     */}
+        {/* ================================================================= */}
+        <section className="py-12 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="rounded-3xl overflow-hidden border border-slate-200 shadow-md hover:shadow-xl transition-shadow bg-white flex flex-col justify-between">
-              <div className="relative h-56 w-full bg-slate-50">
+            {/* Card 1: Electric Azure / Indigo */}
+            <div className="bg-[#1E1B4B] text-white rounded-3xl overflow-hidden shadow-2xl relative flex flex-col justify-between border border-white/10 group">
+              <div
+                className="absolute inset-0 opacity-[0.06] pointer-events-none"
+                style={{
+                  backgroundImage: 'radial-gradient(#FFFFFF 1.5px, transparent 1.5px)',
+                  backgroundSize: '18px 18px',
+                }}
+              />
+              <div className="relative h-60 w-full bg-slate-900/50 overflow-hidden">
                 <Image
                   src="/images/brand-illustrations/connecta-1.webp"
                   alt="Connecta Multi-Trade Certification & Emblem"
                   fill
                   sizes="(max-width: 768px) 100vw, 33vw"
-                  className="object-cover"
+                  className="object-cover group-hover:scale-105 transition-transform duration-500"
                 />
+                <span className="absolute top-4 left-4 text-xs font-bold px-3 py-1 rounded-full bg-[#10B981] text-white shadow-md">
+                  Vetted Credentials
+                </span>
               </div>
-              <div className="p-5">
-                <h4 className="text-sm font-extrabold text-[#0A1020]">Multi-Trade Standards</h4>
-                <p className="text-xs text-slate-500 mt-1">Verified credentials across 8 technical artisan trades.</p>
+              <div className="p-6 relative z-10 flex-1 flex flex-col justify-between space-y-4">
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <CornerDownRight className="w-5 h-5 text-[#10B981] shrink-0 stroke-[2.5]" />
+                    <h4 className="text-xl font-black tracking-tight">Multi-Trade Standards</h4>
+                  </div>
+                  <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                    Verified credentials across 8 technical artisan trades. Rigorous ID vetting, workshop checks, and trade guild recognition.
+                  </p>
+                </div>
+                <div className="pt-4 border-t border-white/10 flex items-center justify-between text-xs font-bold text-slate-400">
+                  <span>Connecta Standard</span>
+                  <span className="text-[#10B981]">100% Vetted</span>
+                </div>
               </div>
             </div>
 
-            <div className="rounded-3xl overflow-hidden border border-slate-200 shadow-md hover:shadow-xl transition-shadow bg-white flex flex-col justify-between">
-              <div className="relative h-56 w-full bg-slate-50">
+            {/* Card 2: Warm Amber / Gold */}
+            <div className="bg-[#D97706] text-white rounded-3xl overflow-hidden shadow-2xl relative flex flex-col justify-between border border-white/10 group">
+              <div
+                className="absolute inset-0 opacity-[0.08] pointer-events-none"
+                style={{
+                  backgroundImage: 'radial-gradient(#FFFFFF 1.5px, transparent 1.5px)',
+                  backgroundSize: '18px 18px',
+                }}
+              />
+              <div className="relative h-60 w-full bg-slate-900/50 overflow-hidden">
                 <Image
                   src="/images/brand-illustrations/connecta-2.webp"
                   alt="Heavy Duty Mobile Diagnostics Kit"
                   fill
                   sizes="(max-width: 768px) 100vw, 33vw"
-                  className="object-cover"
+                  className="object-cover group-hover:scale-105 transition-transform duration-500"
                 />
+                <span className="absolute top-4 left-4 text-xs font-bold px-3 py-1 rounded-full bg-[#0A1020] text-white shadow-md border border-white/20">
+                  Precision Equipment
+                </span>
               </div>
-              <div className="p-5">
-                <h4 className="text-sm font-extrabold text-[#0A1020]">Equipped for Every Job</h4>
-                <p className="text-xs text-slate-500 mt-1">Specialized diagnostics, transparent parts, and documented change orders.</p>
+              <div className="p-6 relative z-10 flex-1 flex flex-col justify-between space-y-4">
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <CornerDownRight className="w-5 h-5 text-amber-200 shrink-0 stroke-[2.5]" />
+                    <h4 className="text-xl font-black tracking-tight">Equipped for Every Job</h4>
+                  </div>
+                  <p className="text-xs sm:text-sm text-white/95 leading-relaxed">
+                    Specialized diagnostic tools, transparent component pricing, and documented change orders with zero guesswork.
+                  </p>
+                </div>
+                <div className="pt-4 border-t border-white/20 flex items-center justify-between text-xs font-bold text-amber-100">
+                  <span>Hardware Diagnostics</span>
+                  <span>Zero Guesswork</span>
+                </div>
               </div>
             </div>
 
-            <div className="rounded-3xl overflow-hidden border border-slate-200 shadow-md hover:shadow-xl transition-shadow bg-white flex flex-col justify-between">
-              <div className="relative h-56 w-full bg-slate-50">
+            {/* Card 3: Deep Forest / Emerald */}
+            <div className="bg-[#0A2614] text-white rounded-3xl overflow-hidden shadow-2xl relative flex flex-col justify-between border border-white/10 group">
+              <div
+                className="absolute inset-0 opacity-[0.06] pointer-events-none"
+                style={{
+                  backgroundImage: 'radial-gradient(#FFFFFF 1.5px, transparent 1.5px)',
+                  backgroundSize: '18px 18px',
+                }}
+              />
+              <div className="relative h-60 w-full bg-slate-900/50 overflow-hidden">
                 <Image
                   src="/images/brand-illustrations/connecta-3.webp"
                   alt="Vibrant Connecta Artisan and Customer Community"
                   fill
                   sizes="(max-width: 768px) 100vw, 33vw"
-                  className="object-cover"
+                  className="object-cover group-hover:scale-105 transition-transform duration-500"
                 />
+                <span className="absolute top-4 left-4 text-xs font-bold px-3 py-1 rounded-full bg-[#4D78FF] text-white shadow-md">
+                  Vibrant Guild
+                </span>
               </div>
-              <div className="p-5">
-                <h4 className="text-sm font-extrabold text-[#0A1020]">Community of Craft</h4>
-                <p className="text-xs text-slate-500 mt-1">Connecting vetted technical professionals with verified customers.</p>
+              <div className="p-6 relative z-10 flex-1 flex flex-col justify-between space-y-4">
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <CornerDownRight className="w-5 h-5 text-emerald-300 shrink-0 stroke-[2.5]" />
+                    <h4 className="text-xl font-black tracking-tight">Community of Craft</h4>
+                  </div>
+                  <p className="text-xs sm:text-sm text-emerald-100 leading-relaxed">
+                    Connecting vetted technical professionals with verified customers. Direct messaging, clear scheduling, and mutual accountability.
+                  </p>
+                </div>
+                <div className="pt-4 border-t border-white/20 flex items-center justify-between text-xs font-bold text-emerald-200">
+                  <span>Artisans & Households</span>
+                  <span>Mutual Trust</span>
+                </div>
               </div>
             </div>
           </div>
@@ -523,14 +666,19 @@ export default function HomePage() {
           />
 
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-            <div className="text-center max-w-2xl mx-auto mb-14">
+            <div className="text-center max-w-2xl mx-auto mb-14 space-y-3">
               <span className="text-xs font-bold text-[#10B981] bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
                 Core Purpose & Philosophy
               </span>
-              <h2 className="text-3xl sm:text-5xl font-black text-[#0A1020] tracking-tight mt-3">
-                Vision & Mission
-              </h2>
-              <p className="text-sm text-slate-600 mt-2">
+              <div className="flex items-center justify-center gap-3">
+                <div className="w-9 h-9 rounded-full border-2 border-[#0A1020] flex items-center justify-center font-bold text-lg shrink-0">
+                  ↓
+                </div>
+                <h2 className="text-3xl sm:text-5xl font-black text-[#0A1020] tracking-tight">
+                  Vision & Mission
+                </h2>
+              </div>
+              <p className="text-sm text-slate-600">
                 What drives Connecta across Kano and Northern Nigeria.
               </p>
             </div>
@@ -655,26 +803,30 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* Popular Categories Grid (Full 8 Trades) */}
-        <section id="services" className="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
-            <div>
-              <span className="text-xs font-bold text-[#4D78FF] uppercase tracking-wider">
-                Full Catalog
-              </span>
-              <h2 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-[#0A1020] mt-1">
-                Explore Supported Service Trades
-              </h2>
-              <p className="text-sm text-slate-600 mt-1">
-                Every trade is backed by verified identification, specialized toolkits, and transparent pricing.
+        {/* ================================================================= */}
+        {/* SUPPORTED SERVICE TRADES (VISION/MISSION ADAPTATION)               */}
+        {/* ================================================================= */}
+        <section id="services" className="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+          <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
+            <div className="space-y-3">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-full border-2 border-[#0A1020] flex items-center justify-center font-bold text-lg shrink-0">
+                  ↓
+                </div>
+                <h2 className="text-3xl sm:text-5xl font-black tracking-tight text-[#0A1020]">
+                  Explore Supported Trades
+                </h2>
+              </div>
+              <p className="text-sm sm:text-base text-slate-600 max-w-2xl">
+                Every trade is backed by verified identification, specialized toolkits, and transparent pricing in Nigerian Naira.
               </p>
             </div>
             <Link
               href="/requests/new"
-              className="text-xs font-bold text-[#4D78FF] hover:underline flex items-center gap-1 self-start"
+              className="inline-flex items-center gap-2 rounded-full bg-[#0A1020] hover:bg-[#4D78FF] text-white px-6 py-3 text-xs sm:text-sm font-bold shadow-lg transition-all hover:scale-105 self-start"
             >
-              <span>Broadcast a custom request</span>
-              <ArrowRight className="w-3.5 h-3.5" />
+              <span>Broadcast Custom Request</span>
+              <CornerDownRight className="w-4 h-4 stroke-[2.5]" />
             </Link>
           </div>
 
@@ -682,39 +834,47 @@ export default function HomePage() {
             {CATEGORIES.map((cat) => (
               <div
                 key={cat.slug}
-                className="group relative bg-white rounded-3xl border border-slate-200 overflow-hidden hover:border-[#4D78FF] hover:shadow-2xl transition-all duration-300 flex flex-col"
+                className="group relative bg-white rounded-3xl border border-slate-200 overflow-hidden hover:border-[#4D78FF] hover:shadow-2xl transition-all duration-300 flex flex-col justify-between"
               >
-                <div className="relative h-48 w-full bg-slate-100 overflow-hidden">
-                  <Image
-                    src={cat.image}
-                    alt={cat.alt}
-                    fill
-                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                    className="object-cover group-hover:scale-105 transition-transform duration-500"
-                  />
-                  {cat.badge && (
-                    <span className="absolute top-3 right-3 text-[10px] font-bold text-white bg-[#0A1020]/80 backdrop-blur-sm px-2.5 py-1 rounded-full border border-white/20">
-                      {cat.badge}
-                    </span>
-                  )}
-                </div>
+                <div>
+                  <div className="relative h-48 w-full bg-slate-100 overflow-hidden">
+                    <Image
+                      src={cat.image}
+                      alt={cat.alt}
+                      fill
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                      className="object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                    {cat.badge && (
+                      <span className={`absolute top-3 left-3 text-[10px] font-bold px-3 py-1 rounded-full shadow-md ${cat.badgeColor}`}>
+                        {cat.badge}
+                      </span>
+                    )}
+                    <div className="absolute bottom-3 right-3 bg-white/95 backdrop-blur-md px-2.5 py-1 rounded-full text-[10px] font-bold text-slate-800 shadow">
+                      {cat.speed}
+                    </div>
+                  </div>
 
-                <div className="p-5 flex-1 flex flex-col justify-between">
-                  <div>
-                    <h3 className="text-base font-extrabold text-[#0A1020] group-hover:text-[#4D78FF] transition-colors">
-                      {cat.name}
-                    </h3>
-                    <p className="text-xs text-slate-500 mt-1.5 leading-relaxed line-clamp-2">
+                  <div className="p-5">
+                    <div className="flex items-center gap-1.5">
+                      <CornerDownRight className="w-4 h-4 text-[#4D78FF] shrink-0 stroke-[2.5]" />
+                      <h3 className="text-base font-extrabold text-[#0A1020] group-hover:text-[#4D78FF] transition-colors">
+                        {cat.name}
+                      </h3>
+                    </div>
+                    <p className="text-xs text-slate-500 mt-2 leading-relaxed line-clamp-2">
                       {cat.desc}
                     </p>
                   </div>
+                </div>
 
+                <div className="p-5 pt-0">
                   <Link
                     href={`/requests/new?category=${cat.slug}`}
-                    className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-[#4D78FF]"
+                    className="w-full py-2.5 px-4 rounded-xl bg-slate-50 group-hover:bg-[#0A1020] group-hover:text-white text-slate-700 text-xs font-bold transition-all flex items-center justify-between"
                   >
                     <span>Request Quotation</span>
-                    <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                    <CornerDownRight className="w-3.5 h-3.5 stroke-[2.5]" />
                   </Link>
                 </div>
               </div>
@@ -722,99 +882,136 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* Featured Local Kano Professionals */}
-        <section className="py-20 bg-white border-y border-slate-200">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="max-w-2xl mx-auto text-center mb-14">
-              <span className="text-xs font-bold text-[#4D78FF] uppercase tracking-wider">
-                Vetted Kano Artisans
+        {/* ================================================================= */}
+        {/* FEATURED VERIFIED SPECIALISTS (VISION/MISSION ADAPTATION)         */}
+        {/* ================================================================= */}
+        <section className="py-20 bg-white border-y border-slate-200 relative overflow-hidden">
+          {/* Subtle Halftone Background */}
+          <div
+            className="absolute inset-0 opacity-[0.035] pointer-events-none"
+            style={{
+              backgroundImage: 'radial-gradient(#0A1020 1px, transparent 1px)',
+              backgroundSize: '22px 22px',
+            }}
+          />
+
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div className="max-w-2xl mx-auto text-center mb-14 space-y-3">
+              <span className="text-xs font-bold text-[#10B981] bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
+                Verified Local Professionals
               </span>
-              <h2 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-[#0A1020] mt-1">
-                Featured Verified Specialists
-              </h2>
-              <p className="text-sm text-slate-600 mt-2">
+              <div className="flex items-center justify-center gap-3">
+                <div className="w-9 h-9 rounded-full border-2 border-[#0A1020] flex items-center justify-center font-bold text-lg shrink-0">
+                  ↓
+                </div>
+                <h2 className="text-3xl sm:text-5xl font-black tracking-tight text-[#0A1020]">
+                  Featured Verified Specialists
+                </h2>
+              </div>
+              <p className="text-sm text-slate-600">
                 Real local specialists with verified government identity, workshop locations, and proven track records.
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {FEATURED_PROVIDERS.map((provider) => (
                 <div
                   key={provider.id}
-                  className="bg-[#F5F7FC] rounded-3xl p-6 sm:p-7 border border-slate-200 flex flex-col justify-between hover:shadow-xl transition-all"
+                  className={`${provider.cardBg} text-white rounded-3xl p-7 shadow-2xl relative overflow-hidden flex flex-col justify-between border border-white/10 group`}
                 >
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-4">
-                      <div className="relative w-16 h-16 rounded-2xl overflow-hidden border-2 border-white shadow-md shrink-0">
-                        <Image
-                          src={provider.avatar}
-                          alt={provider.name}
-                          fill
-                          className="object-cover"
-                        />
-                      </div>
-                      <div>
-                        <div className="flex items-center gap-1.5">
-                          <h4 className="text-base font-bold text-[#0A1020]">{provider.name}</h4>
-                          {provider.verified && (
-                            <BadgeCheck className="w-4 h-4 text-[#10B981]" />
-                          )}
+                  {/* Halftone / Dot pattern */}
+                  <div
+                    className="absolute inset-0 opacity-[0.06] pointer-events-none"
+                    style={{
+                      backgroundImage: 'radial-gradient(#FFFFFF 1.5px, transparent 1.5px)',
+                      backgroundSize: '18px 18px',
+                    }}
+                  />
+
+                  <div className="space-y-6 relative z-10">
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex items-center gap-4">
+                        <div className="relative w-16 h-16 rounded-2xl overflow-hidden border-2 border-white shadow-lg shrink-0">
+                          <Image
+                            src={provider.avatar}
+                            alt={provider.name}
+                            fill
+                            className="object-cover"
+                          />
                         </div>
-                        <div className="text-xs text-slate-500">{provider.business}</div>
-                        <div className="text-[11px] text-[#4D78FF] font-bold">{provider.trade}</div>
+                        <div>
+                          <div className="flex items-center gap-1.5">
+                            <h4 className="text-lg font-black">{provider.name}</h4>
+                            <BadgeCheck className="w-5 h-5 text-[#10B981]" />
+                          </div>
+                          <div className="text-xs text-white/80">{provider.business}</div>
+                          <div className="text-xs font-bold text-[#10B981] mt-0.5">{provider.trade}</div>
+                        </div>
                       </div>
                     </div>
 
-                    <div className="p-3 rounded-xl bg-white border border-slate-200 text-xs text-slate-600 space-y-1">
+                    {/* Skill / Spec Details Box */}
+                    <div className="p-4 rounded-2xl bg-white/10 backdrop-blur-md border border-white/15 text-xs text-white/90 space-y-2">
                       <div className="flex items-center justify-between">
-                        <span className="text-slate-400">Area:</span>
-                        <span className="font-semibold text-slate-800">{provider.location}</span>
+                        <span className="text-white/60">Workshop Area:</span>
+                        <span className="font-bold">{provider.location}</span>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-slate-400">Experience:</span>
-                        <span className="font-semibold text-slate-800">{provider.experience}</span>
+                        <span className="text-white/60">Experience:</span>
+                        <span className="font-bold">{provider.experience}</span>
                       </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-slate-400">Recent:</span>
-                        <span className="font-semibold text-[#4D78FF]">{provider.recentJob}</span>
+                      <div className="flex items-center justify-between pt-1 border-t border-white/10">
+                        <span className="text-white/60">Recent Job:</span>
+                        <span className="font-bold text-amber-200">{provider.recentJob}</span>
                       </div>
                     </div>
 
-                    <div className="pt-2 flex items-center justify-between text-xs">
-                      <div className="flex items-center gap-1 font-bold text-slate-900">
+                    {/* Badges / Rating row */}
+                    <div className="flex items-center justify-between text-xs font-bold text-white/90">
+                      <div className="flex items-center gap-1.5 bg-white/10 px-3 py-1.5 rounded-full border border-white/10">
                         <Star className="w-4 h-4 fill-[#F59E0B] text-[#F59E0B]" />
                         <span>{provider.rating.toFixed(2)}</span>
-                        <span className="font-normal text-slate-500">({provider.reviews} reviews)</span>
+                        <span className="font-normal text-white/70">({provider.reviews} reviews)</span>
                       </div>
-                      <div className="text-slate-500">
-                        <strong className="text-slate-800">{provider.jobs}</strong> completed
-                      </div>
+                      <span className="bg-white/10 px-3 py-1.5 rounded-full border border-white/10">
+                        {provider.jobs} Completed
+                      </span>
                     </div>
                   </div>
 
-                  <Link
-                    href={`/requests/new?providerId=${provider.id}`}
-                    className="mt-6 w-full py-3 rounded-full bg-[#0A1020] hover:bg-[#4D78FF] text-white text-xs font-bold text-center transition-all shadow-md block"
-                  >
-                    Request Quotation
-                  </Link>
+                  <div className="mt-8 pt-6 border-t border-white/20 relative z-10">
+                    <Link
+                      href={`/requests/new?providerId=${provider.id}`}
+                      className="w-full py-3.5 rounded-full bg-white hover:bg-[#10B981] text-[#0A1020] hover:text-white text-xs font-extrabold text-center transition-all shadow-lg flex items-center justify-center gap-2"
+                    >
+                      <span>Request Quotation</span>
+                      <CornerDownRight className="w-4 h-4 stroke-[2.5]" />
+                    </Link>
+                  </div>
                 </div>
               ))}
             </div>
           </div>
         </section>
 
-        {/* How Connecta Works — 3 Stages */}
-        <section id="how-it-works" className="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="max-w-2xl mx-auto text-center mb-14">
-            <span className="text-xs font-bold text-[#4D78FF] uppercase tracking-wider">
-              Transparent & Simple
+        {/* ================================================================= */}
+        {/* HOW CONNECTA WORKS (ADAPTED TO CORE OBJECTIVES CARDS LAYOUT)      */}
+        {/* ================================================================= */}
+        <section id="how-it-works" className="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+          <div className="max-w-3xl mx-auto text-center mb-14 space-y-3">
+            <span className="text-xs font-bold text-[#4D78FF] bg-blue-50 px-3 py-1 rounded-full border border-blue-200">
+              Clear 3-Stage Process
             </span>
-            <h2 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-[#0A1020] mt-1">
-              How Connecta Works
-            </h2>
-            <p className="text-sm text-slate-600 mt-2">
-              Our 3-stage customer journey designed around credibility, clear pricing, and accountability.
+            <div className="flex items-center justify-center gap-3">
+              <div className="w-9 h-9 rounded-full border-2 border-[#0A1020] flex items-center justify-center font-bold text-lg shrink-0">
+                ↓
+              </div>
+              <h2 className="text-3xl sm:text-5xl font-black tracking-tight text-[#0A1020]">
+                How Connecta Works
+              </h2>
+            </div>
+            <p className="text-sm sm:text-base text-slate-600">
+              Our 3-stage marketplace journey built around credibility, itemized quotes, and verified accountability.
             </p>
           </div>
 
@@ -824,106 +1021,152 @@ export default function HomePage() {
               return (
                 <div
                   key={st.number}
-                  className="bg-white rounded-3xl p-8 border border-slate-200 flex flex-col items-start relative space-y-4 shadow-sm hover:shadow-md transition-shadow"
+                  className={`${st.cardBg} text-white rounded-3xl p-8 sm:p-10 shadow-2xl relative overflow-hidden flex flex-col justify-between border border-white/10 group`}
                 >
-                  <div className="flex items-center justify-between w-full">
-                    <span className="text-4xl font-black text-slate-200">
-                      {st.number}
-                    </span>
-                    <div className="w-12 h-12 rounded-2xl bg-blue-50 text-[#4D78FF] flex items-center justify-center">
-                      <Icon className="w-6 h-6" />
+                  {/* Halftone / Dot pattern */}
+                  <div
+                    className="absolute inset-0 opacity-[0.06] pointer-events-none"
+                    style={{
+                      backgroundImage: 'radial-gradient(#FFFFFF 1.5px, transparent 1.5px)',
+                      backgroundSize: '18px 18px',
+                    }}
+                  />
+
+                  <div className="space-y-6 relative z-10">
+                    <div className="flex items-center justify-between">
+                      <span className="text-5xl font-black text-white/30 tracking-tight">
+                        {st.number}
+                      </span>
+                      <div className="w-12 h-12 rounded-2xl bg-white/15 backdrop-blur-md border border-white/20 text-white flex items-center justify-center">
+                        <Icon className="w-6 h-6" />
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <CornerDownRight className="w-6 h-6 text-white shrink-0 stroke-[2.5]" />
+                        <h3 className="text-2xl font-extrabold tracking-tight">
+                          {st.title}
+                        </h3>
+                      </div>
+                      <p className="text-xs sm:text-sm text-white/90 leading-relaxed font-normal">
+                        {st.desc}
+                      </p>
                     </div>
                   </div>
-                  <h3 className="text-lg font-bold text-[#0A1020]">{st.title}</h3>
-                  <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">{st.desc}</p>
+
+                  <div className="mt-8 pt-6 border-t border-white/20 flex items-center justify-between text-xs font-bold text-white/80 relative z-10">
+                    <span>{st.footerMeta}</span>
+                    <CornerDownRight className="w-3.5 h-3.5 stroke-[2.5]" />
+                  </div>
                 </div>
               )
             })}
           </div>
         </section>
 
-        {/* Trust & Verification Section */}
-        <section className="py-20 bg-[#0A1020] text-white">
+        {/* ================================================================= */}
+        {/* TRUST & VERIFICATION (WHO CONNECTA SERVES STYLE GRAND CONTAINER)   */}
+        {/* ================================================================= */}
+        <section className="py-20 bg-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-              <div className="space-y-6">
-                <div className="inline-flex items-center gap-2 rounded-full bg-[#10B981]/20 px-3.5 py-1 text-xs font-bold text-[#10B981]">
-                  <ShieldCheck className="w-4 h-4" />
-                  <span>The Connecta Verification Standard</span>
-                </div>
-                <h2 className="text-3xl sm:text-5xl font-black tracking-tight leading-tight">
-                  How we protect customers and empower honest artisans.
-                </h2>
-                <p className="text-sm sm:text-base text-slate-300 leading-relaxed">
-                  Anyone can post an ad online. Connecta ensures that every provider badge reflects actual verified credentials and verified performance history.
-                </p>
+            <div className="bg-[#0A1E2E] text-white rounded-3xl p-8 sm:p-14 lg:p-16 relative overflow-hidden shadow-2xl">
+              {/* Halftone / Pattern */}
+              <div
+                className="absolute inset-0 opacity-[0.05] pointer-events-none"
+                style={{
+                  backgroundImage: 'radial-gradient(#FFFFFF 1.5px, transparent 1.5px)',
+                  backgroundSize: '18px 18px',
+                }}
+              />
 
-                <div className="space-y-4 pt-2">
-                  <div className="flex items-start gap-3.5">
-                    <div className="w-7 h-7 rounded-full bg-[#10B981]/20 text-[#10B981] flex items-center justify-center shrink-0 mt-0.5 font-bold text-xs">
-                      1
+              <div className="relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                <div className="space-y-6">
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-full border-2 border-white flex items-center justify-center font-bold text-lg shrink-0">
+                      ↓
                     </div>
-                    <div>
-                      <div className="text-sm font-bold text-white">Identity & Business Checks</div>
-                      <div className="text-xs text-slate-300">
+                    <h2 className="text-3xl sm:text-5xl font-black tracking-tight text-white">
+                      The Connecta Trust Standard
+                    </h2>
+                  </div>
+                  <p className="text-sm sm:text-base text-slate-300 leading-relaxed">
+                    Anyone can post an ad online. Connecta ensures that every provider badge reflects actual verified credentials, physical workshop audits, and verified performance history.
+                  </p>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                    <div className="p-4 rounded-2xl bg-white/10 backdrop-blur-md border border-white/15 space-y-2">
+                      <div className="flex items-center gap-2">
+                        <CornerDownRight className="w-4 h-4 text-[#10B981] stroke-[2.5]" />
+                        <h4 className="text-sm font-bold text-white">ID & Business Checks</h4>
+                      </div>
+                      <p className="text-xs text-slate-300 leading-relaxed">
                         Verification of National Identification Number (NIN), Voter Card, or CAC business certificate.
-                      </div>
+                      </p>
                     </div>
-                  </div>
 
-                  <div className="flex items-start gap-3.5">
-                    <div className="w-7 h-7 rounded-full bg-[#10B981]/20 text-[#10B981] flex items-center justify-center shrink-0 mt-0.5 font-bold text-xs">
-                      2
-                    </div>
-                    <div>
-                      <div className="text-sm font-bold text-white">Transparent Itemized Quotations</div>
-                      <div className="text-xs text-slate-300">
-                        Detailed labor, replacement parts, and visit fee breakdowns calculated upfront in kobo minor units.
+                    <div className="p-4 rounded-2xl bg-white/10 backdrop-blur-md border border-white/15 space-y-2">
+                      <div className="flex items-center gap-2">
+                        <CornerDownRight className="w-4 h-4 text-[#F59E0B] stroke-[2.5]" />
+                        <h4 className="text-sm font-bold text-white">Itemized Quotations</h4>
                       </div>
+                      <p className="text-xs text-slate-300 leading-relaxed">
+                        Labor, replacement parts, and visit fees calculated upfront in kobo minor units with zero hidden fees.
+                      </p>
                     </div>
-                  </div>
 
-                  <div className="flex items-start gap-3.5">
-                    <div className="w-7 h-7 rounded-full bg-[#10B981]/20 text-[#10B981] flex items-center justify-center shrink-0 mt-0.5 font-bold text-xs">
-                      3
-                    </div>
-                    <div>
-                      <div className="text-sm font-bold text-white">Before & After Photo Evidence</div>
-                      <div className="text-xs text-slate-300">
-                        Technicians upload work progress photos directly to the booking record for mutual accountability.
+                    <div className="p-4 rounded-2xl bg-white/10 backdrop-blur-md border border-white/15 space-y-2">
+                      <div className="flex items-center gap-2">
+                        <CornerDownRight className="w-4 h-4 text-[#4D78FF] stroke-[2.5]" />
+                        <h4 className="text-sm font-bold text-white">Photo Evidence Log</h4>
                       </div>
+                      <p className="text-xs text-slate-300 leading-relaxed">
+                        Technicians upload before and after work photos directly to the booking for mutual protection.
+                      </p>
                     </div>
-                  </div>
 
-                  <div className="flex items-start gap-3.5">
-                    <div className="w-7 h-7 rounded-full bg-[#10B981]/20 text-[#10B981] flex items-center justify-center shrink-0 mt-0.5 font-bold text-xs">
-                      4
-                    </div>
-                    <div>
-                      <div className="text-sm font-bold text-white">Verified-Only Customer Reviews</div>
-                      <div className="text-xs text-slate-300">
-                        Reviews can only be submitted after a verified booking is marked completed.
+                    <div className="p-4 rounded-2xl bg-white/10 backdrop-blur-md border border-white/15 space-y-2">
+                      <div className="flex items-center gap-2">
+                        <CornerDownRight className="w-4 h-4 text-[#8B7CFF] stroke-[2.5]" />
+                        <h4 className="text-sm font-bold text-white">Verified Reviews</h4>
                       </div>
+                      <p className="text-xs text-slate-300 leading-relaxed">
+                        Customer reviews can only be submitted after a verified booking is marked completed.
+                      </p>
                     </div>
                   </div>
                 </div>
-              </div>
 
-              <div className="relative h-96 rounded-3xl overflow-hidden border border-slate-800 shadow-2xl">
-                <Image
-                  src="/images/services/electrician_working_on_electrical_panel.jpg"
-                  alt="Verified electrician performing electrical panel maintenance"
-                  fill
-                  className="object-cover opacity-85"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#0A1020] via-transparent to-transparent" />
-                <div className="absolute bottom-6 left-6 right-6 p-5 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 text-xs space-y-1.5">
-                  <div className="font-bold text-white flex items-center gap-1.5 text-sm">
-                    <BadgeCheck className="w-4 h-4 text-[#10B981]" />
-                    <span>Verified Artisan Badge</span>
+                <div className="space-y-6">
+                  <div className="relative h-80 sm:h-96 rounded-3xl overflow-hidden border border-white/20 shadow-2xl">
+                    <Image
+                      src="/images/services/electrician_working_on_electrical_panel.jpg"
+                      alt="Verified electrician performing electrical panel maintenance"
+                      fill
+                      className="object-cover opacity-85"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#0A1E2E] via-transparent to-transparent" />
+                    <div className="absolute bottom-6 left-6 right-6 p-5 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 text-xs space-y-1.5">
+                      <div className="font-bold text-white flex items-center gap-1.5 text-sm">
+                        <BadgeCheck className="w-5 h-5 text-[#10B981]" />
+                        <span>Verified Artisan Seal</span>
+                      </div>
+                      <div className="text-slate-300 leading-relaxed">
+                        Conferred only upon manual inspection of identity records, workshop location, and trade qualifications.
+                      </div>
+                    </div>
                   </div>
-                  <div className="text-slate-300 leading-relaxed">
-                    Conferred only upon manual inspection of identity records, workshop location, and trade qualification.
+
+                  {/* Colorful Verification Pills */}
+                  <div className="flex flex-wrap gap-2.5">
+                    {TRUST_GUARANTEES.map((g, idx) => (
+                      <span
+                        key={idx}
+                        className={`${g.color} text-xs font-bold px-3.5 py-1.5 rounded-full shadow-md`}
+                      >
+                        {g.title}
+                      </span>
+                    ))}
                   </div>
                 </div>
               </div>
@@ -931,84 +1174,142 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* Kano Customer Reviews */}
-        <section className="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="max-w-2xl mx-auto text-center mb-14">
-            <span className="text-xs font-bold text-[#4D78FF] uppercase tracking-wider">
+        {/* ================================================================= */}
+        {/* CUSTOMER REVIEWS (VISION/MISSION ADAPTATION)                       */}
+        {/* ================================================================= */}
+        <section className="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+          <div className="max-w-2xl mx-auto text-center mb-14 space-y-3">
+            <span className="text-xs font-bold text-[#4D78FF] bg-blue-50 px-3 py-1 rounded-full border border-blue-200">
               Verified Feedback
             </span>
-            <h2 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-[#0A1020] mt-1">
-              What Kano Residents Say
-            </h2>
-            <p className="text-sm text-slate-600 mt-2">
+            <div className="flex items-center justify-center gap-3">
+              <div className="w-9 h-9 rounded-full border-2 border-[#0A1020] flex items-center justify-center font-bold text-lg shrink-0">
+                ↓
+              </div>
+              <h2 className="text-3xl sm:text-5xl font-black tracking-tight text-[#0A1020]">
+                Verified Customer Stories
+              </h2>
+            </div>
+            <p className="text-sm text-slate-600">
               Authentic reviews tied directly to completed jobs and verified service bookings.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {REVIEWS.map((r, i) => (
               <div
                 key={i}
-                className="bg-white rounded-3xl p-7 border border-slate-200 shadow-sm flex flex-col justify-between space-y-6"
+                className={`${r.cardBg} text-white rounded-3xl p-8 sm:p-9 shadow-2xl relative overflow-hidden flex flex-col justify-between border border-white/10 group`}
               >
-                <div className="space-y-3">
-                  <div className="flex items-center gap-1">
-                    {[...Array(r.rating)].map((_, idx) => (
-                      <Star key={idx} className="w-4 h-4 fill-[#F59E0B] text-[#F59E0B]" />
-                    ))}
+                {/* Halftone dot texture */}
+                <div
+                  className="absolute inset-0 opacity-[0.06] pointer-events-none"
+                  style={{
+                    backgroundImage: 'radial-gradient(#FFFFFF 1.5px, transparent 1.5px)',
+                    backgroundSize: '18px 18px',
+                  }}
+                />
+
+                <div className="space-y-5 relative z-10">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-1">
+                      {[...Array(r.rating)].map((_, idx) => (
+                        <Star key={idx} className="w-4 h-4 fill-[#F59E0B] text-[#F59E0B]" />
+                      ))}
+                    </div>
+                    <span className={`text-[11px] font-bold px-3 py-1 rounded-full shadow-sm ${r.tagColor}`}>
+                      {r.service}
+                    </span>
                   </div>
-                  <p className="text-xs sm:text-sm text-slate-700 leading-relaxed italic">
+
+                  <p className="text-sm sm:text-base text-white/95 leading-relaxed font-normal italic">
                     &ldquo;{r.quote}&rdquo;
                   </p>
                 </div>
 
-                <div className="pt-4 border-t border-slate-100">
-                  <div className="text-xs font-bold text-[#0A1020]">{r.author}</div>
-                  <div className="text-[11px] text-slate-500">{r.neighborhood}</div>
-                  <div className="text-[11px] font-semibold text-[#4D78FF] mt-0.5">{r.service}</div>
+                <div className="mt-8 pt-6 border-t border-white/20 flex items-center justify-between text-xs font-bold text-white/90 relative z-10">
+                  <div>
+                    <div className="text-white text-sm font-extrabold">{r.author}</div>
+                    <div className="text-white/70 font-normal">{r.neighborhood}</div>
+                  </div>
+                  <CornerDownRight className="w-4 h-4 stroke-[2.5]" />
                 </div>
               </div>
             ))}
           </div>
         </section>
 
-        {/* FAQ Accordions */}
-        <section id="faq" className="py-20 bg-white border-y border-slate-200">
-          <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-14">
-              <span className="text-xs font-bold text-[#4D78FF] uppercase tracking-wider">
-                Common Questions
+        {/* ================================================================= */}
+        {/* FREQUENTLY ASKED QUESTIONS (VISION/MISSION ADAPTATION)             */}
+        {/* ================================================================= */}
+        <section id="faq" className="py-20 bg-white border-y border-slate-200 relative overflow-hidden">
+          {/* Subtle Halftone Background */}
+          <div
+            className="absolute inset-0 opacity-[0.035] pointer-events-none"
+            style={{
+              backgroundImage: 'radial-gradient(#0A1020 1px, transparent 1px)',
+              backgroundSize: '24px 24px',
+            }}
+          />
+
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div className="text-center mb-14 space-y-3">
+              <span className="text-xs font-bold text-[#10B981] bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
+                Help & Answers
               </span>
-              <h2 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-[#0A1020] mt-1">
-                Frequently Asked Questions
-              </h2>
-              <p className="text-sm text-slate-600 mt-2">
+              <div className="flex items-center justify-center gap-3">
+                <div className="w-9 h-9 rounded-full border-2 border-[#0A1020] flex items-center justify-center font-bold text-lg shrink-0">
+                  ↓
+                </div>
+                <h2 className="text-3xl sm:text-5xl font-black tracking-tight text-[#0A1020]">
+                  Frequently Asked Questions
+                </h2>
+              </div>
+              <p className="text-sm text-slate-600">
                 Everything you need to know about discovering, quoting, and booking on Connecta.
               </p>
             </div>
 
-            <div className="divide-y divide-slate-200 border-y border-slate-200">
+            <div className="space-y-4">
               {FAQS.map((faq, index) => {
                 const isOpen = openFaq === index
+                const qNumber = `Q0${index + 1}`
                 return (
-                  <div key={index} className="py-5">
+                  <div
+                    key={index}
+                    className={`rounded-2xl transition-all duration-300 border ${
+                      isOpen
+                        ? 'bg-[#F5F7FC] border-[#4D78FF] shadow-lg'
+                        : 'bg-white border-slate-200 hover:border-slate-300 shadow-sm'
+                    }`}
+                  >
                     <button
                       onClick={() => setOpenFaq(isOpen ? null : index)}
-                      className="w-full flex items-center justify-between text-left gap-4 focus:outline-none"
+                      className="w-full p-5 sm:p-6 flex items-center justify-between text-left gap-4 focus:outline-none"
                     >
-                      <span className="text-sm sm:text-base font-bold text-[#0A1020]">
-                        {faq.q}
-                      </span>
+                      <div className="flex items-center gap-3">
+                        <span className="text-xs font-black px-2.5 py-1 rounded-full bg-[#0A1020] text-white shrink-0">
+                          {qNumber}
+                        </span>
+                        <span className="text-sm sm:text-base font-extrabold text-[#0A1020]">
+                          {faq.q}
+                        </span>
+                      </div>
                       <ChevronDown
-                        className={`w-4 h-4 text-slate-400 shrink-0 transition-transform ${
+                        className={`w-5 h-5 text-slate-500 shrink-0 transition-transform ${
                           isOpen ? 'rotate-180 text-[#4D78FF]' : ''
                         }`}
                       />
                     </button>
                     {isOpen && (
-                      <p className="mt-3 text-xs sm:text-sm text-slate-600 leading-relaxed">
-                        {faq.a}
-                      </p>
+                      <div className="px-5 pb-6 sm:px-6 pt-0">
+                        <div className="pt-3 border-t border-slate-200/80 flex items-start gap-2.5">
+                          <CornerDownRight className="w-4 h-4 text-[#10B981] shrink-0 mt-0.5 stroke-[2.5]" />
+                          <p className="text-xs sm:text-sm text-slate-600 leading-relaxed font-normal">
+                            {faq.a}
+                          </p>
+                        </div>
+                      </div>
                     )}
                   </div>
                 )
@@ -1017,36 +1318,67 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* Chowdeck-Style Provider CTA Banner */}
+        {/* ================================================================= */}
+        {/* PROVIDER CTA BANNER (WHO CONNECTA SERVES STYLE GRAND CONTAINER)    */}
+        {/* ================================================================= */}
         <section className="py-20 bg-[#F5F7FC]">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="bg-[#0A1020] text-white rounded-3xl p-8 sm:p-14 lg:p-16 flex flex-col md:flex-row items-center justify-between gap-8 shadow-2xl relative overflow-hidden">
-              <div className="space-y-4 max-w-xl text-center md:text-left z-10">
-                <span className="inline-flex items-center gap-1.5 text-xs font-bold text-[#10B981] bg-[#10B981]/20 px-3.5 py-1 rounded-full">
-                  <Users className="w-3.5 h-3.5" /> For Skilled Technicians & Workshops
-                </span>
-                <h3 className="text-3xl sm:text-5xl font-black tracking-tight leading-tight">
-                  Grow your trade business in Kano.
-                </h3>
-                <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-                  Join hundreds of verified electricians, mechanics, plumbers, and technicians. Receive real customer requests, send professional quotations, and build a lasting reputation.
-                </p>
-              </div>
+            <div className="bg-[#0A2614] text-white rounded-3xl p-8 sm:p-14 lg:p-16 relative overflow-hidden shadow-2xl">
+              {/* Halftone / Dot pattern */}
+              <div
+                className="absolute inset-0 opacity-[0.05] pointer-events-none"
+                style={{
+                  backgroundImage: 'radial-gradient(#FFFFFF 1.5px, transparent 1.5px)',
+                  backgroundSize: '18px 18px',
+                }}
+              />
 
-              <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto shrink-0 z-10">
-                <Link
-                  href="/provider/register"
-                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-full bg-[#4D78FF] hover:bg-[#3b63e6] px-8 py-4 text-xs sm:text-sm font-bold text-white shadow-xl transition-all hover:scale-105"
-                >
-                  <span>Apply as a Provider</span>
-                  <ArrowRight className="w-4 h-4" />
-                </Link>
-                <Link
-                  href="/admin/verification"
-                  className="w-full sm:w-auto inline-flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 border border-white/20 px-6 py-4 text-xs sm:text-sm font-semibold text-white transition-colors"
-                >
-                  Admin Verification
-                </Link>
+              <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-10">
+                <div className="space-y-5 max-w-xl text-center md:text-left">
+                  <div className="flex items-center gap-3 justify-center md:justify-start">
+                    <div className="w-9 h-9 rounded-full border-2 border-white flex items-center justify-center font-bold text-lg shrink-0">
+                      ↓
+                    </div>
+                    <span className="text-xs font-bold text-[#10B981] bg-white/10 px-3.5 py-1 rounded-full border border-white/20">
+                      For Skilled Technicians & Workshops
+                    </span>
+                  </div>
+
+                  <h3 className="text-3xl sm:text-5xl font-black tracking-tight leading-tight">
+                    Grow your trade business on Connecta.
+                  </h3>
+                  <p className="text-xs sm:text-sm text-emerald-100 leading-relaxed">
+                    Join hundreds of verified electricians, mechanics, plumbers, and technicians. Receive real customer requests, send professional quotations, and build a lasting reputation.
+                  </p>
+
+                  {/* Provider Benefits Pills */}
+                  <div className="pt-2 flex flex-wrap gap-2 justify-center md:justify-start">
+                    {PROVIDER_BENEFITS.map((b, idx) => (
+                      <span
+                        key={idx}
+                        className={`${b.color} text-xs font-bold px-3 py-1.5 rounded-full shadow-md`}
+                      >
+                        {b.title}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto shrink-0 z-10">
+                  <Link
+                    href="/provider/register"
+                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-full bg-[#4D78FF] hover:bg-[#3b63e6] px-8 py-4 text-xs sm:text-sm font-extrabold text-white shadow-xl transition-all hover:scale-105"
+                  >
+                    <span>Apply as a Provider</span>
+                    <CornerDownRight className="w-4 h-4 stroke-[2.5]" />
+                  </Link>
+                  <Link
+                    href="/admin/verification"
+                    className="w-full sm:w-auto inline-flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 border border-white/20 px-6 py-4 text-xs sm:text-sm font-bold text-white transition-colors"
+                  >
+                    Admin Verification
+                  </Link>
+                </div>
               </div>
             </div>
           </div>
