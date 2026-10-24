@@ -896,55 +896,6 @@ export default function HomePage() {
                 )}
               </div>
             </div>
-
-            {/* Chowdeck-Style Alley Arrangement with Vision/Mission Styling */}
-            <div className="mt-16 sm:mt-20 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
-              {CATEGORIES.slice(0, 4).map((cat, idx) => (
-                <div
-                  key={cat.slug}
-                  className={`group bg-white rounded-3xl p-3 border border-slate-200 shadow-md hover:shadow-2xl hover:border-[#4D78FF] transition-all duration-300 transform ${
-                    idx % 2 === 1 ? 'md:translate-y-4' : ''
-                  }`}
-                >
-                  <div className="relative h-48 w-full rounded-2xl overflow-hidden bg-slate-100">
-                    <Image
-                      src={cat.image}
-                      alt={cat.alt}
-                      fill
-                      sizes="(max-width: 640px) 100vw, 25vw"
-                      className="object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
-                    {cat.badge && (
-                      <span className={`absolute top-3 left-3 text-[10px] font-bold px-3 py-1 rounded-full shadow-md ${cat.badgeColor}`}>
-                        {cat.badge}
-                      </span>
-                    )}
-                    <div className="absolute bottom-3 right-3 bg-white/95 backdrop-blur-md px-2.5 py-1 rounded-full text-[10px] font-bold text-slate-800 shadow">
-                      {cat.speed}
-                    </div>
-                  </div>
-
-                  <div className="p-3 pt-4">
-                    <div className="flex items-center gap-1.5">
-                      <CornerDownRight className="w-4 h-4 text-[#4D78FF] shrink-0 stroke-[2.5]" />
-                      <h3 className="text-base font-extrabold text-[#0A1020] group-hover:text-[#4D78FF] transition-colors">
-                        {cat.name}
-                      </h3>
-                    </div>
-                    <p className="text-xs text-slate-500 mt-1 line-clamp-2">
-                      {cat.desc}
-                    </p>
-                    <Link
-                      href={`/requests/new?category=${cat.slug}`}
-                      className="mt-4 w-full py-2.5 rounded-xl bg-slate-50 group-hover:bg-[#0A1020] group-hover:text-white text-slate-700 text-xs font-bold text-center transition-all flex items-center justify-center gap-1.5"
-                    >
-                      <span>Get Instant Quotes</span>
-                      <CornerDownRight className="w-3.5 h-3.5 stroke-[2.5]" />
-                    </Link>
-                  </div>
-                </div>
-              ))}
-            </div>
           </div>
         </section>
 
