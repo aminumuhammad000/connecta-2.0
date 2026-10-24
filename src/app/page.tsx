@@ -2012,58 +2012,92 @@ export default function HomePage() {
       </main>
 
       {/* Comprehensive Polished Dark Footer (Vision/Mission & Chowdeck Style) */}
-      <footer className="bg-[#0A1020] text-white pt-20 pb-12 relative overflow-hidden border-t border-slate-800">
-        {/* Halftone / Dot pattern */}
+      <footer className="bg-[#061A12] text-white pt-16 sm:pt-24 pb-12 relative overflow-hidden border-t-2 border-[#10B981]/20">
+        {/* Halftone / Dot pattern matching Vision/Mission and Who Connecta Serves */}
         <div
-          className="absolute inset-0 opacity-[0.04] pointer-events-none"
+          className="absolute inset-0 opacity-[0.05] pointer-events-none"
           style={{
-            backgroundImage: 'radial-gradient(#FFFFFF 1.5px, transparent 1.5px)',
-            backgroundSize: '20px 20px',
+            backgroundImage: 'radial-gradient(#10B981 1.5px, transparent 1.5px)',
+            backgroundSize: '24px 24px',
           }}
         />
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          {/* Top Pre-Footer Callout Card */}
-          <div className="pb-16 border-b border-white/10 flex flex-col lg:flex-row lg:items-center justify-between gap-8">
-            <div className="space-y-3 max-w-2xl">
-              <div className="inline-flex items-center gap-2 rounded-full bg-[#10B981]/20 px-3.5 py-1 text-xs font-bold text-[#10B981] border border-[#10B981]/30">
-                <span className="w-2 h-2 rounded-full bg-[#10B981] animate-pulse" />
-                <span>Kano Launch Hub • Expanding Across Northern Nigeria</span>
-              </div>
-              <h2 className="text-3xl sm:text-5xl font-black text-white tracking-tight leading-tight">
-                Everything fixed. <br />
-                <span className="text-[#4D78FF]">Every artisan verified.</span>
-              </h2>
-              <p className="text-xs sm:text-sm text-slate-300 leading-relaxed font-normal">
-                Connecta brings accountability, itemized Naira pricing, and certified artisan talent directly to your doorstep with end-to-end escrow security.
-              </p>
-            </div>
+        {/* Ambient Top Emerald Glow */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 max-w-4xl h-44 bg-gradient-to-b from-[#10B981]/15 to-transparent blur-3xl pointer-events-none" />
 
-            <div className="flex flex-wrap items-center gap-3 shrink-0">
-              <Link
-                href="/requests/new"
-                className="inline-flex items-center gap-2 rounded-full bg-[#4D78FF] hover:bg-[#3b63e6] text-white px-7 py-4 text-xs sm:text-sm font-extrabold shadow-xl transition-all hover:scale-105"
-              >
-                <span>Request Free Quotation</span>
-                <CornerDownRight className="w-4 h-4 stroke-[2.5]" />
-              </Link>
-              <Link
-                href="/provider/register"
-                className="inline-flex items-center gap-2 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 text-white px-6 py-4 text-xs sm:text-sm font-bold transition-all"
-              >
-                <span>Join as an Artisan</span>
-                <CornerDownRight className="w-4 h-4 stroke-[2.5]" />
-              </Link>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          {/* Top Pre-Footer Callout Card (Tactile Vision & Mission Style) */}
+          <div className="bg-[#0A2614] border-2 border-[#10B981]/30 rounded-3xl sm:rounded-[32px] p-8 sm:p-14 relative overflow-hidden shadow-2xl mb-16">
+            {/* Inner Halftone Texture */}
+            <div
+              className="absolute inset-0 opacity-[0.04] pointer-events-none"
+              style={{
+                backgroundImage: 'radial-gradient(#FFFFFF 1.5px, transparent 1.5px)',
+                backgroundSize: '18px 18px',
+              }}
+            />
+
+            <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-8">
+              <div className="space-y-4 max-w-2xl">
+                <div className="flex items-center gap-2">
+                  <div className="w-7 h-7 rounded-full border border-emerald-400/40 bg-emerald-500/10 flex items-center justify-center font-bold text-xs text-emerald-400">
+                    ↓
+                  </div>
+                  <span className="text-xs font-bold text-emerald-300 bg-emerald-950/60 px-3.5 py-1 rounded-full border border-emerald-400/30">
+                    Connecta 2.0 Ecosystem
+                  </span>
+                </div>
+                <h2 className="text-3xl sm:text-5xl font-black text-white tracking-tight leading-tight">
+                  Ready to get anything fixed? <br />
+                  <span className="text-[#10B981]">Find a verified artisan now.</span>
+                </h2>
+                <p className="text-xs sm:text-sm text-emerald-100/90 leading-relaxed font-normal max-w-xl">
+                  Connecta brings accountability, itemized Naira pricing, and certified artisan talent directly to your doorstep with end-to-end escrow security.
+                </p>
+
+                {/* Trust Guarantees Row */}
+                <div className="flex flex-wrap items-center gap-3 pt-2 text-[11px] font-bold text-emerald-200">
+                  <span className="flex items-center gap-1.5 bg-white/5 border border-white/10 px-3 py-1 rounded-full">
+                    <Check className="w-3.5 h-3.5 text-[#10B981] stroke-[3]" />
+                    <span>NIN & CAC Verified</span>
+                  </span>
+                  <span className="flex items-center gap-1.5 bg-white/5 border border-white/10 px-3 py-1 rounded-full">
+                    <Check className="w-3.5 h-3.5 text-[#10B981] stroke-[3]" />
+                    <span>Itemized Kobo Pricing</span>
+                  </span>
+                  <span className="flex items-center gap-1.5 bg-white/5 border border-white/10 px-3 py-1 rounded-full">
+                    <Check className="w-3.5 h-3.5 text-[#10B981] stroke-[3]" />
+                    <span>Safe Escrow Protection</span>
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-3.5 shrink-0">
+                <Link
+                  href="/requests/new"
+                  className="inline-flex items-center gap-2 rounded-full bg-[#10B981] hover:bg-[#059669] text-white px-8 py-4 text-xs sm:text-sm font-extrabold shadow-xl transition-all hover:scale-105 cursor-pointer"
+                >
+                  <span>Fix Something Today</span>
+                  <CornerDownRight className="w-4 h-4 stroke-[2.5]" />
+                </Link>
+                <Link
+                  href="/provider/register"
+                  className="inline-flex items-center gap-2 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 text-white px-7 py-4 text-xs sm:text-sm font-bold transition-all hover:scale-105 cursor-pointer"
+                >
+                  <span>Join as an Artisan</span>
+                  <CornerDownRight className="w-4 h-4 stroke-[2.5]" />
+                </Link>
+              </div>
             </div>
           </div>
 
           {/* Active Metro Coverage Badges */}
-          <div className="py-10 border-b border-white/10 space-y-4">
-            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-400">
-              <MapPin className="w-3.5 h-3.5 text-[#4D78FF]" />
+          <div className="py-8 border-b border-white/10 space-y-4">
+            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-emerald-300">
+              <MapPin className="w-4 h-4 text-[#10B981]" />
               <span>Active Service Coverage Across Kano Metropolitan:</span>
             </div>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-2.5">
               {[
                 'Nassarawa GRA',
                 'Bompai Industrial',
@@ -2074,19 +2108,20 @@ export default function HomePage() {
                 'Gwale District',
                 'Hotoro Hub',
                 'Kano Municipal',
-                'Kano State Tech Corridor',
+                'Kano Tech Corridor',
               ].map((loc) => (
                 <span
                   key={loc}
-                  className="text-xs font-semibold px-3 py-1.5 rounded-full bg-white/5 hover:bg-white/15 border border-white/10 text-slate-300 transition-colors cursor-default"
+                  className="group text-xs font-semibold px-3.5 py-1.5 rounded-full bg-white/5 hover:bg-[#10B981]/20 border border-white/10 hover:border-[#10B981]/40 text-slate-300 hover:text-white transition-all duration-200 cursor-default flex items-center gap-2"
                 >
-                  {loc}
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#10B981] group-hover:scale-125 transition-transform" />
+                  <span>{loc}</span>
                 </span>
               ))}
             </div>
           </div>
 
-          {/* 5-Column High-Contrast Navigation */}
+          {/* 5-Column High-Contrast Modern Navigation */}
           <div className="grid grid-cols-1 md:grid-cols-5 gap-10 py-14 border-b border-white/10">
             {/* Column 1: Brand & Headquarters */}
             <div className="md:col-span-2 space-y-5">
@@ -2098,18 +2133,18 @@ export default function HomePage() {
                   className="object-contain"
                 />
               </div>
-              <p className="text-xs text-slate-400 leading-relaxed max-w-sm">
-                Connecta is Nigeria&apos;s trusted local services marketplace. Connecting homeowners, property managers, and businesses with verified artisans and technical repair specialists across Kano and beyond.
+              <p className="text-xs text-slate-300 leading-relaxed max-w-sm">
+                Connecta is Nigeria&apos;s trusted local services marketplace. Connecting homeowners, property managers, and businesses with verified artisans and technical repair specialists across Kano and Northern Nigeria.
               </p>
 
-              <div className="space-y-2 text-xs text-slate-300">
+              <div className="space-y-2.5 text-xs text-slate-300">
                 <div className="flex items-center gap-2.5">
                   <MapPin className="w-4 h-4 text-[#10B981] shrink-0" />
                   <span>Headquarters: Kano State, Nigeria</span>
                 </div>
                 <div className="flex items-center gap-2.5">
                   <Mail className="w-4 h-4 text-[#4D78FF] shrink-0" />
-                  <a href="mailto:support@connecta.ng" className="hover:text-white transition-colors">
+                  <a href="mailto:support@connecta.ng" className="hover:text-emerald-400 transition-colors">
                     support@connecta.ng
                   </a>
                 </div>
@@ -2119,75 +2154,186 @@ export default function HomePage() {
                 </div>
               </div>
 
-              <div className="pt-2 flex flex-wrap gap-2 text-[11px] font-bold text-slate-400">
-                <span className="bg-white/10 px-2.5 py-1 rounded-md border border-white/10 text-emerald-400">
+              {/* Nigerian Flag & Currency Badge */}
+              <div className="pt-2 flex flex-wrap items-center gap-2 text-xs">
+                <div className="inline-flex items-center gap-2 rounded-full bg-white/5 border border-white/10 px-3 py-1 text-slate-300">
+                  <span className="text-sm">🇳🇬</span>
+                  <span className="font-bold">Nigeria</span>
+                  <span className="text-slate-500">·</span>
+                  <span className="text-emerald-400 font-bold">₦ NGN Minor Units</span>
+                </div>
+                <span className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2.5 py-1 rounded-full font-bold text-[11px]">
                   100% ID Vetted
-                </span>
-                <span className="bg-white/10 px-2.5 py-1 rounded-md border border-white/10 text-blue-400">
-                  Escrow Protected
-                </span>
-                <span className="bg-white/10 px-2.5 py-1 rounded-md border border-white/10 text-amber-400">
-                  Integer Kobo Billing
                 </span>
               </div>
             </div>
 
             {/* Column 2: Supported Trades */}
-            <div className="space-y-3.5">
+            <div className="space-y-4">
               <h4 className="text-xs font-extrabold text-white uppercase tracking-wider flex items-center gap-1.5">
                 <Wrench className="w-3.5 h-3.5 text-[#10B981]" />
                 <span>Service Trades</span>
               </h4>
               <ul className="space-y-2.5 text-xs text-slate-400">
-                <li><Link href="/requests/new?category=electrical" className="hover:text-white transition-colors flex items-center gap-1.5"><span>Electrical & Inverters</span></Link></li>
-                <li><Link href="/requests/new?category=phone-repair" className="hover:text-white transition-colors flex items-center gap-1.5"><span>Phone & Tablet Repair</span></Link></li>
-                <li><Link href="/requests/new?category=ac-cooling" className="hover:text-white transition-colors flex items-center gap-1.5"><span>AC & Refrigeration</span></Link></li>
-                <li><Link href="/requests/new?category=auto-mechanic" className="hover:text-white transition-colors flex items-center gap-1.5"><span>Auto Mechanics</span></Link></li>
-                <li><Link href="/requests/new?category=carpentry" className="hover:text-white transition-colors flex items-center gap-1.5"><span>Woodwork & Cabinetry</span></Link></li>
-                <li><Link href="/requests/new?category=plumbing" className="hover:text-white transition-colors flex items-center gap-1.5"><span>Plumbing & Boreholes</span></Link></li>
-                <li><Link href="/requests/new?category=computer-repair" className="hover:text-white transition-colors flex items-center gap-1.5"><span>Computer Hardware</span></Link></li>
-                <li><Link href="/requests/new?category=painting" className="hover:text-white transition-colors flex items-center gap-1.5"><span>Painting & Finishing</span></Link></li>
+                <li>
+                  <Link href="/requests/new?category=electrical" className="group flex items-center gap-1.5 hover:text-emerald-400 transition-colors">
+                    <span className="text-slate-600 group-hover:text-emerald-400 transition-colors">›</span>
+                    <span className="group-hover:translate-x-1 transition-transform">Solar & Inverters</span>
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/requests/new?category=phone-repair" className="group flex items-center gap-1.5 hover:text-emerald-400 transition-colors">
+                    <span className="text-slate-600 group-hover:text-emerald-400 transition-colors">›</span>
+                    <span className="group-hover:translate-x-1 transition-transform">Phone & Tablet Lab</span>
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/requests/new?category=ac-cooling" className="group flex items-center gap-1.5 hover:text-emerald-400 transition-colors">
+                    <span className="text-slate-600 group-hover:text-emerald-400 transition-colors">›</span>
+                    <span className="group-hover:translate-x-1 transition-transform">AC & Refrigeration</span>
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/requests/new?category=auto-mechanic" className="group flex items-center gap-1.5 hover:text-emerald-400 transition-colors">
+                    <span className="text-slate-600 group-hover:text-emerald-400 transition-colors">›</span>
+                    <span className="group-hover:translate-x-1 transition-transform">Auto Mechanics & OBD2</span>
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/requests/new?category=carpentry" className="group flex items-center gap-1.5 hover:text-emerald-400 transition-colors">
+                    <span className="text-slate-600 group-hover:text-emerald-400 transition-colors">›</span>
+                    <span className="group-hover:translate-x-1 transition-transform">Woodwork & Cabinetry</span>
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/requests/new?category=plumbing" className="group flex items-center gap-1.5 hover:text-emerald-400 transition-colors">
+                    <span className="text-slate-600 group-hover:text-emerald-400 transition-colors">›</span>
+                    <span className="group-hover:translate-x-1 transition-transform">Plumbing & Boreholes</span>
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/requests/new?category=computer-repair" className="group flex items-center gap-1.5 hover:text-emerald-400 transition-colors">
+                    <span className="text-slate-600 group-hover:text-emerald-400 transition-colors">›</span>
+                    <span className="group-hover:translate-x-1 transition-transform">Computer Hardware</span>
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/requests/new?category=painting" className="group flex items-center gap-1.5 hover:text-emerald-400 transition-colors">
+                    <span className="text-slate-600 group-hover:text-emerald-400 transition-colors">›</span>
+                    <span className="group-hover:translate-x-1 transition-transform">Painting & Screeding</span>
+                  </Link>
+                </li>
               </ul>
             </div>
 
             {/* Column 3: Platform & Trust */}
-            <div className="space-y-3.5">
+            <div className="space-y-4">
               <h4 className="text-xs font-extrabold text-white uppercase tracking-wider flex items-center gap-1.5">
                 <ShieldCheck className="w-3.5 h-3.5 text-[#4D78FF]" />
                 <span>Platform & Trust</span>
               </h4>
               <ul className="space-y-2.5 text-xs text-slate-400">
-                <li><Link href="#vision-mission" className="hover:text-white transition-colors">Vision & Mission</Link></li>
-                <li><Link href="#who-connecta-serves" className="hover:text-white transition-colors">Who Connecta Serves</Link></li>
-                <li><Link href="#how-it-works" className="hover:text-white transition-colors">How It Works (3 Stages)</Link></li>
-                <li><Link href="#services" className="hover:text-white transition-colors">Supported Catalog</Link></li>
-                <li><Link href="#faq" className="hover:text-white transition-colors">Frequently Asked Questions</Link></li>
-                <li><Link href="/requests/new" className="hover:text-white transition-colors">Broadcast a Custom Need</Link></li>
-                <li><Link href="/admin/verification" className="hover:text-white transition-colors">Admin Verification Portal</Link></li>
+                <li>
+                  <Link href="#vision-mission" className="group flex items-center gap-1.5 hover:text-emerald-400 transition-colors">
+                    <span className="text-slate-600 group-hover:text-emerald-400 transition-colors">›</span>
+                    <span className="group-hover:translate-x-1 transition-transform">Vision & Mission</span>
+                  </Link>
+                </li>
+                <li>
+                  <Link href="#who-connecta-serves" className="group flex items-center gap-1.5 hover:text-emerald-400 transition-colors">
+                    <span className="text-slate-600 group-hover:text-emerald-400 transition-colors">›</span>
+                    <span className="group-hover:translate-x-1 transition-transform">Who Connecta Serves</span>
+                  </Link>
+                </li>
+                <li>
+                  <Link href="#how-it-works" className="group flex items-center gap-1.5 hover:text-emerald-400 transition-colors">
+                    <span className="text-slate-600 group-hover:text-emerald-400 transition-colors">›</span>
+                    <span className="group-hover:translate-x-1 transition-transform">How It Works (3 Stages)</span>
+                  </Link>
+                </li>
+                <li>
+                  <Link href="#services" className="group flex items-center gap-1.5 hover:text-emerald-400 transition-colors">
+                    <span className="text-slate-600 group-hover:text-emerald-400 transition-colors">›</span>
+                    <span className="group-hover:translate-x-1 transition-transform">Supported Catalog</span>
+                  </Link>
+                </li>
+                <li>
+                  <Link href="#faq" className="group flex items-center gap-1.5 hover:text-emerald-400 transition-colors">
+                    <span className="text-slate-600 group-hover:text-emerald-400 transition-colors">›</span>
+                    <span className="group-hover:translate-x-1 transition-transform">Frequently Asked Questions</span>
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/requests/new" className="group flex items-center gap-1.5 hover:text-emerald-400 transition-colors">
+                    <span className="text-slate-600 group-hover:text-emerald-400 transition-colors">›</span>
+                    <span className="group-hover:translate-x-1 transition-transform">Broadcast Custom Need</span>
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/admin/verification" className="group flex items-center gap-1.5 hover:text-emerald-400 transition-colors">
+                    <span className="text-slate-600 group-hover:text-emerald-400 transition-colors">›</span>
+                    <span className="group-hover:translate-x-1 transition-transform">Admin Verification Portal</span>
+                  </Link>
+                </li>
               </ul>
             </div>
 
             {/* Column 4: Providers & Governance */}
-            <div className="space-y-3.5">
+            <div className="space-y-4">
               <h4 className="text-xs font-extrabold text-white uppercase tracking-wider flex items-center gap-1.5">
                 <Award className="w-3.5 h-3.5 text-[#F59E0B]" />
                 <span>For Artisans & Guilds</span>
               </h4>
               <ul className="space-y-2.5 text-xs text-slate-400">
-                <li><Link href="/provider/register" className="hover:text-white transition-colors">Apply as a Provider</Link></li>
-                <li><Link href="/provider/register" className="hover:text-white transition-colors">NIN & CAC Verification</Link></li>
-                <li><Link href="/brand" className="hover:text-white transition-colors">Brand Identity Guidelines</Link></li>
-                <li><Link href="/docs" className="hover:text-white transition-colors">System Architecture</Link></li>
-                <li><Link href="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link></li>
-                <li><Link href="/terms" className="hover:text-white transition-colors">Terms of Service</Link></li>
-                <li><Link href="/disputes" className="hover:text-white transition-colors">Dispute Resolution Policy</Link></li>
+                <li>
+                  <Link href="/provider/register" className="group flex items-center gap-1.5 hover:text-emerald-400 transition-colors">
+                    <span className="text-slate-600 group-hover:text-emerald-400 transition-colors">›</span>
+                    <span className="group-hover:translate-x-1 transition-transform">Apply as a Provider</span>
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/provider/register" className="group flex items-center gap-1.5 hover:text-emerald-400 transition-colors">
+                    <span className="text-slate-600 group-hover:text-emerald-400 transition-colors">›</span>
+                    <span className="group-hover:translate-x-1 transition-transform">NIN & CAC Verification</span>
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/brand" className="group flex items-center gap-1.5 hover:text-emerald-400 transition-colors">
+                    <span className="text-slate-600 group-hover:text-emerald-400 transition-colors">›</span>
+                    <span className="group-hover:translate-x-1 transition-transform">Brand Identity Guidelines</span>
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/docs" className="group flex items-center gap-1.5 hover:text-emerald-400 transition-colors">
+                    <span className="text-slate-600 group-hover:text-emerald-400 transition-colors">›</span>
+                    <span className="group-hover:translate-x-1 transition-transform">System Architecture</span>
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/privacy" className="group flex items-center gap-1.5 hover:text-emerald-400 transition-colors">
+                    <span className="text-slate-600 group-hover:text-emerald-400 transition-colors">›</span>
+                    <span className="group-hover:translate-x-1 transition-transform">Privacy Policy</span>
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/terms" className="group flex items-center gap-1.5 hover:text-emerald-400 transition-colors">
+                    <span className="text-slate-600 group-hover:text-emerald-400 transition-colors">›</span>
+                    <span className="group-hover:translate-x-1 transition-transform">Terms of Service</span>
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/disputes" className="group flex items-center gap-1.5 hover:text-emerald-400 transition-colors">
+                    <span className="text-slate-600 group-hover:text-emerald-400 transition-colors">›</span>
+                    <span className="group-hover:translate-x-1 transition-transform">Dispute Resolution Policy</span>
+                  </Link>
+                </li>
               </ul>
             </div>
           </div>
 
           {/* Chowdeck-Style Large Stylized Brand Watermark */}
           <div className="pt-8 pb-4 flex items-center justify-center select-none overflow-hidden">
-            <span className="text-[12vw] font-black tracking-widest text-white/[0.04] leading-none pointer-events-none whitespace-nowrap uppercase">
+            <span className="text-[13vw] font-black tracking-widest text-white/[0.035] leading-none pointer-events-none whitespace-nowrap uppercase">
               CONNECTA
             </span>
           </div>
@@ -2198,8 +2344,8 @@ export default function HomePage() {
 
             <div className="flex items-center gap-4 text-xs font-medium">
               <span className="flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-[#10B981]" />
-                <span className="text-slate-300">All Systems Operational</span>
+                <span className="w-2 h-2 rounded-full bg-[#10B981] animate-pulse" />
+                <span className="text-emerald-400 font-semibold">All Systems Operational</span>
               </span>
               <span>•</span>
               <span className="text-slate-300">Currency: NGN (₦)</span>
@@ -2213,7 +2359,7 @@ export default function HomePage() {
                   window.scrollTo({ top: 0, behavior: 'smooth' })
                 }
               }}
-              className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-300 hover:text-white bg-white/5 hover:bg-white/10 px-3 py-1.5 rounded-full border border-white/10 transition-colors"
+              className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-300 hover:text-white bg-white/5 hover:bg-[#10B981]/20 px-3.5 py-1.5 rounded-full border border-white/10 hover:border-[#10B981]/40 transition-all cursor-pointer hover:scale-105"
             >
               <span>Back to top</span>
               <ArrowUp className="w-3.5 h-3.5" />
