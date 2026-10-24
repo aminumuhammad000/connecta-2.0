@@ -175,6 +175,226 @@ const CATEGORIES = [
   },
 ]
 
+// Chowdeck Horizontal Accordion Structure (Matching Explore Supported Trades.png)
+const TRADE_ACCORDION_ITEMS = {
+  metro: [
+    {
+      id: 'solar-electrical',
+      slug: 'electrical',
+      title: 'Solar & Electrical',
+      collapsedTitle: 'Solar & Electrical',
+      desc: 'Find vetted electricians and certified solar engineers for residential solar installations, inverter fault diagnosis, prepaid meters, and safe domestic wiring.',
+      bg: 'bg-[#DBD5F9]',
+      textColor: 'text-[#4C1D95]',
+      badge: '45-Min Emergency Ready',
+      badgeColor: 'bg-[#0C513F] text-white',
+      tags: ['Solar Inverter Sizing', 'Lithium Battery Packs', 'Distribution Boards', 'Prepaid Meters', 'Earthing'],
+      image: '/images/services/electrician_working_on_electrical_panel.jpg',
+      alt: 'Electrician working on electrical panel in Kano',
+      artisanName: 'Ibrahim Aliyu',
+      artisanTitle: 'Master Solar Engineer',
+      artisanRating: '4.95 ★ (48 reviews)',
+      icon: 'storefront',
+    },
+    {
+      id: 'phone-gadgets',
+      slug: 'phone-repair',
+      title: 'Phones & Gadgets',
+      collapsedTitle: 'Phones & Gadgets',
+      desc: 'Instant same-day repairs for cracked smartphone screens, genuine high-capacity battery replacements, board micro-soldering, and laptop diagnostics with warranty.',
+      bg: 'bg-[#FCECB2]',
+      textColor: 'text-[#B45309]',
+      badge: 'Under 1-Hr Display Swap',
+      badgeColor: 'bg-[#B45309] text-white',
+      tags: ['OLED Screen Swaps', 'TrueTone Transfer', 'Battery Health 100%', 'Board Micro-Soldering', 'Charging Ports'],
+      image: '/images/services/phone_repair_technician.jpg',
+      alt: 'Phone technician repairing smartphone in display lab',
+      artisanName: 'Garba Danbatta',
+      artisanTitle: 'Display & Board Specialist',
+      artisanRating: '4.92 ★ (64 reviews)',
+      icon: 'basket',
+    },
+    {
+      id: 'ac-cooling',
+      slug: 'ac-cooling',
+      title: 'AC & Refrigeration',
+      collapsedTitle: 'AC & Refrigeration',
+      desc: 'High-precision air conditioning servicing, genuine R410A refrigerant gas top-ups, commercial cold room compressor overhauls, and deep coil antibacterial cleaning.',
+      bg: 'bg-[#98C7FF]',
+      textColor: 'text-[#1D4ED8]',
+      badge: 'Cooling Guarantee',
+      badgeColor: 'bg-[#1D4ED8] text-white',
+      tags: ['R410A Refrigerant Top-up', 'Compressor Overhaul', 'Deep Coil Cleaning', 'Split Unit Mounting', 'Chiller Repair'],
+      image: '/images/services/air_conditioner_repair_technician.jpg',
+      alt: 'Technician servicing air conditioning cooling system',
+      artisanName: 'Musa Bello',
+      artisanTitle: 'HVAC & Cooling Engineer',
+      artisanRating: '4.90 ★ (38 reviews)',
+      icon: 'bottle',
+    },
+    {
+      id: 'borehole-plumbing',
+      slug: 'plumbing',
+      title: 'Borehole & Plumbing',
+      collapsedTitle: 'Borehole & Plumbing',
+      desc: 'Certified plumbers for emergency pipe leak repairs, borehole submersible pump pulling and servicing, overhead tank connections, and high-pressure bathroom fittings.',
+      bg: 'bg-[#CBF3E4]',
+      textColor: 'text-[#047857]',
+      badge: 'Pressure-Tested Guarantee',
+      badgeColor: 'bg-[#047857] text-white',
+      tags: ['Submersible Pumps', 'Pressure Control Valves', 'Pipe Leak Detection', 'Overhead Tanks', 'Water Filtration'],
+      image: '/images/services/cleaning_or_maintenance_technician.jpg',
+      alt: 'Plumbing specialist inspecting water piping',
+      artisanName: 'Aliyu Sani',
+      artisanTitle: 'Master Plumbing Technician',
+      artisanRating: '4.88 ★ (42 reviews)',
+      icon: 'crate',
+    },
+  ],
+  workshop: [
+    {
+      id: 'auto-mechanic',
+      slug: 'auto-mechanic',
+      title: 'Auto Diagnostics',
+      collapsedTitle: 'Auto Diagnostics',
+      desc: 'Computerized vehicle OBD2 diagnostic scanning, ceramic brake pad replacement, suspension servicing, routine oil maintenance, and engine troubleshooting across metropolitan Kano.',
+      bg: 'bg-[#DBD5F9]',
+      textColor: 'text-[#4C1D95]',
+      badge: 'OBD2 Computer Scan Included',
+      badgeColor: 'bg-[#0C513F] text-white',
+      tags: ['OBD2 Engine Scans', 'Ceramic Brake Pads', 'Suspension Bushings', 'Alternators', 'Transmission Check'],
+      image: '/images/services/car_mechanic_repairing_engine.jpg',
+      alt: 'Mechanic servicing car engine diagnostics in workshop',
+      artisanName: 'Suleiman Yahaya',
+      artisanTitle: 'Automotive Diagnostic Tech',
+      artisanRating: '4.91 ★ (52 reviews)',
+      icon: 'storefront',
+    },
+    {
+      id: 'carpentry',
+      slug: 'carpentry',
+      title: 'Carpentry & Woodwork',
+      collapsedTitle: 'Carpentry & Wood',
+      desc: 'Master carpenters for custom office cabinetry, solid mahogany wardrobes, door fittings, roof woodwork, and precision framing built to last generations.',
+      bg: 'bg-[#FCECB2]',
+      textColor: 'text-[#B45309]',
+      badge: 'Certified Hardwood Guild',
+      badgeColor: 'bg-[#B45309] text-white',
+      tags: ['Custom Office Desks', 'Mahogany Wardrobes', 'Door Frame Fitting', 'Roof Trusses', 'Cabinet Joinery'],
+      image: '/images/services/carpenter_working_in_nigeria.jpg',
+      alt: 'Carpenter working on wooden construction in Nigeria',
+      artisanName: 'Kabiru Idris',
+      artisanTitle: 'Master Furniture Joiner',
+      artisanRating: '4.94 ★ (36 reviews)',
+      icon: 'basket',
+    },
+    {
+      id: 'computer-repair',
+      slug: 'computer-repair',
+      title: 'Computer & Laptops',
+      collapsedTitle: 'Computer & Laptops',
+      desc: 'Hardware upgrades, NVMe SSD installation, laptop screen replacement, thermal paste re-application, motherboard soldering, and operating system recovery.',
+      bg: 'bg-[#98C7FF]',
+      textColor: 'text-[#1D4ED8]',
+      badge: 'Hardware Bench Lab',
+      badgeColor: 'bg-[#1D4ED8] text-white',
+      tags: ['Thermal Paste Re-pad', 'NVMe SSD Upgrades', 'Laptop Displays', 'BIOS Flashing', 'OS Recovery'],
+      image: '/images/services/computer_repair_technician.jpg',
+      alt: 'Technician repairing laptop motherboard in workshop',
+      artisanName: 'Hamza Tech',
+      artisanTitle: 'Computer Hardware Specialist',
+      artisanRating: '4.89 ★ (31 reviews)',
+      icon: 'bottle',
+    },
+    {
+      id: 'painting',
+      slug: 'painting',
+      title: 'Painting & POP',
+      collapsedTitle: 'Painting & POP',
+      desc: 'Interior and exterior painting, POP plastering, damp-proof waterproofing, decorative screeding, smooth wall finishes, and spotless site clean-up.',
+      bg: 'bg-[#CBF3E4]',
+      textColor: 'text-[#047857]',
+      badge: 'Spotless Site Clean Guarantee',
+      badgeColor: 'bg-[#047857] text-white',
+      tags: ['POP Plastering', 'Damp Waterproofing', 'Satin Paint Coats', 'Decorative Screeding', 'Exterior Facades'],
+      image: '/images/services/house_painter_painting_wall.jpg',
+      alt: 'Painter applying smooth coat to interior wall',
+      artisanName: 'Mustapha Nura',
+      artisanTitle: 'Surface & Plaster Specialist',
+      artisanRating: '4.93 ★ (45 reviews)',
+      icon: 'crate',
+    },
+  ],
+}
+
+// Pixel-perfect SVG Emblems matching Explore Supported Trades.png (Storefront, Grocery Basket, Medicine Bottle & Pills, Produce Crate)
+function renderAccordionTradeIcon(icon: string) {
+  if (icon === 'storefront') {
+    return (
+      <div className="w-12 h-12 sm:w-14 sm:h-14 flex items-center justify-center shrink-0">
+        <svg className="w-full h-full" viewBox="0 0 64 64" fill="none">
+          <path d="M6 22H58V14C58 11.8 56.2 10 54 10H10C7.8 10 6 11.8 6 14V22Z" fill="#0C513F" />
+          <rect x="10" y="22" width="44" height="32" rx="2" fill="#146A54" />
+          <rect x="24" y="28" width="16" height="26" rx="2" fill="#FFFFFF" />
+          <line x1="32" y1="28" x2="32" y2="54" stroke="#0C513F" strokeWidth="2" />
+          <circle cx="28" cy="42" r="1.5" fill="#0C513F" />
+          <circle cx="36" cy="42" r="1.5" fill="#0C513F" />
+          <path d="M30 4L34 4L31 10L35 10L28 18L30 11L26 11Z" fill="#F5A623" />
+        </svg>
+      </div>
+    )
+  }
+  if (icon === 'basket') {
+    return (
+      <div className="w-12 h-12 sm:w-14 sm:h-14 flex items-center justify-center shrink-0">
+        <svg className="w-full h-full" viewBox="0 0 64 64" fill="none">
+          <rect x="18" y="16" width="8" height="16" rx="2" fill="#0C513F" />
+          <rect x="28" y="12" width="7" height="20" rx="1.5" fill="#1D4ED8" />
+          <rect x="37" y="14" width="9" height="18" rx="2" fill="#DC2626" />
+          <rect x="42" y="20" width="7" height="12" rx="1" fill="#FFFFFF" />
+          <path d="M32 8V26" stroke="#111827" strokeWidth="3" strokeLinecap="round" />
+          <path d="M12 26L16 54C16.5 56.5 18.5 58 21 58H43C45.5 58 47.5 56.5 48 54L52 26H12Z" fill="#F5A623" />
+          <line x1="20" y1="32" x2="22" y2="52" stroke="#D97706" strokeWidth="2" strokeLinecap="round" />
+          <line x1="28" y1="32" x2="29" y2="52" stroke="#D97706" strokeWidth="2" strokeLinecap="round" />
+          <line x1="36" y1="32" x2="35" y2="52" stroke="#D97706" strokeWidth="2" strokeLinecap="round" />
+          <line x1="44" y1="32" x2="42" y2="52" stroke="#D97706" strokeWidth="2" strokeLinecap="round" />
+        </svg>
+      </div>
+    )
+  }
+  if (icon === 'bottle') {
+    return (
+      <div className="w-12 h-12 sm:w-14 sm:h-14 flex items-center justify-center shrink-0">
+        <svg className="w-full h-full" viewBox="0 0 64 64" fill="none">
+          <rect x="12" y="18" width="22" height="36" rx="6" fill="#FFFFFF" stroke="#CBD5E1" strokeWidth="1.5" />
+          <path d="M18 14H28V18H18V14Z" fill="#CBD5E1" />
+          <circle cx="23" cy="36" r="7" fill="#60A5FA" />
+          <path d="M23 32V40M19 36H27" stroke="#FFFFFF" strokeWidth="2.5" strokeLinecap="round" />
+          <rect x="32" y="12" width="22" height="42" rx="5" fill="#0052CC" />
+          <rect x="36" y="16" width="5" height="10" rx="2.5" fill="#93C5FD" transform="rotate(-30 36 16)" />
+          <rect x="46" y="22" width="5" height="10" rx="2.5" fill="#93C5FD" transform="rotate(-30 46 22)" />
+          <rect x="36" y="30" width="5" height="10" rx="2.5" fill="#93C5FD" transform="rotate(-30 36 30)" />
+          <rect x="46" y="36" width="5" height="10" rx="2.5" fill="#93C5FD" transform="rotate(-30 46 36)" />
+        </svg>
+      </div>
+    )
+  }
+  return (
+    <div className="w-12 h-12 sm:w-14 sm:h-14 flex items-center justify-center shrink-0">
+      <svg className="w-full h-full" viewBox="0 0 64 64" fill="none">
+        <circle cx="22" cy="20" r="9" fill="#8B5A2B" />
+        <ellipse cx="36" cy="20" rx="10" ry="8" fill="#FBBF24" />
+        <path d="M46 14C46 14 52 22 48 28C44 30 40 26 42 20C44 14 46 14 46 14Z" fill="#F97316" />
+        <rect x="8" y="24" width="48" height="8" rx="2" fill="#00C466" />
+        <rect x="8" y="36" width="48" height="8" rx="2" fill="#00C466" />
+        <rect x="8" y="48" width="48" height="8" rx="2" fill="#00C466" />
+        <rect x="12" y="22" width="6" height="36" rx="1" fill="#067647" />
+        <rect x="46" y="22" width="6" height="36" rx="1" fill="#067647" />
+      </svg>
+    </div>
+  )
+}
+
 const FEATURED_PROVIDERS = [
   {
     id: 'p1',
@@ -381,6 +601,8 @@ export default function HomePage() {
   const [openFaq, setOpenFaq] = useState<number | null>(0)
   const [phraseIndex, setPhraseIndex] = useState(0)
   const [selectedTradeTab, setSelectedTradeTab] = useState('all')
+  const [tradeCategoryGroup, setTradeCategoryGroup] = useState<'metro' | 'workshop'>('metro')
+  const [activeAccordionIndex, setActiveAccordionIndex] = useState<number>(0)
 
   const filteredCategories =
     selectedTradeTab === 'all'
@@ -1121,9 +1343,10 @@ export default function HomePage() {
         </section>
 
         {/* ================================================================= */}
-        {/* SUPPORTED SERVICE TRADES (CHOWDECK-STYLE STAGGERED ALLEY)         */}
+        {/* SUPPORTED SERVICE TRADES (CHOWDECK-STYLE EXPANDING ACCORDION)     */}
+        {/* Exact Layout & Visual Identity from Explore Supported Trades.png  */}
         {/* ================================================================= */}
-        <section id="services" className="py-20 lg:pb-32 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+        <section id="services" className="py-20 lg:pb-28 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-6">
             <div className="space-y-3">
               <div className="flex items-center gap-3">
@@ -1138,121 +1361,152 @@ export default function HomePage() {
                 Every trade is backed by verified identification, specialized toolkits, and transparent pricing in Nigerian Naira.
               </p>
             </div>
-            <Link
-              href="/requests/new"
-              className="inline-flex items-center gap-2 rounded-full bg-[#0A1020] hover:bg-[#4D78FF] text-white px-6 py-3 text-xs sm:text-sm font-bold shadow-lg transition-all hover:scale-105 self-start"
-            >
-              <span>Broadcast Custom Request</span>
-              <CornerDownRight className="w-4 h-4 stroke-[2.5]" />
-            </Link>
-          </div>
 
-          {/* Chowdeck-style Interactive Category Filter Tabs */}
-          <div className="flex items-center gap-2 overflow-x-auto pb-4 pt-1 mb-8 scrollbar-none">
-            {TRADE_TABS.map((tab) => {
-              const isActive = selectedTradeTab === tab.id
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => setSelectedTradeTab(tab.id)}
-                  className={`px-4 py-2 rounded-full text-xs font-bold transition-all whitespace-nowrap shadow-xs cursor-pointer ${
-                    isActive
-                      ? 'bg-[#0A1020] text-white shadow-md scale-[1.02]'
-                      : 'bg-white text-slate-600 hover:bg-slate-100 hover:text-slate-900 border border-slate-200'
-                  }`}
-                >
-                  {tab.label}
-                </button>
-              )
-            })}
-          </div>
-
-          {/* Chowdeck Dual-Staggered Alley Grid (Alternating Offsets & Tactile Cards) */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-7 items-start">
-            {filteredCategories.map((cat, idx) => (
-              <div
-                key={cat.slug}
-                className={`group bg-white rounded-3xl p-3.5 sm:p-4 border border-slate-200/90 shadow-md hover:shadow-2xl hover:border-[#4D78FF] transition-all duration-300 transform flex flex-col justify-between ${
-                  idx % 2 === 1 ? 'lg:translate-y-8' : ''
+            {/* Category Pillar Switcher */}
+            <div className="flex items-center gap-2 bg-slate-100 p-1.5 rounded-full border border-slate-200 self-start md:self-auto shadow-2xs">
+              <button
+                type="button"
+                onClick={() => {
+                  setTradeCategoryGroup('metro')
+                  setActiveAccordionIndex(0)
+                }}
+                className={`px-4 py-2 rounded-full text-xs font-bold transition-all cursor-pointer ${
+                  tradeCategoryGroup === 'metro'
+                    ? 'bg-[#0A1020] text-white shadow-xs'
+                    : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
-                <div>
-                  {/* Image Container with Inner Border Radius & Zoom Effect */}
-                  <div className="relative h-52 sm:h-56 w-full rounded-2xl overflow-hidden bg-slate-100">
-                    <Image
-                      src={cat.image}
-                      alt={cat.alt}
-                      fill
-                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                      className="object-cover group-hover:scale-108 transition-transform duration-500 ease-out"
-                    />
+                Metropolitan Repairs
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setTradeCategoryGroup('workshop')
+                  setActiveAccordionIndex(0)
+                }}
+                className={`px-4 py-2 rounded-full text-xs font-bold transition-all cursor-pointer ${
+                  tradeCategoryGroup === 'workshop'
+                    ? 'bg-[#0A1020] text-white shadow-xs'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                Workshop & Vehicles
+              </button>
+            </div>
+          </div>
 
-                    {/* Gradient Vignette for Readability */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/25" />
-
-                    {/* Top Floating Category Badge with Pulsing Dot */}
-                    {cat.badge && (
-                      <span className={`absolute top-3 left-3 text-[10px] font-extrabold px-3 py-1 rounded-full shadow-md flex items-center gap-1.5 ${cat.badgeColor}`}>
-                        <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
-                        <span>{cat.badge}</span>
-                      </span>
-                    )}
-
-                    {/* Chowdeck-style Speed / Arrival Badge */}
-                    <div className="absolute top-3 right-3 bg-white/95 backdrop-blur-md px-2.5 py-1 rounded-full text-[10px] font-extrabold text-slate-900 shadow-md flex items-center gap-1 border border-white/60">
-                      <Clock className="w-3 h-3 text-[#10B981]" />
-                      <span>{cat.speed}</span>
-                    </div>
-
-                    {/* Bottom Floating Guarantee Snippets */}
-                    <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between text-[10px] text-white font-bold">
-                      <span className="bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-full border border-white/20">
-                        ₦ Itemized Quote
-                      </span>
-                      <span className="bg-[#10B981]/90 backdrop-blur-md px-2 py-0.5 rounded-full text-white font-extrabold">
-                        Vetted Pro
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Card Content & Sub-specialty Tags */}
-                  <div className="pt-4 px-1 pb-1 space-y-3">
-                    <div className="flex items-center gap-1.5">
-                      <CornerDownRight className="w-4 h-4 text-[#4D78FF] shrink-0 stroke-[2.5]" />
-                      <h3 className="text-base font-extrabold text-[#0A1020] group-hover:text-[#4D78FF] transition-colors">
-                        {cat.name}
-                      </h3>
-                    </div>
-                    <p className="text-xs text-slate-500 leading-relaxed line-clamp-2">
-                      {cat.desc}
-                    </p>
-
-                    {/* Sub-Specialty Tag Pills */}
-                    <div className="flex flex-wrap gap-1.5 pt-1">
-                      {cat.tags.map((tag) => (
-                        <span
-                          key={tag}
-                          className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 group-hover:bg-blue-50 group-hover:text-[#4D78FF] transition-colors"
-                        >
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Card CTA Full-Bleed Action */}
-                <div className="pt-4 px-1 pb-1">
-                  <Link
-                    href={`/requests/new?category=${cat.slug}`}
-                    className="w-full py-2.5 px-4 rounded-xl bg-slate-100 group-hover:bg-[#0A1020] group-hover:text-white text-slate-800 text-xs font-extrabold transition-all flex items-center justify-between shadow-2xs group-hover:shadow-md"
+          {/* Chowdeck-style 4-Card Horizontal Expanding Accordion (Explore Supported Trades.png) */}
+          <div className="w-full overflow-x-auto sm:overflow-visible pb-2 scrollbar-none">
+            <div className="flex gap-4 sm:gap-5 items-stretch h-[480px] sm:h-[530px] min-w-[700px] sm:min-w-0 w-full transition-all duration-500 ease-in-out">
+              {TRADE_ACCORDION_ITEMS[tradeCategoryGroup].map((item, idx) => {
+                const isActive = activeAccordionIndex === idx
+                return (
+                  <div
+                    key={item.id}
+                    onMouseEnter={() => setActiveAccordionIndex(idx)}
+                    onClick={() => setActiveAccordionIndex(idx)}
+                    className={`${item.bg} border-[2px] border-black rounded-[28px] relative overflow-hidden transition-all duration-500 ease-in-out cursor-pointer ${
+                      isActive
+                        ? 'flex-[3.5] p-7 sm:p-10 flex flex-col justify-between shadow-2xl cursor-default'
+                        : 'w-24 sm:w-28 md:w-32 shrink-0 flex flex-col items-center justify-between py-8 hover:brightness-98 shadow-sm hover:shadow-md'
+                    }`}
                   >
-                    <span>Get Instant Quotes</span>
-                    <CornerDownRight className="w-3.5 h-3.5 stroke-[2.5]" />
-                  </Link>
-                </div>
-              </div>
-            ))}
+                    {isActive ? (
+                      /* ACTIVE / EXPANDED CARD VIEW (Like Restaurants in Explore Supported Trades.png) */
+                      <div className="h-full flex flex-col justify-between relative z-10">
+                        {/* Top Row: Icon + Guarantee Badge */}
+                        <div className="flex items-start justify-between gap-4">
+                          <div className="p-1">
+                            {renderAccordionTradeIcon(item.icon)}
+                          </div>
+                          <span className={`text-[11px] font-extrabold px-3.5 py-1.5 rounded-full shadow-xs flex items-center gap-1.5 ${item.badgeColor}`}>
+                            <span className="w-2 h-2 rounded-full bg-white animate-pulse" />
+                            <span>{item.badge}</span>
+                          </span>
+                        </div>
+
+                        {/* Middle Content: Title, Description, Tags, and Visual Preview */}
+                        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center my-auto py-2">
+                          <div className="md:col-span-7 space-y-4">
+                            <h3 className="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight leading-none">
+                              {item.title}
+                            </h3>
+                            <p className="text-sm sm:text-base text-slate-700 font-medium leading-relaxed max-w-lg">
+                              {item.desc}
+                            </p>
+                            {/* Sub-Specialty Tags */}
+                            <div className="flex flex-wrap gap-2 pt-1">
+                              {item.tags.map((tag) => (
+                                <span
+                                  key={tag}
+                                  className="text-xs font-bold px-3 py-1 rounded-full bg-white/75 backdrop-blur-xs border border-black/15 text-slate-800 shadow-2xs"
+                                >
+                                  {tag}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+
+                          {/* Right Visual: Vetted Artisan Card Frame */}
+                          <div className="md:col-span-5 hidden sm:flex flex-col items-center justify-center">
+                            <div className="relative w-44 h-44 lg:w-48 lg:h-48 rounded-2xl overflow-hidden border-2 border-black/25 shadow-xl bg-slate-900/10 group">
+                              <Image
+                                src={item.image}
+                                alt={item.alt}
+                                fill
+                                sizes="220px"
+                                className="object-cover transition-transform duration-500 hover:scale-105"
+                              />
+                              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                              <div className="absolute bottom-2.5 left-3 right-3 text-white text-xs">
+                                <div className="font-extrabold flex items-center gap-1">
+                                  <span>{item.artisanName}</span>
+                                  <BadgeCheck className="w-3.5 h-3.5 text-[#10B981]" />
+                                </div>
+                                <div className="text-[10px] text-white/80">{item.artisanRating}</div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Bottom Row: Direct Action CTA */}
+                        <div className="pt-2 flex flex-wrap items-center justify-between gap-4 border-t border-black/10">
+                          <Link
+                            href={`/requests/new?category=${item.slug}`}
+                            className="bg-[#0A1020] hover:bg-black text-white px-6 sm:px-7 py-3 rounded-full text-xs sm:text-sm font-extrabold inline-flex items-center gap-2 shadow-md hover:scale-105 transition-all"
+                          >
+                            <span>Book {item.title}</span>
+                            <CornerDownRight className="w-4 h-4 stroke-[2.5]" />
+                          </Link>
+
+                          <div className="flex items-center gap-2 text-xs font-bold text-slate-700">
+                            <span className="w-2 h-2 rounded-full bg-[#10B981]" />
+                            <span>Verified Kobo Escrow Protection</span>
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      /* COLLAPSED VERTICAL CARD VIEW (Exact match to Explore Supported Trades.png) */
+                      <div className="h-full flex flex-col items-center justify-between pointer-events-none">
+                        {/* Top: Iconic SVG Emblem */}
+                        <div className="pt-1">
+                          {renderAccordionTradeIcon(item.icon)}
+                        </div>
+
+                        {/* Bottom: Rotated Vertical Typography Reading Bottom to Top */}
+                        <div className="flex-1 flex items-end justify-center pb-2">
+                          <span
+                            className={`[writing-mode:vertical-rl] rotate-180 text-xl sm:text-2xl lg:text-3xl font-black tracking-tight whitespace-nowrap select-none ${item.textColor}`}
+                          >
+                            {item.collapsedTitle}
+                          </span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
           </div>
         </section>
 
