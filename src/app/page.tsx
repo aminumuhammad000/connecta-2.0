@@ -40,6 +40,8 @@ import {
   Mail,
   Globe,
   ShoppingCart,
+  Volume2,
+  VolumeX,
 } from 'lucide-react'
 
 const DYNAMIC_PHRASES = [
@@ -603,6 +605,15 @@ export default function HomePage() {
   const [selectedTradeTab, setSelectedTradeTab] = useState('all')
   const [tradeCategoryGroup, setTradeCategoryGroup] = useState<'metro' | 'workshop'>('metro')
   const [activeAccordionIndex, setActiveAccordionIndex] = useState<number>(0)
+  const videoRef = useRef<HTMLVideoElement>(null)
+  const [isVideoMuted, setIsVideoMuted] = useState(true)
+
+  const toggleVideoSound = () => {
+    if (videoRef.current) {
+      videoRef.current.muted = !videoRef.current.muted
+      setIsVideoMuted(videoRef.current.muted)
+    }
+  }
 
   const filteredCategories =
     selectedTradeTab === 'all'
@@ -894,6 +905,72 @@ export default function HomePage() {
                     </div>
                   </div>
                 )}
+              </div>
+            </div>
+
+            {/* Hero Brand Ecosystem Video (hero.mp4) */}
+            <div className="mt-12 sm:mt-16 max-w-5xl mx-auto">
+              <div className="relative rounded-3xl sm:rounded-[32px] overflow-hidden border-[2.5px] border-black shadow-2xl bg-black aspect-video group">
+                <video
+                  ref={videoRef}
+                  src="/hero.mp4"
+                  autoPlay
+                  loop
+                  muted={isVideoMuted}
+                  playsInline
+                  className="w-full h-full object-cover"
+                />
+
+                {/* Subtle Gradient Overlays for Readability */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20 pointer-events-none" />
+
+                {/* Top Floating Badges: Location & Sound Toggle */}
+                <div className="absolute top-4 left-4 sm:top-5 sm:left-5 flex items-center gap-2 bg-black/60 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-white/20 text-white text-xs font-bold shadow-lg">
+                  <span className="w-2 h-2 rounded-full bg-[#10B981] animate-pulse" />
+                  <span>Connecta Ecosystem in Motion · Kano, Nigeria</span>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={toggleVideoSound}
+                  className="absolute top-4 right-4 sm:top-5 sm:right-5 flex items-center gap-2 bg-black/60 hover:bg-black/80 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-white/20 text-white text-xs font-bold shadow-lg transition-all duration-300 hover:scale-105 cursor-pointer"
+                  title={isVideoMuted ? 'Unmute video' : 'Mute video'}
+                >
+                  {isVideoMuted ? (
+                    <>
+                      <VolumeX className="w-4 h-4 text-slate-300" />
+                      <span>Unmute</span>
+                    </>
+                  ) : (
+                    <>
+                      <Volume2 className="w-4 h-4 text-emerald-400" />
+                      <span>Sound On</span>
+                    </>
+                  )}
+                </button>
+
+                {/* Bottom Floating Highlights */}
+                <div className="absolute bottom-4 left-4 right-4 sm:bottom-5 sm:left-5 sm:right-5 flex flex-wrap items-center justify-between gap-3 text-white text-xs font-bold pointer-events-none">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="bg-white/20 backdrop-blur-md px-3 py-1 rounded-full border border-white/20 text-[11px] sm:text-xs">
+                      ⚡ Solar & Inverters
+                    </span>
+                    <span className="bg-white/20 backdrop-blur-md px-3 py-1 rounded-full border border-white/20 text-[11px] sm:text-xs">
+                      💧 Water & Borehole
+                    </span>
+                    <span className="bg-white/20 backdrop-blur-md px-3 py-1 rounded-full border border-white/20 text-[11px] sm:text-xs">
+                      🪵 Woodwork
+                    </span>
+                    <span className="bg-white/20 backdrop-blur-md px-3 py-1 rounded-full border border-white/20 text-[11px] sm:text-xs">
+                      📱 Gadgets Lab
+                    </span>
+                  </div>
+
+                  <span className="hidden sm:inline-flex items-center gap-1.5 bg-[#10B981]/90 backdrop-blur-md px-3 py-1 rounded-full text-white font-extrabold shadow-md text-xs">
+                    <BadgeCheck className="w-3.5 h-3.5" />
+                    <span>100% Verified Community</span>
+                  </span>
+                </div>
               </div>
             </div>
           </div>
