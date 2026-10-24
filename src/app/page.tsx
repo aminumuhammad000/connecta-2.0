@@ -39,6 +39,7 @@ import {
   Phone,
   Mail,
   Globe,
+  ShoppingCart,
 } from 'lucide-react'
 
 const DYNAMIC_PHRASES = [
@@ -327,28 +328,28 @@ const REVIEWS = [
 
 const FAQS = [
   {
-    q: 'How does Connecta verify artisans and service providers?',
-    a: 'Every verified provider undergoes a mandatory multi-step check: government-issued identification (NIN, Voter Card, or CAC business certificate), physical verification of trade experience or apprenticeship guarantors, and a review of past work before receiving the Verified Artisan Badge.',
+    q: 'What is Connecta?',
+    a: 'Connecta is a technology platform that connects homes and businesses with verified artisans and technicians across Nigeria. We provide transparent itemized quoting, digital job evidence, and escrow protection so you can discover, hire, and get things fixed with total peace of mind.',
   },
   {
-    q: 'Is it free to request quotes on Connecta?',
-    a: 'Yes, 100% free for customers. You can describe your issue, attach photos, and receive competitive quotations from local technicians with zero obligation to book.',
+    q: 'Does Connecta offer verified same-day repairs?',
+    a: 'Yes. With local artisans stationed across metropolitan zones, emergency repairs such as plumbing pipe leaks, solar inverter faults, and phone screen replacements can typically be attended to within 45 to 60 minutes.',
   },
   {
-    q: 'How are prices determined? Will there be surprise costs?',
-    a: 'Providers submit itemized quotes with clear breakdowns for labor, replacement materials, and visit fees in Nigerian Naira. If hidden damage is uncovered during work, the provider must submit a formal Change Order with photo evidence that you approve before any extra charge applies.',
+    q: 'Will my quotes be transparent with no hidden charges?',
+    a: 'Every quotation on Connecta is itemized with explicit breakdowns for labor, replacement parts, and visit fees in Nigerian Naira. If additional concealed faults are uncovered on-site, the technician must submit a formal digital Change Order with photo evidence that you approve first.',
   },
   {
-    q: 'Which areas in Kano does Connecta currently cover?',
-    a: 'Connecta is actively available across Kano Metropolitan, including Nassarawa GRA, Bompai, Sabon Gari, Fagge, Tarauni, Dala, Gwale, Hotoro, and surrounding residential and commercial districts.',
+    q: 'How do I sign up as a service provider on Connecta?',
+    a: 'Simply click "Vendors" or "Become a Provider", submit your trade profile, experience, and upload government-issued ID (NIN, Voter Card, or CAC business certificate). Our verification team reviews submissions within 24 to 48 hours before issuing the Verified Artisan Badge.',
   },
   {
-    q: 'How do I join Connecta as an artisan or workshop owner?',
-    a: 'Simply click "Become a Provider", submit your trade details, experience, service areas, and upload your identification document. Our verification team reviews submissions within 24–48 hours.',
+    q: 'How are artisans and technicians verified?',
+    a: 'Every provider undergoes a mandatory multi-step check: government-issued identification validation, physical verification of workshop location and trade qualification, apprenticeship guarantor verification, and performance reviews before receiving the Verified Artisan Badge.',
   },
   {
     q: 'What happens if a job is not completed satisfactorily?',
-    a: 'Connecta incorporates a built-in dispute resolution process. Both customer and technician can submit photo evidence and notes to our support team for an auditable and fair review.',
+    a: 'Connecta incorporates a built-in escrow payment safeguard and dispute resolution process. Both customer and technician can submit photo evidence and notes to our support team for an auditable and fair review.',
   },
 ]
 
@@ -455,72 +456,69 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-[#F5F7FC] text-[#0A1020] selection:bg-[#4D78FF] selection:text-white">
-      {/* Chowdeck-style Floating Pill Header */}
+      {/* Chowdeck-style Floating Header (Exact match to header.png) */}
       <div className="sticky top-4 z-50 px-4 sm:px-6">
-        <header className="max-w-6xl mx-auto bg-white/90 backdrop-blur-xl border border-slate-200/90 rounded-full px-4 sm:px-6 py-2.5 shadow-lg shadow-black/5 flex items-center justify-between gap-4">
-          <div className="flex items-center gap-5">
-            <Link href="/" className="flex items-center">
-              <div className="relative w-32 h-8">
+        <header className="max-w-7xl mx-auto flex items-center justify-between gap-4">
+          {/* Left Pill Group: Connecta Brand Pill + Country Selector */}
+          <div className="flex items-center gap-2.5 sm:gap-3">
+            <Link
+              href="/"
+              className="bg-[#0C513F] hover:bg-[#083b2e] text-white px-4 py-2 sm:px-4.5 sm:py-2.5 rounded-full flex items-center gap-2 shadow-md transition-all hover:scale-105 shrink-0"
+            >
+              <div className="relative w-5 h-5 shrink-0">
                 <Image
-                  src="/brand/svg/connecta-logo.svg"
-                  alt="Connecta Logo"
+                  src="/brand/connecta-header-icon.svg"
+                  alt="Connecta Icon"
                   fill
                   className="object-contain"
                   priority
                 />
               </div>
+              <span className="font-extrabold text-sm tracking-tight text-white">connecta</span>
             </Link>
 
-            <div className="hidden lg:inline-flex items-center gap-2 text-[11px] font-extrabold text-[#0A1020] bg-slate-50 hover:bg-slate-100 px-3 py-1.5 rounded-full border border-slate-200/90 shadow-2xs transition-colors">
-              <span className="inline-flex items-center overflow-hidden rounded-xs w-4 h-2.5 border border-slate-300 shadow-2xs shrink-0" aria-label="Nigeria">
-                <span className="w-1/3 h-full bg-[#008751]" />
-                <span className="w-1/3 h-full bg-white" />
-                <span className="w-1/3 h-full bg-[#008751]" />
+            <div className="flex items-center gap-1.5 text-xs font-bold text-slate-800 bg-white/95 px-3 py-2 rounded-full shadow-md border border-slate-200/80 cursor-pointer hover:bg-slate-50 transition-colors shrink-0">
+              <span className="text-sm leading-none">🇳🇬</span>
+              <span className="font-extrabold text-slate-900 tracking-tight text-xs">NG</span>
+              <span className="w-4 h-4 rounded-full border border-slate-400 text-slate-700 flex items-center justify-center text-[10px] ml-0.5">
+                <ChevronDown className="w-2.5 h-2.5 stroke-[2.5]" />
               </span>
-              <span className="tracking-wider uppercase text-[10px] text-slate-700">Nigeria</span>
-              <span className="w-1.5 h-1.5 rounded-full bg-[#10B981] animate-pulse" />
             </div>
           </div>
 
-          <nav className="hidden md:flex items-center gap-1 text-xs font-bold text-[#0A1020]">
-            <Link
-              href="#services"
-              className="px-3.5 py-1.5 rounded-full hover:bg-slate-100 hover:text-[#4D78FF] transition-all"
-            >
-              Services
+          {/* Center Navigation Pill (Exact match to header.png: Company Vendors Riders Products ⌄) */}
+          <nav className="hidden lg:flex items-center gap-7 xl:gap-8 text-xs font-extrabold text-slate-900 bg-white/95 px-8 py-3 rounded-full shadow-md border border-slate-200/80 backdrop-blur-md">
+            <Link href="#about" className="hover:text-[#0C513F] transition-colors">
+              Company
             </Link>
-            <Link
-              href="#how-it-works"
-              className="px-3.5 py-1.5 rounded-full hover:bg-slate-100 hover:text-[#4D78FF] transition-all"
-            >
-              How It Works
+            <Link href="/provider/register" className="hover:text-[#0C513F] transition-colors">
+              Vendors
             </Link>
-            <Link
-              href="#about"
-              className="px-3.5 py-1.5 rounded-full hover:bg-slate-100 hover:text-[#4D78FF] transition-all"
-            >
-              About
+            <Link href="#how-it-works" className="hover:text-[#0C513F] transition-colors">
+              Riders
             </Link>
-            <Link
-              href="#faq"
-              className="px-3.5 py-1.5 rounded-full hover:bg-slate-100 hover:text-[#4D78FF] transition-all"
-            >
-              FAQs
+            <Link href="#services" className="hover:text-[#0C513F] transition-colors flex items-center gap-1">
+              <span>Products</span>
+              <ChevronDown className="w-3.5 h-3.5 stroke-[2.5]" />
             </Link>
           </nav>
 
-          <div className="flex items-center gap-2 sm:gap-3">
-            <Link
-              href="/provider/register"
-              className="text-xs font-bold text-slate-700 hover:text-[#4D78FF] transition-colors px-3 py-1.5 hidden sm:inline-block"
-            >
-              Join as an Artisan
-            </Link>
+          {/* Right Group: More ⌄ & Shopping Cart Button (Exact match to header.png) */}
+          <div className="flex items-center gap-2 sm:gap-2.5">
             <Link
               href="/requests/new"
-              className="inline-flex items-center justify-center rounded-full bg-[#4D78FF] hover:bg-[#3b63e6] px-5 sm:px-6 py-2.5 text-xs sm:text-sm font-extrabold text-white shadow-md transition-all hover:scale-[1.02]"
+              className="hidden sm:inline-flex items-center gap-1.5 text-xs font-extrabold text-slate-900 bg-white/95 px-5 py-2.5 rounded-full shadow-md border border-slate-200/80 hover:bg-slate-50 transition-colors"
             >
-              Fix Something
+              <span>More</span>
+              <ChevronDown className="w-3.5 h-3.5 stroke-[2.5]" />
+            </Link>
+
+            <Link
+              href="/requests/new"
+              className="w-10 h-10 rounded-full bg-white shadow-md border border-slate-200/80 flex items-center justify-center text-[#10B981] hover:text-[#0C513F] hover:scale-105 transition-all shrink-0"
+              title="Cart / Request Basket"
+            >
+              <ShoppingCart className="w-5 h-5" />
             </Link>
           </div>
         </header>
@@ -1495,80 +1493,78 @@ export default function HomePage() {
         </section>
 
         {/* ================================================================= */}
-        {/* FREQUENTLY ASKED QUESTIONS (VISION/MISSION ADAPTATION)             */}
+        {/* FREQUENTLY ASKED QUESTIONS (EXACT TWO-COLUMN LAYOUT FROM faqs.png) */}
         {/* ================================================================= */}
         <section id="faq" className="py-20 bg-white border-y border-slate-200 relative overflow-hidden">
-          {/* Subtle Halftone Background */}
-          <div
-            className="absolute inset-0 opacity-[0.035] pointer-events-none"
-            style={{
-              backgroundImage: 'radial-gradient(#0A1020 1px, transparent 1px)',
-              backgroundSize: '24px 24px',
-            }}
-          />
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            {/* Outer Box Card matching faqs.png */}
+            <div className="border-2 border-[#0A1020] rounded-3xl p-6 sm:p-10 lg:p-14 bg-white shadow-2xl">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-14 items-start">
+                {/* Left Column: FAQs. */}
+                <div className="space-y-6">
+                  <h2 className="text-5xl sm:text-7xl font-black text-[#0A2614] tracking-tight">
+                    FAQs.
+                  </h2>
 
-          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-            <div className="text-center mb-14 space-y-3">
-              <span className="text-xs font-bold text-[#10B981] bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
-                Help & Answers
-              </span>
-              <div className="flex items-center justify-center gap-3">
-                <div className="w-9 h-9 rounded-full border-2 border-[#0A1020] flex items-center justify-center font-bold text-lg shrink-0">
-                  ↓
-                </div>
-                <h2 className="text-3xl sm:text-5xl font-black tracking-tight text-[#0A1020]">
-                  Frequently Asked Questions
-                </h2>
-              </div>
-              <p className="text-sm text-slate-600">
-                Everything you need to know about discovering, quoting, and booking on Connecta.
-              </p>
-            </div>
-
-            <div className="space-y-4">
-              {FAQS.map((faq, index) => {
-                const isOpen = openFaq === index
-                const qNumber = `Q0${index + 1}`
-                return (
-                  <div
-                    key={index}
-                    className={`rounded-2xl transition-all duration-300 border ${
-                      isOpen
-                        ? 'bg-[#F5F7FC] border-[#4D78FF] shadow-lg'
-                        : 'bg-white border-slate-200 hover:border-slate-300 shadow-sm'
-                    }`}
-                  >
-                    <button
-                      onClick={() => setOpenFaq(isOpen ? null : index)}
-                      className="w-full p-5 sm:p-6 flex items-center justify-between text-left gap-4 focus:outline-none"
-                    >
-                      <div className="flex items-center gap-3">
-                        <span className="text-xs font-black px-2.5 py-1 rounded-full bg-[#0A1020] text-white shrink-0">
-                          {qNumber}
-                        </span>
-                        <span className="text-sm sm:text-base font-extrabold text-[#0A1020]">
-                          {faq.q}
-                        </span>
-                      </div>
-                      <ChevronDown
-                        className={`w-5 h-5 text-slate-500 shrink-0 transition-transform ${
-                          isOpen ? 'rotate-180 text-[#4D78FF]' : ''
-                        }`}
-                      />
-                    </button>
-                    {isOpen && (
-                      <div className="px-5 pb-6 sm:px-6 pt-0">
-                        <div className="pt-3 border-t border-slate-200/80 flex items-start gap-2.5">
-                          <CornerDownRight className="w-4 h-4 text-[#10B981] shrink-0 mt-0.5 stroke-[2.5]" />
-                          <p className="text-xs sm:text-sm text-slate-600 leading-relaxed font-normal">
-                            {faq.a}
-                          </p>
-                        </div>
-                      </div>
-                    )}
+                  <div className="space-y-3.5">
+                    {FAQS.map((faq, index) => {
+                      const isActive = (openFaq ?? 0) === index
+                      return (
+                        <button
+                          key={index}
+                          onClick={() => setOpenFaq(index)}
+                          className={`w-full p-4 sm:p-5 rounded-2xl text-left transition-all duration-200 flex items-center justify-between gap-3 cursor-pointer ${
+                            isActive
+                              ? 'bg-black text-white shadow-xl scale-[1.01]'
+                              : 'bg-white border border-slate-200 hover:border-slate-300 text-[#0A2614]'
+                          }`}
+                        >
+                          <span className="text-sm sm:text-base font-extrabold leading-snug">
+                            {faq.q}
+                          </span>
+                          {isActive && (
+                            <span className="shrink-0 text-[#F5A623]">
+                              {/* 12-Point Golden Starburst matching faqs.png */}
+                              <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12 2l1.9 3.9 4.3-.6.5 4.3 4 1.7-1.8 3.9 1.8 3.9-4 1.7-.5 4.3-4.3-.6L12 22l-1.9-3.9-4.3.6-.5-4.3-4-1.7 1.8-3.9-1.8-3.9 4-1.7.5-4.3 4.3.6z" />
+                              </svg>
+                            </span>
+                          )}
+                        </button>
+                      )
+                    })}
                   </div>
-                )
-              })}
+                </div>
+
+                {/* Right Column: Ans. */}
+                <div className="space-y-6">
+                  <h2 className="text-5xl sm:text-7xl font-black text-[#0A2614] tracking-tight">
+                    Ans.
+                  </h2>
+
+                  {/* Saturated Amber / Yellow Answer Card matching faqs.png */}
+                  <div className="bg-[#F5A623] rounded-3xl p-8 sm:p-12 text-[#0A1020] shadow-xl min-h-[380px] sm:min-h-[420px] flex flex-col justify-start relative">
+                    {/* Black 12-Point Starburst matching faqs.png */}
+                    <div className="text-[#0A1020]">
+                      <svg className="w-7 h-7" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2l1.9 3.9 4.3-.6.5 4.3 4 1.7-1.8 3.9 1.8 3.9-4 1.7-.5 4.3-4.3-.6L12 22l-1.9-3.9-4.3.6-.5-4.3-4-1.7 1.8-3.9-1.8-3.9 4-1.7.5-4.3 4.3.6z" />
+                      </svg>
+                    </div>
+
+                    {/* Answer text */}
+                    <p className="text-base sm:text-lg lg:text-xl font-medium leading-relaxed mt-6 text-[#0A1020]/95">
+                      {FAQS[openFaq ?? 0]?.a}
+                    </p>
+
+                    <div className="mt-auto pt-8 border-t border-[#0A1020]/15 flex items-center justify-between text-xs font-bold text-[#0A1020]/80">
+                      <span>Verified Connecta Standard</span>
+                      <span>
+                        Question {((openFaq ?? 0) + 1).toString().padStart(2, '0')} of {FAQS.length.toString().padStart(2, '0')}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </section>
