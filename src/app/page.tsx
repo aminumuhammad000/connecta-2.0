@@ -49,10 +49,20 @@ const DYNAMIC_PHRASES = [
   'custom furniture & woodwork',
 ]
 
+const TRADE_TABS = [
+  { id: 'all', label: 'All Trades (8)' },
+  { id: 'power', label: 'Electrical & Solar' },
+  { id: 'devices', label: 'Phones & Gadgets' },
+  { id: 'home', label: 'Woodwork & Home' },
+  { id: 'cooling-plumbing', label: 'Cooling & Pipes' },
+  { id: 'vehicles', label: 'Auto Diagnostics' },
+]
+
 const CATEGORIES = [
   {
     name: 'Electrical & Wiring',
     slug: 'electrical',
+    group: 'power',
     image: '/images/services/electrician_working_on_electrical_panel.jpg',
     alt: 'Electrician working on an electrical distribution panel in Kano',
     desc: 'Fault finding, house wiring, inverter & solar installations, breaker repair',
@@ -61,10 +71,12 @@ const CATEGORIES = [
     speed: 'Avg 45 min arrival',
     themeBg: 'bg-[#1E1B4B]',
     accentColor: '#10B981',
+    tags: ['Solar Sizing', 'Inverters', 'Breakers'],
   },
   {
     name: 'Phone & Tablet Repair',
     slug: 'phone-repair',
+    group: 'devices',
     image: '/images/services/phone_repair_technician.jpg',
     alt: 'Technician repairing smartphone motherboard and screen',
     desc: 'Screens, battery replacements, charging ports, board micro-soldering',
@@ -73,10 +85,12 @@ const CATEGORIES = [
     speed: 'Under 1 hr repair',
     themeBg: 'bg-[#0A1020]',
     accentColor: '#4D78FF',
+    tags: ['OLED Screens', 'TrueTone', 'Motherboards'],
   },
   {
     name: 'Carpentry & Woodwork',
     slug: 'carpentry',
+    group: 'home',
     image: '/images/services/carpenter_working_in_nigeria.jpg',
     alt: 'Carpenter working on wooden construction in Nigeria',
     desc: 'Custom furniture, door fittings, roof woodwork, wardrobe framing',
@@ -85,10 +99,12 @@ const CATEGORIES = [
     speed: 'Certified timber',
     themeBg: 'bg-[#2E1A47]',
     accentColor: '#F59E0B',
+    tags: ['Custom Woodwork', 'Door Fitting', 'Roof Trusses'],
   },
   {
     name: 'AC & Refrigeration',
     slug: 'ac-cooling',
+    group: 'cooling-plumbing',
     image: '/images/services/air_conditioner_repair_technician.jpg',
     alt: 'Technician inspecting and servicing air conditioner unit',
     desc: 'AC gas refill, compressor maintenance, duct cleaning, installation',
@@ -97,10 +113,12 @@ const CATEGORIES = [
     speed: 'Genuine gas top-up',
     themeBg: 'bg-[#0A2614]',
     accentColor: '#10B981',
+    tags: ['Gas Top-Up', 'Compressors', 'Duct Flushing'],
   },
   {
     name: 'Computer & Laptop Repair',
     slug: 'computer-repair',
+    group: 'devices',
     image: '/images/services/computer_repair_technician.jpg',
     alt: 'Technician repairing laptop hardware in workshop',
     desc: 'Hardware upgrades, OS reinstallation, screens & thermal paste fixes',
@@ -109,10 +127,12 @@ const CATEGORIES = [
     speed: 'Hardware diagnostic',
     themeBg: 'bg-[#1E1B4B]',
     accentColor: '#8B7CFF',
+    tags: ['Thermal Paste', 'NVMe SSDs', 'Diagnostics'],
   },
   {
     name: 'Auto Mechanics & Diagnostics',
     slug: 'auto-mechanic',
+    group: 'vehicles',
     image: '/images/services/car_mechanic_repairing_engine.jpg',
     alt: 'Mechanic servicing car engine diagnostics in workshop',
     desc: 'Engine diagnostics, brake repairs, suspension, routine maintenance',
@@ -121,10 +141,12 @@ const CATEGORIES = [
     speed: 'OBD2 scan included',
     themeBg: 'bg-[#0A1020]',
     accentColor: '#F59E0B',
+    tags: ['OBD2 Scans', 'Brake Systems', 'Suspension'],
   },
   {
     name: 'Painting & Wall Finishing',
     slug: 'painting',
+    group: 'home',
     image: '/images/services/house_painter_painting_wall.jpg',
     alt: 'Painter applying smooth coat to interior wall',
     desc: 'Interior and exterior painting, POP plastering, waterproofing',
@@ -133,10 +155,12 @@ const CATEGORIES = [
     speed: 'Clean site cleanup',
     themeBg: 'bg-[#2E1A47]',
     accentColor: '#10B981',
+    tags: ['POP Plastering', 'Waterproofing', 'Interiors'],
   },
   {
     name: 'Plumbing & Pipe Maintenance',
     slug: 'plumbing',
+    group: 'cooling-plumbing',
     image: '/images/services/cleaning_or_maintenance_technician.jpg',
     alt: 'Maintenance specialist working on piping equipment',
     desc: 'Water pipe leaks, borehole pumps, kitchen & bathroom installations',
@@ -145,6 +169,7 @@ const CATEGORIES = [
     speed: 'Pressure testing',
     themeBg: 'bg-[#0A2614]',
     accentColor: '#4D78FF',
+    tags: ['Borehole Pumps', 'Pipe Leaks', 'Pressure Valves'],
   },
 ]
 
@@ -330,6 +355,12 @@ export default function HomePage() {
   const [searchQuery, setSearchQuery] = useState('')
   const [openFaq, setOpenFaq] = useState<number | null>(0)
   const [phraseIndex, setPhraseIndex] = useState(0)
+  const [selectedTradeTab, setSelectedTradeTab] = useState('all')
+
+  const filteredCategories =
+    selectedTradeTab === 'all'
+      ? CATEGORIES
+      : CATEGORIES.filter((c) => c.group === selectedTradeTab)
 
   // Chowdeck-style cycling text motion
   useEffect(() => {
@@ -806,10 +837,10 @@ export default function HomePage() {
         </section>
 
         {/* ================================================================= */}
-        {/* SUPPORTED SERVICE TRADES (VISION/MISSION ADAPTATION)               */}
+        {/* SUPPORTED SERVICE TRADES (CHOWDECK-STYLE STAGGERED ALLEY)         */}
         {/* ================================================================= */}
-        <section id="services" className="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-          <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
+        <section id="services" className="py-20 lg:pb-32 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+          <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-6">
             <div className="space-y-3">
               <div className="flex items-center gap-3">
                 <div className="w-9 h-9 rounded-full border-2 border-[#0A1020] flex items-center justify-center font-bold text-lg shrink-0">
@@ -832,50 +863,107 @@ export default function HomePage() {
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {CATEGORIES.map((cat) => (
+          {/* Chowdeck-style Interactive Category Filter Tabs */}
+          <div className="flex items-center gap-2 overflow-x-auto pb-4 pt-1 mb-8 scrollbar-none">
+            {TRADE_TABS.map((tab) => {
+              const isActive = selectedTradeTab === tab.id
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setSelectedTradeTab(tab.id)}
+                  className={`px-4 py-2 rounded-full text-xs font-bold transition-all whitespace-nowrap shadow-xs cursor-pointer ${
+                    isActive
+                      ? 'bg-[#0A1020] text-white shadow-md scale-[1.02]'
+                      : 'bg-white text-slate-600 hover:bg-slate-100 hover:text-slate-900 border border-slate-200'
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              )
+            })}
+          </div>
+
+          {/* Chowdeck Dual-Staggered Alley Grid (Alternating Offsets & Tactile Cards) */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-7 items-start">
+            {filteredCategories.map((cat, idx) => (
               <div
                 key={cat.slug}
-                className="group relative bg-white rounded-3xl border border-slate-200 overflow-hidden hover:border-[#4D78FF] hover:shadow-2xl transition-all duration-300 flex flex-col justify-between"
+                className={`group bg-white rounded-3xl p-3.5 sm:p-4 border border-slate-200/90 shadow-md hover:shadow-2xl hover:border-[#4D78FF] transition-all duration-300 transform flex flex-col justify-between ${
+                  idx % 2 === 1 ? 'lg:translate-y-8' : ''
+                }`}
               >
                 <div>
-                  <div className="relative h-48 w-full bg-slate-100 overflow-hidden">
+                  {/* Image Container with Inner Border Radius & Zoom Effect */}
+                  <div className="relative h-52 sm:h-56 w-full rounded-2xl overflow-hidden bg-slate-100">
                     <Image
                       src={cat.image}
                       alt={cat.alt}
                       fill
                       sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                      className="object-cover group-hover:scale-105 transition-transform duration-500"
+                      className="object-cover group-hover:scale-108 transition-transform duration-500 ease-out"
                     />
+
+                    {/* Gradient Vignette for Readability */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/25" />
+
+                    {/* Top Floating Category Badge with Pulsing Dot */}
                     {cat.badge && (
-                      <span className={`absolute top-3 left-3 text-[10px] font-bold px-3 py-1 rounded-full shadow-md ${cat.badgeColor}`}>
-                        {cat.badge}
+                      <span className={`absolute top-3 left-3 text-[10px] font-extrabold px-3 py-1 rounded-full shadow-md flex items-center gap-1.5 ${cat.badgeColor}`}>
+                        <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+                        <span>{cat.badge}</span>
                       </span>
                     )}
-                    <div className="absolute bottom-3 right-3 bg-white/95 backdrop-blur-md px-2.5 py-1 rounded-full text-[10px] font-bold text-slate-800 shadow">
-                      {cat.speed}
+
+                    {/* Chowdeck-style Speed / Arrival Badge */}
+                    <div className="absolute top-3 right-3 bg-white/95 backdrop-blur-md px-2.5 py-1 rounded-full text-[10px] font-extrabold text-slate-900 shadow-md flex items-center gap-1 border border-white/60">
+                      <Clock className="w-3 h-3 text-[#10B981]" />
+                      <span>{cat.speed}</span>
+                    </div>
+
+                    {/* Bottom Floating Guarantee Snippets */}
+                    <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between text-[10px] text-white font-bold">
+                      <span className="bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-full border border-white/20">
+                        ₦ Itemized Quote
+                      </span>
+                      <span className="bg-[#10B981]/90 backdrop-blur-md px-2 py-0.5 rounded-full text-white font-extrabold">
+                        Vetted Pro
+                      </span>
                     </div>
                   </div>
 
-                  <div className="p-5">
+                  {/* Card Content & Sub-specialty Tags */}
+                  <div className="pt-4 px-1 pb-1 space-y-3">
                     <div className="flex items-center gap-1.5">
                       <CornerDownRight className="w-4 h-4 text-[#4D78FF] shrink-0 stroke-[2.5]" />
                       <h3 className="text-base font-extrabold text-[#0A1020] group-hover:text-[#4D78FF] transition-colors">
                         {cat.name}
                       </h3>
                     </div>
-                    <p className="text-xs text-slate-500 mt-2 leading-relaxed line-clamp-2">
+                    <p className="text-xs text-slate-500 leading-relaxed line-clamp-2">
                       {cat.desc}
                     </p>
+
+                    {/* Sub-Specialty Tag Pills */}
+                    <div className="flex flex-wrap gap-1.5 pt-1">
+                      {cat.tags.map((tag) => (
+                        <span
+                          key={tag}
+                          className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 group-hover:bg-blue-50 group-hover:text-[#4D78FF] transition-colors"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
                   </div>
                 </div>
 
-                <div className="p-5 pt-0">
+                {/* Card CTA Full-Bleed Action */}
+                <div className="pt-4 px-1 pb-1">
                   <Link
                     href={`/requests/new?category=${cat.slug}`}
-                    className="w-full py-2.5 px-4 rounded-xl bg-slate-50 group-hover:bg-[#0A1020] group-hover:text-white text-slate-700 text-xs font-bold transition-all flex items-center justify-between"
+                    className="w-full py-2.5 px-4 rounded-xl bg-slate-100 group-hover:bg-[#0A1020] group-hover:text-white text-slate-800 text-xs font-extrabold transition-all flex items-center justify-between shadow-2xs group-hover:shadow-md"
                   >
-                    <span>Request Quotation</span>
+                    <span>Get Instant Quotes</span>
                     <CornerDownRight className="w-3.5 h-3.5 stroke-[2.5]" />
                   </Link>
                 </div>
