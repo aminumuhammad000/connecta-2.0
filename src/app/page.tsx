@@ -34,6 +34,10 @@ import {
   ArrowUpRight,
   CornerDownRight,
   Check,
+  ArrowUp,
+  Phone,
+  Mail,
+  Globe,
 } from 'lucide-react'
 
 const DYNAMIC_PHRASES = [
@@ -1385,76 +1389,213 @@ export default function HomePage() {
         </section>
       </main>
 
-      {/* Comprehensive Footer */}
-      <footer className="bg-white border-t border-slate-200 py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-5 gap-8 mb-12">
-            <div className="md:col-span-2 space-y-4">
-              <div className="relative w-32 h-8">
+      {/* Comprehensive Polished Dark Footer (Vision/Mission & Chowdeck Style) */}
+      <footer className="bg-[#0A1020] text-white pt-20 pb-12 relative overflow-hidden border-t border-slate-800">
+        {/* Halftone / Dot pattern */}
+        <div
+          className="absolute inset-0 opacity-[0.04] pointer-events-none"
+          style={{
+            backgroundImage: 'radial-gradient(#FFFFFF 1.5px, transparent 1.5px)',
+            backgroundSize: '20px 20px',
+          }}
+        />
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          {/* Top Pre-Footer Callout Card */}
+          <div className="pb-16 border-b border-white/10 flex flex-col lg:flex-row lg:items-center justify-between gap-8">
+            <div className="space-y-3 max-w-2xl">
+              <div className="inline-flex items-center gap-2 rounded-full bg-[#10B981]/20 px-3.5 py-1 text-xs font-bold text-[#10B981] border border-[#10B981]/30">
+                <span className="w-2 h-2 rounded-full bg-[#10B981] animate-pulse" />
+                <span>Kano Launch Hub • Expanding Across Northern Nigeria</span>
+              </div>
+              <h2 className="text-3xl sm:text-5xl font-black text-white tracking-tight leading-tight">
+                Everything fixed. <br />
+                <span className="text-[#4D78FF]">Every artisan verified.</span>
+              </h2>
+              <p className="text-xs sm:text-sm text-slate-300 leading-relaxed font-normal">
+                Connecta brings accountability, itemized Naira pricing, and certified artisan talent directly to your doorstep with end-to-end escrow security.
+              </p>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-3 shrink-0">
+              <Link
+                href="/requests/new"
+                className="inline-flex items-center gap-2 rounded-full bg-[#4D78FF] hover:bg-[#3b63e6] text-white px-7 py-4 text-xs sm:text-sm font-extrabold shadow-xl transition-all hover:scale-105"
+              >
+                <span>Request Free Quotation</span>
+                <CornerDownRight className="w-4 h-4 stroke-[2.5]" />
+              </Link>
+              <Link
+                href="/provider/register"
+                className="inline-flex items-center gap-2 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 text-white px-6 py-4 text-xs sm:text-sm font-bold transition-all"
+              >
+                <span>Join as an Artisan</span>
+                <CornerDownRight className="w-4 h-4 stroke-[2.5]" />
+              </Link>
+            </div>
+          </div>
+
+          {/* Active Metro Coverage Badges */}
+          <div className="py-10 border-b border-white/10 space-y-4">
+            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-400">
+              <MapPin className="w-3.5 h-3.5 text-[#4D78FF]" />
+              <span>Active Service Coverage Across Kano Metropolitan:</span>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {[
+                'Nassarawa GRA',
+                'Bompai Industrial',
+                'Sabon Gari Market',
+                'Fagge Commercial',
+                'Tarauni Residential',
+                'Dala Historic',
+                'Gwale District',
+                'Hotoro Hub',
+                'Kano Municipal',
+                'Kano State Tech Corridor',
+              ].map((loc) => (
+                <span
+                  key={loc}
+                  className="text-xs font-semibold px-3 py-1.5 rounded-full bg-white/5 hover:bg-white/15 border border-white/10 text-slate-300 transition-colors cursor-default"
+                >
+                  {loc}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          {/* 5-Column High-Contrast Navigation */}
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-10 py-14 border-b border-white/10">
+            {/* Column 1: Brand & Headquarters */}
+            <div className="md:col-span-2 space-y-5">
+              <div className="relative w-36 h-9">
                 <Image
-                  src="/brand/svg/connecta-logo.svg"
+                  src="/brand/svg/connecta-logo-white.svg"
                   alt="Connecta Logo"
                   fill
                   className="object-contain"
                 />
               </div>
-              <p className="text-xs text-slate-500 leading-relaxed max-w-sm">
-                Connecta is a trusted local services marketplace connecting homes and businesses with verified artisans and repair specialists across Kano and Nigeria.
+              <p className="text-xs text-slate-400 leading-relaxed max-w-sm">
+                Connecta is Nigeria&apos;s trusted local services marketplace. Connecting homeowners, property managers, and businesses with verified artisans and technical repair specialists across Kano and beyond.
               </p>
-              <div className="flex items-center gap-2 text-xs text-slate-600">
-                <MapPin className="w-3.5 h-3.5 text-[#4D78FF]" />
-                <span>Headquarters: Kano State, Nigeria</span>
+
+              <div className="space-y-2 text-xs text-slate-300">
+                <div className="flex items-center gap-2.5">
+                  <MapPin className="w-4 h-4 text-[#10B981] shrink-0" />
+                  <span>Headquarters: Kano State, Nigeria</span>
+                </div>
+                <div className="flex items-center gap-2.5">
+                  <Mail className="w-4 h-4 text-[#4D78FF] shrink-0" />
+                  <a href="mailto:support@connecta.ng" className="hover:text-white transition-colors">
+                    support@connecta.ng
+                  </a>
+                </div>
+                <div className="flex items-center gap-2.5">
+                  <Phone className="w-4 h-4 text-[#F59E0B] shrink-0" />
+                  <span>+234 800 CONNECTA (Toll-Free Support)</span>
+                </div>
+              </div>
+
+              <div className="pt-2 flex flex-wrap gap-2 text-[11px] font-bold text-slate-400">
+                <span className="bg-white/10 px-2.5 py-1 rounded-md border border-white/10 text-emerald-400">
+                  100% ID Vetted
+                </span>
+                <span className="bg-white/10 px-2.5 py-1 rounded-md border border-white/10 text-blue-400">
+                  Escrow Protected
+                </span>
+                <span className="bg-white/10 px-2.5 py-1 rounded-md border border-white/10 text-amber-400">
+                  Integer Kobo Billing
+                </span>
               </div>
             </div>
 
-            <div className="space-y-3">
-              <h4 className="text-xs font-bold text-[#0A1020] uppercase tracking-wider">
-                Services
+            {/* Column 2: Supported Trades */}
+            <div className="space-y-3.5">
+              <h4 className="text-xs font-extrabold text-white uppercase tracking-wider flex items-center gap-1.5">
+                <Wrench className="w-3.5 h-3.5 text-[#10B981]" />
+                <span>Service Trades</span>
               </h4>
-              <ul className="space-y-2 text-xs text-slate-500">
-                <li><Link href="/requests/new?category=electrical" className="hover:text-[#4D78FF]">Electrical & Wiring</Link></li>
-                <li><Link href="/requests/new?category=plumbing" className="hover:text-[#4D78FF]">Plumbing & Boreholes</Link></li>
-                <li><Link href="/requests/new?category=phone-repair" className="hover:text-[#4D78FF]">Phone & Tablet Repair</Link></li>
-                <li><Link href="/requests/new?category=computer-repair" className="hover:text-[#4D78FF]">Computer & Laptop Repair</Link></li>
-                <li><Link href="/requests/new?category=auto-mechanic" className="hover:text-[#4D78FF]">Auto Diagnostics</Link></li>
-                <li><Link href="/requests/new?category=carpentry" className="hover:text-[#4D78FF]">Carpentry & Woodwork</Link></li>
+              <ul className="space-y-2.5 text-xs text-slate-400">
+                <li><Link href="/requests/new?category=electrical" className="hover:text-white transition-colors flex items-center gap-1.5"><span>Electrical & Inverters</span></Link></li>
+                <li><Link href="/requests/new?category=phone-repair" className="hover:text-white transition-colors flex items-center gap-1.5"><span>Phone & Tablet Repair</span></Link></li>
+                <li><Link href="/requests/new?category=ac-cooling" className="hover:text-white transition-colors flex items-center gap-1.5"><span>AC & Refrigeration</span></Link></li>
+                <li><Link href="/requests/new?category=auto-mechanic" className="hover:text-white transition-colors flex items-center gap-1.5"><span>Auto Mechanics</span></Link></li>
+                <li><Link href="/requests/new?category=carpentry" className="hover:text-white transition-colors flex items-center gap-1.5"><span>Woodwork & Cabinetry</span></Link></li>
+                <li><Link href="/requests/new?category=plumbing" className="hover:text-white transition-colors flex items-center gap-1.5"><span>Plumbing & Boreholes</span></Link></li>
+                <li><Link href="/requests/new?category=computer-repair" className="hover:text-white transition-colors flex items-center gap-1.5"><span>Computer Hardware</span></Link></li>
+                <li><Link href="/requests/new?category=painting" className="hover:text-white transition-colors flex items-center gap-1.5"><span>Painting & Finishing</span></Link></li>
               </ul>
             </div>
 
-            <div className="space-y-3">
-              <h4 className="text-xs font-bold text-[#0A1020] uppercase tracking-wider">
-                Platform & Trust
+            {/* Column 3: Platform & Trust */}
+            <div className="space-y-3.5">
+              <h4 className="text-xs font-extrabold text-white uppercase tracking-wider flex items-center gap-1.5">
+                <ShieldCheck className="w-3.5 h-3.5 text-[#4D78FF]" />
+                <span>Platform & Trust</span>
               </h4>
-              <ul className="space-y-2 text-xs text-slate-500">
-                <li><Link href="#vision-mission" className="hover:text-[#4D78FF]">Vision & Mission</Link></li>
-                <li><Link href="#who-connecta-serves" className="hover:text-[#4D78FF]">Who It&apos;s For</Link></li>
-                <li><Link href="#how-it-works" className="hover:text-[#4D78FF]">How It Works</Link></li>
-                <li><Link href="#faq" className="hover:text-[#4D78FF]">Frequently Asked Questions</Link></li>
-                <li><Link href="/admin/verification" className="hover:text-[#4D78FF]">Admin Portal</Link></li>
+              <ul className="space-y-2.5 text-xs text-slate-400">
+                <li><Link href="#vision-mission" className="hover:text-white transition-colors">Vision & Mission</Link></li>
+                <li><Link href="#who-connecta-serves" className="hover:text-white transition-colors">Who Connecta Serves</Link></li>
+                <li><Link href="#how-it-works" className="hover:text-white transition-colors">How It Works (3 Stages)</Link></li>
+                <li><Link href="#services" className="hover:text-white transition-colors">Supported Catalog</Link></li>
+                <li><Link href="#faq" className="hover:text-white transition-colors">Frequently Asked Questions</Link></li>
+                <li><Link href="/requests/new" className="hover:text-white transition-colors">Broadcast a Custom Need</Link></li>
+                <li><Link href="/admin/verification" className="hover:text-white transition-colors">Admin Verification Portal</Link></li>
               </ul>
             </div>
 
-            <div className="space-y-3">
-              <h4 className="text-xs font-bold text-[#0A1020] uppercase tracking-wider">
-                For Providers & Legal
+            {/* Column 4: Providers & Governance */}
+            <div className="space-y-3.5">
+              <h4 className="text-xs font-extrabold text-white uppercase tracking-wider flex items-center gap-1.5">
+                <Award className="w-3.5 h-3.5 text-[#F59E0B]" />
+                <span>For Artisans & Guilds</span>
               </h4>
-              <ul className="space-y-2 text-xs text-slate-500">
-                <li><Link href="/provider/register" className="hover:text-[#4D78FF]">Register as a Provider</Link></li>
-                <li><Link href="/brand" className="hover:text-[#4D78FF]">Brand Guidelines</Link></li>
-                <li><Link href="/docs" className="hover:text-[#4D78FF]">Architecture Docs</Link></li>
-                <li><Link href="/privacy" className="hover:text-[#4D78FF]">Privacy Policy</Link></li>
-                <li><Link href="/terms" className="hover:text-[#4D78FF]">Terms of Service</Link></li>
+              <ul className="space-y-2.5 text-xs text-slate-400">
+                <li><Link href="/provider/register" className="hover:text-white transition-colors">Apply as a Provider</Link></li>
+                <li><Link href="/provider/register" className="hover:text-white transition-colors">NIN & CAC Verification</Link></li>
+                <li><Link href="/brand" className="hover:text-white transition-colors">Brand Identity Guidelines</Link></li>
+                <li><Link href="/docs" className="hover:text-white transition-colors">System Architecture</Link></li>
+                <li><Link href="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link></li>
+                <li><Link href="/terms" className="hover:text-white transition-colors">Terms of Service</Link></li>
+                <li><Link href="/disputes" className="hover:text-white transition-colors">Dispute Resolution Policy</Link></li>
               </ul>
             </div>
           </div>
 
-          <div className="pt-8 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-400">
-            <p>© 2026 Connecta. All rights reserved.</p>
-            <div className="flex items-center gap-6">
-              <span>Primary Currency: NGN (₦)</span>
+          {/* Chowdeck-Style Large Stylized Brand Watermark */}
+          <div className="pt-8 pb-4 flex items-center justify-center select-none overflow-hidden">
+            <span className="text-[12vw] font-black tracking-widest text-white/[0.04] leading-none pointer-events-none whitespace-nowrap uppercase">
+              CONNECTA
+            </span>
+          </div>
+
+          {/* Polished Bottom Status & Copyright Strip */}
+          <div className="pt-6 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-400">
+            <p>© 2026 Connecta Technologies Inc. All rights reserved.</p>
+
+            <div className="flex items-center gap-4 text-xs font-medium">
+              <span className="flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-[#10B981]" />
+                <span className="text-slate-300">All Systems Operational</span>
+              </span>
               <span>•</span>
-              <span>Verified Local Marketplace</span>
+              <span className="text-slate-300">Currency: NGN (₦)</span>
+              <span>•</span>
+              <span className="text-slate-300">Verified Marketplace</span>
             </div>
+
+            <button
+              onClick={() => {
+                if (typeof window !== 'undefined') {
+                  window.scrollTo({ top: 0, behavior: 'smooth' })
+                }
+              }}
+              className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-300 hover:text-white bg-white/5 hover:bg-white/10 px-3 py-1.5 rounded-full border border-white/10 transition-colors"
+            >
+              <span>Back to top</span>
+              <ArrowUp className="w-3.5 h-3.5" />
+            </button>
           </div>
         </div>
       </footer>
