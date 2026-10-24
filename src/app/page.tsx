@@ -2084,14 +2084,14 @@ export default function HomePage() {
               <div className="flex flex-wrap items-center gap-3.5 shrink-0">
                 <Link
                   href="/requests/new"
-                  className="inline-flex items-center gap-2 rounded-full bg-[#10B981] hover:bg-[#059669] text-white px-8 py-4 text-xs sm:text-sm font-extrabold shadow-xl transition-all hover:scale-105 cursor-pointer"
+                  className="inline-flex items-center gap-2.5 rounded-full bg-[#10B981] hover:bg-[#059669] active:bg-[#047857] text-white px-8 py-4 text-xs sm:text-sm font-extrabold shadow-lg hover:shadow-emerald-500/25 transition-all duration-300 ease-out hover:-translate-y-0.5 active:translate-y-0 cursor-pointer"
                 >
                   <span>Fix Something Today</span>
                   <CornerDownRight className="w-4 h-4 stroke-[2.5]" />
                 </Link>
                 <Link
                   href="/provider/register"
-                  className="inline-flex items-center gap-2 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 text-white px-7 py-4 text-xs sm:text-sm font-bold transition-all hover:scale-105 cursor-pointer"
+                  className="inline-flex items-center gap-2.5 rounded-full bg-white/10 hover:bg-white/15 active:bg-white/20 border border-white/20 hover:border-white/40 text-white px-7 py-4 text-xs sm:text-sm font-bold transition-all duration-300 ease-out hover:-translate-y-0.5 active:translate-y-0 cursor-pointer backdrop-blur-xs"
                 >
                   <span>Join as an Artisan</span>
                   <CornerDownRight className="w-4 h-4 stroke-[2.5]" />
@@ -2119,13 +2119,14 @@ export default function HomePage() {
                 'Kano Municipal',
                 'Kano Tech Corridor',
               ].map((loc) => (
-                <span
+                <Link
                   key={loc}
-                  className="group text-xs font-semibold px-3.5 py-1.5 rounded-full bg-white/5 hover:bg-[#10B981]/20 border border-white/10 hover:border-[#10B981]/40 text-slate-300 hover:text-white transition-all duration-200 cursor-default flex items-center gap-2"
+                  href={`/requests/new?location=${encodeURIComponent(loc)}`}
+                  className="group text-xs font-semibold px-3.5 py-1.5 rounded-full bg-white/5 hover:bg-[#10B981]/20 border border-white/10 hover:border-[#10B981]/40 text-slate-300 hover:text-white transition-all duration-300 ease-out hover:-translate-y-0.5 active:translate-y-0 cursor-pointer flex items-center gap-2"
                 >
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#10B981] group-hover:scale-125 transition-transform" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#10B981] group-hover:scale-125 transition-transform duration-300 ease-out" />
                   <span>{loc}</span>
-                </span>
+                </Link>
               ))}
             </div>
           </div>
@@ -2153,7 +2154,7 @@ export default function HomePage() {
                 </div>
                 <div className="flex items-center gap-2.5">
                   <Mail className="w-4 h-4 text-[#4D78FF] shrink-0" />
-                  <a href="mailto:support@connecta.ng" className="hover:text-emerald-400 transition-colors">
+                  <a href="mailto:support@connecta.ng" className="hover:text-emerald-400 transition-colors duration-200">
                     support@connecta.ng
                   </a>
                 </div>
@@ -2165,7 +2166,7 @@ export default function HomePage() {
 
               {/* Nigerian Flag & Currency Badge */}
               <div className="pt-2 flex flex-wrap items-center gap-2 text-xs">
-                <div className="inline-flex items-center gap-2 rounded-full bg-white/5 border border-white/10 px-3 py-1 text-slate-300">
+                <div className="inline-flex items-center gap-2 rounded-full bg-white/5 border border-white/10 px-3 py-1 text-slate-300 transition-colors duration-200 hover:border-emerald-500/40">
                   <span className="text-sm">🇳🇬</span>
                   <span className="font-bold">Nigeria</span>
                   <span className="text-slate-500">·</span>
@@ -2178,162 +2179,162 @@ export default function HomePage() {
             </div>
 
             {/* Column 2: Supported Trades */}
-            <div className="space-y-4">
-              <h4 className="text-xs font-extrabold text-white uppercase tracking-wider flex items-center gap-1.5">
+            <div className="space-y-3">
+              <h4 className="text-xs font-extrabold text-white uppercase tracking-wider flex items-center gap-1.5 pb-1">
                 <Wrench className="w-3.5 h-3.5 text-[#10B981]" />
                 <span>Service Trades</span>
               </h4>
-              <ul className="space-y-2.5 text-xs text-slate-400">
+              <ul className="space-y-1 text-xs text-slate-400">
                 <li>
-                  <Link href="/requests/new?category=electrical" className="group flex items-center gap-1.5 hover:text-emerald-400 transition-colors">
-                    <span className="text-slate-600 group-hover:text-emerald-400 transition-colors">›</span>
-                    <span className="group-hover:translate-x-1 transition-transform">Solar & Inverters</span>
+                  <Link href="/requests/new?category=electrical" className="group flex items-center gap-2 py-1 px-2.5 -mx-2.5 rounded-lg hover:bg-white/5 hover:text-white transition-all duration-200 ease-out">
+                    <span className="text-emerald-500/60 group-hover:text-emerald-400 transition-colors duration-200 text-sm">›</span>
+                    <span className="group-hover:translate-x-1 transition-transform duration-200 ease-out">Solar & Inverters</span>
                   </Link>
                 </li>
                 <li>
-                  <Link href="/requests/new?category=phone-repair" className="group flex items-center gap-1.5 hover:text-emerald-400 transition-colors">
-                    <span className="text-slate-600 group-hover:text-emerald-400 transition-colors">›</span>
-                    <span className="group-hover:translate-x-1 transition-transform">Phone & Tablet Lab</span>
+                  <Link href="/requests/new?category=phone-repair" className="group flex items-center gap-2 py-1 px-2.5 -mx-2.5 rounded-lg hover:bg-white/5 hover:text-white transition-all duration-200 ease-out">
+                    <span className="text-emerald-500/60 group-hover:text-emerald-400 transition-colors duration-200 text-sm">›</span>
+                    <span className="group-hover:translate-x-1 transition-transform duration-200 ease-out">Phone & Tablet Lab</span>
                   </Link>
                 </li>
                 <li>
-                  <Link href="/requests/new?category=ac-cooling" className="group flex items-center gap-1.5 hover:text-emerald-400 transition-colors">
-                    <span className="text-slate-600 group-hover:text-emerald-400 transition-colors">›</span>
-                    <span className="group-hover:translate-x-1 transition-transform">AC & Refrigeration</span>
+                  <Link href="/requests/new?category=ac-cooling" className="group flex items-center gap-2 py-1 px-2.5 -mx-2.5 rounded-lg hover:bg-white/5 hover:text-white transition-all duration-200 ease-out">
+                    <span className="text-emerald-500/60 group-hover:text-emerald-400 transition-colors duration-200 text-sm">›</span>
+                    <span className="group-hover:translate-x-1 transition-transform duration-200 ease-out">AC & Refrigeration</span>
                   </Link>
                 </li>
                 <li>
-                  <Link href="/requests/new?category=auto-mechanic" className="group flex items-center gap-1.5 hover:text-emerald-400 transition-colors">
-                    <span className="text-slate-600 group-hover:text-emerald-400 transition-colors">›</span>
-                    <span className="group-hover:translate-x-1 transition-transform">Auto Mechanics & OBD2</span>
+                  <Link href="/requests/new?category=auto-mechanic" className="group flex items-center gap-2 py-1 px-2.5 -mx-2.5 rounded-lg hover:bg-white/5 hover:text-white transition-all duration-200 ease-out">
+                    <span className="text-emerald-500/60 group-hover:text-emerald-400 transition-colors duration-200 text-sm">›</span>
+                    <span className="group-hover:translate-x-1 transition-transform duration-200 ease-out">Auto Mechanics & OBD2</span>
                   </Link>
                 </li>
                 <li>
-                  <Link href="/requests/new?category=carpentry" className="group flex items-center gap-1.5 hover:text-emerald-400 transition-colors">
-                    <span className="text-slate-600 group-hover:text-emerald-400 transition-colors">›</span>
-                    <span className="group-hover:translate-x-1 transition-transform">Woodwork & Cabinetry</span>
+                  <Link href="/requests/new?category=carpentry" className="group flex items-center gap-2 py-1 px-2.5 -mx-2.5 rounded-lg hover:bg-white/5 hover:text-white transition-all duration-200 ease-out">
+                    <span className="text-emerald-500/60 group-hover:text-emerald-400 transition-colors duration-200 text-sm">›</span>
+                    <span className="group-hover:translate-x-1 transition-transform duration-200 ease-out">Woodwork & Cabinetry</span>
                   </Link>
                 </li>
                 <li>
-                  <Link href="/requests/new?category=plumbing" className="group flex items-center gap-1.5 hover:text-emerald-400 transition-colors">
-                    <span className="text-slate-600 group-hover:text-emerald-400 transition-colors">›</span>
-                    <span className="group-hover:translate-x-1 transition-transform">Plumbing & Boreholes</span>
+                  <Link href="/requests/new?category=plumbing" className="group flex items-center gap-2 py-1 px-2.5 -mx-2.5 rounded-lg hover:bg-white/5 hover:text-white transition-all duration-200 ease-out">
+                    <span className="text-emerald-500/60 group-hover:text-emerald-400 transition-colors duration-200 text-sm">›</span>
+                    <span className="group-hover:translate-x-1 transition-transform duration-200 ease-out">Plumbing & Boreholes</span>
                   </Link>
                 </li>
                 <li>
-                  <Link href="/requests/new?category=computer-repair" className="group flex items-center gap-1.5 hover:text-emerald-400 transition-colors">
-                    <span className="text-slate-600 group-hover:text-emerald-400 transition-colors">›</span>
-                    <span className="group-hover:translate-x-1 transition-transform">Computer Hardware</span>
+                  <Link href="/requests/new?category=computer-repair" className="group flex items-center gap-2 py-1 px-2.5 -mx-2.5 rounded-lg hover:bg-white/5 hover:text-white transition-all duration-200 ease-out">
+                    <span className="text-emerald-500/60 group-hover:text-emerald-400 transition-colors duration-200 text-sm">›</span>
+                    <span className="group-hover:translate-x-1 transition-transform duration-200 ease-out">Computer Hardware</span>
                   </Link>
                 </li>
                 <li>
-                  <Link href="/requests/new?category=painting" className="group flex items-center gap-1.5 hover:text-emerald-400 transition-colors">
-                    <span className="text-slate-600 group-hover:text-emerald-400 transition-colors">›</span>
-                    <span className="group-hover:translate-x-1 transition-transform">Painting & Screeding</span>
+                  <Link href="/requests/new?category=painting" className="group flex items-center gap-2 py-1 px-2.5 -mx-2.5 rounded-lg hover:bg-white/5 hover:text-white transition-all duration-200 ease-out">
+                    <span className="text-emerald-500/60 group-hover:text-emerald-400 transition-colors duration-200 text-sm">›</span>
+                    <span className="group-hover:translate-x-1 transition-transform duration-200 ease-out">Painting & Screeding</span>
                   </Link>
                 </li>
               </ul>
             </div>
 
             {/* Column 3: Platform & Trust */}
-            <div className="space-y-4">
-              <h4 className="text-xs font-extrabold text-white uppercase tracking-wider flex items-center gap-1.5">
+            <div className="space-y-3">
+              <h4 className="text-xs font-extrabold text-white uppercase tracking-wider flex items-center gap-1.5 pb-1">
                 <ShieldCheck className="w-3.5 h-3.5 text-[#4D78FF]" />
                 <span>Platform & Trust</span>
               </h4>
-              <ul className="space-y-2.5 text-xs text-slate-400">
+              <ul className="space-y-1 text-xs text-slate-400">
                 <li>
-                  <Link href="#vision-mission" className="group flex items-center gap-1.5 hover:text-emerald-400 transition-colors">
-                    <span className="text-slate-600 group-hover:text-emerald-400 transition-colors">›</span>
-                    <span className="group-hover:translate-x-1 transition-transform">Vision & Mission</span>
+                  <Link href="#vision-mission" className="group flex items-center gap-2 py-1 px-2.5 -mx-2.5 rounded-lg hover:bg-white/5 hover:text-white transition-all duration-200 ease-out">
+                    <span className="text-emerald-500/60 group-hover:text-emerald-400 transition-colors duration-200 text-sm">›</span>
+                    <span className="group-hover:translate-x-1 transition-transform duration-200 ease-out">Vision & Mission</span>
                   </Link>
                 </li>
                 <li>
-                  <Link href="#who-connecta-serves" className="group flex items-center gap-1.5 hover:text-emerald-400 transition-colors">
-                    <span className="text-slate-600 group-hover:text-emerald-400 transition-colors">›</span>
-                    <span className="group-hover:translate-x-1 transition-transform">Who Connecta Serves</span>
+                  <Link href="#who-connecta-serves" className="group flex items-center gap-2 py-1 px-2.5 -mx-2.5 rounded-lg hover:bg-white/5 hover:text-white transition-all duration-200 ease-out">
+                    <span className="text-emerald-500/60 group-hover:text-emerald-400 transition-colors duration-200 text-sm">›</span>
+                    <span className="group-hover:translate-x-1 transition-transform duration-200 ease-out">Who Connecta Serves</span>
                   </Link>
                 </li>
                 <li>
-                  <Link href="#how-it-works" className="group flex items-center gap-1.5 hover:text-emerald-400 transition-colors">
-                    <span className="text-slate-600 group-hover:text-emerald-400 transition-colors">›</span>
-                    <span className="group-hover:translate-x-1 transition-transform">How It Works (3 Stages)</span>
+                  <Link href="#how-it-works" className="group flex items-center gap-2 py-1 px-2.5 -mx-2.5 rounded-lg hover:bg-white/5 hover:text-white transition-all duration-200 ease-out">
+                    <span className="text-emerald-500/60 group-hover:text-emerald-400 transition-colors duration-200 text-sm">›</span>
+                    <span className="group-hover:translate-x-1 transition-transform duration-200 ease-out">How It Works (3 Stages)</span>
                   </Link>
                 </li>
                 <li>
-                  <Link href="#services" className="group flex items-center gap-1.5 hover:text-emerald-400 transition-colors">
-                    <span className="text-slate-600 group-hover:text-emerald-400 transition-colors">›</span>
-                    <span className="group-hover:translate-x-1 transition-transform">Supported Catalog</span>
+                  <Link href="#services" className="group flex items-center gap-2 py-1 px-2.5 -mx-2.5 rounded-lg hover:bg-white/5 hover:text-white transition-all duration-200 ease-out">
+                    <span className="text-emerald-500/60 group-hover:text-emerald-400 transition-colors duration-200 text-sm">›</span>
+                    <span className="group-hover:translate-x-1 transition-transform duration-200 ease-out">Supported Catalog</span>
                   </Link>
                 </li>
                 <li>
-                  <Link href="#faq" className="group flex items-center gap-1.5 hover:text-emerald-400 transition-colors">
-                    <span className="text-slate-600 group-hover:text-emerald-400 transition-colors">›</span>
-                    <span className="group-hover:translate-x-1 transition-transform">Frequently Asked Questions</span>
+                  <Link href="#faq" className="group flex items-center gap-2 py-1 px-2.5 -mx-2.5 rounded-lg hover:bg-white/5 hover:text-white transition-all duration-200 ease-out">
+                    <span className="text-emerald-500/60 group-hover:text-emerald-400 transition-colors duration-200 text-sm">›</span>
+                    <span className="group-hover:translate-x-1 transition-transform duration-200 ease-out">Frequently Asked Questions</span>
                   </Link>
                 </li>
                 <li>
-                  <Link href="/requests/new" className="group flex items-center gap-1.5 hover:text-emerald-400 transition-colors">
-                    <span className="text-slate-600 group-hover:text-emerald-400 transition-colors">›</span>
-                    <span className="group-hover:translate-x-1 transition-transform">Broadcast Custom Need</span>
+                  <Link href="/requests/new" className="group flex items-center gap-2 py-1 px-2.5 -mx-2.5 rounded-lg hover:bg-white/5 hover:text-white transition-all duration-200 ease-out">
+                    <span className="text-emerald-500/60 group-hover:text-emerald-400 transition-colors duration-200 text-sm">›</span>
+                    <span className="group-hover:translate-x-1 transition-transform duration-200 ease-out">Broadcast Custom Need</span>
                   </Link>
                 </li>
                 <li>
-                  <Link href="/admin/verification" className="group flex items-center gap-1.5 hover:text-emerald-400 transition-colors">
-                    <span className="text-slate-600 group-hover:text-emerald-400 transition-colors">›</span>
-                    <span className="group-hover:translate-x-1 transition-transform">Admin Verification Portal</span>
+                  <Link href="/admin/verification" className="group flex items-center gap-2 py-1 px-2.5 -mx-2.5 rounded-lg hover:bg-white/5 hover:text-white transition-all duration-200 ease-out">
+                    <span className="text-emerald-500/60 group-hover:text-emerald-400 transition-colors duration-200 text-sm">›</span>
+                    <span className="group-hover:translate-x-1 transition-transform duration-200 ease-out">Admin Verification Portal</span>
                   </Link>
                 </li>
               </ul>
             </div>
 
             {/* Column 4: Providers & Governance */}
-            <div className="space-y-4">
-              <h4 className="text-xs font-extrabold text-white uppercase tracking-wider flex items-center gap-1.5">
+            <div className="space-y-3">
+              <h4 className="text-xs font-extrabold text-white uppercase tracking-wider flex items-center gap-1.5 pb-1">
                 <Award className="w-3.5 h-3.5 text-[#F59E0B]" />
                 <span>For Artisans & Guilds</span>
               </h4>
-              <ul className="space-y-2.5 text-xs text-slate-400">
+              <ul className="space-y-1 text-xs text-slate-400">
                 <li>
-                  <Link href="/provider/register" className="group flex items-center gap-1.5 hover:text-emerald-400 transition-colors">
-                    <span className="text-slate-600 group-hover:text-emerald-400 transition-colors">›</span>
-                    <span className="group-hover:translate-x-1 transition-transform">Apply as a Provider</span>
+                  <Link href="/provider/register" className="group flex items-center gap-2 py-1 px-2.5 -mx-2.5 rounded-lg hover:bg-white/5 hover:text-white transition-all duration-200 ease-out">
+                    <span className="text-emerald-500/60 group-hover:text-emerald-400 transition-colors duration-200 text-sm">›</span>
+                    <span className="group-hover:translate-x-1 transition-transform duration-200 ease-out">Apply as a Provider</span>
                   </Link>
                 </li>
                 <li>
-                  <Link href="/provider/register" className="group flex items-center gap-1.5 hover:text-emerald-400 transition-colors">
-                    <span className="text-slate-600 group-hover:text-emerald-400 transition-colors">›</span>
-                    <span className="group-hover:translate-x-1 transition-transform">NIN & CAC Verification</span>
+                  <Link href="/provider/register" className="group flex items-center gap-2 py-1 px-2.5 -mx-2.5 rounded-lg hover:bg-white/5 hover:text-white transition-all duration-200 ease-out">
+                    <span className="text-emerald-500/60 group-hover:text-emerald-400 transition-colors duration-200 text-sm">›</span>
+                    <span className="group-hover:translate-x-1 transition-transform duration-200 ease-out">NIN & CAC Verification</span>
                   </Link>
                 </li>
                 <li>
-                  <Link href="/brand" className="group flex items-center gap-1.5 hover:text-emerald-400 transition-colors">
-                    <span className="text-slate-600 group-hover:text-emerald-400 transition-colors">›</span>
-                    <span className="group-hover:translate-x-1 transition-transform">Brand Identity Guidelines</span>
+                  <Link href="/brand" className="group flex items-center gap-2 py-1 px-2.5 -mx-2.5 rounded-lg hover:bg-white/5 hover:text-white transition-all duration-200 ease-out">
+                    <span className="text-emerald-500/60 group-hover:text-emerald-400 transition-colors duration-200 text-sm">›</span>
+                    <span className="group-hover:translate-x-1 transition-transform duration-200 ease-out">Brand Identity Guidelines</span>
                   </Link>
                 </li>
                 <li>
-                  <Link href="/docs" className="group flex items-center gap-1.5 hover:text-emerald-400 transition-colors">
-                    <span className="text-slate-600 group-hover:text-emerald-400 transition-colors">›</span>
-                    <span className="group-hover:translate-x-1 transition-transform">System Architecture</span>
+                  <Link href="/docs" className="group flex items-center gap-2 py-1 px-2.5 -mx-2.5 rounded-lg hover:bg-white/5 hover:text-white transition-all duration-200 ease-out">
+                    <span className="text-emerald-500/60 group-hover:text-emerald-400 transition-colors duration-200 text-sm">›</span>
+                    <span className="group-hover:translate-x-1 transition-transform duration-200 ease-out">System Architecture</span>
                   </Link>
                 </li>
                 <li>
-                  <Link href="/privacy" className="group flex items-center gap-1.5 hover:text-emerald-400 transition-colors">
-                    <span className="text-slate-600 group-hover:text-emerald-400 transition-colors">›</span>
-                    <span className="group-hover:translate-x-1 transition-transform">Privacy Policy</span>
+                  <Link href="/privacy" className="group flex items-center gap-2 py-1 px-2.5 -mx-2.5 rounded-lg hover:bg-white/5 hover:text-white transition-all duration-200 ease-out">
+                    <span className="text-emerald-500/60 group-hover:text-emerald-400 transition-colors duration-200 text-sm">›</span>
+                    <span className="group-hover:translate-x-1 transition-transform duration-200 ease-out">Privacy Policy</span>
                   </Link>
                 </li>
                 <li>
-                  <Link href="/terms" className="group flex items-center gap-1.5 hover:text-emerald-400 transition-colors">
-                    <span className="text-slate-600 group-hover:text-emerald-400 transition-colors">›</span>
-                    <span className="group-hover:translate-x-1 transition-transform">Terms of Service</span>
+                  <Link href="/terms" className="group flex items-center gap-2 py-1 px-2.5 -mx-2.5 rounded-lg hover:bg-white/5 hover:text-white transition-all duration-200 ease-out">
+                    <span className="text-emerald-500/60 group-hover:text-emerald-400 transition-colors duration-200 text-sm">›</span>
+                    <span className="group-hover:translate-x-1 transition-transform duration-200 ease-out">Terms of Service</span>
                   </Link>
                 </li>
                 <li>
-                  <Link href="/disputes" className="group flex items-center gap-1.5 hover:text-emerald-400 transition-colors">
-                    <span className="text-slate-600 group-hover:text-emerald-400 transition-colors">›</span>
-                    <span className="group-hover:translate-x-1 transition-transform">Dispute Resolution Policy</span>
+                  <Link href="/disputes" className="group flex items-center gap-2 py-1 px-2.5 -mx-2.5 rounded-lg hover:bg-white/5 hover:text-white transition-all duration-200 ease-out">
+                    <span className="text-emerald-500/60 group-hover:text-emerald-400 transition-colors duration-200 text-sm">›</span>
+                    <span className="group-hover:translate-x-1 transition-transform duration-200 ease-out">Dispute Resolution Policy</span>
                   </Link>
                 </li>
               </ul>
