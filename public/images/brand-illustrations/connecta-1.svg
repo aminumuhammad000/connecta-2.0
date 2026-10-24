@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="299" viewBox="0 0 640 299">
+  <!-- Background Amber -->
+  <rect width="640" height="299" fill="#F59E0B" rx="16"/>
+
+  <!-- Left Wavy Organic Blob -->
+  <path d="M -20,-20 C 80,-20 140,40 130,100 C 120,160 30,170 60,240 C 80,280 120,300 130,320 L -20,320 Z" 
+        fill="#1A73E8" stroke="#0A1020" stroke-width="6" stroke-linejoin="round"/>
+
+  <!-- Right Wavy Organic Blob -->
+  <path d="M 660,320 C 560,320 500,260 510,200 C 520,140 610,130 580,60 C 560,20 520,0 510,-20 L 660,-20 Z" 
+        fill="#10B981" stroke="#0A1020" stroke-width="6" stroke-linejoin="round"/>
+
+  <!-- Playful Decorative Dots -->
+  <circle cx="180" cy="50" r="6" fill="#FFFFFF"/>
+  <circle cx="210" cy="90" r="4" fill="#0A1020"/>
+  <circle cx="160" cy="240" r="5" fill="#FFFFFF"/>
+  <circle cx="480" cy="60" r="5" fill="#0A1020"/>
+  <circle cx="460" cy="220" r="6" fill="#FFFFFF"/>
+  <circle cx="500" cy="250" r="4" fill="#0A1020"/>
+
+  <!-- Center Circular Technician Badge -->
+  <g transform="translate(320, 149)">
+    <!-- Outer Dark Border -->
+    <circle cx="0" cy="0" r="112" fill="#0A1020"/>
+    <!-- Middle White Ring -->
+    <circle cx="0" cy="0" r="104" fill="#FFFFFF"/>
+    <!-- Inner Azure Badge Face -->
+    <circle cx="0" cy="0" r="96" fill="#F8FAFC"/>
+
+    <!-- Subtle Dial Segments (8 Trades) -->
+    <g opacity="0.15" stroke="#0A1020" stroke-width="2">
+      <line x1="0" y1="-96" x2="0" y2="96"/>
+      <line x1="-96" y1="0" x2="96" y2="0"/>
+      <line x1="-68" y1="-68" x2="68" y2="68"/>
+      <line x1="-68" y1="68" x2="68" y2="-68"/>
+    </g>
+
+    <!-- Center Connecta Open-Circle Symbol -->
+    <g transform="translate(-50, -50) scale(1)">
+      <!-- Azure Segment -->
+      <path d="M 69,22 C 56,10 39,10 27,22 C 15,34 14,51 21,63"
+            fill="none" stroke="#1A73E8" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>
+      <!-- Amber Segment -->
+      <path d="M 21,63 C 28,75 40,82 52,80"
+            fill="none" stroke="#F59E0B" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>
+      <!-- Green Segment -->
+      <path d="M 52,80 C 64,78 73,68 76,56"
+            fill="none" stroke="#10B981" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+
+    <!-- Center Star / Sparkle in Opening -->
+    <polygon points="26,0 30,-8 38,-4 32,2 34,10 26,5 18,10 20,2 14,-4 22,-8" fill="#F59E0B"/>
+  </g>
+</svg>

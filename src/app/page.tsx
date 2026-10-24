@@ -267,16 +267,6 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-[#F5F7FC] text-[#0A1020] selection:bg-[#4D78FF] selection:text-white">
-      {/* Kano Launch Banner */}
-      <div className="bg-[#0A1020] text-white px-4 py-2 text-xs font-medium flex items-center justify-center gap-2 border-b border-slate-800 z-50">
-        <span className="inline-flex items-center gap-1 rounded-full bg-[#10B981]/20 px-2.5 py-0.5 text-[11px] text-[#10B981] font-bold">
-          <Sparkles className="w-3 h-3" /> Kano Launch Edition
-        </span>
-        <span className="text-slate-300 hidden sm:inline">
-          Connecting verified artisans & technicians with homes and businesses across Kano.
-        </span>
-      </div>
-
       {/* Chowdeck-style Floating Pill Header */}
       <div className="sticky top-4 z-50 px-4 sm:px-6">
         <header className="max-w-6xl mx-auto bg-white/90 backdrop-blur-xl border border-slate-200/90 rounded-full px-4 sm:px-6 py-2.5 shadow-lg shadow-black/5 flex items-center justify-between gap-4">
@@ -365,7 +355,7 @@ export default function HomePage() {
             <div className="max-w-4xl mx-auto text-center space-y-6">
               <div className="inline-flex items-center gap-2 rounded-full bg-blue-50/90 px-4 py-1.5 text-xs font-bold text-[#4D78FF] border border-blue-200 shadow-sm">
                 <ShieldCheck className="w-4 h-4 text-[#10B981]" />
-                <span>Verified Local Service Marketplace in Kano</span>
+                <span>Verified Local Service Marketplace</span>
               </div>
 
               {/* Chowdeck-style Large Heading with Animated Text Motion */}
@@ -462,6 +452,59 @@ export default function HomePage() {
                   </div>
                 </div>
               ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Connecta Brand Character & Toolkit Showcase */}
+        <section className="py-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="rounded-3xl overflow-hidden border border-slate-200 shadow-md hover:shadow-xl transition-shadow bg-white flex flex-col justify-between">
+              <div className="relative h-56 w-full bg-slate-50">
+                <Image
+                  src="/images/brand-illustrations/connecta-1.webp"
+                  alt="Connecta Multi-Trade Certification & Emblem"
+                  fill
+                  sizes="(max-width: 768px) 100vw, 33vw"
+                  className="object-cover"
+                />
+              </div>
+              <div className="p-5">
+                <h4 className="text-sm font-extrabold text-[#0A1020]">Multi-Trade Standards</h4>
+                <p className="text-xs text-slate-500 mt-1">Verified credentials across 8 technical artisan trades.</p>
+              </div>
+            </div>
+
+            <div className="rounded-3xl overflow-hidden border border-slate-200 shadow-md hover:shadow-xl transition-shadow bg-white flex flex-col justify-between">
+              <div className="relative h-56 w-full bg-slate-50">
+                <Image
+                  src="/images/brand-illustrations/connecta-2.webp"
+                  alt="Heavy Duty Mobile Diagnostics Kit"
+                  fill
+                  sizes="(max-width: 768px) 100vw, 33vw"
+                  className="object-cover"
+                />
+              </div>
+              <div className="p-5">
+                <h4 className="text-sm font-extrabold text-[#0A1020]">Equipped for Every Job</h4>
+                <p className="text-xs text-slate-500 mt-1">Specialized diagnostics, transparent parts, and documented change orders.</p>
+              </div>
+            </div>
+
+            <div className="rounded-3xl overflow-hidden border border-slate-200 shadow-md hover:shadow-xl transition-shadow bg-white flex flex-col justify-between">
+              <div className="relative h-56 w-full bg-slate-50">
+                <Image
+                  src="/images/brand-illustrations/connecta-3.webp"
+                  alt="Vibrant Connecta Artisan and Customer Community"
+                  fill
+                  sizes="(max-width: 768px) 100vw, 33vw"
+                  className="object-cover"
+                />
+              </div>
+              <div className="p-5">
+                <h4 className="text-sm font-extrabold text-[#0A1020]">Community of Craft</h4>
+                <p className="text-xs text-slate-500 mt-1">Connecting vetted technical professionals with verified customers.</p>
+              </div>
             </div>
           </div>
         </section>
@@ -1078,7 +1121,7 @@ export default function HomePage() {
             <div className="flex items-center gap-6">
               <span>Primary Currency: NGN (₦)</span>
               <span>•</span>
-              <span>Kano Launch Edition</span>
+              <span>Verified Local Marketplace</span>
             </div>
           </div>
         </div>

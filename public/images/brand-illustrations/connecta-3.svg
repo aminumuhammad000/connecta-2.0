@@ -1,0 +1,180 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="299" viewBox="0 0 640 299">
+  <!-- Outer Border / Clip -->
+  <rect width="640" height="299" fill="#0A1020" rx="16"/>
+
+  <!-- TILE 1: Electrician (Col 0, Row 0) -->
+  <g transform="translate(0, 0)">
+    <rect width="128" height="149.5" fill="#FCE7F3" stroke="#0A1020" stroke-width="3"/>
+    <!-- Yellow Hardhat -->
+    <path d="M 38,55 C 38,32 90,32 90,55 Z" fill="#F59E0B" stroke="#0A1020" stroke-width="3"/>
+    <rect x="32" y="52" width="64" height="8" rx="3" fill="#D97706" stroke="#0A1020" stroke-width="2"/>
+    <!-- Face -->
+    <circle cx="64" cy="78" r="22" fill="#FBD5BD" stroke="#0A1020" stroke-width="3"/>
+    <!-- Eyes & Smile -->
+    <circle cx="56" cy="74" r="3" fill="#0A1020"/>
+    <circle cx="72" cy="74" r="3" fill="#0A1020"/>
+    <path d="M 58,84 Q 64,90 70,84" fill="none" stroke="#0A1020" stroke-width="2.5" stroke-linecap="round"/>
+    <!-- Lightning Bolt on Helmet -->
+    <polygon points="63,36 67,42 63,44 67,50 60,46 64,43" fill="#FFFFFF"/>
+    <!-- Body / Shirt -->
+    <path d="M 40,100 C 40,94 88,94 88,100 L 96,149.5 L 32,149.5 Z" fill="#1A73E8" stroke="#0A1020" stroke-width="3"/>
+  </g>
+
+  <!-- TILE 2: Smartphone Repair Tech (Col 1, Row 0) -->
+  <g transform="translate(128, 0)">
+    <rect width="128" height="149.5" fill="#E0E7FF" stroke="#0A1020" stroke-width="3"/>
+    <!-- Head -->
+    <circle cx="64" cy="65" r="24" fill="#E8C39E" stroke="#0A1020" stroke-width="3"/>
+    <!-- Jeweler / Micro Loupe on Eye -->
+    <circle cx="56" cy="64" r="9" fill="#111827" stroke="#0A1020" stroke-width="3"/>
+    <circle cx="56" cy="64" r="5" fill="#38BDF8"/>
+    <!-- Other Eye -->
+    <circle cx="73" cy="64" r="3" fill="#0A1020"/>
+    <!-- Focused Mouth -->
+    <ellipse cx="65" cy="76" rx="4" ry="2" fill="#0A1020"/>
+    <!-- Anti-Static Wristband / Clean Smock -->
+    <path d="M 38,90 C 38,82 90,82 90,90 L 98,149.5 L 30,149.5 Z" fill="#10B981" stroke="#0A1020" stroke-width="3"/>
+    <!-- Tweezers in Hand -->
+    <line x1="88" y1="105" x2="105" y2="85" stroke="#0A1020" stroke-width="3" stroke-linecap="round"/>
+  </g>
+
+  <!-- TILE 3: Master Plumber (Col 2, Row 0) -->
+  <g transform="translate(256, 0)">
+    <rect width="128" height="149.5" fill="#FEF3C7" stroke="#0A1020" stroke-width="3"/>
+    <!-- Blue Baseball Cap -->
+    <path d="M 38,55 C 38,36 90,36 90,55 Z" fill="#1A73E8" stroke="#0A1020" stroke-width="3"/>
+    <path d="M 32,54 C 20,54 20,62 36,60 Z" fill="#1557B0" stroke="#0A1020" stroke-width="2"/>
+    <!-- Face -->
+    <circle cx="64" cy="76" r="22" fill="#FBD5BD" stroke="#0A1020" stroke-width="3"/>
+    <!-- Wink Eye & Normal Eye -->
+    <path d="M 52,73 Q 56,70 60,73" fill="none" stroke="#0A1020" stroke-width="3" stroke-linecap="round"/>
+    <circle cx="73" cy="73" r="3.5" fill="#0A1020"/>
+    <!-- Confident Grin -->
+    <path d="M 57,84 Q 64,93 72,84" fill="none" stroke="#0A1020" stroke-width="3" stroke-linecap="round"/>
+    <!-- Overalls -->
+    <path d="M 36,98 C 36,90 92,90 92,98 L 100,149.5 L 28,149.5 Z" fill="#D97706" stroke="#0A1020" stroke-width="3"/>
+  </g>
+
+  <!-- TILE 4: Precision Carpenter (Col 3, Row 0) -->
+  <g transform="translate(384, 0)">
+    <rect width="128" height="149.5" fill="#D1FAE5" stroke="#0A1020" stroke-width="3"/>
+    <!-- Face -->
+    <circle cx="64" cy="68" r="23" fill="#E8C39E" stroke="#0A1020" stroke-width="3"/>
+    <!-- Pencil Behind Ear -->
+    <rect x="80" y="44" width="22" height="6" rx="2" transform="rotate(-30 80 44)" fill="#EF4444" stroke="#0A1020" stroke-width="2"/>
+    <!-- Eyes & Mustache -->
+    <circle cx="56" cy="65" r="3" fill="#0A1020"/>
+    <circle cx="72" cy="65" r="3" fill="#0A1020"/>
+    <!-- Neat Mustache -->
+    <path d="M 54,77 Q 64,74 74,77 Q 64,83 54,77 Z" fill="#0A1020"/>
+    <!-- Apron -->
+    <path d="M 38,92 C 38,84 90,84 90,92 L 96,149.5 L 32,149.5 Z" fill="#B45309" stroke="#0A1020" stroke-width="3"/>
+  </g>
+
+  <!-- TILE 5: Auto Mechanic (Col 4, Row 0) -->
+  <g transform="translate(512, 0)">
+    <rect width="128" height="149.5" fill="#064E3B" stroke="#0A1020" stroke-width="3"/>
+    <!-- Visor / Headgear -->
+    <path d="M 40,50 C 40,35 88,35 88,50 Z" fill="#F59E0B" stroke="#0A1020" stroke-width="3"/>
+    <!-- Face -->
+    <circle cx="64" cy="74" r="22" fill="#FBD5BD" stroke="#0A1020" stroke-width="3"/>
+    <!-- Cute Grease Smudge on Cheek -->
+    <circle cx="53" cy="80" r="3" fill="#374151" opacity="0.7"/>
+    <!-- Big Determined Eyes -->
+    <circle cx="56" cy="70" r="4.5" fill="#0A1020"/>
+    <circle cx="57" cy="69" r="1.5" fill="#FFFFFF"/>
+    <circle cx="72" cy="70" r="4.5" fill="#0A1020"/>
+    <circle cx="73" cy="69" r="1.5" fill="#FFFFFF"/>
+    <!-- Smile -->
+    <path d="M 58,82 Q 64,88 70,82" fill="none" stroke="#0A1020" stroke-width="2.5" stroke-linecap="round"/>
+    <!-- Navy Overalls -->
+    <path d="M 36,96 C 36,88 92,88 92,96 L 98,149.5 L 30,149.5 Z" fill="#111827" stroke="#0A1020" stroke-width="3"/>
+  </g>
+
+  <!-- TILE 6: AC Refrigeration Specialist (Col 0, Row 1) -->
+  <g transform="translate(0, 149.5)">
+    <rect width="128" height="149.5" fill="#F59E0B" stroke="#0A1020" stroke-width="3"/>
+    <!-- Cool Frosty Head / Cap -->
+    <circle cx="64" cy="60" r="24" fill="#FBD5BD" stroke="#0A1020" stroke-width="3"/>
+    <!-- Safety Protective Glasses (Ice Blue) -->
+    <rect x="44" y="52" width="40" height="15" rx="6" fill="#38BDF8" stroke="#0A1020" stroke-width="2.5"/>
+    <line x1="64" y1="52" x2="64" y2="67" stroke="#0A1020" stroke-width="2"/>
+    <!-- Chilled Smile -->
+    <path d="M 58,74 Q 64,80 70,74" fill="none" stroke="#0A1020" stroke-width="2.5" stroke-linecap="round"/>
+    <!-- Jacket / Collar -->
+    <path d="M 38,85 C 38,76 90,76 90,85 L 98,149.5 L 30,149.5 Z" fill="#0284C7" stroke="#0A1020" stroke-width="3"/>
+  </g>
+
+  <!-- TILE 7: Interior Painter (Col 1, Row 1) -->
+  <g transform="translate(128, 149.5)">
+    <rect width="128" height="149.5" fill="#BFDBFE" stroke="#0A1020" stroke-width="3"/>
+    <!-- White Painter Bandana -->
+    <path d="M 38,48 C 38,34 90,34 90,48 Z" fill="#FFFFFF" stroke="#0A1020" stroke-width="3"/>
+    <circle cx="50" cy="42" r="3" fill="#EF4444"/>
+    <circle cx="68" cy="40" r="3" fill="#10B981"/>
+    <!-- Face -->
+    <circle cx="64" cy="68" r="22" fill="#E8C39E" stroke="#0A1020" stroke-width="3"/>
+    <!-- Paint Smudge on Cheek -->
+    <circle cx="73" cy="74" r="3.5" fill="#F59E0B"/>
+    <!-- Happy Eyes & Smile -->
+    <circle cx="56" cy="65" r="3" fill="#0A1020"/>
+    <circle cx="72" cy="65" r="3" fill="#0A1020"/>
+    <path d="M 58,77 Q 64,84 70,77" fill="none" stroke="#0A1020" stroke-width="2.5" stroke-linecap="round"/>
+    <!-- Paint Overalls -->
+    <path d="M 38,90 C 38,82 90,82 90,90 L 98,149.5 L 30,149.5 Z" fill="#FFFFFF" stroke="#0A1020" stroke-width="3"/>
+  </g>
+
+  <!-- TILE 8: Solar & Inverter Engineer (Col 2, Row 1) -->
+  <g transform="translate(256, 149.5)">
+    <rect width="128" height="149.5" fill="#2E1A47" stroke="#0A1020" stroke-width="3"/>
+    <!-- Face -->
+    <circle cx="64" cy="60" r="23" fill="#FBD5BD" stroke="#0A1020" stroke-width="3"/>
+    <!-- Dark Solar Shades -->
+    <polygon points="46,50 62,50 60,63 48,63" fill="#F59E0B" stroke="#0A1020" stroke-width="2"/>
+    <polygon points="66,50 82,50 80,63 68,63" fill="#F59E0B" stroke="#0A1020" stroke-width="2"/>
+    <line x1="62" y1="53" x2="66" y2="53" stroke="#0A1020" stroke-width="2"/>
+    <!-- Smirk -->
+    <path d="M 59,72 Q 68,77 72,70" fill="none" stroke="#0A1020" stroke-width="2.5" stroke-linecap="round"/>
+    <!-- Hi-Vis Vest -->
+    <path d="M 36,84 C 36,76 92,76 92,84 L 98,149.5 L 30,149.5 Z" fill="#84CC16" stroke="#0A1020" stroke-width="3"/>
+  </g>
+
+  <!-- TILE 9: Computer & Network Tech (Col 3, Row 1) -->
+  <g transform="translate(384, 149.5)">
+    <rect width="128" height="149.5" fill="#FBCFE8" stroke="#0A1020" stroke-width="3"/>
+    <!-- Head -->
+    <circle cx="64" cy="60" r="23" fill="#E8C39E" stroke="#0A1020" stroke-width="3"/>
+    <!-- Headset Band & Mic -->
+    <path d="M 41,58 C 41,36 87,36 87,58" fill="none" stroke="#0A1020" stroke-width="4"/>
+    <rect x="38" y="52" width="6" height="14" rx="2" fill="#1E293B"/>
+    <rect x="84" y="52" width="6" height="14" rx="2" fill="#1E293B"/>
+    <path d="M 40,64 Q 50,78 60,74" fill="none" stroke="#0A1020" stroke-width="2.5"/>
+    <circle cx="60" cy="74" r="2.5" fill="#EF4444"/>
+    <!-- Intelligent Glasses -->
+    <circle cx="56" cy="58" r="6" fill="none" stroke="#0A1020" stroke-width="2"/>
+    <circle cx="72" cy="58" r="6" fill="none" stroke="#0A1020" stroke-width="2"/>
+    <line x1="62" y1="58" x2="66" y2="58" stroke="#0A1020" stroke-width="2"/>
+    <!-- Modern Tech Polo -->
+    <path d="M 36,84 C 36,76 92,76 92,84 L 98,149.5 L 30,149.5 Z" fill="#0F172A" stroke="#0A1020" stroke-width="3"/>
+  </g>
+
+  <!-- TILE 10: Verified Customer (Col 4, Row 1) -->
+  <g transform="translate(512, 149.5)">
+    <rect width="128" height="149.5" fill="#1A73E8" stroke="#0A1020" stroke-width="3"/>
+    <!-- Head -->
+    <circle cx="64" cy="58" r="24" fill="#FBD5BD" stroke="#0A1020" stroke-width="3"/>
+    <!-- Joyful Heart/Star Eyes -->
+    <polygon points="56,50 58,55 63,55 59,58 60,63 56,60 52,63 53,58 49,55 54,55" fill="#F59E0B"/>
+    <polygon points="72,50 74,55 79,55 75,58 76,63 72,60 68,63 69,58 65,55 70,55" fill="#F59E0B"/>
+    <!-- Big Cheerful Smile -->
+    <path d="M 54,70 Q 64,82 74,70" fill="none" stroke="#0A1020" stroke-width="3" stroke-linecap="round"/>
+    <!-- Blushing Cheeks -->
+    <circle cx="49" cy="68" r="4" fill="#F43F5E" opacity="0.5"/>
+    <circle cx="79" cy="68" r="4" fill="#F43F5E" opacity="0.5"/>
+    <!-- Shirt with Verified Checkmark Badge -->
+    <path d="M 36,83 C 36,75 92,75 92,83 L 98,149.5 L 30,149.5 Z" fill="#FFFFFF" stroke="#0A1020" stroke-width="3"/>
+    <!-- Verified Badge on Chest -->
+    <circle cx="64" cy="102" r="9" fill="#10B981" stroke="#0A1020" stroke-width="2"/>
+    <path d="M 60,102 L 63,105 L 68,99" fill="none" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round"/>
+  </g>
+</svg>
