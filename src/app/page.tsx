@@ -328,7 +328,6 @@ const FAQS = [
 
 export default function HomePage() {
   const [searchQuery, setSearchQuery] = useState('')
-  const [city] = useState('Kano')
   const [openFaq, setOpenFaq] = useState<number | null>(0)
   const [phraseIndex, setPhraseIndex] = useState(0)
 
@@ -358,42 +357,40 @@ export default function HomePage() {
               </div>
             </Link>
 
-            <div className="hidden lg:flex items-center gap-1.5 text-[11px] font-bold bg-slate-100 text-slate-800 px-3 py-1 rounded-full border border-slate-200">
-              <MapPin className="w-3 h-3 text-[#4D78FF]" />
-              <span>{city}, Nigeria</span>
+            <div className="hidden lg:flex items-center gap-2 text-[11px] font-bold bg-slate-100 text-slate-800 px-3 py-1.5 rounded-full border border-slate-200 shadow-2xs">
+              <span className="inline-flex items-center overflow-hidden rounded-xs w-4 h-3 border border-black/15 shadow-2xs shrink-0" aria-label="Nigeria Flag">
+                <span className="w-1/3 h-full bg-[#008751]" />
+                <span className="w-1/3 h-full bg-white" />
+                <span className="w-1/3 h-full bg-[#008751]" />
+              </span>
+              <span>Nigeria</span>
             </div>
           </div>
 
-          <nav className="hidden md:flex items-center gap-1 text-xs font-semibold text-slate-700">
+          <nav className="hidden md:flex items-center gap-1.5 text-xs font-semibold text-slate-700">
             <Link
               href="#services"
-              className="px-3 py-1.5 rounded-full hover:bg-slate-100 transition-colors"
+              className="px-3.5 py-1.5 rounded-full hover:bg-slate-100 hover:text-[#0A1020] transition-colors"
             >
               Services
             </Link>
             <Link
-              href="#vision-mission"
-              className="px-3 py-1.5 rounded-full hover:bg-slate-100 transition-colors"
-            >
-              Vision & Mission
-            </Link>
-            <Link
-              href="#who-connecta-serves"
-              className="px-3 py-1.5 rounded-full hover:bg-slate-100 transition-colors"
-            >
-              Who It&apos;s For
-            </Link>
-            <Link
               href="#how-it-works"
-              className="px-3 py-1.5 rounded-full hover:bg-slate-100 transition-colors"
+              className="px-3.5 py-1.5 rounded-full hover:bg-slate-100 hover:text-[#0A1020] transition-colors"
             >
               How It Works
             </Link>
             <Link
-              href="#faq"
-              className="px-3 py-1.5 rounded-full hover:bg-slate-100 transition-colors"
+              href="#about"
+              className="px-3.5 py-1.5 rounded-full hover:bg-slate-100 hover:text-[#0A1020] transition-colors"
             >
-              FAQ
+              About
+            </Link>
+            <Link
+              href="#faq"
+              className="px-3.5 py-1.5 rounded-full hover:bg-slate-100 hover:text-[#0A1020] transition-colors"
+            >
+              FAQs
             </Link>
           </nav>
 
@@ -657,9 +654,10 @@ export default function HomePage() {
         </section>
 
         {/* ================================================================= */}
-        {/* VISION AND MISSION SECTION (EXACT LAYOUT FROM IMAGE IN ROOT)      */}
+        {/* ABOUT (VISION AND MISSION & PHILOSOPHY SECTION)                   */}
         {/* ================================================================= */}
-        <section id="vision-mission" className="py-20 bg-[#F5F7FC] relative overflow-hidden border-y border-slate-200">
+        <section id="about" className="py-20 bg-[#F5F7FC] relative overflow-hidden border-y border-slate-200">
+          <span id="vision-mission" className="sr-only" />
           {/* Halftone / Dot pattern from image */}
           <div
             className="absolute inset-0 opacity-[0.06] pointer-events-none"
