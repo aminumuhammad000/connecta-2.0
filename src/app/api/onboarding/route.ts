@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { successResponse, errorResponse } from '@/lib/api/response'
 import { onboardingSchema } from '@/lib/validations/auth'
 import { saveUser, findUserByEmail } from '@/lib/auth/user-store'
+import { sendWelcomeEmail } from '@/lib/email/send-welcome'
 import { upsertUser, getOrCreateWallet } from '@/lib/server/db'
 
 function slugify(text: string): string {
@@ -231,6 +232,14 @@ export async function POST(request: NextRequest) {
         ? 'Service Provider account created successfully! Welcome to Connecta.'
         : 'Client workspace account created successfully! Welcome to Connecta.',
     }
+
+    // Dispatch Welcome Email asynchronously (non-blocking)
+    sendWelcomeEmail({
+      toEmail: input.email,
+      name: input.firstName,
+      role: isProvider ? 'provider' : 'customer',
+      dashboardUrl: `${process.env.NEXT_PUBLIC_APP_URL || 'https://myconnecta.ng'}/dashboard`,
+    }).catch((err) => console.error('[Welcome Email Background Error]', err))
 
     const response = successResponse(payloadResult, 201)
     response.cookies.set('connecta_session', userId, {

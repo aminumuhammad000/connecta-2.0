@@ -177,7 +177,17 @@ export interface ServerDatabaseSchema {
 // PERSISTENT STORAGE MANAGER
 // =============================================================================
 
-const DB_DIR = path.resolve(process.cwd(), 'data')
+// =============================================================================
+// PERSISTENT STORAGE MANAGER (SERVERLESS RESILIENT)
+// =============================================================================
+
+declare global {
+  // eslint-disable-next-line no-var
+  var __connecta_memory_db: ServerDatabaseSchema | undefined
+}
+
+const isServerless = Boolean(process.env.NETLIFY || process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME)
+const DB_DIR = isServerless ? '/tmp' : path.resolve(process.cwd(), 'data')
 const DB_FILE = path.join(DB_DIR, 'connecta-db.json')
 
 function getInitialDatabase(): ServerDatabaseSchema {
@@ -194,15 +204,32 @@ function getInitialDatabase(): ServerDatabaseSchema {
 }
 
 export function readDatabase(): ServerDatabaseSchema {
-  try {
-    if (!fs.existsSync(DB_DIR)) {
-      fs.mkdirSync(DB_DIR, { recursive: true })
-    }
+  if (globalThis.__connecta_memory_db) {
+    return globalThis.__connecta_memory_db
+  }
 
+  try {
     let parsed: Partial<ServerDatabaseSchema> = {}
+    
+    // Check main file
     if (fs.existsSync(DB_FILE)) {
-      const raw = fs.readFileSync(DB_FILE, 'utf-8')
-      parsed = JSON.parse(raw)
+      try {
+        const raw = fs.readFileSync(DB_FILE, 'utf-8')
+        parsed = JSON.parse(raw)
+      } catch {
+        // Fallback
+      }
+    } else {
+      // Check if project data directory has a seed file
+      const projectDataFile = path.resolve(process.cwd(), 'data', 'connecta-db.json')
+      if (fs.existsSync(projectDataFile)) {
+        try {
+          const raw = fs.readFileSync(projectDataFile, 'utf-8')
+          parsed = JSON.parse(raw)
+        } catch {
+          // Fallback
+        }
+      }
     }
 
     const db: ServerDatabaseSchema = {
@@ -217,7 +244,7 @@ export function readDatabase(): ServerDatabaseSchema {
     }
 
     // Sync from registered-users.json if profiles are missing
-    const registeredUsersFile = path.join(DB_DIR, 'registered-users.json')
+    const registeredUsersFile = path.resolve(process.cwd(), 'data', 'registered-users.json')
     if (fs.existsSync(registeredUsersFile)) {
       try {
         const rawUsers = fs.readFileSync(registeredUsersFile, 'utf-8')
@@ -296,23 +323,38 @@ export function readDatabase(): ServerDatabaseSchema {
       }
     }
 
+    globalThis.__connecta_memory_db = db
     return db
   } catch (err) {
     console.error('Error reading server database:', err)
-    return getInitialDatabase()
+    const initial = getInitialDatabase()
+    globalThis.__connecta_memory_db = initial
+    return initial
   }
 }
 
 export function writeDatabase(db: ServerDatabaseSchema): void {
+  // Always update global memory cache immediately
+  globalThis.__connecta_memory_db = db
+
   try {
     if (!fs.existsSync(DB_DIR)) {
-      fs.mkdirSync(DB_DIR, { recursive: true })
+      try {
+        fs.mkdirSync(DB_DIR, { recursive: true })
+      } catch {
+        // Directory create failed (read-only filesystem)
+      }
     }
-    const tempFile = `${DB_FILE}.tmp`
-    fs.writeFileSync(tempFile, JSON.stringify(db, null, 2), 'utf-8')
-    fs.renameSync(tempFile, DB_FILE)
+
+    try {
+      const tempFile = `${DB_FILE}.tmp`
+      fs.writeFileSync(tempFile, JSON.stringify(db, null, 2), 'utf-8')
+      fs.renameSync(tempFile, DB_FILE)
+    } catch {
+      // In read-only serverless environment, memory cache is maintained
+    }
   } catch (err) {
-    console.error('Error writing server database:', err)
+    // Non-fatal error in serverless environment
   }
 }
 

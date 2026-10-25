@@ -1,5 +1,6 @@
 import { randomInt } from 'crypto'
 import { Resend } from 'resend'
+import { generateOtpEmailHtml } from '@/lib/email/otp-template'
 
 interface OtpRecord {
   code: string
@@ -69,29 +70,7 @@ export async function createAndSendOtp(email: string): Promise<{ success: boolea
         to: cleanEmail,
         replyTo: 'support@myconnecta.ng',
         subject: `Your Connecta Verification Code: ${code}`,
-        html: `
-          <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 560px; margin: 0 auto; padding: 32px 24px; background-color: #F8FAFC; border-radius: 16px;">
-            <div style="text-align: center; margin-bottom: 24px;">
-              <h2 style="color: #053F28; margin: 0; font-size: 26px; font-weight: 800; letter-spacing: -0.5px;">Connecta</h2>
-              <p style="color: #64748B; font-size: 13px; margin: 4px 0 0 0;">African Skilled Trades &amp; Digital Professionals</p>
-            </div>
-            <div style="background-color: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 12px; padding: 28px; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
-              <h3 style="color: #0F172A; font-size: 18px; font-weight: 700; margin: 0 0 12px 0;">Verify Your Email Address</h3>
-              <p style="color: #475569; font-size: 14px; line-height: 1.5; margin: 0 0 24px 0;">
-                Enter this 6-digit code on the onboarding verification screen to activate your Connecta workspace.
-              </p>
-              <div style="display: inline-block; background-color: #F0FDF4; border: 2px solid #10B981; border-radius: 10px; padding: 14px 28px; margin-bottom: 20px;">
-                <span style="font-family: monospace; font-size: 32px; font-weight: 900; letter-spacing: 8px; color: #053F28;">${code}</span>
-              </div>
-              <p style="color: #94A3B8; font-size: 12px; margin: 0;">
-                This code will expire in <strong>10 minutes</strong>. Never share this code with anyone.
-              </p>
-            </div>
-            <div style="text-align: center; margin-top: 24px; color: #94A3B8; font-size: 11px;">
-              &copy; ${new Date().getFullYear()} Connecta Technologies Ltd. Escrow Protected Marketplace.
-            </div>
-          </div>
-        `,
+        html: generateOtpEmailHtml(code),
       })
 
       if (error) {
