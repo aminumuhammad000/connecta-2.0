@@ -678,6 +678,19 @@ export default function HomePage() {
   const [isVideoMuted, setIsVideoMuted] = useState(true)
   const [isScrolled, setIsScrolled] = useState(false)
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
+  const [hasAccount, setHasAccount] = useState(false)
+
+  useEffect(() => {
+    try {
+      const hasCookie = document.cookie.split(';').some((c) => c.trim().startsWith('connecta_session='))
+      const hasStoredUser = !!localStorage.getItem('connecta_remember_email')
+      if (hasCookie || hasStoredUser) {
+        setHasAccount(true)
+      }
+    } catch {
+      // ignore
+    }
+  }, [])
 
   useEffect(() => {
     const handleScroll = () => {
@@ -849,22 +862,9 @@ export default function HomePage() {
           <nav className="hidden md:flex items-center gap-1 lg:gap-2 text-sm font-semibold text-slate-600">
             <Link
               href="/discover"
-              className="px-3.5 py-1.5 rounded-full text-emerald-800 font-extrabold hover:bg-emerald-50 transition-all flex items-center gap-1"
-            >
-              <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
-              <span>Discover</span>
-            </Link>
-            <Link
-              href="#about"
               className="px-3.5 py-1.5 rounded-full hover:text-[#0C513F] hover:bg-slate-100/80 transition-all"
             >
-              About
-            </Link>
-            <Link
-              href="#featured-specialists"
-              className="px-3.5 py-1.5 rounded-full hover:text-[#0C513F] hover:bg-slate-100/80 transition-all"
-            >
-              Specialists
+              Discover
             </Link>
             <Link
               href="#how-it-works"
@@ -873,43 +873,46 @@ export default function HomePage() {
               How It Works
             </Link>
             <Link
-              href="/dashboard"
-              className="px-3.5 py-1.5 rounded-full text-[#0C513F] font-bold hover:bg-emerald-50 transition-all"
+              href="#featured-specialists"
+              className="px-3.5 py-1.5 rounded-full hover:text-[#0C513F] hover:bg-slate-100/80 transition-all"
             >
-              Dashboard
+              Specialists
+            </Link>
+            <Link
+              href="#about"
+              className="px-3.5 py-1.5 rounded-full hover:text-[#0C513F] hover:bg-slate-100/80 transition-all"
+            >
+              About
             </Link>
           </nav>
 
-          {/* Right Action Buttons */}
-          <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
-            <Link
-              href="/login"
-              className="hidden lg:inline-flex items-center text-xs sm:text-sm font-semibold text-slate-700 hover:text-[#0A1020] px-3.5 py-1.5 rounded-full hover:bg-slate-100/80 transition-colors"
-            >
-              Sign In
-            </Link>
+          {/* Right Action: Clean single primary CTA */}
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+            {hasAccount ? (
+              <Link
+                href="/dashboard"
+                className="inline-flex items-center gap-2 text-xs sm:text-sm font-extrabold text-white bg-[#0C513F] hover:bg-[#083b2e] px-5 py-2.5 rounded-full shadow-sm hover:shadow-md transition-all hover:scale-[1.02] active:scale-[0.98]"
+              >
+                <span>Dashboard</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+            ) : (
+              <>
+                <Link
+                  href="/login"
+                  className="hidden sm:inline-flex items-center text-xs sm:text-sm font-semibold text-slate-700 hover:text-[#0A1020] px-3.5 py-1.5 rounded-full hover:bg-slate-100/80 transition-colors"
+                >
+                  Sign In
+                </Link>
 
-            <Link
-              href="/onboarding?step=role"
-              className="inline-flex items-center text-xs sm:text-sm font-bold text-[#0A1020] bg-slate-100 hover:bg-slate-200 px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-full transition-colors shadow-xs"
-            >
-              Register
-            </Link>
-
-            <Link
-              href="/onboarding?step=role&role=provider"
-              className="hidden md:inline-flex items-center text-xs sm:text-sm font-semibold text-slate-700 hover:text-[#0C513F] px-3.5 py-1.5 rounded-full hover:bg-slate-100/80 transition-colors"
-            >
-              Join as Pro
-            </Link>
-
-            <Link
-              href="/requests/new"
-              className="bg-[#0C513F] hover:bg-[#083b2e] text-white px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-bold shadow-sm hover:shadow-md flex items-center gap-1.5 transition-all hover:scale-[1.02] active:scale-[0.98] shrink-0"
-            >
-              <span>Post Request</span>
-              <CornerDownRight className="w-3.5 h-3.5 stroke-[2.5]" />
-            </Link>
+                <Link
+                  href="/onboarding?step=role"
+                  className="inline-flex items-center text-xs sm:text-sm font-extrabold text-white bg-[#0C513F] hover:bg-[#083b2e] px-5 py-2.5 rounded-full transition-all shadow-sm hover:shadow-md hover:scale-[1.02] active:scale-[0.98]"
+                >
+                  Register
+                </Link>
+              </>
+            )}
 
             {/* Mobile Menu Button */}
             <button
@@ -929,24 +932,9 @@ export default function HomePage() {
             <Link
               href="/discover"
               onClick={() => setMobileNavOpen(false)}
-              className="px-3.5 py-2.5 rounded-xl bg-emerald-50 text-emerald-800 font-extrabold flex items-center gap-2"
-            >
-              <Sparkles className="w-4 h-4 text-emerald-600" />
-              <span>Discover Specialists</span>
-            </Link>
-            <Link
-              href="#about"
-              onClick={() => setMobileNavOpen(false)}
               className="px-3.5 py-2.5 rounded-xl hover:bg-slate-100 hover:text-[#0C513F] transition-colors"
             >
-              About
-            </Link>
-            <Link
-              href="#featured-specialists"
-              onClick={() => setMobileNavOpen(false)}
-              className="px-3.5 py-2.5 rounded-xl hover:bg-slate-100 hover:text-[#0C513F] transition-colors"
-            >
-              Specialists
+              Discover
             </Link>
             <Link
               href="#how-it-works"
@@ -956,41 +944,46 @@ export default function HomePage() {
               How It Works
             </Link>
             <Link
-              href="/dashboard"
+              href="#featured-specialists"
               onClick={() => setMobileNavOpen(false)}
-              className="px-3.5 py-2.5 rounded-xl bg-emerald-50 text-[#0C513F] font-bold transition-colors"
+              className="px-3.5 py-2.5 rounded-xl hover:bg-slate-100 hover:text-[#0C513F] transition-colors"
             >
-              Dashboard
+              Specialists
+            </Link>
+            <Link
+              href="#about"
+              onClick={() => setMobileNavOpen(false)}
+              className="px-3.5 py-2.5 rounded-xl hover:bg-slate-100 hover:text-[#0C513F] transition-colors"
+            >
+              About
             </Link>
             <div className="pt-2 mt-1 border-t border-slate-100 flex flex-col gap-2">
-              <Link
-                href="/onboarding?step=role"
-                onClick={() => setMobileNavOpen(false)}
-                className="w-full text-center py-2.5 rounded-full font-bold text-white bg-[#0A1020] hover:bg-[#4D78FF] text-xs transition-colors shadow-xs"
-              >
-                Create Account
-              </Link>
-              <Link
-                href="/login"
-                onClick={() => setMobileNavOpen(false)}
-                className="w-full text-center py-2.5 rounded-full font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 text-xs transition-colors"
-              >
-                Sign In
-              </Link>
-              <Link
-                href="/onboarding?step=role&role=provider"
-                onClick={() => setMobileNavOpen(false)}
-                className="w-full text-center py-2.5 rounded-full font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 text-xs transition-colors"
-              >
-                Join as Pro
-              </Link>
-              <Link
-                href="/requests/new"
-                onClick={() => setMobileNavOpen(false)}
-                className="w-full text-center py-2.5 rounded-full font-bold text-white bg-[#0C513F] hover:bg-[#083b2e] text-xs transition-colors"
-              >
-                Post Service Request
-              </Link>
+              {hasAccount ? (
+                <Link
+                  href="/dashboard"
+                  onClick={() => setMobileNavOpen(false)}
+                  className="w-full text-center py-2.5 rounded-full font-extrabold text-white bg-[#0C513F] hover:bg-[#083b2e] text-xs transition-colors shadow-xs"
+                >
+                  Dashboard
+                </Link>
+              ) : (
+                <>
+                  <Link
+                    href="/onboarding?step=role"
+                    onClick={() => setMobileNavOpen(false)}
+                    className="w-full text-center py-2.5 rounded-full font-extrabold text-white bg-[#0C513F] hover:bg-[#083b2e] text-xs transition-colors shadow-xs"
+                  >
+                    Register
+                  </Link>
+                  <Link
+                    href="/login"
+                    onClick={() => setMobileNavOpen(false)}
+                    className="w-full text-center py-2.5 rounded-full font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 text-xs transition-colors"
+                  >
+                    Sign In
+                  </Link>
+                </>
+              )}
             </div>
           </div>
         )}

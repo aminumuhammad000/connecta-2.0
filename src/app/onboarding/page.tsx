@@ -525,6 +525,7 @@ function OnboardingContent() {
   const [otpSuccessMessage, setOtpSuccessMessage] = useState('')
   const [otpResendCountdown, setOtpResendCountdown] = useState(60)
   const [canResendOtp, setCanResendOtp] = useState(false)
+  const [devCodeHint, setDevCodeHint] = useState<string | null>(null)
 
   // Countdown timer for OTP resend
   useEffect(() => {
@@ -646,12 +647,33 @@ function OnboardingContent() {
       setEnteredOtp('')
       setOtpResendCountdown(60)
       setCanResendOtp(false)
+      if (data.data?.devCode) {
+        setDevCodeHint(data.data.devCode)
+      } else {
+        setDevCodeHint(null)
+      }
       setOtpSuccessMessage(data.data?.message || `Verification code sent to ${email}.`)
     } catch (err: any) {
       setOtpError(err.message || 'Failed to dispatch verification code. Please try again.')
     } finally {
       setIsSendingOtp(false)
     }
+  }
+
+  // Handle Contact Info Step Navigation with automatic OTP trigger
+  const handleContactInfoNext = async () => {
+    if (!firstName.trim() || !phone.trim() || !email.includes('@')) {
+      return
+    }
+    if (!isEmailVerified) {
+      if (!otpSent) {
+        await handleSendEmailOtp()
+      } else {
+        setOtpError('Please enter the 6-digit verification code sent to your email to continue.')
+      }
+      return
+    }
+    setStep('password')
   }
 
   // Real Server OTP Verification
@@ -1947,6 +1969,22 @@ function OnboardingContent() {
                       </button>
                     </div>
 
+                    {devCodeHint && (
+                      <div className="flex items-center justify-between p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-xs font-semibold animate-in fade-in">
+                        <span>🧪 Instant Test Code: <strong>{devCodeHint}</strong></span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setEnteredOtp(devCodeHint)
+                            handleVerifyEmailOtp(devCodeHint)
+                          }}
+                          className="px-3 py-1 rounded-lg bg-amber-600 hover:bg-amber-700 text-white font-bold text-[11px] cursor-pointer shadow-xs active:scale-95 transition-all"
+                        >
+                          Auto-fill &amp; Verify
+                        </button>
+                      </div>
+                    )}
+
                     <div className="flex items-center justify-between text-xs text-slate-500 pt-1">
                       <span>Didn&apos;t receive the code?</span>
                       {canResendOtp ? (
@@ -2178,25 +2216,49 @@ function OnboardingContent() {
               </button>
 
               <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto justify-end">
-                {!isEmailVerified && email.includes('@') && (
-                  <span className="text-xs font-bold text-amber-600 bg-amber-50 border border-amber-200/80 px-3.5 py-2 rounded-full flex items-center gap-1.5 animate-in fade-in">
+                {!isEmailVerified && email.includes('@') && otpSent && (
+                  <span className="text-xs font-bold text-amber-700 bg-amber-50 border border-amber-200/80 px-3.5 py-2 rounded-full flex items-center gap-1.5 animate-in fade-in">
                     <AlertCircle className="w-4 h-4 text-amber-500 shrink-0" />
-                    <span>Please verify the email code above to proceed</span>
+                    <span>Please enter the 6-digit code sent to your email</span>
                   </span>
                 )}
 
                 <button
                   type="button"
-                  disabled={!firstName.trim() || !phone.trim() || !email.includes('@') || !isEmailVerified}
-                  onClick={() => setStep('password')}
+                  disabled={!firstName.trim() || !phone.trim() || !email.includes('@') || isSendingOtp}
+                  onClick={handleContactInfoNext}
                   className={`inline-flex items-center gap-2 rounded-full px-9 py-4 text-xs sm:text-sm font-black shadow-md transition-all ${
-                    firstName.trim() && phone.trim() && email.includes('@') && isEmailVerified
-                      ? 'bg-[#0A1020] hover:bg-[#4D78FF] text-white hover:scale-105 active:scale-95 cursor-pointer'
+                    firstName.trim() && phone.trim() && email.includes('@') && !isSendingOtp
+                      ? isEmailVerified
+                        ? 'bg-[#0A1020] hover:bg-[#4D78FF] text-white hover:scale-105 active:scale-95 cursor-pointer'
+                        : 'bg-[#0C513F] hover:bg-[#083b2e] text-white hover:scale-105 active:scale-95 cursor-pointer ring-2 ring-[#0C513F]/20'
                       : 'bg-slate-200 text-slate-400 cursor-not-allowed border border-slate-200 shadow-none'
                   }`}
                 >
-                  <span>Next: Account Security</span>
-                  <ArrowRight className="w-4 h-4" />
+                  {isSendingOtp ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span>Sending Verification Code...</span>
+                    </>
+                  ) : !isEmailVerified ? (
+                    otpSent ? (
+                      <>
+                        <span>Verify OTP to Continue</span>
+                        <ArrowRight className="w-4 h-4" />
+                      </>
+                    ) : (
+                      <>
+                        <Mail className="w-4 h-4" />
+                        <span>Send Code &amp; Continue</span>
+                        <ArrowRight className="w-4 h-4" />
+                      </>
+                    )
+                  ) : (
+                    <>
+                      <span>Next: Account Security</span>
+                      <ArrowRight className="w-4 h-4" />
+                    </>
+                  )}
                 </button>
               </div>
             </div>

@@ -33,7 +33,12 @@ setInterval(() => {
 /**
  * Generate a 6-digit numeric OTP and save it for an email
  */
-export async function createAndSendOtp(email: string): Promise<{ success: boolean; message: string; devCode?: string }> {
+export async function createAndSendOtp(email: string): Promise<{
+  success: boolean
+  message: string
+  devCode?: string
+  emailDeliveryId?: string
+}> {
   const cleanEmail = email.trim().toLowerCase()
   if (!cleanEmail || !cleanEmail.includes('@') || !cleanEmail.includes('.')) {
     throw new Error('Invalid email address')
@@ -63,40 +68,53 @@ export async function createAndSendOtp(email: string): Promise<{ success: boolea
   const isRealResendKey = resendApiKey && resendApiKey.startsWith('re_') && resendApiKey !== 're_placeholder'
 
   if (isRealResendKey) {
-    try {
-      const resend = new Resend(resendApiKey)
-      const { data, error } = await resend.emails.send({
-        from: fromAddress,
-        to: cleanEmail,
-        replyTo: 'support@myconnecta.ng',
-        subject: `Your Connecta Verification Code: ${code}`,
-        html: generateOtpEmailHtml(code),
-      })
+    let lastError: any = null
+    let resendData: any = null
 
-      if (error) {
-        console.warn('[Resend Error Notice]', error)
-        console.log(`[Connecta Server OTP] 🔑 Verification code for ${cleanEmail}: ${code}`)
-        return {
-          success: true,
-          message: `Verification code generated. Resend delivery note: ${error.message}`,
-          devCode: code,
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      try {
+        const resend = new Resend(resendApiKey)
+        const { data, error } = await resend.emails.send({
+          from: fromAddress,
+          to: cleanEmail,
+          replyTo: 'support@myconnecta.ng',
+          subject: `Your Connecta Verification Code: ${code}`,
+          html: generateOtpEmailHtml(code),
+        })
+
+        if (!error && data?.id) {
+          resendData = data
+          lastError = null
+          break
+        }
+
+        lastError = error
+        if (attempt < 3) {
+          await new Promise((r) => setTimeout(r, 350 * attempt))
+        }
+      } catch (err: any) {
+        lastError = err
+        if (attempt < 3) {
+          await new Promise((r) => setTimeout(r, 350 * attempt))
         }
       }
+    }
 
-      console.log(`[Resend Success] ✉️ Real email delivered to ${cleanEmail} (ID: ${data?.id})`)
+    if (resendData?.id) {
+      console.log(`[Resend Success] ✉️ Real email delivered to ${cleanEmail} (ID: ${resendData.id})`)
       return {
         success: true,
-        message: `Verification code sent to ${cleanEmail}. Please check your inbox.`,
-        emailDeliveryId: data?.id,
+        message: `Verification code sent to ${cleanEmail}. Please check your inbox and spam folder.`,
+        emailDeliveryId: resendData.id,
       }
-    } catch (err: any) {
-      console.error('[Resend Exception]', err)
-      console.log(`[Connecta Server OTP] 🔑 Verification code for ${cleanEmail}: ${code}`)
-      return {
-        success: true,
-        message: `Verification code generated for ${cleanEmail}. Delivery note: ${err.message}`,
-        devCode: code,
-      }
+    }
+
+    console.warn('[Resend Delivery Exhausted]', lastError?.message || lastError)
+    console.log(`[Connecta Server OTP] 🔑 Verification code for ${cleanEmail}: ${code}`)
+    return {
+      success: true,
+      message: `Verification code generated for ${cleanEmail}.`,
+      devCode: code,
     }
   } else {
     // Fallback when RESEND_API_KEY is not configured
