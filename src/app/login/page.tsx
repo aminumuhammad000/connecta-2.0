@@ -124,10 +124,6 @@ function LoginContent() {
       <main className="flex-1 max-w-xl w-full mx-auto px-4 py-8 sm:py-12 flex flex-col justify-center">
         {/* Header Heading matching Onboarding Step Headers */}
         <div className="text-center space-y-3 mb-8">
-          <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-[#10B981]/10 text-[#053F28] text-xs font-bold border border-[#10B981]/20">
-            <Sparkles className="w-3.5 h-3.5 text-[#10B981]" />
-            <span>Connecta Portal</span>
-          </div>
           <h1 className="text-3xl sm:text-5xl font-black text-[#0A1020] tracking-tight leading-[1.1]">
             Welcome Back
           </h1>
