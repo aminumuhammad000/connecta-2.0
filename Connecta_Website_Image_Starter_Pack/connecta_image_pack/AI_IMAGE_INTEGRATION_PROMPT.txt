@@ -1,5 +1,0 @@
-Use the images in the `images/` folder for Connecta's service-category cards and relevant landing-page sections.
-Match images to categories using the descriptive filenames. Do not treat stock-photo subjects as real Connecta providers.
-Keep images responsive with object-fit: cover, consistent aspect ratios, useful alt text, and lazy loading below the fold.
-Suggested alt text should describe the activity, e.g. "Electrician working on an electrical panel".
-Do not rename the source files unless updating all references in code.

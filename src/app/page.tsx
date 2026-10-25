@@ -193,7 +193,7 @@ const TRADE_ACCORDION_ITEMS = {
       bg: 'bg-[#DBD5F9]',
       textColor: 'text-[#4C1D95]',
       tags: ['Solar Inverters', 'Lithium Batteries', 'Distribution Boards', 'Prepaid Meters', 'Safety Earthing'],
-      image: '/images/services/electrician_working_on_electrical_panel.jpg',
+      image: '/images/services/nigerian_electrician_ibrahim.jpg',
       alt: 'Electrician working on electrical panel in Kano',
       artisanName: 'Ibrahim Aliyu',
       artisanTitle: 'Master Solar Engineer',
@@ -208,7 +208,7 @@ const TRADE_ACCORDION_ITEMS = {
       bg: 'bg-[#FCECB2]',
       textColor: 'text-[#B45309]',
       tags: ['OLED Screens', 'TrueTone Transfer', 'Battery Health 100%', 'Board Micro-Soldering', 'Charging Ports'],
-      image: '/images/services/phone_repair_technician.jpg',
+      image: '/images/services/nigerian_specialist_salamah.jpg',
       alt: 'Phone technician repairing smartphone in display lab',
       artisanName: 'Garba Danbatta',
       artisanTitle: 'Display & Board Specialist',
@@ -238,7 +238,7 @@ const TRADE_ACCORDION_ITEMS = {
       bg: 'bg-[#CBF3E4]',
       textColor: 'text-[#047857]',
       tags: ['Submersible Pumps', 'Pressure Control Valves', 'Pipe Leak Detection', 'Overhead Tanks', 'Clean Piping'],
-      image: '/images/services/cleaning_or_maintenance_technician.jpg',
+      image: '/images/services/nigerian_plumber_jonah.jpg',
       alt: 'Plumbing specialist inspecting water piping',
       artisanName: 'Aliyu Sani',
       artisanTitle: 'Master Plumbing Technician',
@@ -270,7 +270,7 @@ const TRADE_ACCORDION_ITEMS = {
       bg: 'bg-[#FCECB2]',
       textColor: 'text-[#B45309]',
       tags: ['Custom Office Desks', 'Hardwood Wardrobes', 'Door Frame Fitting', 'Roof Trusses', 'Cabinet Joinery'],
-      image: '/images/services/carpenter_working_in_nigeria.jpg',
+      image: '/images/services/nigerian_carpenter_kabiru.jpg',
       alt: 'Carpenter working on wooden construction in Nigeria',
       artisanName: 'Kabiru Idris',
       artisanTitle: 'Master Furniture Joiner',
@@ -390,7 +390,7 @@ const FEATURED_PROVIDERS = [
     jobs: 118,
     verified: true,
     experience: '8 yrs exp',
-    avatar: '/images/services/electrician_working_on_electrical_panel.jpg',
+    avatar: '/images/services/nigerian_electrician_ibrahim.jpg',
     recentJob: '30kVA Solar Hybrid Installation & Panel Rewiring',
     cardBg: 'bg-[#1E1B4B]',
     accentPill: 'bg-[#10B981] text-white',
@@ -406,7 +406,7 @@ const FEATURED_PROVIDERS = [
     jobs: 92,
     verified: true,
     experience: '7 yrs exp',
-    avatar: '/images/services/cleaning_or_maintenance_technician.jpg',
+    avatar: '/images/services/nigerian_plumber_jonah.jpg',
     recentJob: 'Commercial Building Pressure Booster & Pipe Overhaul',
     cardBg: 'bg-[#0A1020]',
     accentPill: 'bg-[#4D78FF] text-white',
@@ -422,7 +422,7 @@ const FEATURED_PROVIDERS = [
     jobs: 140,
     verified: true,
     experience: '10 yrs exp',
-    avatar: '/images/services/carpenter_working_in_nigeria.jpg',
+    avatar: '/images/services/nigerian_carpenter_kabiru.jpg',
     recentJob: 'Custom Office Cabinetry & Acoustical Timber Paneling',
     cardBg: 'bg-[#D97706]',
     accentPill: 'bg-[#0A1020] text-white',
@@ -438,7 +438,7 @@ const FEATURED_PROVIDERS = [
     jobs: 88,
     verified: true,
     experience: '6 yrs exp',
-    avatar: '/images/services/phone_repair_technician.jpg',
+    avatar: '/images/services/nigerian_specialist_salamah.jpg',
     recentJob: 'Multi-Board Micro-soldering & Logic Diagnostic Repair',
     cardBg: 'bg-[#064E3B]',
     accentPill: 'bg-[#10B981] text-white',
@@ -674,7 +674,6 @@ export default function HomePage() {
   const [activeAccordionIndex, setActiveAccordionIndex] = useState<number>(0)
   const [isAccordionPaused, setIsAccordionPaused] = useState<boolean>(false)
   const heroRef = useRef<HTMLElement>(null)
-  const [heroMouseOffset, setHeroMouseOffset] = useState({ x: 0, y: 0 })
   const videoRef = useRef<HTMLVideoElement>(null)
   const [isVideoMuted, setIsVideoMuted] = useState(true)
   const [isScrolled, setIsScrolled] = useState(false)
@@ -688,18 +687,6 @@ export default function HomePage() {
     handleScroll()
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
-
-  const handleHeroMouseMove = (e: React.MouseEvent<HTMLElement>) => {
-    if (!heroRef.current) return
-    const rect = heroRef.current.getBoundingClientRect()
-    const x = ((e.clientX - rect.left) / rect.width - 0.5) * 80
-    const y = ((e.clientY - rect.top) / rect.height - 0.5) * 60
-    setHeroMouseOffset({ x, y })
-  }
-
-  const handleHeroMouseLeave = () => {
-    setHeroMouseOffset({ x: 0, y: 0 })
-  }
 
   const toggleVideoSound = () => {
     if (videoRef.current) {
@@ -819,78 +806,93 @@ export default function HomePage() {
         }}
       />
 
-      {/* Floating Modern Header (Adapts to Landing Page Design) */}
-      <div className="sticky top-3 sm:top-4 z-50 px-3 sm:px-6">
+      {/* Unified Professional Floating Header */}
+      <div className="fixed top-0 left-0 right-0 z-50 pt-3 sm:pt-4 px-3 sm:px-6 pointer-events-none">
         <header
-          className={`max-w-7xl mx-auto flex items-center justify-between gap-3 transition-all duration-300 ${
+          className={`pointer-events-auto max-w-6xl mx-auto flex items-center justify-between gap-4 transition-all duration-300 rounded-full px-4 sm:px-6 py-2.5 sm:py-3 ${
             isScrolled
-              ? 'bg-white/90 backdrop-blur-xl py-2 px-3 sm:px-5 rounded-full shadow-[0_8px_30px_rgb(0,0,0,0.08)] border border-slate-200/90'
-              : 'py-1'
+              ? 'bg-white/95 backdrop-blur-xl border border-slate-200/90 shadow-[0_10px_30px_rgb(0,0,0,0.08)]'
+              : 'bg-white/85 backdrop-blur-md border border-slate-200/70 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.06)]'
           }`}
         >
-          {/* Left Brand: Connecta Icon & Region Selector */}
-          <div className="flex items-center gap-2 sm:gap-2.5">
-            <Link
-              href="/"
-              className="bg-[#0C513F] hover:bg-[#083b2e] text-white px-4 py-2 sm:px-4.5 sm:py-2.5 rounded-full flex items-center gap-2 shadow-md transition-all hover:scale-105 shrink-0"
-            >
-              <div className="relative w-5 h-5 shrink-0">
-                <Image
-                  src="/brand/connecta-header-icon.svg"
-                  alt="Connecta Icon"
-                  fill
-                  className="object-contain"
-                  priority
-                />
+          {/* Left: Brand Logo & Minimal Region */}
+          <div className="flex items-center gap-3 shrink-0">
+            <Link href="/" className="flex items-center gap-2.5 group">
+              <div className="w-8 h-8 rounded-full bg-[#0C513F] flex items-center justify-center p-1.5 shadow-xs transition-transform group-hover:scale-105 shrink-0">
+                <div className="relative w-4.5 h-4.5">
+                  <Image
+                    src="/brand/connecta-header-icon.svg"
+                    alt="Connecta Icon"
+                    fill
+                    className="object-contain"
+                    priority
+                  />
+                </div>
               </div>
-              <span className="font-extrabold text-sm sm:text-base tracking-tight text-white">connecta</span>
+              <span className="font-extrabold text-base sm:text-lg tracking-tight text-[#0A1020]">
+                connecta
+              </span>
             </Link>
 
-            <div className="hidden xs:flex items-center gap-1.5 text-xs font-bold text-slate-800 bg-white/95 px-3 py-2 rounded-full shadow-md border border-slate-200/80 cursor-pointer hover:bg-slate-50 transition-colors shrink-0">
+            <div className="h-4 w-px bg-slate-200 hidden xs:block" />
+
+            <div className="hidden xs:flex items-center gap-1 text-[11px] font-bold text-slate-600 hover:text-slate-900 transition-colors cursor-pointer px-2 py-1 rounded-full hover:bg-slate-100/70">
               <span className="text-sm leading-none">🇳🇬</span>
-              <span className="font-extrabold text-slate-900 tracking-tight text-xs">NG</span>
-              <span className="w-4 h-4 rounded-full border border-slate-400 text-slate-700 flex items-center justify-center text-[10px] ml-0.5">
-                <ChevronDown className="w-2.5 h-2.5 stroke-[2.5]" />
-              </span>
+              <span className="font-extrabold text-slate-800">NG</span>
+              <ChevronDown className="w-3 h-3 text-slate-400 stroke-[2.5]" />
             </div>
           </div>
 
-          {/* Center Navigation: Ordered About -> Specialists -> How It Works with Larger Font */}
-          <nav className="hidden md:flex items-center gap-1 sm:gap-2 text-sm sm:text-[15px] font-bold text-slate-800 bg-white/95 px-4 sm:px-6 py-2 rounded-full shadow-md border border-slate-200/90 backdrop-blur-xl">
+          {/* Center Navigation: Clean, borderless links with subtle hover pills */}
+          <nav className="hidden md:flex items-center gap-1 lg:gap-2 text-sm font-semibold text-slate-600">
             <Link
               href="#about"
-              className="hover:text-[#0C513F] hover:bg-slate-100/80 px-3.5 py-1.5 rounded-full transition-all"
+              className="px-3.5 py-1.5 rounded-full hover:text-[#0C513F] hover:bg-slate-100/80 transition-all"
             >
               About
             </Link>
             <Link
               href="#featured-specialists"
-              className="hover:text-[#0C513F] hover:bg-slate-100/80 px-3.5 py-1.5 rounded-full transition-all"
+              className="px-3.5 py-1.5 rounded-full hover:text-[#0C513F] hover:bg-slate-100/80 transition-all"
             >
               Specialists
             </Link>
             <Link
               href="#how-it-works"
-              className="hover:text-[#0C513F] hover:bg-slate-100/80 px-3.5 py-1.5 rounded-full transition-all"
+              className="px-3.5 py-1.5 rounded-full hover:text-[#0C513F] hover:bg-slate-100/80 transition-all"
             >
               How It Works
             </Link>
           </nav>
 
           {/* Right Action Buttons */}
-          <div className="flex items-center gap-2 sm:gap-2.5">
+          <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
             <Link
-              href="/onboarding?role=provider"
-              className="hidden sm:inline-flex items-center text-xs sm:text-sm font-bold text-slate-800 bg-white/95 hover:bg-slate-50 hover:text-[#0C513F] px-4.5 py-2.5 rounded-full shadow-md border border-slate-200/80 transition-all"
+              href="/login"
+              className="hidden lg:inline-flex items-center text-xs sm:text-sm font-semibold text-slate-700 hover:text-[#0A1020] px-3.5 py-1.5 rounded-full hover:bg-slate-100/80 transition-colors"
+            >
+              Sign In
+            </Link>
+
+            <Link
+              href="/onboarding?step=role"
+              className="inline-flex items-center text-xs sm:text-sm font-bold text-[#0A1020] bg-slate-100 hover:bg-slate-200 px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-full transition-colors shadow-xs"
+            >
+              Register
+            </Link>
+
+            <Link
+              href="/onboarding?step=role&role=provider"
+              className="hidden md:inline-flex items-center text-xs sm:text-sm font-semibold text-slate-700 hover:text-[#0C513F] px-3.5 py-1.5 rounded-full hover:bg-slate-100/80 transition-colors"
             >
               Join as Pro
             </Link>
 
             <Link
               href="/requests/new"
-              className="bg-[#0C513F] hover:bg-[#083b2e] text-white px-4.5 sm:px-5 py-2.5 rounded-full text-xs sm:text-sm font-extrabold shadow-md flex items-center gap-1.5 transition-all hover:scale-105 shrink-0"
+              className="bg-[#0C513F] hover:bg-[#083b2e] text-white px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-bold shadow-sm hover:shadow-md flex items-center gap-1.5 transition-all hover:scale-[1.02] active:scale-[0.98] shrink-0"
             >
-              <span>Hire Talent</span>
+              <span>Post Request</span>
               <CornerDownRight className="w-3.5 h-3.5 stroke-[2.5]" />
             </Link>
 
@@ -898,7 +900,7 @@ export default function HomePage() {
             <button
               type="button"
               onClick={() => setMobileNavOpen(!mobileNavOpen)}
-              className="md:hidden p-2 rounded-full bg-white/95 border border-slate-200/90 shadow-md text-slate-800 hover:bg-slate-100 cursor-pointer"
+              className="md:hidden p-2 rounded-full text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
               aria-label="Toggle navigation menu"
             >
               {mobileNavOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -908,35 +910,56 @@ export default function HomePage() {
 
         {/* Mobile Dropdown Menu */}
         {mobileNavOpen && (
-          <div className="md:hidden mt-2 max-w-sm mx-auto bg-white/95 backdrop-blur-xl border border-slate-200/90 rounded-2xl shadow-2xl p-4 flex flex-col gap-2">
+          <div className="pointer-events-auto md:hidden mt-2 max-w-sm mx-auto bg-white/95 backdrop-blur-xl border border-slate-200/90 rounded-2xl shadow-2xl p-4 flex flex-col gap-1.5 text-sm font-semibold text-slate-700">
             <Link
               href="#about"
               onClick={() => setMobileNavOpen(false)}
-              className="px-4 py-2.5 rounded-xl font-bold text-slate-800 hover:bg-slate-100 hover:text-[#0C513F] text-sm"
+              className="px-3.5 py-2.5 rounded-xl hover:bg-slate-100 hover:text-[#0C513F] transition-colors"
             >
               About
             </Link>
             <Link
               href="#featured-specialists"
               onClick={() => setMobileNavOpen(false)}
-              className="px-4 py-2.5 rounded-xl font-bold text-slate-800 hover:bg-slate-100 hover:text-[#0C513F] text-sm"
+              className="px-3.5 py-2.5 rounded-xl hover:bg-slate-100 hover:text-[#0C513F] transition-colors"
             >
               Specialists
             </Link>
             <Link
               href="#how-it-works"
               onClick={() => setMobileNavOpen(false)}
-              className="px-4 py-2.5 rounded-xl font-bold text-slate-800 hover:bg-slate-100 hover:text-[#0C513F] text-sm"
+              className="px-3.5 py-2.5 rounded-xl hover:bg-slate-100 hover:text-[#0C513F] transition-colors"
             >
               How It Works
             </Link>
-            <div className="pt-2 border-t border-slate-100 flex flex-col gap-2">
+            <div className="pt-2 mt-1 border-t border-slate-100 flex flex-col gap-2">
               <Link
-                href="/onboarding?role=provider"
+                href="/onboarding?step=role"
                 onClick={() => setMobileNavOpen(false)}
-                className="w-full text-center py-2.5 rounded-full font-bold text-slate-800 bg-slate-100 hover:bg-slate-200 text-xs"
+                className="w-full text-center py-2.5 rounded-full font-bold text-white bg-[#0A1020] hover:bg-[#4D78FF] text-xs transition-colors shadow-xs"
+              >
+                Create Account
+              </Link>
+              <Link
+                href="/login"
+                onClick={() => setMobileNavOpen(false)}
+                className="w-full text-center py-2.5 rounded-full font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 text-xs transition-colors"
+              >
+                Sign In
+              </Link>
+              <Link
+                href="/onboarding?step=role&role=provider"
+                onClick={() => setMobileNavOpen(false)}
+                className="w-full text-center py-2.5 rounded-full font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 text-xs transition-colors"
               >
                 Join as Pro
+              </Link>
+              <Link
+                href="/requests/new"
+                onClick={() => setMobileNavOpen(false)}
+                className="w-full text-center py-2.5 rounded-full font-bold text-white bg-[#0C513F] hover:bg-[#083b2e] text-xs transition-colors"
+              >
+                Post Service Request
               </Link>
             </div>
           </div>
@@ -945,91 +968,57 @@ export default function HomePage() {
 
       {/* Main Content */}
       <main className="flex-1 overflow-x-clip">
-        {/* Hero Section with Chowdeck-Style Large Text Motion & Translucent Living Background */}
+        {/* Hero Section */}
         <section
           ref={heroRef}
-          onMouseMove={handleHeroMouseMove}
-          onMouseLeave={handleHeroMouseLeave}
-          className="pt-16 pb-20 sm:pt-24 sm:pb-28 lg:pt-28 lg:pb-32 overflow-hidden relative min-h-[580px] sm:min-h-[660px] flex items-center justify-center"
+          className="relative min-h-[85vh] sm:min-h-[90vh] w-full flex flex-col justify-center items-center overflow-hidden pt-24 pb-12 sm:pt-28 sm:pb-16 lg:pt-32 lg:pb-20 bg-[#F5F7FC]"
         >
-          {/* Hero Video with Translucent Overlay */}
-          <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
-            <video
-              ref={videoRef}
-              src="/hero.mp4"
-              autoPlay
-              loop
-              muted={isVideoMuted}
-              playsInline
-              className="w-full h-full object-cover scale-105 opacity-30 transition-opacity duration-700"
-            />
-            {/* Transparent Soft Gradient Blend */}
-            <div className="absolute inset-0 bg-gradient-to-b from-[#F5F7FC]/80 via-[#F5F7FC]/60 to-[#F5F7FC] backdrop-blur-[1px]" />
-          </div>
-
-          {/* Connecta Radiant Living Brand Color Mesh (Azure, Emerald, Amber) */}
+          {/* Layer 1: Connecta Signature Halftone Dot Matrix Pattern */}
           <div
-            className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden z-10 transition-transform duration-700 ease-out"
+            className="absolute inset-0 opacity-[0.055] pointer-events-none [mask-image:radial-gradient(ellipse_at_center,black_40%,transparent_80%)]"
             style={{
-              transform: `translate3d(${heroMouseOffset.x}px, ${heroMouseOffset.y}px, 0)`,
+              backgroundImage: 'radial-gradient(#0A2614 1.5px, transparent 1.5px)',
+              backgroundSize: '24px 24px',
             }}
-          >
-            <div className="relative w-[750px] sm:w-[980px] lg:w-[1150px] h-[520px] sm:h-[640px] filter blur-[85px] sm:blur-[120px] lg:blur-[150px] transform-gpu opacity-70">
-              {/* Center Glow: Connecta Vibrant Emerald (#10B981) */}
-              <div className="absolute top-[18%] left-[24%] w-[380px] h-[340px] rounded-full bg-gradient-to-tr from-[#10B981] via-[#00C466] to-[#34D399] animate-pulse duration-[8000ms]" />
+          />
 
-              {/* Top-Right Ambient Flare: Connecta Golden Amber (#F59E0B) */}
-              <div className="absolute top-[6%] right-[14%] w-[360px] h-[300px] rounded-full bg-gradient-to-br from-[#F59E0B] via-[#F5A623] to-[#F97316]" />
-
-              {/* Lower-Center Anchor: Connecta Azure Tech Blue (#1A73E8) */}
-              <div className="absolute bottom-[10%] left-[18%] w-[440px] h-[340px] rounded-full bg-gradient-to-r from-[#1A73E8] via-[#3B82F6] to-[#2563EB]" />
-
-              {/* Lower-Right Tech Indigo */}
-              <div className="absolute bottom-[8%] right-[18%] w-[380px] h-[320px] rounded-full bg-gradient-to-tl from-[#8B5CF6] via-[#6366F1] to-[#1A73E8]" />
-
-              {/* Top-Left Fresh Mint Glow: Connecta Forest Mint (#0C513F) */}
-              <div className="absolute top-[12%] left-[10%] w-[320px] h-[280px] rounded-full bg-gradient-to-br from-[#0C513F] to-[#10B981]" />
+          {/* Layer 2: Concentric AI Matchmaking & Collabo Squad Orbital Rings */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none select-none">
+            {/* Outer Ring */}
+            <div className="w-[840px] sm:w-[980px] h-[840px] sm:h-[980px] rounded-full border border-slate-900/[0.035] flex items-center justify-center">
+              {/* Mid Ring (Dashed AI Matching Radius) */}
+              <div className="w-[620px] sm:w-[720px] h-[620px] sm:h-[720px] rounded-full border border-dashed border-emerald-500/[0.08] flex items-center justify-center relative">
+                {/* Orbiting Talent Node Marker (Amber) */}
+                <div className="absolute top-10 right-28 w-2 h-2 rounded-full bg-[#F59E0B]/50 shadow-sm" />
+                {/* Inner Ring */}
+                <div className="w-[420px] sm:w-[480px] h-[420px] sm:h-[480px] rounded-full border border-slate-900/[0.04] relative">
+                  {/* Orbiting Talent Node Marker (Emerald) */}
+                  <div className="absolute bottom-12 left-16 w-2.5 h-2.5 rounded-full bg-[#10B981]/50 shadow-sm" />
+                </div>
+              </div>
             </div>
           </div>
 
-          {/* Floating Audio Control Pill */}
-          <div className="absolute bottom-6 right-6 sm:bottom-8 sm:right-8 z-30">
-            <button
-              type="button"
-              onClick={toggleVideoSound}
-              className="flex items-center gap-2 bg-white/95 hover:bg-white text-slate-800 text-xs font-bold px-3.5 py-2 rounded-full shadow-lg border border-slate-200/90 backdrop-blur-md transition-all duration-300 hover:scale-105 cursor-pointer"
-              title={isVideoMuted ? 'Unmute video' : 'Mute video'}
-            >
-              {isVideoMuted ? (
-                <>
-                  <VolumeX className="w-4 h-4 text-slate-500" />
-                  <span>Unmute Video</span>
-                </>
-              ) : (
-                <>
-                  <Volume2 className="w-4 h-4 text-[#10B981]" />
-                  <span>Sound On</span>
-                </>
-              )}
-            </button>
-          </div>
+          {/* Layer 3: Tri-Color Brand Aurora Glows (Azure Blue, Emerald Green, Golden Amber) */}
+          <div className="absolute -top-16 left-1/4 -translate-x-1/2 w-[380px] sm:w-[500px] h-[280px] sm:h-[350px] bg-[#1A73E8]/10 rounded-full blur-[100px] pointer-events-none" />
+          <div className="absolute top-1/3 right-1/4 translate-x-1/3 w-[400px] sm:w-[520px] h-[300px] sm:h-[380px] bg-[#10B981]/12 rounded-full blur-[110px] pointer-events-none" />
+          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 w-[440px] sm:w-[600px] h-[220px] sm:h-[280px] bg-[#F59E0B]/10 rounded-full blur-[90px] pointer-events-none" />
 
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-20 w-full">
-            <div className="max-w-4xl mx-auto text-center space-y-6">
+          {/* Layer 4: Floor Transition Vignette towards Ticker Band */}
+          <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-b from-transparent to-[#145241]/10 pointer-events-none" />
+
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-20 w-full flex flex-col items-center justify-center my-auto">
+            <div className="max-w-4xl mx-auto text-center space-y-4 sm:space-y-6">
               {/* Hero Heading Styled with Connecta Brand Colors */}
-              <h1 className="text-3xl sm:text-5xl lg:text-7xl font-extrabold tracking-tight text-[#0A1020] leading-[1.12] sm:leading-[1.08]">
+              <h1 className="text-3xl sm:text-5xl lg:text-6xl xl:text-7xl font-extrabold tracking-tight text-[#0A1020] leading-[1.12] sm:leading-[1.08]">
                 African talent, woven into{' '}
                 <span className="bg-gradient-to-r from-[#1A73E8] via-[#10B981] to-[#F59E0B] bg-clip-text text-transparent font-black">
                   high-impact Collabo Squads
                 </span>
               </h1>
 
-              <p className="text-sm sm:text-lg lg:text-xl text-slate-600 leading-relaxed max-w-2xl mx-auto font-normal px-2">
-                From plumbers, electricians and technicians to developers, designers and financial advisors, Connecta connects verified African professionals with clients everywhere. Matched with speed, protected by milestone escrow.
-              </p>
-
               {/* Search Capsule with Real-time Suggestions Dropdown */}
-              <div ref={searchContainerRef} className="pt-3 max-w-3xl mx-auto relative z-40">
+              <div ref={searchContainerRef} className="pt-1 sm:pt-2 max-w-3xl mx-auto relative z-40 w-full">
                 <div
                   className={`bg-white transition-all duration-200 shadow-xl hover:shadow-2xl border-2 border-slate-900/10 focus-within:border-[#10B981] focus-within:ring-4 focus-within:ring-[#10B981]/15 p-1.5 sm:p-2 pl-3 sm:pl-4 flex items-center gap-2 sm:gap-3 ${
                     showSuggestions
@@ -1042,6 +1031,7 @@ export default function HomePage() {
                       <Search className="w-4 h-4 sm:w-4.5 sm:h-4.5 stroke-[2.5]" />
                     </div>
                     <input
+                      id="search-input"
                       type="text"
                       value={searchQuery}
                       onChange={(e) => {
@@ -1078,25 +1068,6 @@ export default function HomePage() {
                       </svg>
                     </span>
                   </Link>
-                </div>
-
-                {/* Quick Trending Chips below Search */}
-                <div className="pt-3 flex flex-wrap items-center justify-center gap-2 text-xs font-semibold text-slate-600">
-                  <span className="text-slate-400 font-bold">Popular:</span>
-                  {['Web Design', 'UI/UX Design', 'Solar & Inverter', 'Frontend React', 'Plumbing'].map((term) => (
-                    <button
-                      key={term}
-                      type="button"
-                      onClick={() => {
-                        setSearchQuery(term)
-                        const el = document.getElementById('search-input')
-                        el?.focus()
-                      }}
-                      className="px-3 py-1 rounded-full bg-white/80 hover:bg-white border border-slate-200/90 text-slate-700 hover:text-[#0C513F] hover:border-emerald-400 transition-all shadow-2xs cursor-pointer"
-                    >
-                      {term}
-                    </button>
-                  ))}
                 </div>
 
                 {/* Google Search Style Suggestions Dropdown */}
@@ -1178,48 +1149,52 @@ export default function HomePage() {
 
               {/* Real Verified Metrics from Connecta Old */}
               <ScrollReveal variant="fade-up">
-                <div className="pt-6 sm:pt-8 flex flex-wrap items-center justify-center gap-2.5 sm:gap-3 text-xs font-bold text-slate-700">
-                  <div className="flex items-center gap-2 bg-white/95 backdrop-blur-md px-3.5 py-2 rounded-full shadow-md border border-slate-200/90 hover:border-[#10B981]/50 hover:shadow-lg transition-all">
-                    <div className="w-5 h-5 rounded-full bg-[#10B981]/15 text-[#10B981] flex items-center justify-center shrink-0">
+                <div className="pt-2 sm:pt-3 flex flex-wrap items-center justify-center gap-2.5 sm:gap-3 text-xs font-bold">
+                  {/* Card 1: Emerald Green */}
+                  <div className="flex items-center gap-2 bg-[#10B981] text-white px-3.5 py-2 rounded-full shadow-md shadow-emerald-500/20 border border-white/20 hover:scale-105 transition-all cursor-default">
+                    <div className="w-5 h-5 rounded-full bg-white/20 text-white flex items-center justify-center shrink-0">
                       <svg className="w-3 h-3" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M12 2l1.9 3.9 4.3-.6.5 4.3 4 1.7-1.8 3.9 1.8 3.9-4 1.7-.5 4.3-4.3-.6L12 22l-1.9-3.9-4.3.6-.5-4.3-4-1.7 1.8-3.9-1.8-3.9 4-1.7.5-4.3 4.3.6z" />
                       </svg>
                     </div>
                     <div className="flex items-center gap-1.5">
-                      <span className="font-black text-[#0A2614] tracking-tight">2,548+</span>
-                      <span className="text-slate-600 font-medium">Professionals Onboard</span>
+                      <span className="font-black text-white tracking-tight">2,548+</span>
+                      <span className="text-white/90 font-medium">Professionals Onboard</span>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2 bg-white/95 backdrop-blur-md px-3.5 py-2 rounded-full shadow-md border border-slate-200/90 hover:border-[#4D78FF]/50 hover:shadow-lg transition-all">
-                    <div className="w-5 h-5 rounded-full bg-[#4D78FF]/15 text-[#4D78FF] flex items-center justify-center shrink-0">
+                  {/* Card 2: Electric Azure Blue */}
+                  <div className="flex items-center gap-2 bg-[#4D78FF] text-white px-3.5 py-2 rounded-full shadow-md shadow-blue-500/20 border border-white/20 hover:scale-105 transition-all cursor-default">
+                    <div className="w-5 h-5 rounded-full bg-white/20 text-white flex items-center justify-center shrink-0">
                       <Globe className="w-3 h-3 stroke-[2.5]" />
                     </div>
                     <div className="flex items-center gap-1.5">
-                      <span className="font-black text-[#0A2614] tracking-tight">2+</span>
-                      <span className="text-slate-600 font-medium">Countries Represented</span>
+                      <span className="font-black text-white tracking-tight">2+</span>
+                      <span className="text-white/90 font-medium">Countries Represented</span>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2 bg-white/95 backdrop-blur-md px-3.5 py-2 rounded-full shadow-md border border-slate-200/90 hover:border-emerald-500/50 hover:shadow-lg transition-all">
-                    <div className="w-5 h-5 rounded-full bg-[#10B981]/15 text-emerald-600 flex items-center justify-center shrink-0">
+                  {/* Card 3: Deep Royal Purple */}
+                  <div className="flex items-center gap-2 bg-[#2E1A47] text-white px-3.5 py-2 rounded-full shadow-md shadow-purple-950/25 border border-white/20 hover:scale-105 transition-all cursor-default">
+                    <div className="w-5 h-5 rounded-full bg-white/20 text-white flex items-center justify-center shrink-0">
                       <ShieldCheck className="w-3 h-3 stroke-[2.5]" />
                     </div>
                     <div className="flex items-center gap-1.5">
-                      <span className="font-black text-emerald-700 tracking-tight">100%</span>
-                      <span className="text-slate-600 font-medium">Escrow Protected</span>
+                      <span className="font-black text-white tracking-tight">100%</span>
+                      <span className="text-white/90 font-medium">Escrow Protected</span>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2 bg-white/95 backdrop-blur-md px-3.5 py-2 rounded-full shadow-md border border-slate-200/90 hover:border-[#F59E0B]/50 hover:shadow-lg transition-all">
-                    <div className="w-5 h-5 rounded-full bg-[#F59E0B]/15 text-[#F59E0B] flex items-center justify-center shrink-0">
+                  {/* Card 4: Vibrant Golden Amber */}
+                  <div className="flex items-center gap-2 bg-[#F59E0B] text-white px-3.5 py-2 rounded-full shadow-md shadow-amber-500/20 border border-white/20 hover:scale-105 transition-all cursor-default">
+                    <div className="w-5 h-5 rounded-full bg-white/20 text-white flex items-center justify-center shrink-0">
                       <svg className="w-3 h-3" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M12 2l1.9 3.9 4.3-.6.5 4.3 4 1.7-1.8 3.9 1.8 3.9-4 1.7-.5 4.3-4.3-.6L12 22l-1.9-3.9-4.3.6-.5-4.3-4-1.7 1.8-3.9-1.8-3.9 4-1.7.5-4.3 4.3.6z" />
                       </svg>
                     </div>
                     <div className="flex items-center gap-1.5">
-                      <span className="font-black text-[#D97706] tracking-tight">&lt;1s</span>
-                      <span className="text-slate-600 font-medium">Avg. AI Match Time</span>
+                      <span className="font-black text-white tracking-tight">&lt;1s</span>
+                      <span className="text-white/90 font-medium">Avg. AI Match Time</span>
                     </div>
                   </div>
                 </div>
@@ -1240,14 +1215,9 @@ export default function HomePage() {
 
             <div className="animate-marquee-left flex items-center gap-3.5 sm:gap-4.5 py-1">
               {[...POPULAR_CARDS, ...POPULAR_CARDS, ...POPULAR_CARDS, ...POPULAR_CARDS].map((item, idx) => (
-                <button
+                <Link
                   key={`${item.name}-${idx}`}
-                  type="button"
-                  onClick={() => {
-                    setSearchQuery(item.name)
-                    const el = document.getElementById('search-input')
-                    el?.focus()
-                  }}
+                  href={`/requests/new?q=${encodeURIComponent(item.name)}`}
                   className="shrink-0 bg-[#246251] hover:bg-[#2C7561] text-white border border-emerald-400/25 hover:border-emerald-300/80 rounded-full h-[46px] sm:h-[50px] px-5 sm:px-6 flex items-center gap-3 sm:gap-3.5 shadow-sm hover:shadow-lg hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer select-none"
                 >
                   <div className="shrink-0 flex items-center justify-center">
@@ -1256,7 +1226,7 @@ export default function HomePage() {
                   <span className="font-bold text-white text-sm sm:text-[15px] tracking-tight whitespace-nowrap">
                     {item.name}
                   </span>
-                </button>
+                </Link>
               ))}
             </div>
           </div>
@@ -1427,119 +1397,93 @@ export default function HomePage() {
         {/* ================================================================= */}
         {/* BRAND CHARACTER & TOOLKIT SHOWCASE (ADAPTED TO VISION/MISSION)     */}
         {/* ================================================================= */}
-        <section className="py-12 sm:py-20 lg:py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Card 1: Electric Azure / Indigo */}
-            <div className="bg-[#1E1B4B] text-white rounded-3xl overflow-hidden shadow-2xl relative flex flex-col justify-between border border-white/10 group">
-              <div
-                className="absolute inset-0 opacity-[0.06] pointer-events-none"
-                style={{
-                  backgroundImage: 'radial-gradient(#FFFFFF 1.5px, transparent 1.5px)',
-                  backgroundSize: '18px 18px',
-                }}
-              />
-              <div className="relative h-60 w-full bg-slate-900/50 overflow-hidden">
-                <Image
-                  src="/images/brand-illustrations/connecta-1.webp"
-                  alt="Connecta Multi-Trade Certification & Emblem"
-                  fill
-                  sizes="(max-width: 768px) 100vw, 33vw"
-                  className="object-cover group-hover:scale-105 transition-transform duration-500"
-                />
-                <span className="absolute top-4 left-4 text-xs font-bold px-3 py-1 rounded-full bg-[#10B981] text-white shadow-md">
-                  Continent-Wide
-                </span>
+        <section className="py-16 sm:py-24 lg:py-32 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <ScrollReveal variant="fade-up">
+            <div className="max-w-3xl mb-12 sm:mb-16 lg:mb-20 space-y-4">
+              <div className="flex items-center gap-3.5 sm:gap-4.5">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 sm:border-[2.5px] border-[#0A1020] flex items-center justify-center font-bold text-xl sm:text-2xl shrink-0 shadow-sm text-[#0A1020]">
+                  ↓
+                </div>
+                <h2 className="text-3xl sm:text-5xl lg:text-7xl font-black tracking-tight text-[#0A1020] leading-[1.08]">
+                  Built for Modern Work
+                </h2>
               </div>
-              <div className="p-6 relative z-10 flex-1 flex flex-col justify-between space-y-4">
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2">
-                    <CornerDownRight className="w-5 h-5 text-[#10B981] shrink-0 stroke-[2.5]" />
-                    <h4 className="text-xl font-black tracking-tight">Across Every Sector</h4>
+              <p className="text-base sm:text-lg lg:text-xl font-medium leading-relaxed text-slate-600 max-w-2xl pl-0 sm:pl-16">
+                Connecting skilled trades and digital professionals across Africa through intelligent matching, verified trust, and collaborative squads.
+              </p>
+            </div>
+          </ScrollReveal>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
+            {/* Card 1: Electric Azure / Indigo - Across Every Sector */}
+            <div className="bg-[#1E1B4B] text-white rounded-3xl overflow-hidden shadow-xl border border-white/10 flex flex-col hover:shadow-2xl transition-all duration-300">
+              {/* Simple Clean Graphic */}
+              <div className="h-56 sm:h-64 w-full bg-gradient-to-b from-white/10 via-transparent to-transparent flex items-center justify-center relative overflow-hidden">
+                <div className="relative flex items-center justify-center">
+                  <div className="w-24 h-24 rounded-full bg-[#10B981]/25 border border-[#10B981]/50 flex items-center justify-center text-[#34D399] -mr-4 shadow-xl backdrop-blur-xs">
+                    <Wrench className="w-9 h-9" />
                   </div>
-                  <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-                    Connecta brings together both hands-on trades and digital careers. From plumbing, electrical and auto care to software engineering, design, marketing and finance, talent across every trade finds work and gets hired.
-                  </p>
+                  <div className="w-24 h-24 rounded-full bg-[#4D78FF]/25 border border-[#4D78FF]/50 flex items-center justify-center text-[#93C5FD] -ml-4 shadow-xl backdrop-blur-xs">
+                    <Laptop className="w-9 h-9" />
+                  </div>
                 </div>
-                <div className="pt-4 border-t border-white/10 flex items-center justify-between text-xs font-bold text-slate-400">
-                  <span>Skilled Trades &amp; Digital Work</span>
-                  <span className="text-[#10B981]">Local &amp; Global</span>
-                </div>
+              </div>
+
+              {/* Title & Description */}
+              <div className="p-7 sm:p-9 space-y-3 flex-1 flex flex-col justify-start">
+                <h3 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+                  Across Every Sector
+                </h3>
+                <p className="text-sm sm:text-base text-slate-300 leading-relaxed font-normal">
+                  Connecta brings together both hands-on trades and digital careers. From plumbing, electrical and auto care to software engineering, design, marketing and finance, talent across every trade finds work and gets hired.
+                </p>
               </div>
             </div>
 
-            {/* Card 2: Warm Amber / Gold */}
-            <div className="bg-[#D97706] text-white rounded-3xl overflow-hidden shadow-2xl relative flex flex-col justify-between border border-white/10 group">
-              <div
-                className="absolute inset-0 opacity-[0.08] pointer-events-none"
-                style={{
-                  backgroundImage: 'radial-gradient(#FFFFFF 1.5px, transparent 1.5px)',
-                  backgroundSize: '18px 18px',
-                }}
-              />
-              <div className="relative h-60 w-full bg-slate-900/50 overflow-hidden">
-                <Image
-                  src="/images/brand-illustrations/connecta-2.webp"
-                  alt="Connecta AI Matching Engine Visualization"
-                  fill
-                  sizes="(max-width: 768px) 100vw, 33vw"
-                  className="object-cover group-hover:scale-105 transition-transform duration-500"
-                />
-                <span className="absolute top-4 left-4 text-xs font-bold px-3 py-1 rounded-full bg-[#0A1020] text-white shadow-md border border-white/20">
-                  AI Matchmaking
-                </span>
-              </div>
-              <div className="p-6 relative z-10 flex-1 flex flex-col justify-between space-y-4">
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2">
-                    <CornerDownRight className="w-5 h-5 text-amber-200 shrink-0 stroke-[2.5]" />
-                    <h4 className="text-xl font-black tracking-tight">Meet Your Match in Seconds</h4>
+            {/* Card 2: Warm Amber / Gold - AI Matchmaking */}
+            <div className="bg-[#B45309] text-white rounded-3xl overflow-hidden shadow-xl border border-white/10 flex flex-col hover:shadow-2xl transition-all duration-300">
+              {/* Simple Clean Graphic */}
+              <div className="h-56 sm:h-64 w-full bg-gradient-to-b from-white/10 via-transparent to-transparent flex items-center justify-center relative overflow-hidden">
+                <div className="relative flex items-center justify-center">
+                  <div className="w-44 h-44 rounded-full border border-amber-300/20 absolute" />
+                  <div className="w-32 h-32 rounded-full border border-amber-300/35 absolute" />
+                  <div className="w-20 h-20 rounded-full bg-amber-400/25 border border-amber-300/60 flex items-center justify-center shadow-xl backdrop-blur-xs">
+                    <Sparkles className="w-9 h-9 text-amber-200" />
                   </div>
-                  <p className="text-xs sm:text-sm text-white/95 leading-relaxed">
-                    Tell Connecta what the project needs in plain words. The matching engine studies skills, experience, ratings, availability, and budget to surface fit-ranked recommendations in &lt;1s.
-                  </p>
                 </div>
-                <div className="pt-4 border-t border-white/20 flex items-center justify-between text-xs font-bold text-amber-100">
-                  <span>Transparent Fit Score</span>
-                  <span>&lt;1s Match Time</span>
-                </div>
+              </div>
+
+              {/* Title & Description */}
+              <div className="p-7 sm:p-9 space-y-3 flex-1 flex flex-col justify-start">
+                <h3 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+                  Meet Your Match in Seconds
+                </h3>
+                <p className="text-sm sm:text-base text-amber-50 leading-relaxed font-normal">
+                  Tell Connecta what the project needs in plain words. The matching engine studies skills, experience, ratings, availability, and budget to surface fit-ranked recommendations in &lt;1s.
+                </p>
               </div>
             </div>
 
-            {/* Card 3: Deep Forest / Emerald */}
-            <div className="bg-[#0A2614] text-white rounded-3xl overflow-hidden shadow-2xl relative flex flex-col justify-between border border-white/10 group">
-              <div
-                className="absolute inset-0 opacity-[0.06] pointer-events-none"
-                style={{
-                  backgroundImage: 'radial-gradient(#FFFFFF 1.5px, transparent 1.5px)',
-                  backgroundSize: '18px 18px',
-                }}
-              />
-              <div className="relative h-60 w-full bg-slate-900/50 overflow-hidden">
-                <Image
-                  src="/images/brand-illustrations/connecta-3.webp"
-                  alt="Connecta Collabo Squad Shared Workspace"
-                  fill
-                  sizes="(max-width: 768px) 100vw, 33vw"
-                  className="object-cover group-hover:scale-105 transition-transform duration-500"
-                />
-                <span className="absolute top-4 left-4 text-xs font-bold px-3 py-1 rounded-full bg-[#4D78FF] text-white shadow-md">
-                  Collabo Squads
-                </span>
-              </div>
-              <div className="p-6 relative z-10 flex-1 flex flex-col justify-between space-y-4">
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2">
-                    <CornerDownRight className="w-5 h-5 text-emerald-300 shrink-0 stroke-[2.5]" />
-                    <h4 className="text-xl font-black tracking-tight">Great Work Isn&apos;t Solo</h4>
+            {/* Card 3: Deep Forest / Emerald - Collabo Squads */}
+            <div className="bg-[#0A2614] text-white rounded-3xl overflow-hidden shadow-xl border border-white/10 flex flex-col hover:shadow-2xl transition-all duration-300">
+              {/* Simple Clean Graphic */}
+              <div className="h-56 sm:h-64 w-full bg-gradient-to-b from-white/10 via-transparent to-transparent flex items-center justify-center relative overflow-hidden">
+                <div className="relative flex items-center justify-center">
+                  <div className="w-36 h-36 rounded-full border border-emerald-400/20 absolute" />
+                  <div className="w-20 h-20 rounded-full bg-emerald-500/25 border border-emerald-400/60 flex items-center justify-center shadow-xl backdrop-blur-xs">
+                    <Users className="w-9 h-9 text-emerald-300" />
                   </div>
-                  <p className="text-xs sm:text-sm text-emerald-100 leading-relaxed">
-                    Form a Collabo Squad, combine your skills into one shared profile, and take on briefs too big for one person. Shared workspaces, role tracking, and automatic fair payment splits.
-                  </p>
                 </div>
-                <div className="pt-4 border-t border-white/20 flex items-center justify-between text-xs font-bold text-emerald-200">
-                  <span>Shared Workspace</span>
-                  <span>Automatic Splits</span>
-                </div>
+              </div>
+
+              {/* Title & Description */}
+              <div className="p-7 sm:p-9 space-y-3 flex-1 flex flex-col justify-start">
+                <h3 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+                  Great Work Isn&apos;t Solo
+                </h3>
+                <p className="text-sm sm:text-base text-emerald-100 leading-relaxed font-normal">
+                  Form a Collabo Squad, combine your skills into one shared profile, and take on briefs too big for one person. Shared workspaces, role tracking, and automatic fair payment splits.
+                </p>
               </div>
             </div>
           </div>
@@ -1590,6 +1534,15 @@ export default function HomePage() {
                     <p className="text-sm sm:text-base font-medium text-white/95 leading-relaxed">
                       (No Guesswork) Post a project or tell Connecta AI what you need in plain words. Specify deliverables, milestones, and budget without complicated forms.
                     </p>
+                    <div className="pt-2">
+                      <Link
+                        href="/requests/new"
+                        className="inline-flex items-center gap-1.5 text-xs font-black bg-white text-[#0A2614] hover:bg-slate-100 px-4 py-2 rounded-full transition-transform hover:scale-105 shadow-sm"
+                      >
+                        <span>Describe Your Project</span>
+                        <CornerDownRight className="w-3.5 h-3.5" />
+                      </Link>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -1613,6 +1566,15 @@ export default function HomePage() {
                     <p className="text-sm sm:text-base font-medium text-white/95 leading-relaxed">
                       (&lt;1s Match Time) No endless scrolling through profiles. The matching engine studies skills, experience, ratings, availability, and budget to surface talent that actually fits.
                     </p>
+                    <div className="pt-2">
+                      <Link
+                        href="/requests/new"
+                        className="inline-flex items-center gap-1.5 text-xs font-black bg-white text-[#3D2F6B] hover:bg-slate-100 px-4 py-2 rounded-full transition-transform hover:scale-105 shadow-sm"
+                      >
+                        <span>Find Instant Match</span>
+                        <CornerDownRight className="w-3.5 h-3.5" />
+                      </Link>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -1636,6 +1598,15 @@ export default function HomePage() {
                     <p className="text-sm sm:text-base font-medium text-white/95 leading-relaxed">
                       (Verified Profiles) Every profile undergoes government identity checks and verification badges. Clients hire with complete confidence, and verified talent stands out.
                     </p>
+                    <div className="pt-2">
+                      <Link
+                        href="/onboarding?step=role&role=provider"
+                        className="inline-flex items-center gap-1.5 text-xs font-black bg-white text-[#0B132B] hover:bg-slate-100 px-4 py-2 rounded-full transition-transform hover:scale-105 shadow-sm"
+                      >
+                        <span>Get Verified Badge</span>
+                        <CornerDownRight className="w-3.5 h-3.5" />
+                      </Link>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -1659,6 +1630,15 @@ export default function HomePage() {
                     <p className="text-sm sm:text-base font-medium text-white/95 leading-relaxed">
                       (100% Milestones Protected) Clients fund milestones up front; talent sees money is secured before starting. Funds release only on approval, with instant cash-out to local payout methods.
                     </p>
+                    <div className="pt-2">
+                      <Link
+                        href="/onboarding?step=role"
+                        className="inline-flex items-center gap-1.5 text-xs font-black bg-white text-[#063B23] hover:bg-slate-100 px-4 py-2 rounded-full transition-transform hover:scale-105 shadow-sm"
+                      >
+                        <span>Join Protected Escrow</span>
+                        <CornerDownRight className="w-3.5 h-3.5" />
+                      </Link>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -1904,7 +1884,7 @@ export default function HomePage() {
                 {/* Action CTA Button */}
                 <div className="pt-2 flex flex-col sm:flex-row items-start sm:items-center gap-3">
                   <Link
-                    href="/onboarding?role=client"
+                    href="/requests/new"
                     className="inline-flex items-center gap-2 rounded-full bg-[#0A1020] hover:bg-[#10B981] text-white px-8 py-4 text-sm font-extrabold shadow-xl hover:scale-105 transition-all"
                   >
                     <span>Explore All Talent</span>
@@ -2168,7 +2148,13 @@ export default function HomePage() {
                     <span className="w-2 h-2 rounded-full bg-white animate-pulse" />
                     <span>Verified Government Identity</span>
                   </div>
-                  <span className="bg-white/20 px-3 py-1 rounded-full">Official Trust Badge Required</span>
+                  <Link
+                    href="/onboarding?step=role&role=provider"
+                    className="bg-white/20 hover:bg-white/30 px-3.5 py-1 rounded-full text-white inline-flex items-center gap-1.5 transition-colors cursor-pointer"
+                  >
+                    <span>Get Trust Badge</span>
+                    <CornerDownRight className="w-3.5 h-3.5" />
+                  </Link>
                 </div>
               </div>
 
@@ -2190,7 +2176,13 @@ export default function HomePage() {
                     <span className="w-2 h-2 rounded-full bg-white animate-pulse" />
                     <span>Protected Escrow Vaults</span>
                   </div>
-                  <span className="bg-white/20 px-3 py-1 rounded-full">Funds Released Only Upon Client Approval</span>
+                  <Link
+                    href="/onboarding?step=role"
+                    className="bg-white/20 hover:bg-white/30 px-3.5 py-1 rounded-full text-white inline-flex items-center gap-1.5 transition-colors cursor-pointer"
+                  >
+                    <span>Escrow Protected Flow</span>
+                    <CornerDownRight className="w-3.5 h-3.5" />
+                  </Link>
                 </div>
               </div>
 
@@ -2212,7 +2204,13 @@ export default function HomePage() {
                     <span className="w-2 h-2 rounded-full bg-white animate-pulse" />
                     <span>Two-Way Verified Ratings</span>
                   </div>
-                  <span className="bg-white/20 px-3 py-1 rounded-full">Fair Human Dispute Resolution</span>
+                  <Link
+                    href="#faq"
+                    className="bg-white/20 hover:bg-white/30 px-3.5 py-1 rounded-full text-white inline-flex items-center gap-1.5 transition-colors cursor-pointer"
+                  >
+                    <span>Mediation FAQs</span>
+                    <CornerDownRight className="w-3.5 h-3.5" />
+                  </Link>
                 </div>
               </div>
             </div>
@@ -2265,30 +2263,24 @@ export default function HomePage() {
                   }}
                 />
 
-                <div className="space-y-5 relative z-10">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-1">
-                      {[...Array(r.rating)].map((_, idx) => (
-                        <Star key={idx} className="w-4 h-4 fill-[#F59E0B] text-[#F59E0B]" />
-                      ))}
-                    </div>
-                    <div className="flex items-center gap-1.5 text-xs font-bold text-emerald-400 bg-white/10 px-2.5 py-1 rounded-full border border-white/15 backdrop-blur-xs">
-                      <BadgeCheck className="w-3.5 h-3.5 text-[#10B981]" />
-                      <span>Verified Booking</span>
-                    </div>
+                <div className="space-y-6 relative z-10">
+                  <div className="flex items-center gap-1.5">
+                    {[...Array(r.rating)].map((_, idx) => (
+                      <Star key={idx} className="w-5 h-5 fill-[#F59E0B] text-[#F59E0B]" />
+                    ))}
                   </div>
 
-                  <p className="text-sm sm:text-base text-white/95 leading-relaxed font-normal italic">
+                  <p className="text-base sm:text-lg lg:text-xl text-white/95 leading-relaxed font-medium">
                     &ldquo;{r.quote}&rdquo;
                   </p>
                 </div>
 
-                <div className="mt-8 pt-6 border-t border-white/20 flex items-center justify-between text-xs font-bold text-white/90 relative z-10">
+                <div className="mt-8 pt-6 border-t border-white/20 flex items-center justify-between text-white/90 relative z-10">
                   <div>
-                    <div className="text-white text-sm font-extrabold">{r.author}</div>
-                    <div className="text-white/70 font-normal">{r.neighborhood}</div>
+                    <div className="text-white text-base sm:text-lg font-black tracking-tight">{r.author}</div>
+                    <div className="text-white/75 text-xs sm:text-sm font-normal mt-0.5">{r.neighborhood}</div>
                   </div>
-                  <CornerDownRight className="w-4 h-4 stroke-[2.5]" />
+                  <CornerDownRight className="w-5 h-5 stroke-[2.5]" />
                 </div>
               </div>
             ))}
@@ -2427,14 +2419,14 @@ export default function HomePage() {
 
                 <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto shrink-0 z-10">
                   <Link
-                    href="/onboarding?role=client"
+                    href="/requests/new"
                     className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-full bg-[#4D78FF] hover:bg-[#3b63e6] px-8 py-4 text-xs sm:text-sm font-extrabold text-white shadow-xl transition-all hover:scale-105"
                   >
                     <span>Hire African Talent</span>
                     <CornerDownRight className="w-4 h-4 stroke-[2.5]" />
                   </Link>
                   <Link
-                    href="/onboarding?role=provider"
+                    href="/onboarding?step=role&role=provider"
                     className="w-full sm:w-auto inline-flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 border border-white/20 px-6 py-4 text-xs sm:text-sm font-bold text-white transition-colors"
                   >
                     Start Freelancing
@@ -2522,7 +2514,7 @@ export default function HomePage() {
                     <CornerDownRight className="w-3.5 h-3.5 text-[#10B981]" />
                   </Link>
                   <Link
-                    href="/onboarding"
+                    href="/onboarding?step=role"
                     className="p-3 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 text-white font-bold text-xs sm:text-sm flex items-center justify-between transition-all hover:scale-[1.02]"
                   >
                     <span>Get Started</span>
@@ -2600,7 +2592,7 @@ export default function HomePage() {
                     <CornerDownRight className="w-4 h-4 stroke-[2.5]" />
                   </Link>
                   <Link
-                    href="/onboarding?role=provider"
+                    href="/onboarding?step=role&role=provider"
                     className="bg-white/20 hover:bg-white/30 border border-[#062419]/25 text-[#062419] px-6 py-3.5 rounded-full text-xs sm:text-sm font-extrabold transition-all"
                   >
                     Join as Specialist

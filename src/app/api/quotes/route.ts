@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
     }
 
     const supabase = await createClient()
-    const providerId = 'p1010000-0000-0000-0000-000000000001'
+    const providerId = 'b2010000-0000-0000-0000-000000000001'
     const customerId = '00000000-0000-0000-0000-000000000001'
 
     const quotePayload = {

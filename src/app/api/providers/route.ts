@@ -29,7 +29,7 @@ export async function GET(request: NextRequest) {
       // Mock seed preview for Kano artisans when database is empty
       const SAMPLE_PROVIDERS = [
         {
-          id: 'p1010000-0000-0000-0000-000000000001',
+          id: 'b2010000-0000-0000-0000-000000000001',
           business_name: 'Danbatta Tech & Screen Lab',
           headline: 'Master Phone & Board Repairer in Kano City',
           bio: '10+ years specializing in iPhone, Samsung, and iPad display and power IC troubleshooting.',
@@ -41,7 +41,7 @@ export async function GET(request: NextRequest) {
           experience_years: 10,
         },
         {
-          id: 'p1010000-0000-0000-0000-000000000002',
+          id: 'b2010000-0000-0000-0000-000000000002',
           business_name: 'Arewa Pipe & Borehole Solutions',
           headline: 'Certified Master Plumber & Water Infrastructure',
           bio: 'Residential piping, water pressure booster pump installation, and emergency leak fixes.',
@@ -53,7 +53,7 @@ export async function GET(request: NextRequest) {
           experience_years: 8,
         },
         {
-          id: 'p1010000-0000-0000-0000-000000000003',
+          id: 'b2010000-0000-0000-0000-000000000003',
           business_name: 'Kano Inverter & Solar Works',
           headline: 'Electrical Installation, Inverters & Wiring Expert',
           bio: 'Solar panel sizing, inverter wiring, smart breaker troubleshooting, and energy audits.',

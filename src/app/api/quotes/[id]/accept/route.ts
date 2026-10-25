@@ -27,7 +27,7 @@ export async function POST(
       quote_id: quoteId,
       request_id: quote?.request_id || null,
       customer_id: quote?.customer_id || '00000000-0000-0000-0000-000000000001',
-      provider_id: quote?.provider_id || 'p1010000-0000-0000-0000-000000000001',
+      provider_id: quote?.provider_id || 'b2010000-0000-0000-0000-000000000001',
       service_snapshot: {
         title: 'Diagnostic & General Service',
         categoryName: 'General Repairs',

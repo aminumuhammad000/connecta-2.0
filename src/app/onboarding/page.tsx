@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect, useMemo, Suspense } from 'react'
+import React, { useState, useEffect, useMemo, useRef, Suspense } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useRouter, useSearchParams } from 'next/navigation'
@@ -15,8 +15,6 @@ import {
   Search,
   Sparkles,
   MapPin,
-  ChevronRight,
-  ChevronDown,
   Building2,
   Briefcase,
   Wrench,
@@ -26,25 +24,69 @@ import {
   Car,
   Paintbrush,
   Wind,
-  BadgeCheck,
   Lock,
-  HeartHandshake,
   Clock,
   Rocket,
   UserCheck,
-  DollarSign,
-  FileText,
   AlertCircle,
+  Globe,
+  Camera,
+  X,
+  Code,
+  Palette,
+  TrendingUp,
+  PenTool,
+  GraduationCap,
+  Eye,
+  EyeOff,
+  Mail,
+  Phone,
+  MessageSquare,
+  ScrollText,
+  Loader2,
+  ChevronDown,
 } from 'lucide-react'
-import {
-  ConnectaCornerHelix,
-  Sphere3D,
-  SparkleStar,
-} from '@/components/Connecta3DDecoration'
 
 // =============================================================================
-// DATA: SLIDES, SECTORS, SKILLS & GOALS (EXTRACTED FROM CONNECTA OLD)
+// DATA: COUNTRIES, CURRENCIES, SECTORS & SKILLS (EXACT MATCH TO CONNECTA OLD)
 // =============================================================================
+
+export interface CountryOption {
+  code: string
+  name: string
+  flag: string
+  currency: string
+  currencySymbol: string
+}
+
+export const COUNTRIES: CountryOption[] = [
+  { code: 'NG', name: 'Nigeria', flag: '🇳🇬', currency: 'NGN', currencySymbol: '₦' },
+  { code: 'GH', name: 'Ghana', flag: '🇬🇭', currency: 'GHS', currencySymbol: '₵' },
+  { code: 'KE', name: 'Kenya', flag: '🇰🇪', currency: 'KSH', currencySymbol: 'KSh' },
+  { code: 'ZA', name: 'South Africa', flag: '🇿🇦', currency: 'ZAR', currencySymbol: 'R' },
+  { code: 'EG', name: 'Egypt', flag: '🇪🇬', currency: 'USD', currencySymbol: '$' },
+  { code: 'RW', name: 'Rwanda', flag: '🇷🇼', currency: 'RWF', currencySymbol: 'FRw' },
+  { code: 'TZ', name: 'Tanzania', flag: '🇹🇿', currency: 'TZS', currencySymbol: 'TSh' },
+  { code: 'UG', name: 'Uganda', flag: '🇺🇬', currency: 'UGX', currencySymbol: 'USh' },
+  { code: 'ET', name: 'Ethiopia', flag: '🇪🇹', currency: 'ETB', currencySymbol: 'Br' },
+  { code: 'SN', name: 'Senegal', flag: '🇸🇳', currency: 'XOF', currencySymbol: 'CFA' },
+  { code: 'CI', name: "Côte d'Ivoire", flag: '🇨🇮', currency: 'XOF', currencySymbol: 'CFA' },
+  { code: 'CM', name: 'Cameroon', flag: '🇨🇲', currency: 'XAF', currencySymbol: 'FCFA' },
+  { code: 'MA', name: 'Morocco', flag: '🇲🇦', currency: 'MAD', currencySymbol: 'DH' },
+  { code: 'ZM', name: 'Zambia', flag: '🇿🇲', currency: 'ZMW', currencySymbol: 'K' },
+  { code: 'US', name: 'United States', flag: '🇺🇸', currency: 'USD', currencySymbol: '$' },
+  { code: 'GB', name: 'United Kingdom', flag: '🇬🇧', currency: 'GBP', currencySymbol: '£' },
+]
+
+export const CURRENCIES = [
+  { code: 'NGN', name: 'Nigerian Naira', symbol: '₦' },
+  { code: 'USD', name: 'US Dollar', symbol: '$' },
+  { code: 'GHS', name: 'Ghanaian Cedi', symbol: '₵' },
+  { code: 'KSH', name: 'Kenyan Shilling', symbol: 'KSh' },
+  { code: 'ZAR', name: 'South African Rand', symbol: 'R' },
+  { code: 'GBP', name: 'British Pound', symbol: '£' },
+  { code: 'EUR', name: 'Euro', symbol: '€' },
+]
 
 interface OnboardingSlide {
   id: number
@@ -63,23 +105,23 @@ const ONBOARDING_SLIDES: OnboardingSlide[] = [
   {
     id: 1,
     badge: '15,000+ Vetted Specialists',
-    title: 'Discover Trusted Local Pros',
-    highlight: '& Guild Certified Talent',
+    title: 'Discover Top African Talent',
+    highlight: '& Collabo Squads',
     description:
-      'Connect instantly with background-checked electricians, solar engineers, precision carpenters, gadget repairers, and tech professionals across Kano and Nigeria.',
+      'Connect instantly with background-checked tech developers, creative designers, electricians, solar engineers, and trade technicians across Africa.',
     stats: '15,000+',
-    statsLabel: 'Verified Providers',
+    statsLabel: 'Verified Talent',
     icon: Users,
     cardBg: 'bg-[#0A2614]',
     accentColor: '#10B981',
   },
   {
     id: 2,
-    badge: '₦500M+ Escrow Protected',
+    badge: '100% Escrow Protected',
     title: 'Milestone Escrow Payouts',
     highlight: '& Guaranteed Safety',
     description:
-      'Your funds are held securely in a Connecta Escrow Vault. Payments are released to the specialist only after you inspect and approve the completed repair and evidence.',
+      'Funds are held securely in a Connecta Escrow Vault. Payments release to the specialist only after you inspect and approve milestones.',
     stats: '100%',
     statsLabel: 'Escrow Guarantee',
     icon: ShieldCheck,
@@ -88,11 +130,11 @@ const ONBOARDING_SLIDES: OnboardingSlide[] = [
   },
   {
     id: 3,
-    badge: 'Itemized Kobo Pricing',
+    badge: 'Itemized Minor-Unit Pricing',
     title: 'Transparent Quoting',
-    highlight: '& Real-Time Evidence',
+    highlight: '& Real-Time Milestones',
     description:
-      'No hidden markups or guesswork. Review itemized labor and parts quotes, track live technician dispatch, and verify before/after photo documentation.',
+      'No hidden markups or guesswork. Review itemized labor quotes, track live task progress, and verify work with photo evidence.',
     stats: '99.4%',
     statsLabel: 'AI Match Precision',
     icon: Zap,
@@ -112,8 +154,32 @@ interface SectorOption {
 
 const SECTORS: SectorOption[] = [
   {
-    id: 'electrical_solar',
-    name: 'Electrical & Solar Infrastructure',
+    id: 'tech',
+    name: 'Technology & Software',
+    description: 'Web development, mobile apps, DevOps, cloud engineering, backend APIs.',
+    icon: Code,
+    color: 'bg-[#1A73E8]',
+    popularSkills: [
+      'React.js', 'Node.js', 'TypeScript', 'Python', 'React Native',
+      'Next.js', 'Tailwind CSS', 'PostgreSQL', 'Flutter', 'AWS / Cloud',
+      'Docker', 'GraphQL', 'MongoDB', 'Go / Golang', 'REST APIs',
+    ],
+  },
+  {
+    id: 'design',
+    name: 'Design & Creative',
+    description: 'UI/UX design, brand identity, graphic design, motion design, video editing.',
+    icon: Palette,
+    color: 'bg-[#8B5CF6]',
+    popularSkills: [
+      'UI/UX Design', 'Figma', 'Brand Identity', 'Graphic Design',
+      'Adobe Illustrator', 'Adobe Photoshop', 'Motion Design', 'Video Editing',
+      'Design Systems', '3D Modeling', 'Wireframing', 'Logo Design',
+    ],
+  },
+  {
+    id: 'solar_electrical',
+    name: 'Solar & Electrical Power',
     description: 'Inverters, solar sizing, fault finding, house wiring, breaker repairs.',
     icon: Zap,
     color: 'bg-[#10B981]',
@@ -132,205 +198,245 @@ const SECTORS: SectorOption[] = [
   },
   {
     id: 'phone_gadget',
-    name: 'Phones, Tablets & Gadgets Lab',
+    name: 'Smart Devices & Gadgets',
     description: 'Screen replacements, battery swaps, micro-soldering, charging ports.',
     icon: Smartphone,
-    color: 'bg-[#4D78FF]',
+    color: 'bg-[#F59E0B]',
     popularSkills: [
       'OLED & AMOLED Screen Replacement',
-      'TrueTone & FaceID Calibration',
-      'Logic Board Micro-soldering',
-      'Charging Port & Tristar IC Repair',
-      'Battery Health Optimization',
-      'Water Damage Ultrasonic Cleaning',
-      'Flex Cable Restoration',
-      'Tablet Digitizer Bonding',
-      'Audio & Speaker Mesh Repair',
-      'Firmware & Baseband Flashing',
-    ],
-  },
-  {
-    id: 'carpentry_woodwork',
-    name: 'Carpentry, Furniture & Woodwork',
-    description: 'Custom furniture, door fittings, roof woodwork, wardrobe framing.',
-    icon: Hammer,
-    color: 'bg-[#D97706]',
-    popularSkills: [
-      'Solid Mahogany Office Desks',
-      'Custom Wardrobe & Cabinetry',
-      'Hardwood Door Hangings & Locks',
-      'Roof Truss Framing & Woodwork',
-      'High-Gloss Lacquer & Polishing',
-      'Modular Kitchen Partitions',
-      'Antique Furniture Restoration',
-      'Precision Dowel & Tenon Joinery',
-      'Commercial Reception Desks',
-      'MDF & Plywood Precision Cutting',
-    ],
-  },
-  {
-    id: 'plumbing_pipes',
-    name: 'Plumbing & Borehole Systems',
-    description: 'Pipe leaks, submersible water pumps, sanitary fittings, drainage.',
-    icon: Wrench,
-    color: 'bg-[#0A2614]',
-    popularSkills: [
-      'Emergency Pipe Leak Welding',
-      'Submersible Borehole Pump Fixing',
-      'PPR Hot & Cold Water Piping',
-      'Pressure Pump Balance & Valves',
-      'Modern Sanitary & Shower Fittings',
-      'Underground Drain Clearing',
-      'Overhead Tank Float Calibration',
-      'Soakaway System Maintenance',
-      'Water Filtration & Reverse Osmosis',
-      'Water Heater Pressure Relief',
-    ],
-  },
-  {
-    id: 'ac_cooling',
-    name: 'AC, Cooling & Refrigeration',
-    description: 'Gas refill, chemical cleaning, compressor fixes, ductless splits.',
-    icon: Wind,
-    color: 'bg-[#3B82F6]',
-    popularSkills: [
-      'R410A & R22 Gas Refill',
-      'Deep Chemical Hydro-Cleaning',
-      'Dual-Inverter Compressor Fixes',
-      'Copper Piping Flaring & Bending',
-      'Thermostat & Sensor Calibration',
-      'Capacitor & Fan Motor Swap',
-      'Cold Room Refrigeration Units',
-      'Ductless Split AC Installation',
-      'Condensate Drain Descaling',
-      'Commercial Chiller Servicing',
-    ],
-  },
-  {
-    id: 'auto_mechanic',
-    name: 'Auto Mechanics & Diagnostics',
-    description: 'OBD2 scanning, brake systems, engine rebuilds, suspension overhaul.',
-    icon: Car,
-    color: 'bg-[#2E1A47]',
-    popularSkills: [
-      'OBD2 Computer Diagnostics Scan',
-      'Ceramic Brake Pad Replacement',
-      'Suspension Bushings & Shocks',
-      'Automatic Transmission Service',
-      'Fuel Injector Ultrasonic Purge',
-      'Alternator & Starter Overhaul',
-      'Radiator Cooling System Flush',
-      'Engine Timing Belt Installation',
-      'Power Steering Rack Repair',
-      'ECU Module Reprogramming',
+      'Battery Cycle Health Diagnostics',
+      'Flex Cable Micro-Soldering',
+      'Charging Port Daughterboard Fixes',
+      'FaceID & Biometric Sensor Repair',
+      'Water Damage Ultrasonic Recovery',
+      'Glass OCA Lamination',
+      'Baseband & Power IC Reballing',
+      'Speaker & Microphone Diagnostics',
+      'Firmware Flashing & Unbrick',
     ],
   },
   {
     id: 'computer_hardware',
-    name: 'Computer & Hardware Engineering',
-    description: 'Laptop motherboard diagnostics, screens, SSD upgrades, thermal paste.',
+    name: 'Computer & Laptop Repair',
+    description: 'Hardware lab diagnostics, motherboard repair, NVMe SSDs, thermal paste.',
     icon: Laptop,
-    color: 'bg-[#0A1020]',
+    color: 'bg-[#4D78FF]',
     popularSkills: [
-      'Laptop Motherboard Diagnostics',
-      'Thermal Paste & Fan Overhaul',
-      'NVMe SSD & High-Speed RAM Upgrade',
-      'MacBook Retina Screen Assembly',
-      'Bios Chip Flashing & Recovery',
-      'GPU Reballing & Micro-soldering',
-      'Spill-Resistant Keyboard Swap',
-      'Hinge & Chassis Laser Bonding',
-      'Data Recovery from Dead Drives',
-      'Enterprise Server Maintenance',
+      'Motherboard Component-Level Repair',
+      'Thermal Paste & Fan Heat Sink Service',
+      'NVMe SSD & High-Speed RAM Upgrades',
+      'Laptop Screen Hinge Reconstruction',
+      'Keyboard Replacement & Backlighting',
+      'BIOS EEPROM Chip Reprogramming',
+      'Power Supply (SMPS) Diagnostics',
+      'OS Kernel & Driver Recovery',
     ],
   },
   {
-    id: 'painting_finishing',
-    name: 'Painting & Screeding Finishing',
-    description: 'Interior wall screeding, satin emulsion, POP ceilings, damp proofing.',
-    icon: Paintbrush,
+    id: 'auto_mechanics',
+    name: 'Auto Mechanics & Diagnostics',
+    description: 'Engine diagnostics, OBD2 scans, brake systems, suspension, routine tune-ups.',
+    icon: Car,
+    color: 'bg-[#E67E00]',
+    popularSkills: [
+      'OBD2 Live Sensor Diagnostics',
+      'Automatic Transmission Fluid Flush',
+      'ABS Brake Caliper Overhaul',
+      'Steering Rack & Tie Rod Alignment',
+      'Alternator & Starter Motor Rebuild',
+      'Radiator Leak Pressure Testing',
+      'Engine Timing Chain Calibration',
+      'Fuel Injector Ultrasonic Cleaning',
+    ],
+  },
+  {
+    id: 'woodwork_home',
+    name: 'Carpentry & Woodwork',
+    description: 'Custom furniture, door fittings, roof trusses, kitchen cabinets.',
+    icon: Hammer,
+    color: 'bg-[#8B5CF6]',
+    popularSkills: [
+      'Solid Teak & HDF Kitchen Cabinets',
+      'Hardwood Door Frame Alignment',
+      'Roof Truss Framing & Struts',
+      'Wardrobe Internal Compartmenting',
+      'Precision Pocket-Hole Joinery',
+      'Wood Sanding, Stain & Lacquer Polish',
+      'Acoustic Wall Slat Paneling',
+    ],
+  },
+  {
+    id: 'cooling_pipes',
+    name: 'AC, Cooling & Plumbing',
+    description: 'AC gas refill, compressor maintenance, borehole pumps, pipe leak fixing.',
+    icon: Wind,
+    color: 'bg-[#06B6D4]',
+    popularSkills: [
+      'R410A / R32 Refrigerant Vacuum Top-Up',
+      'Rotary & Inverter Compressor Replacement',
+      'Split-Unit Evaporator Chemical Flush',
+      'Submersible Borehole Pump Wiring',
+      'PPR Pipe Fusion & Pressure Leak Fixes',
+      'Pressure Relief Valve Calibration',
+      'Float Switch Automation & Overflows',
+    ],
+  },
+  {
+    id: 'marketing',
+    name: 'Marketing & Sales',
+    description: 'Social media, SEO, paid ads, sales funnels, growth strategy & copywriting.',
+    icon: TrendingUp,
+    color: 'bg-[#EC4899]',
+    popularSkills: [
+      'SEO & Google Search Console',
+      'Meta Ads & Conversion API',
+      'Google Performance Max Campaigns',
+      'Sales Funnel Architecture',
+      'Email Marketing Automation',
+      'Copywriting & High-Converting Landing Pages',
+      'Influencer Campaign Management',
+      'Data Analytics & Attribution',
+    ],
+  },
+  {
+    id: 'business',
+    name: 'Business & Finance',
+    description: 'Accounting, bookkeeping, virtual assistance, financial modeling, consulting.',
+    icon: Briefcase,
+    color: 'bg-[#3B82F6]',
+    popularSkills: [
+      'Financial Modeling & Projections',
+      'QuickBooks & Xero Bookkeeping',
+      'Virtual Assistance & Inbox Zero',
+      'Business Plan Preparation',
+      'Tax Compliance Advisory',
+      'Data Analysis with Excel / Python',
+      'Pitch Deck Optimization',
+    ],
+  },
+  {
+    id: 'writing',
+    name: 'Writing & Translation',
+    description: 'Technical writing, copywriting, translations, blog posts, documentation.',
+    icon: PenTool,
     color: 'bg-[#10B981]',
     popularSkills: [
-      'Fine Wall Screeding & Sanding',
-      'Washable Satin & Silk Emulsion',
-      'POP Ceiling Jointing & Moulding',
-      'Anti-Damp Moisture Treatment',
-      'Exterior Weather-Resistant Coating',
-      'Epoxy Floor Chemical Coating',
-      'Decorative Stucco & Marbling',
-      'Wood Stain & Varnish Application',
-      'Spray Finish on Metal Gates',
-      'Industrial Warehouse Floor Lines',
+      'Technical Documentation & API Specs',
+      'B2B SaaS Content Writing',
+      'English / French / Arabic Translation',
+      'Ghostwriting & Thought Leadership',
+      'Proofreading & Line Editing',
+      'Scriptwriting for Video & Audio',
+    ],
+  },
+  {
+    id: 'other',
+    name: 'Other Specialized Trades',
+    description: 'Painting, POP plastering, hospitality, event logistics, custom services.',
+    icon: Paintbrush,
+    color: 'bg-[#64748B]',
+    popularSkills: [
+      'Interior Painting & Edge Cut-ins',
+      'POP False Ceiling Plastering',
+      'Industrial Epoxy Floor Coating',
+      'Event Logistics & Sound Engineering',
+      'Security Camera & CCTV Setup',
     ],
   },
 ]
 
 const CLIENT_INDUSTRIES = [
   {
-    id: 'homeowner',
-    title: 'Homeowner / Residential',
-    desc: 'Emergency repairs, solar setups, furniture, and plumbing for houses and apartments.',
+    id: 'tech_startup',
+    title: 'Technology & Startups',
+    desc: 'SaaS, mobile apps, AI products, fintech, web platforms & engineering squads.',
+    icon: Code,
+  },
+  {
+    id: 'ecommerce_retail',
+    title: 'E-Commerce & Retail',
+    desc: 'Online stores, digital commerce, product photography, supply chain & marketing.',
+    icon: TrendingUp,
+  },
+  {
+    id: 'agency_consulting',
+    title: 'Agencies & Studios',
+    desc: 'Design studios, advertising agencies, dev shops, consultancy firms.',
+    icon: Palette,
+  },
+  {
+    id: 'sme_corporate',
+    title: 'Corporate & Small Business',
+    desc: 'Established SMEs, law firms, healthcare centers, real estate developers.',
     icon: Building2,
   },
   {
-    id: 'sme_office',
-    title: 'Business & Office Workplace',
-    desc: 'Office AC servicing, electrical wiring, IT hardware, desks, and security cameras.',
-    icon: Briefcase,
+    id: 'facilities_trades',
+    title: 'Facilities, Real Estate & Trades',
+    desc: 'Property management, solar retrofits, facility maintenance, contractor teams.',
+    icon: Wrench,
   },
   {
-    id: 'property_manager',
-    title: 'Real Estate & Facility Management',
-    desc: 'Multi-unit tenant maintenance, borehole pumps, painting, and scheduled servicing.',
-    icon: Users,
-  },
-  {
-    id: 'hospitality',
-    title: 'Hospitality, Hotel & Commercial',
-    desc: 'Commercial cooling, high-capacity electricals, restaurant fittings, and rapid dispatch.',
-    icon: Sparkles,
+    id: 'nonprofit_edu',
+    title: 'Non-Profit & Education',
+    desc: 'NGOs, universities, educational academies, research foundations.',
+    icon: GraduationCap,
   },
 ]
 
 const CLIENT_GOALS = [
   {
-    id: 'emergency',
-    title: 'Emergency Immediate Dispatch',
-    desc: 'Need a vetted pro on-site within 45 to 60 minutes for urgent faults or leaks.',
-    tag: '⚡ 45–60 min Arrival',
+    id: 'one_off_project',
+    title: 'One-Time Project Contract',
+    desc: 'Build a specific web app, wire an inverter system, design a brand system, or fix equipment.',
+    tag: 'Milestone Escrow',
+    icon: Briefcase,
   },
   {
-    id: 'scheduled_fix',
-    title: 'One-Time Scheduled Repair',
-    desc: 'Get quotes today and schedule a technician for this week at your convenience.',
-    tag: '📅 Flexible Date',
+    id: 'dedicated_freelancer',
+    title: 'Dedicated Freelancer (Ongoing)',
+    desc: 'Hire a specialist for recurring weekly hours, ongoing maintenance, or monthly sprints.',
+    tag: 'Long-Term',
+    icon: Clock,
   },
   {
-    id: 'renovation_project',
-    title: 'Major Renovation or Installation',
-    desc: 'Complete solar installation, full building rewire, new furniture, or full plumbing setup.',
-    tag: '🛠 Milestone Escrow',
+    id: 'collabo_team',
+    title: 'Collabo Squad Hiring',
+    desc: 'Assemble a cross-functional squad (e.g. Lead Dev, UI Designer, QA) for a major launch.',
+    tag: 'Multi-Skilled',
+    icon: Users,
   },
   {
-    id: 'maintenance_retainer',
-    title: 'Ongoing Property Maintenance',
-    desc: 'Retain verified artisans for recurring monthly servicing and priority dispatch.',
-    tag: '🛡 Dedicated Guild Pros',
+    id: 'fulltime_hire',
+    title: 'Permanent Full-Time Hire',
+    desc: 'Recruit top African tech and trade specialists for permanent direct employment.',
+    tag: 'Direct Placement',
+    icon: Rocket,
   },
 ]
 
-const KANO_METRO_ZONES = [
-  'Nassarawa GRA',
-  'Bompai Industrial',
-  'Sabon Gari Market',
-  'Fagge Commercial',
-  'Tarauni Residential',
-  'Dala Historic',
-  'Gwale District',
-  'Hotoro Hub',
-  'Kano Municipal',
-  'Kano Tech Corridor',
-  'Other Northern Zone',
+const COMPANY_SIZES = [
+  'Solo Entrepreneur / Founder',
+  '2 - 10 Employees',
+  '11 - 50 Employees',
+  '50+ Employees',
+]
+
+const MAJOR_AFRICAN_CITIES = [
+  'Lagos, Nigeria',
+  'Kano, Nigeria',
+  'Abuja, Nigeria',
+  'Port Harcourt, Nigeria',
+  'Ibadan, Nigeria',
+  'Accra, Ghana',
+  'Kumasi, Ghana',
+  'Nairobi, Kenya',
+  'Mombasa, Kenya',
+  'Kigali, Rwanda',
+  'Johannesburg, South Africa',
+  'Cape Town, South Africa',
+  'Cairo, Egypt',
+  'Remote / Other Region',
 ]
 
 // =============================================================================
@@ -341,49 +447,216 @@ function OnboardingContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
 
-  // Steps: 'welcome' | 'role' | 'sector' | 'skills' | 'profile' | 'verification' | 'progress' | 'terms' | 'complete'
-  const initialStepParam = searchParams.get('step') || 'welcome'
   const initialRoleParam = (searchParams.get('role') as 'client' | 'provider') || null
+  const initialStepParam = searchParams.get('step') || (initialRoleParam ? 'role' : 'welcome')
 
   const [step, setStep] = useState<string>(initialStepParam)
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0)
   const [selectedRole, setSelectedRole] = useState<'client' | 'provider' | null>(initialRoleParam)
 
-  // Provider Form State
-  const [selectedSectorId, setSelectedSectorId] = useState<string>('electrical_solar')
+  // Step 1: Contact & Identity (SignupPage.tsx)
+  const [firstName, setFirstName] = useState('')
+  const [lastName, setLastName] = useState('')
+  const [email, setEmail] = useState('')
+  const [phone, setPhone] = useState('')
+  const [whatsapp, setWhatsapp] = useState('')
+  const [sameAsPhone, setSameAsPhone] = useState(false)
+  const [locationCity, setLocationCity] = useState('Lagos, Nigeria')
+
+  // Email validation state
+  const [emailStatus, setEmailStatus] = useState<'idle' | 'valid' | 'invalid'>('idle')
+
+  // Step 2: Security & Password (SignupPasswordPage.tsx)
+  const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+
+  // Step 3: Country & Currency (CountryCurrencyPage.tsx)
+  const [selectedCountry, setSelectedCountry] = useState<string>('Nigeria')
+  const [selectedCurrency, setSelectedCurrency] = useState<string>('NGN')
+  const [baseRate, setBaseRate] = useState('15,000')
+  const [isCountryDropdownOpen, setIsCountryDropdownOpen] = useState(false)
+  const [countrySearchQuery, setCountrySearchQuery] = useState('')
+  const countryDropdownRef = useRef<HTMLDivElement>(null)
+
+  // Close country dropdown on click outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (countryDropdownRef.current && !countryDropdownRef.current.contains(event.target as Node)) {
+        setIsCountryDropdownOpen(false)
+      }
+    }
+    if (isCountryDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside)
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [isCountryDropdownOpen])
+
+  // Step 4A: Provider Path (Sector, Skills, Profile)
+  const [selectedSectorId, setSelectedSectorId] = useState<string>('tech')
+  const [customSectorName, setCustomSectorName] = useState('')
   const [selectedSkills, setSelectedSkills] = useState<string[]>([])
   const [skillSearchQuery, setSkillSearchQuery] = useState('')
   const [customSkillInput, setCustomSkillInput] = useState('')
-
-  const [fullName, setFullName] = useState('')
-  const [businessName, setBusinessName] = useState('')
-  const [phone, setPhone] = useState('')
-  const [email, setEmail] = useState('')
-  const [locationZone, setLocationZone] = useState('Nassarawa GRA')
-  const [experienceYears, setExperienceYears] = useState('5')
-  const [baseRate, setBaseRate] = useState('15,000')
+  const [title, setTitle] = useState('')
   const [bio, setBio] = useState('')
+  const [workType, setWorkType] = useState<'freelancing' | 'permanent'>('freelancing')
+  const [experienceYears, setExperienceYears] = useState('5')
   const [ninNumber, setNinNumber] = useState('')
   const [workshopAddress, setWorkshopAddress] = useState('')
+  const [profileImage, setProfileImage] = useState<string>('')
 
-  // Client Form State
-  const [clientIndustry, setClientIndustry] = useState('homeowner')
-  const [clientGoal, setClientGoal] = useState('emergency')
-  const [clientContactName, setClientContactName] = useState('')
-  const [clientPhone, setClientPhone] = useState('')
-  const [clientZone, setClientZone] = useState('Nassarawa GRA')
+  // Step 4B: Client Path (Industry, Goals, Profile)
+  const [clientIndustry, setClientIndustry] = useState('tech_startup')
+  const [clientGoal, setClientGoal] = useState('one_off_project')
+  const [companyName, setCompanyName] = useState('')
+  const [companyBio, setCompanyBio] = useState('')
+  const [companySize, setCompanySize] = useState(COMPANY_SIZES[0])
+  const [companyWebsite, setCompanyWebsite] = useState('')
 
-  // Loading / Setup Progress State
+  // Step 5: Terms and Conditions
+  const [hasScrolledTerms, setHasScrolledTerms] = useState(false)
+  const [termsAccepted, setTermsAccepted] = useState(false)
+  const termsContainerRef = useRef<HTMLDivElement>(null)
+
+  // Step 6: Setup Progress
   const [progressPercent, setProgressPercent] = useState(0)
   const [activeProgressTask, setActiveProgressTask] = useState(0)
-  const [termsAccepted, setTermsAccepted] = useState(false)
 
-  // Sync with sector change
+  // Scroll detection for dynamic header elevation
+  const [isScrolled, setIsScrolled] = useState(false)
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 15)
+    }
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    handleScroll()
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
+
+  // Auto-scroll to top when step changes
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }, [step])
+
+  // Sync initial query parameter
+  useEffect(() => {
+    const qStep = searchParams.get('step')
+    const qRole = searchParams.get('role') as 'client' | 'provider' | null
+    if (qStep && qStep !== step) {
+      setStep(qStep)
+    } else if (!qStep && qRole && step === 'welcome') {
+      setStep('role')
+    }
+    if (qRole && qRole !== selectedRole) {
+      setSelectedRole(qRole)
+    }
+  }, [searchParams])
+
+  // Handle "Same as Phone" sync
+  useEffect(() => {
+    if (sameAsPhone) {
+      setWhatsapp(phone)
+    }
+  }, [sameAsPhone, phone])
+
+  // Centralized intelligent back handler
+  const handleBack = () => {
+    switch (step) {
+      case 'role':
+        setStep('welcome')
+        break
+      case 'contact_info':
+        setStep('role')
+        break
+      case 'password':
+        setStep('contact_info')
+        break
+      case 'country_currency':
+        setStep('password')
+        break
+      case 'sector':
+        setStep('country_currency')
+        break
+      case 'skills':
+        setStep('sector')
+        break
+      case 'provider_profile':
+        setStep('skills')
+        break
+      case 'client_industry':
+        setStep('country_currency')
+        break
+      case 'client_goals':
+        setStep('client_industry')
+        break
+      case 'client_profile':
+        setStep('client_goals')
+        break
+      case 'terms':
+        if (selectedRole === 'client') setStep('client_profile')
+        else setStep('provider_profile')
+        break
+      default:
+        router.push('/')
+        break
+    }
+  }
+
+  // Password requirements calculation
+  const hasMinLength = password.length >= 8
+  const hasUpper = /[A-Z]/.test(password)
+  const hasLower = /[a-z]/.test(password)
+  const hasNumber = /[0-9]/.test(password)
+  const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(password)
+  const passwordStrengthScore = [hasMinLength, hasUpper, hasLower, hasNumber, hasSpecial].filter(Boolean).length
+
+  const getPasswordStrength = () => {
+    if (!password) return { text: 'Empty', color: 'bg-slate-200', textClass: 'text-slate-400', width: '0%' }
+    if (passwordStrengthScore <= 2) return { text: 'Weak', color: 'bg-rose-500', textClass: 'text-rose-600', width: '25%' }
+    if (passwordStrengthScore === 3) return { text: 'Fair', color: 'bg-amber-500', textClass: 'text-amber-600', width: '50%' }
+    if (passwordStrengthScore === 4) return { text: 'Good', color: 'bg-[#4D78FF]', textClass: 'text-[#4D78FF]', width: '75%' }
+    return { text: 'Strong', color: 'bg-[#10B981]', textClass: 'text-[#10B981]', width: '100%' }
+  }
+
+  // Country selection handler
+  const handleCountrySelect = (c: CountryOption) => {
+    setSelectedCountry(c.name)
+    setSelectedCurrency(c.currency)
+    setIsCountryDropdownOpen(false)
+    setCountrySearchQuery('')
+  }
+
+  // Active country lookup
+  const selectedCountryObj = useMemo(() => {
+    return (
+      COUNTRIES.find((c) => c.name.toLowerCase() === selectedCountry.toLowerCase()) ||
+      COUNTRIES[0]
+    )
+  }, [selectedCountry])
+
+  // Filtered countries for dropdown search
+  const filteredCountries = useMemo(() => {
+    const q = countrySearchQuery.trim().toLowerCase()
+    if (!q) return COUNTRIES
+    return COUNTRIES.filter(
+      (c) =>
+        c.name.toLowerCase().includes(q) ||
+        c.code.toLowerCase().includes(q) ||
+        c.currency.toLowerCase().includes(q)
+    )
+  }, [countrySearchQuery])
+
+  // Active sector lookup
   const currentSector = useMemo(() => {
     return SECTORS.find((s) => s.id === selectedSectorId) || SECTORS[0]
   }, [selectedSectorId])
 
-  // Filter skills by search query
+  // Filter skills
   const displayedSkills = useMemo(() => {
     if (!skillSearchQuery.trim()) return currentSector.popularSkills
     return currentSector.popularSkills.filter((s) =>
@@ -395,7 +668,7 @@ function OnboardingContent() {
     if (selectedSkills.includes(skill)) {
       setSelectedSkills(selectedSkills.filter((s) => s !== skill))
     } else {
-      if (selectedSkills.length >= 12) return
+      if (selectedSkills.length >= 15) return
       setSelectedSkills([...selectedSkills, skill])
     }
   }
@@ -410,393 +683,443 @@ function OnboardingContent() {
     setCustomSkillInput('')
   }
 
-  // Handle Animated Setup Progress
+  // Profile image upload with client compression
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    const reader = new FileReader()
+    reader.onload = (event) => {
+      const img = document.createElement('img')
+      img.onload = () => {
+        const canvas = document.createElement('canvas')
+        const MAX_WIDTH = 400
+        const MAX_HEIGHT = 400
+        let width = img.width
+        let height = img.height
+
+        if (width > height) {
+          if (width > MAX_WIDTH) {
+            height *= MAX_WIDTH / width
+            width = MAX_WIDTH
+          }
+        } else {
+          if (height > MAX_HEIGHT) {
+            width *= MAX_HEIGHT / height
+            height = MAX_HEIGHT
+          }
+        }
+
+        canvas.width = width
+        canvas.height = height
+        const ctx = canvas.getContext('2d')
+        ctx?.drawImage(img, 0, 0, width, height)
+        const compressed = canvas.toDataURL('image/jpeg', 0.8)
+        setProfileImage(compressed)
+      }
+      img.src = event.target?.result as string
+    }
+    reader.readAsDataURL(file)
+  }
+
+  // Handle Terms scroll detection
+  const handleTermsScroll = () => {
+    if (termsContainerRef.current) {
+      const { scrollTop, scrollHeight, clientHeight } = termsContainerRef.current
+      if (scrollTop + clientHeight >= scrollHeight - 30) {
+        setHasScrolledTerms(true)
+      }
+    }
+  }
+
+  // Handle Setup Progress Simulation
   useEffect(() => {
     if (step === 'progress') {
       setProgressPercent(0)
       setActiveProgressTask(0)
 
-      const interval = setInterval(() => {
+      const timer = setInterval(() => {
         setProgressPercent((prev) => {
           if (prev >= 100) {
-            clearInterval(interval)
+            clearInterval(timer)
+            setTimeout(() => {
+              setStep('terms')
+            }, 600)
             return 100
           }
           return prev + 2
         })
-      }, 50)
+      }, 55)
 
-      const t1 = setTimeout(() => setActiveProgressTask(1), 800)
-      const t2 = setTimeout(() => setActiveProgressTask(2), 1700)
-      const t3 = setTimeout(() => setActiveProgressTask(3), 2500)
-      const t4 = setTimeout(() => {
-        setStep('terms')
-      }, 3400)
+      const t1 = setTimeout(() => setActiveProgressTask(1), 700)
+      const t2 = setTimeout(() => setActiveProgressTask(2), 1500)
+      const t3 = setTimeout(() => setActiveProgressTask(3), 2200)
 
       return () => {
-        clearInterval(interval)
+        clearInterval(timer)
         clearTimeout(t1)
         clearTimeout(t2)
         clearTimeout(t3)
-        clearTimeout(t4)
       }
     }
   }, [step])
 
+  // Stepper calculations
+  const getStepProgressNumber = () => {
+    switch (step) {
+      case 'welcome':
+        return { current: 1, total: 5, label: 'Overview' }
+      case 'role':
+        return { current: 1, total: 5, label: 'Account Type' }
+      case 'contact_info':
+        return { current: 2, total: 5, label: 'Identity & Contact' }
+      case 'password':
+        return { current: 3, total: 5, label: 'Security' }
+      case 'country_currency':
+        return { current: 4, total: 5, label: 'Location & Currency' }
+      case 'sector':
+      case 'skills':
+      case 'provider_profile':
+      case 'client_industry':
+      case 'client_goals':
+      case 'client_profile':
+        return { current: 4, total: 5, label: 'Profile Setup' }
+      case 'progress':
+      case 'terms':
+        return { current: 5, total: 5, label: 'Legal & Activation' }
+      default:
+        return { current: 5, total: 5, label: 'Complete' }
+    }
+  }
+
+  const stepMeta = getStepProgressNumber()
+  const passwordStrength = getPasswordStrength()
+
   return (
-    <div className="min-h-screen bg-[#F5F7FC] text-[#0A1020] flex flex-col justify-between relative overflow-hidden selection:bg-[#4D78FF] selection:text-white">
-      {/* Halftone dot texture */}
-      <div
-        className="absolute inset-0 opacity-[0.04] pointer-events-none"
-        style={{
-          backgroundImage: 'radial-gradient(#10B981 1.5px, transparent 1.5px)',
-          backgroundSize: '24px 24px',
-        }}
-      />
-
-      {/* Decorative 3D Corner Helix from deco.png */}
-      <div className="absolute -top-16 -right-12 pointer-events-none z-0 hidden lg:block opacity-80">
-        <ConnectaCornerHelix />
-      </div>
-
-      {/* Top Header Bar */}
-      <header className="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-slate-200/80 px-4 sm:px-8 py-3.5">
-        <div className="max-w-6xl mx-auto flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <Link
-              href="/"
-              className="bg-[#0C513F] text-white px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-full flex items-center gap-2 shadow-sm hover:scale-105 transition-all"
-            >
-              <div className="relative w-4 h-4 shrink-0">
-                <Image
-                  src="/brand/connecta-header-icon.svg"
-                  alt="Connecta Icon"
-                  fill
-                  className="object-contain"
-                />
-              </div>
-              <span className="font-extrabold text-xs sm:text-sm tracking-tight text-white">
-                connecta
-              </span>
-            </Link>
-
-            <div className="hidden sm:flex items-center gap-1.5 text-xs font-bold text-slate-700 bg-slate-100 px-3 py-1.5 rounded-full border border-slate-200">
-              <span>🇳🇬</span>
-              <span>NG</span>
-              <span className="text-slate-400">•</span>
-              <span className="text-[#10B981]">Onboarding Portal</span>
+    <div className="min-h-screen bg-[#F5F7FC] text-[#0A1020] relative flex flex-col selection:bg-[#4D78FF]/20 pb-16">
+      {/* Sleek Professional Top Header Bar */}
+      <header
+        className={`sticky top-0 z-50 w-full transition-all duration-300 ${
+          isScrolled
+            ? 'bg-white/95 backdrop-blur-xl border-b border-slate-200/90 shadow-md'
+            : 'bg-[#F5F7FC]/80 backdrop-blur-md border-b border-transparent'
+        }`}
+      >
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-18 flex items-center justify-between gap-4">
+          {/* Left: Brand Logo */}
+          <Link href="/" className="flex items-center gap-2 group shrink-0">
+            <div className="relative w-36 h-8 sm:w-44 sm:h-10">
+              <Image
+                src="/brand/svg/connecta-logo.svg"
+                alt="Connecta"
+                fill
+                className="object-contain"
+                priority
+              />
             </div>
-          </div>
+          </Link>
 
-          {/* Step Progress Pills & Controls */}
-          <div className="flex items-center gap-3 text-xs font-bold">
-            {step !== 'welcome' && step !== 'complete' && (
-              <div className="flex items-center gap-2 bg-white px-3.5 py-1.5 rounded-full border border-slate-200 shadow-sm text-slate-600">
-                <span className="w-2 h-2 rounded-full bg-[#10B981] animate-pulse" />
-                <span className="capitalize">{step} Setup</span>
-              </div>
-            )}
+          {/* Center: Persistent Scrolled Header Indicator */}
+          {isScrolled && step !== 'welcome' && step !== 'complete' && (
+            <div className="hidden sm:flex items-center gap-2 animate-in fade-in duration-200">
+              <span className="text-xs font-black text-slate-800 bg-slate-100 px-3.5 py-1 rounded-full border border-slate-200 shadow-2xs">
+                {stepMeta.label}
+              </span>
+            </div>
+          )}
 
+          {/* Right: Clean Sign In CTA */}
+          <div className="flex items-center gap-3.5">
+            <span className="text-sm font-semibold text-slate-600 hidden sm:inline">Already registered?</span>
             <Link
-              href="/"
-              className="text-slate-500 hover:text-slate-900 transition-colors py-1 px-2.5"
+              href="/login"
+              className="text-sm font-bold text-slate-800 bg-white hover:bg-slate-50 px-5 py-2.5 rounded-full border border-slate-200 shadow-2xs hover:border-slate-300 transition-all cursor-pointer"
             >
-              Exit to Home
+              Sign In
             </Link>
           </div>
         </div>
       </header>
 
-      {/* Main Form & Walkthrough Container */}
-      <main className="flex-1 max-w-4xl w-full mx-auto px-4 py-8 sm:py-12 relative z-10 flex flex-col justify-center">
+      {/* Main Multi-Step Container */}
+      <main className="flex-1 max-w-5xl w-full mx-auto px-4 pt-6 sm:pt-10 flex flex-col justify-center relative z-10">
         {/* ================================================================= */}
-        {/* 1. WELCOME WALKTHROUGH SLIDES (Exact adaptation from OnboardingScreen) */}
+        {/* STEP 1: ONBOARDING SLIDES CAROUSEL (OnboardingScreen.tsx)         */}
         {/* ================================================================= */}
         {step === 'welcome' && (
-          <div className="space-y-8 animate-in fade-in duration-300">
-            <div className="text-center space-y-3 max-w-2xl mx-auto">
-              <span className="inline-flex items-center gap-1.5 text-xs font-extrabold text-[#10B981] bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-full">
-                <Sparkles className="w-3.5 h-3.5 text-[#F59E0B]" />
-                <span>Welcome to Connecta 2.0</span>
-              </span>
-              <h1 className="text-3xl sm:text-5xl font-black tracking-tight text-[#0A1020] leading-[1.12]">
-                Your Verified Artisans & Tech Ecosystem Starts Here
+          <div className="space-y-8 animate-in fade-in duration-300 max-w-2xl mx-auto w-full">
+            {/* Header */}
+            <div className="text-center space-y-3">
+              <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black text-[#0A1020] tracking-tight leading-[1.08]">
+                {ONBOARDING_SLIDES[currentSlideIndex].title}{' '}
+                <span className="text-[#4D78FF]">
+                  {ONBOARDING_SLIDES[currentSlideIndex].highlight}
+                </span>
               </h1>
-              <p className="text-sm sm:text-base text-slate-600 leading-relaxed font-normal">
-                Discover vetted technicians, itemized transparent quotes, and Paystack-backed milestone escrow security across Nigeria.
+              <p className="text-base sm:text-lg lg:text-xl text-slate-600 font-medium max-w-2xl mx-auto leading-relaxed">
+                {ONBOARDING_SLIDES[currentSlideIndex].description}
               </p>
             </div>
 
-            {/* Tactile Chowdeck Card for Slide Presentation */}
-            <div className="bg-white rounded-3xl sm:rounded-[36px] border-[2.5px] border-black p-6 sm:p-10 shadow-2xl relative overflow-hidden group">
-              {/* Halftone texture */}
-              <div
-                className="absolute inset-0 opacity-[0.05] pointer-events-none"
-                style={{
-                  backgroundImage: 'radial-gradient(#0A1020 1.5px, transparent 1.5px)',
-                  backgroundSize: '20px 20px',
-                }}
-              />
+            {/* Slide Hero Card */}
+            <div
+              className={`${ONBOARDING_SLIDES[currentSlideIndex].cardBg} text-white rounded-3xl p-8 sm:p-10 shadow-2xl relative overflow-hidden transition-all duration-500`}
+            >
+              <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none">
+                {React.createElement(ONBOARDING_SLIDES[currentSlideIndex].icon, {
+                  className: 'w-48 h-48',
+                })}
+              </div>
 
-              <div className="relative z-10 grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
-                {/* Left Card Visual Frame */}
-                <div className="md:col-span-5">
-                  <div
-                    className={`${ONBOARDING_SLIDES[currentSlideIndex].cardBg} text-white rounded-2xl sm:rounded-3xl p-6 sm:p-8 flex flex-col justify-between aspect-square relative shadow-lg overflow-hidden`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <span className="text-[11px] font-extrabold px-3 py-1 rounded-full bg-white/20 backdrop-blur-md border border-white/20">
-                        {ONBOARDING_SLIDES[currentSlideIndex].badge}
-                      </span>
-                      <SparkleStar x={20} y={20} size={14} fill="#F59E0B" />
-                    </div>
-
-                    <div className="my-auto py-6 flex flex-col items-center justify-center text-center space-y-3">
-                      {React.createElement(
-                        ONBOARDING_SLIDES[currentSlideIndex].icon,
-                        {
-                          className: 'w-16 h-16 text-white stroke-[1.75]',
-                        }
-                      )}
-                      <div className="text-3xl sm:text-4xl font-black text-white tracking-tight">
-                        {ONBOARDING_SLIDES[currentSlideIndex].stats}
-                      </div>
-                      <div className="text-xs font-bold text-white/80">
-                        {ONBOARDING_SLIDES[currentSlideIndex].statsLabel}
-                      </div>
-                    </div>
-
-                    <div className="pt-3 border-t border-white/20 flex items-center justify-between text-[11px] text-white/80 font-bold">
-                      <span>Connecta Standard</span>
-                      <span className="text-emerald-300">100% Vetted</span>
-                    </div>
-                  </div>
+              <div className="relative z-10 space-y-6">
+                <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/10 backdrop-blur-md text-xs font-bold border border-white/20">
+                  <CheckCircle2 className="w-4 h-4 text-[#10B981]" />
+                  <span>{ONBOARDING_SLIDES[currentSlideIndex].badge}</span>
                 </div>
 
-                {/* Right Slide Content */}
-                <div className="md:col-span-7 space-y-6">
-                  <div className="space-y-3">
-                    <span className="text-xs font-extrabold uppercase tracking-wider text-[#10B981]">
-                      Pillar 0{currentSlideIndex + 1} of 03
-                    </span>
-                    <h2 className="text-2xl sm:text-4xl font-extrabold text-[#0A1020] tracking-tight leading-snug">
-                      {ONBOARDING_SLIDES[currentSlideIndex].title}{' '}
-                      <span className="text-[#4D78FF]">
-                        {ONBOARDING_SLIDES[currentSlideIndex].highlight}
-                      </span>
-                    </h2>
-                    <p className="text-sm sm:text-base text-slate-600 leading-relaxed font-normal">
-                      {ONBOARDING_SLIDES[currentSlideIndex].description}
-                    </p>
-                  </div>
+                <div className="flex items-baseline gap-3">
+                  <span className="text-4xl sm:text-6xl font-black tracking-tight text-white">
+                    {ONBOARDING_SLIDES[currentSlideIndex].stats}
+                  </span>
+                  <span className="text-xs uppercase tracking-wider font-extrabold text-white/70">
+                    {ONBOARDING_SLIDES[currentSlideIndex].statsLabel}
+                  </span>
+                </div>
 
-                  {/* Slide Progress Dots */}
-                  <div className="flex items-center gap-2 pt-2">
-                    {ONBOARDING_SLIDES.map((s, idx) => (
-                      <button
-                        key={s.id}
-                        type="button"
-                        onClick={() => setCurrentSlideIndex(idx)}
-                        className={`h-2.5 rounded-full transition-all duration-300 ${
-                          currentSlideIndex === idx
-                            ? 'w-8 bg-[#0A1020]'
-                            : 'w-2.5 bg-slate-200 hover:bg-slate-400'
-                        }`}
-                        title={`Slide ${idx + 1}`}
-                      />
-                    ))}
-                  </div>
-
-                  {/* Actions */}
-                  <div className="pt-4 flex flex-wrap items-center gap-3">
-                    {currentSlideIndex < ONBOARDING_SLIDES.length - 1 ? (
-                      <button
-                        type="button"
-                        onClick={() => setCurrentSlideIndex((prev) => prev + 1)}
-                        className="inline-flex items-center gap-2 rounded-full bg-[#0A1020] hover:bg-[#4D78FF] text-white px-7 py-3.5 text-xs sm:text-sm font-bold shadow-md transition-all hover:scale-105"
-                      >
-                        <span>Next Feature</span>
-                        <ArrowRight className="w-4 h-4" />
-                      </button>
-                    ) : (
-                      <button
-                        type="button"
-                        onClick={() => setStep('role')}
-                        className="inline-flex items-center gap-2 rounded-full bg-[#10B981] hover:bg-[#059669] text-white px-8 py-3.5 text-xs sm:text-sm font-extrabold shadow-md transition-all hover:scale-105"
-                      >
-                        <span>Choose Your Role</span>
-                        <ArrowRight className="w-4 h-4" />
-                      </button>
-                    )}
-
+                {/* Progress Indicators */}
+                <div className="flex items-center gap-2 pt-2">
+                  {ONBOARDING_SLIDES.map((s, idx) => (
                     <button
+                      key={s.id}
                       type="button"
-                      onClick={() => setStep('role')}
-                      className="text-xs font-bold text-slate-500 hover:text-slate-900 px-4 py-3"
-                    >
-                      Skip to Role Selection →
-                    </button>
-                  </div>
+                      onClick={() => setCurrentSlideIndex(idx)}
+                      className={`h-2 rounded-full transition-all duration-300 cursor-pointer ${
+                        currentSlideIndex === idx ? 'w-8 bg-white' : 'w-2 bg-white/30'
+                      }`}
+                      aria-label={`Go to slide ${idx + 1}`}
+                    />
+                  ))}
                 </div>
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-2">
+              <button
+                type="button"
+                onClick={() => setStep('role')}
+                className="text-xs font-bold text-slate-500 hover:text-slate-900 transition-colors"
+              >
+                Skip intro to account selection →
+              </button>
+
+              <div className="flex items-center gap-3 w-full sm:w-auto">
+                {currentSlideIndex > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => setCurrentSlideIndex((prev) => prev - 1)}
+                    className="p-3.5 rounded-full border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 transition-all cursor-pointer shadow-xs"
+                  >
+                    <ArrowLeft className="w-4 h-4" />
+                  </button>
+                )}
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (currentSlideIndex < ONBOARDING_SLIDES.length - 1) {
+                      setCurrentSlideIndex((prev) => prev + 1)
+                    } else {
+                      setStep('role')
+                    }
+                  }}
+                  className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 rounded-full bg-[#0A1020] hover:bg-[#4D78FF] text-white px-8 py-3.5 text-xs sm:text-sm font-extrabold shadow-md hover:scale-105 active:scale-95 transition-all cursor-pointer"
+                >
+                  <span>
+                    {currentSlideIndex === ONBOARDING_SLIDES.length - 1
+                      ? 'Get Started'
+                      : 'Next Feature'}
+                  </span>
+                  <ArrowRight className="w-4 h-4" />
+                </button>
               </div>
             </div>
           </div>
         )}
 
         {/* ================================================================= */}
-        {/* 2. ROLE SELECTION (Exact adaptation from RoleSelectionPage)        */}
+        {/* STEP 2: ROLE SELECTION (RoleSelectionPage.tsx)                    */}
         {/* ================================================================= */}
         {step === 'role' && (
-          <div className="space-y-8 animate-in fade-in duration-300">
-            <div className="text-center space-y-3 max-w-xl mx-auto">
-              <span className="inline-flex items-center gap-1.5 text-xs font-extrabold text-[#4D78FF] bg-blue-50 border border-blue-200 px-3 py-1 rounded-full">
-                <UserCheck className="w-3.5 h-3.5" />
-                <span>Account Personalization</span>
-              </span>
-              <h1 className="text-3xl sm:text-5xl font-black tracking-tight text-[#0A1020]">
-                How do you want to use Connecta?
+          <div className="space-y-8 animate-in fade-in duration-300 max-w-3xl mx-auto w-full">
+            <div className="text-center space-y-3">
+              <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black text-[#0A1020] tracking-tight leading-[1.08]">
+                Choose your account type
               </h1>
-              <p className="text-sm text-slate-600">
-                Select your primary path. You can seamlessly switch or hire and offer services from one unified account anytime.
+              <p className="text-base sm:text-lg lg:text-xl text-slate-600 font-medium max-w-2xl mx-auto leading-relaxed">
+                Select whether you are looking to hire verified African talent or work as a verified specialist.
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto">
-              {/* Option A: Client / Hirer */}
+            {/* Role Cards Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {/* Client Option */}
               <div
                 onClick={() => setSelectedRole('client')}
-                className={`bg-white rounded-3xl p-7 sm:p-9 border-[2.5px] cursor-pointer transition-all duration-300 relative overflow-hidden flex flex-col justify-between group ${
+                className={`p-7 rounded-3xl border-2 cursor-pointer transition-all flex flex-col justify-between space-y-5 ${
                   selectedRole === 'client'
-                    ? 'border-[#0A1020] shadow-2xl scale-[1.02] ring-4 ring-[#4D78FF]/20'
-                    : 'border-slate-300 hover:border-slate-500 shadow-md hover:-translate-y-1'
+                    ? 'border-[#4D78FF] bg-white shadow-xl ring-2 ring-[#4D78FF]/20'
+                    : 'border-slate-200 bg-white/70 hover:border-slate-300 hover:bg-white'
                 }`}
               >
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div
-                      className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-colors ${
-                        selectedRole === 'client'
-                          ? 'bg-[#0A1020] text-white'
-                          : 'bg-slate-100 text-slate-700 group-hover:bg-[#4D78FF] group-hover:text-white'
-                      }`}
-                    >
-                      <HeartHandshake className="w-7 h-7" />
-                    </div>
-                    {selectedRole === 'client' && (
-                      <div className="w-7 h-7 rounded-full bg-[#10B981] text-white flex items-center justify-center font-bold">
-                        <Check className="w-4 h-4 stroke-[3]" />
-                      </div>
-                    )}
+                <div className="flex items-start justify-between">
+                  <div
+                    className={`w-14 h-14 rounded-2xl flex items-center justify-center ${
+                      selectedRole === 'client'
+                        ? 'bg-[#4D78FF] text-white'
+                        : 'bg-slate-100 text-slate-600'
+                    }`}
+                  >
+                    <UserCheck className="w-7 h-7" />
                   </div>
-
-                  <div>
-                    <h3 className="text-2xl font-black text-[#0A1020] tracking-tight">
-                      I want to Hire & Get Things Fixed
-                    </h3>
-                    <p className="text-xs sm:text-sm text-slate-600 mt-1.5 leading-relaxed">
-                      Post emergency repair requests, discover vetted local technicians, compare itemized kobo quotes, and pay safely via Paystack Escrow.
-                    </p>
-                  </div>
-
-                  <div className="flex flex-wrap gap-2 pt-2">
-                    <span className="text-[11px] font-bold px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200">
-                      0% Client Posting Fee
-                    </span>
-                    <span className="text-[11px] font-bold px-3 py-1 rounded-full bg-blue-50 text-blue-800 border border-blue-200">
-                      Milestone Escrow
-                    </span>
-                    <span className="text-[11px] font-bold px-3 py-1 rounded-full bg-slate-100 text-slate-700">
-                      45-min Dispatch
-                    </span>
+                  <div
+                    className={`w-7 h-7 rounded-full border flex items-center justify-center transition-all ${
+                      selectedRole === 'client'
+                        ? 'border-[#4D78FF] bg-[#4D78FF] text-white'
+                        : 'border-slate-300'
+                    }`}
+                  >
+                    {selectedRole === 'client' && <Check className="w-4 h-4 stroke-[3]" />}
                   </div>
                 </div>
 
-                <div className="pt-6 mt-6 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-slate-900">
-                  <span>For Homeowners, Offices & Managers</span>
-                  <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-black group-hover:translate-x-1 transition-all" />
+                <div>
+                  <h3 className="text-xl sm:text-2xl font-black text-[#0A1020]">I&apos;m a Client</h3>
+                  <p className="text-xs sm:text-sm text-slate-600 mt-1.5 leading-relaxed">
+                    Hire background-checked talent, assemble Collabo Squads, and fund escrow milestones.
+                  </p>
+                </div>
+
+                <div className="pt-2 border-t border-slate-100 text-xs font-bold text-[#4D78FF] flex items-center gap-1">
+                  <span>Start hiring talent</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
                 </div>
               </div>
 
-              {/* Option B: Provider / Artisan */}
+              {/* Specialist / Freelancer Option */}
               <div
                 onClick={() => setSelectedRole('provider')}
-                className={`bg-white rounded-3xl p-7 sm:p-9 border-[2.5px] cursor-pointer transition-all duration-300 relative overflow-hidden flex flex-col justify-between group ${
+                className={`p-7 rounded-3xl border-2 cursor-pointer transition-all flex flex-col justify-between space-y-5 ${
                   selectedRole === 'provider'
-                    ? 'border-[#0A1020] shadow-2xl scale-[1.02] ring-4 ring-[#10B981]/20'
-                    : 'border-slate-300 hover:border-slate-500 shadow-md hover:-translate-y-1'
+                    ? 'border-[#10B981] bg-white shadow-xl ring-2 ring-[#10B981]/20'
+                    : 'border-slate-200 bg-white/70 hover:border-slate-300 hover:bg-white'
                 }`}
               >
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div
-                      className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-colors ${
-                        selectedRole === 'provider'
-                          ? 'bg-[#0A2614] text-white'
-                          : 'bg-slate-100 text-slate-700 group-hover:bg-[#10B981] group-hover:text-white'
-                      }`}
-                    >
-                      <Wrench className="w-7 h-7" />
-                    </div>
-                    {selectedRole === 'provider' && (
-                      <div className="w-7 h-7 rounded-full bg-[#10B981] text-white flex items-center justify-center font-bold">
-                        <Check className="w-4 h-4 stroke-[3]" />
-                      </div>
-                    )}
+                <div className="flex items-start justify-between">
+                  <div
+                    className={`w-14 h-14 rounded-2xl flex items-center justify-center ${
+                      selectedRole === 'provider'
+                        ? 'bg-[#10B981] text-white'
+                        : 'bg-slate-100 text-slate-600'
+                    }`}
+                  >
+                    <Briefcase className="w-7 h-7" />
                   </div>
-
-                  <div>
-                    <h3 className="text-2xl font-black text-[#0A1020] tracking-tight">
-                      I want to Offer Services & Work
-                    </h3>
-                    <p className="text-xs sm:text-sm text-slate-600 mt-1.5 leading-relaxed">
-                      Receive verified customer leads in Kano, submit professional itemized quotations, verify your trade ID, and enjoy instant bank payouts.
-                    </p>
-                  </div>
-
-                  <div className="flex flex-wrap gap-2 pt-2">
-                    <span className="text-[11px] font-bold px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200">
-                      Verified Guild Badge
-                    </span>
-                    <span className="text-[11px] font-bold px-3 py-1 rounded-full bg-amber-50 text-amber-800 border border-amber-200">
-                      Direct Leads
-                    </span>
-                    <span className="text-[11px] font-bold px-3 py-1 rounded-full bg-slate-100 text-slate-700">
-                      Instant Payouts
-                    </span>
+                  <div
+                    className={`w-7 h-7 rounded-full border flex items-center justify-center transition-all ${
+                      selectedRole === 'provider'
+                        ? 'border-[#10B981] bg-[#10B981] text-white'
+                        : 'border-slate-300'
+                    }`}
+                  >
+                    {selectedRole === 'provider' && <Check className="w-4 h-4 stroke-[3]" />}
                   </div>
                 </div>
 
-                <div className="pt-6 mt-6 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-slate-900">
-                  <span>For Technicians, Artisans & Squads</span>
-                  <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-black group-hover:translate-x-1 transition-all" />
+                <div>
+                  <h3 className="text-xl sm:text-2xl font-black text-[#0A1020]">I&apos;m a Specialist / Pro</h3>
+                  <p className="text-xs sm:text-sm text-slate-600 mt-1.5 leading-relaxed">
+                    Find high-paying local and remote work, get verified, and earn through secure escrow.
+                  </p>
+                </div>
+
+                <div className="pt-2 border-t border-slate-100 text-xs font-bold text-[#10B981] flex items-center gap-1">
+                  <span>Offer your services</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
                 </div>
               </div>
             </div>
 
-            {/* Bottom Actions */}
-            <div className="flex items-center justify-center gap-4 pt-4">
+            {/* Quick Google Sign-Up Option */}
+            {selectedRole && (
+              <div className="space-y-4 pt-1">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setFirstName('Google User')
+                    setEmail('user@gmail.com')
+                    setStep('country_currency')
+                  }}
+                  className="w-full py-3.5 px-5 rounded-2xl border border-slate-200/90 bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs sm:text-sm shadow-2xs hover:border-slate-300 hover:shadow-xs transition-all flex items-center justify-center gap-3 cursor-pointer group active:scale-[0.99]"
+                >
+                  <svg className="w-4 h-4 shrink-0 transition-transform group-hover:scale-105" viewBox="0 0 24 24">
+                    <path
+                      fill="#4285F4"
+                      d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                    />
+                    <path
+                      fill="#34A853"
+                      d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                    />
+                    <path
+                      fill="#FBBC05"
+                      d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"
+                    />
+                    <path
+                      fill="#EA4335"
+                      d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
+                    />
+                  </svg>
+                  <span>
+                    Sign up as {selectedRole === 'client' ? 'Client' : 'Specialist'} with Google
+                  </span>
+                </button>
+
+                <div className="relative flex items-center justify-center my-2">
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-slate-200" />
+                  </div>
+                  <div className="relative bg-[#F5F7FC] px-4">
+                    <span className="text-[11px] font-bold tracking-wider text-slate-400 uppercase">
+                      Or create account with email
+                    </span>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Bottom Action Bar */}
+            <div className="flex items-center justify-between gap-4 pt-4 border-t border-slate-200/60 mt-6">
               <button
                 type="button"
-                onClick={() => setStep('welcome')}
-                className="text-xs font-bold text-slate-500 hover:text-slate-900 px-4 py-2"
+                onClick={handleBack}
+                className="inline-flex items-center gap-2 px-5 py-3 rounded-full text-xs font-bold text-slate-600 bg-white hover:bg-slate-100 hover:text-[#0A1020] border border-slate-200 shadow-2xs hover:border-slate-300 transition-all cursor-pointer group active:scale-95"
               >
-                ← Back
+                <ArrowLeft className="w-3.5 h-3.5 transition-transform group-hover:-translate-x-0.5" />
+                <span>Back</span>
               </button>
 
               <button
                 type="button"
                 disabled={!selectedRole}
-                onClick={() => {
-                  if (selectedRole === 'client') setStep('profile')
-                  if (selectedRole === 'provider') setStep('sector')
-                }}
-                className={`inline-flex items-center gap-2 rounded-full px-9 py-3.5 text-xs sm:text-sm font-extrabold shadow-md transition-all ${
+                onClick={() => setStep('contact_info')}
+                className={`inline-flex items-center gap-2 rounded-full px-8 py-3.5 text-xs sm:text-sm font-extrabold shadow-md transition-all ${
                   selectedRole
-                    ? 'bg-[#0A1020] hover:bg-[#4D78FF] text-white hover:scale-105 cursor-pointer'
-                    : 'bg-slate-300 text-slate-500 cursor-not-allowed'
+                    ? 'bg-[#0A1020] hover:bg-[#4D78FF] text-white hover:scale-105 active:scale-95 cursor-pointer'
+                    : 'bg-slate-200 text-slate-400 cursor-not-allowed border border-slate-200 shadow-none'
                 }`}
               >
-                <span>Continue Setup</span>
+                <span>Continue</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
             </div>
@@ -804,78 +1127,647 @@ function OnboardingContent() {
         )}
 
         {/* ================================================================= */}
-        {/* 3. SECTOR SELECTION (Provider Path - SectorSelectionPage)          */}
+        {/* STEP 3: CONTACT & IDENTITY DETAILS (SignupPage.tsx)               */}
         {/* ================================================================= */}
-        {step === 'sector' && selectedRole === 'provider' && (
-          <div className="space-y-8 animate-in fade-in duration-300">
-            <div className="text-center space-y-2 max-w-xl mx-auto">
-              <span className="text-xs font-bold text-[#10B981] bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
-                Step 1 of 4: Primary Trade Sector
-              </span>
-              <h2 className="text-3xl sm:text-4xl font-black text-[#0A1020]">
-                Select Your Core Artisan Sector
-              </h2>
-              <p className="text-xs sm:text-sm text-slate-600">
-                Choose the technical trade where you offer verified services.
+        {step === 'contact_info' && (
+          <div className="space-y-8 animate-in fade-in duration-300 max-w-3xl mx-auto w-full">
+            <div className="text-center space-y-3">
+              <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black text-[#0A1020] tracking-tight leading-[1.08]">
+                Your contact details
+              </h1>
+              <p className="text-base sm:text-lg lg:text-xl text-slate-600 font-medium max-w-2xl mx-auto leading-relaxed">
+                Used for instant dispatch notifications, milestone approvals, and security alerts.
               </p>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="bg-white p-7 sm:p-10 rounded-3xl border border-slate-200/90 shadow-xl space-y-6">
+              {/* First & Last Name */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-6">
+                <div className="space-y-2">
+                  <label className="text-xs sm:text-sm font-extrabold text-slate-800 tracking-tight">
+                    First Name
+                  </label>
+                  <input
+                    type="text"
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    placeholder="e.g. Ibrahim"
+                    className="w-full bg-[#F5F7FC] border border-slate-200 rounded-2xl px-5 py-4 text-sm sm:text-base text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#4D78FF] focus:bg-white focus:ring-4 focus:ring-[#4D78FF]/15 transition-all font-medium"
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs sm:text-sm font-extrabold text-slate-800 tracking-tight">
+                    Last Name
+                  </label>
+                  <input
+                    type="text"
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                    placeholder="e.g. Aliyu"
+                    className="w-full bg-[#F5F7FC] border border-slate-200 rounded-2xl px-5 py-4 text-sm sm:text-base text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#4D78FF] focus:bg-white focus:ring-4 focus:ring-[#4D78FF]/15 transition-all font-medium"
+                    required
+                  />
+                </div>
+              </div>
+
+              {/* Email Address with real-time status */}
+              <div className="space-y-2">
+                <label className="text-xs sm:text-sm font-extrabold text-slate-800 tracking-tight">
+                  Email Address
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-4.5 flex items-center pointer-events-none text-slate-400">
+                    <Mail className="w-5 h-5" />
+                  </div>
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => {
+                      setEmail(e.target.value)
+                      if (e.target.value.includes('@') && e.target.value.includes('.')) {
+                        setEmailStatus('valid')
+                      } else {
+                        setEmailStatus('idle')
+                      }
+                    }}
+                    placeholder="e.g. ibrahim@example.com"
+                    className="w-full bg-[#F5F7FC] border border-slate-200 rounded-2xl pl-13 pr-32 py-4 text-sm sm:text-base text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#4D78FF] focus:bg-white focus:ring-4 focus:ring-[#4D78FF]/15 transition-all font-medium"
+                    required
+                  />
+                  {emailStatus === 'valid' && (
+                    <div className="absolute inset-y-0 right-0 pr-4 flex items-center text-[#10B981] text-xs font-bold gap-1.5 pointer-events-none">
+                      <Check className="w-4 h-4 stroke-[3]" /> Available
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Phone & WhatsApp */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-6">
+                <div className="space-y-2">
+                  <label className="text-xs sm:text-sm font-extrabold text-slate-800 tracking-tight">
+                    Phone Number (Calls)
+                  </label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-4.5 flex items-center pointer-events-none text-slate-400">
+                      <Phone className="w-5 h-5" />
+                    </div>
+                    <input
+                      type="tel"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      placeholder="e.g. +234 803 123 4567"
+                      className="w-full bg-[#F5F7FC] border border-slate-200 rounded-2xl pl-13 pr-4 py-4 text-sm sm:text-base text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#4D78FF] focus:bg-white focus:ring-4 focus:ring-[#4D78FF]/15 transition-all font-medium"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs sm:text-sm font-extrabold text-slate-800 tracking-tight">
+                      WhatsApp Number
+                    </label>
+                    <label className="flex items-center gap-1.5 text-xs font-bold text-slate-600 cursor-pointer select-none hover:text-slate-900 transition-colors">
+                      <input
+                        type="checkbox"
+                        checked={sameAsPhone}
+                        onChange={(e) => setSameAsPhone(e.target.checked)}
+                        className="rounded text-[#10B981] w-3.5 h-3.5 focus:ring-0"
+                      />
+                      <span>Same as phone</span>
+                    </label>
+                  </div>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-4.5 flex items-center pointer-events-none text-slate-400">
+                      <MessageSquare className="w-5 h-5" />
+                    </div>
+                    <input
+                      type="tel"
+                      value={whatsapp}
+                      onChange={(e) => setWhatsapp(e.target.value)}
+                      disabled={sameAsPhone}
+                      placeholder="e.g. +234 803 123 4567"
+                      className="w-full bg-[#F5F7FC] border border-slate-200 rounded-2xl pl-13 pr-4 py-4 text-sm sm:text-base text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#4D78FF] focus:bg-white focus:ring-4 focus:ring-[#4D78FF]/15 transition-all disabled:bg-slate-100 disabled:text-slate-500 font-medium"
+                      required
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Primary City / Regional Hub */}
+              <div className="space-y-2">
+                <label className="text-xs sm:text-sm font-extrabold text-slate-800 tracking-tight">
+                  Primary Hub / City
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-4.5 flex items-center pointer-events-none text-slate-400">
+                    <MapPin className="w-5 h-5 text-[#4D78FF]" />
+                  </div>
+                  <select
+                    value={locationCity}
+                    onChange={(e) => setLocationCity(e.target.value)}
+                    className="w-full bg-[#F5F7FC] border border-slate-200 rounded-2xl pl-13 pr-10 py-4 text-sm sm:text-base text-slate-900 focus:outline-none focus:border-[#4D78FF] focus:bg-white focus:ring-4 focus:ring-[#4D78FF]/15 transition-all font-semibold cursor-pointer"
+                  >
+                    {MAJOR_AFRICAN_CITIES.map((city) => (
+                      <option key={city} value={city}>
+                        {city}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            {/* Bottom Action Bar */}
+            <div className="flex items-center justify-between gap-4 pt-4 border-t border-slate-200/60 mt-6">
+              <button
+                type="button"
+                onClick={handleBack}
+                className="inline-flex items-center gap-2 px-6 py-3.5 rounded-full text-xs sm:text-sm font-bold text-slate-600 bg-white hover:bg-slate-100 hover:text-[#0A1020] border border-slate-200 shadow-2xs hover:border-slate-300 transition-all cursor-pointer group active:scale-95"
+              >
+                <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-0.5" />
+                <span>Back</span>
+              </button>
+
+              <button
+                type="button"
+                disabled={!firstName.trim() || !phone.trim() || !email.includes('@')}
+                onClick={() => setStep('password')}
+                className={`inline-flex items-center gap-2 rounded-full px-9 py-4 text-xs sm:text-sm font-black shadow-md transition-all ${
+                  firstName.trim() && phone.trim() && email.includes('@')
+                    ? 'bg-[#0A1020] hover:bg-[#4D78FF] text-white hover:scale-105 active:scale-95 cursor-pointer'
+                    : 'bg-slate-200 text-slate-400 cursor-not-allowed border border-slate-200 shadow-none'
+                }`}
+              >
+                <span>Next: Account Security</span>
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* ================================================================= */}
+        {/* STEP 4: PASSWORD & SECURITY (SignupPasswordPage.tsx)              */}
+        {/* ================================================================= */}
+        {step === 'password' && (
+          <div className="space-y-8 animate-in fade-in duration-300 max-w-3xl mx-auto w-full">
+            <div className="text-center space-y-3">
+              <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black text-[#0A1020] tracking-tight leading-[1.08]">
+                Create a secure password
+              </h1>
+              <p className="text-base sm:text-lg lg:text-xl text-slate-600 font-medium max-w-2xl mx-auto leading-relaxed">
+                Safeguard your milestone escrow contracts and private client communications.
+              </p>
+            </div>
+
+            <div className="bg-white p-7 sm:p-10 rounded-3xl border border-slate-200/90 shadow-xl space-y-6">
+              {/* Password */}
+              <div className="space-y-2">
+                <label className="text-xs sm:text-sm font-extrabold text-slate-800 tracking-tight">
+                  Account Password
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-4.5 flex items-center pointer-events-none text-slate-400">
+                    <Lock className="w-5 h-5" />
+                  </div>
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Create a strong password"
+                    className="w-full bg-[#F5F7FC] border border-slate-200 rounded-2xl pl-13 pr-12 py-4 text-sm sm:text-base text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#4D78FF] focus:bg-white focus:ring-4 focus:ring-[#4D78FF]/15 transition-all font-medium"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-slate-600 cursor-pointer"
+                  >
+                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5 text-slate-400" />}
+                  </button>
+                </div>
+              </div>
+
+              {/* Password Strength Checklist */}
+              {password && (
+                <div className="space-y-2.5 pt-1 bg-slate-50 p-5 rounded-2xl border border-slate-200/80">
+                  <div className="flex items-center justify-between text-xs sm:text-sm">
+                    <span className="text-slate-600 font-bold">Password Strength:</span>
+                    <span className={`font-black ${passwordStrength.textClass}`}>
+                      {passwordStrength.text}
+                    </span>
+                  </div>
+
+                  <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
+                    <div
+                      className={`h-full transition-all duration-300 ${passwordStrength.color}`}
+                      style={{ width: passwordStrength.width }}
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2 text-xs pt-1">
+                    <div className={hasMinLength ? 'text-[#10B981] font-bold flex items-center gap-1.5' : 'text-slate-400 flex items-center gap-1.5'}>
+                      <Check className="w-3.5 h-3.5" /> 8+ Characters
+                    </div>
+                    <div className={hasUpper && hasLower ? 'text-[#10B981] font-bold flex items-center gap-1.5' : 'text-slate-400 flex items-center gap-1.5'}>
+                      <Check className="w-3.5 h-3.5" /> Upper &amp; lower case
+                    </div>
+                    <div className={hasNumber ? 'text-[#10B981] font-bold flex items-center gap-1.5' : 'text-slate-400 flex items-center gap-1.5'}>
+                      <Check className="w-3.5 h-3.5" /> At least 1 number (0-9)
+                    </div>
+                    <div className={hasSpecial ? 'text-[#10B981] font-bold flex items-center gap-1.5' : 'text-slate-400 flex items-center gap-1.5'}>
+                      <Check className="w-3.5 h-3.5" /> Symbol (!@#$%)
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Confirm Password */}
+              <div className="space-y-2">
+                <label className="text-xs sm:text-sm font-extrabold text-slate-800 tracking-tight">
+                  Confirm Password
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-4.5 flex items-center pointer-events-none text-slate-400">
+                    <Lock className="w-5 h-5" />
+                  </div>
+                  <input
+                    type={showConfirmPassword ? 'text' : 'password'}
+                    required
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    placeholder="Repeat your password"
+                    className="w-full bg-[#F5F7FC] border border-slate-200 rounded-2xl pl-13 pr-12 py-4 text-sm sm:text-base text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#4D78FF] focus:bg-white focus:ring-4 focus:ring-[#4D78FF]/15 transition-all font-medium"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-slate-600 cursor-pointer"
+                  >
+                    {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5 text-slate-400" />}
+                  </button>
+                </div>
+
+                {confirmPassword && (
+                  <div className="text-xs font-bold flex items-center gap-1.5 pt-1">
+                    {password === confirmPassword ? (
+                      <span className="text-[#10B981] flex items-center gap-1">
+                        <Check className="w-4 h-4 stroke-[3]" /> Passwords match
+                      </span>
+                    ) : (
+                      <span className="text-rose-500 flex items-center gap-1">
+                        <AlertCircle className="w-4 h-4" /> Passwords do not match
+                      </span>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Bottom Action Bar */}
+            <div className="flex items-center justify-between gap-4 pt-4 border-t border-slate-200/60 mt-6">
+              <button
+                type="button"
+                onClick={handleBack}
+                className="inline-flex items-center gap-2 px-6 py-3.5 rounded-full text-xs sm:text-sm font-bold text-slate-600 bg-white hover:bg-slate-100 hover:text-[#0A1020] border border-slate-200 shadow-2xs hover:border-slate-300 transition-all cursor-pointer group active:scale-95"
+              >
+                <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-0.5" />
+                <span>Back</span>
+              </button>
+
+              <button
+                type="button"
+                disabled={!hasMinLength || password !== confirmPassword}
+                onClick={() => setStep('country_currency')}
+                className={`inline-flex items-center gap-2 rounded-full px-9 py-4 text-xs sm:text-sm font-black shadow-md transition-all ${
+                  hasMinLength && password === confirmPassword
+                    ? 'bg-[#0A1020] hover:bg-[#4D78FF] text-white hover:scale-105 active:scale-95 cursor-pointer'
+                    : 'bg-slate-200 text-slate-400 cursor-not-allowed border border-slate-200 shadow-none'
+                }`}
+              >
+                <span>Next: Location &amp; Currency</span>
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* ================================================================= */}
+        {/* STEP 5: COUNTRY & CURRENCY (CountryCurrencyPage.tsx)              */}
+        {/* ================================================================= */}
+        {step === 'country_currency' && (
+          <div className="space-y-8 animate-in fade-in duration-300 max-w-3xl mx-auto w-full">
+            <div className="text-center space-y-3">
+              <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black text-[#0A1020] tracking-tight leading-[1.08]">
+                Location &amp; Escrow Currency
+              </h1>
+              <p className="text-base sm:text-lg lg:text-xl text-slate-600 font-medium max-w-2xl mx-auto leading-relaxed">
+                Connecta settles escrow payouts directly in your preferred local African currency or USD.
+              </p>
+            </div>
+
+            <div className="bg-white p-7 sm:p-10 rounded-3xl border border-slate-200/90 shadow-xl space-y-7">
+              {/* Country Selection */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-extrabold text-slate-700 uppercase tracking-wider">
+                    Operating Country
+                  </label>
+                  <span className="text-xs text-slate-400 font-medium">Click to select or search</span>
+                </div>
+
+                {/* Interactive Clickable Country Input */}
+                <div ref={countryDropdownRef} className="relative">
+                  <button
+                    type="button"
+                    onClick={() => setIsCountryDropdownOpen((prev) => !prev)}
+                    className={`w-full bg-[#F5F7FC] hover:bg-slate-100/80 border text-left rounded-2xl px-5 py-4 flex items-center justify-between transition-all cursor-pointer group ${
+                      isCountryDropdownOpen
+                        ? 'border-[#4D78FF] ring-2 ring-[#4D78FF]/20 bg-white shadow-sm'
+                        : 'border-slate-200/90 hover:border-slate-300'
+                    }`}
+                    aria-haspopup="listbox"
+                    aria-expanded={isCountryDropdownOpen}
+                  >
+                    <div className="flex items-center gap-4 min-w-0">
+                      <span className="text-3xl leading-none shrink-0" role="img" aria-label={selectedCountryObj.name}>
+                        {selectedCountryObj.flag}
+                      </span>
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2">
+                          <span className="text-base sm:text-lg font-bold text-slate-900 truncate">
+                            {selectedCountryObj.name}
+                          </span>
+                          <span className="text-[11px] font-extrabold px-2 py-0.5 rounded-full bg-slate-200/70 text-slate-700 uppercase tracking-wider">
+                            {selectedCountryObj.code}
+                          </span>
+                        </div>
+                        <p className="text-xs text-slate-500 font-medium truncate mt-0.5">
+                          Settlement currency: <span className="font-bold text-slate-700">{selectedCountryObj.currencySymbol} ({selectedCountryObj.currency})</span>
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-3 pl-3 shrink-0">
+                      <span className="hidden sm:inline-block text-xs font-bold text-[#4D78FF] group-hover:underline">
+                        Change
+                      </span>
+                      <div className={`w-9 h-9 rounded-full flex items-center justify-center transition-all ${
+                        isCountryDropdownOpen ? 'bg-[#4D78FF] text-white rotate-180' : 'bg-slate-200/70 text-slate-600 group-hover:bg-slate-300/70'
+                      }`}>
+                        <ChevronDown className="w-4 h-4 transition-transform" />
+                      </div>
+                    </div>
+                  </button>
+
+                  {/* Dropdown Menu */}
+                  {isCountryDropdownOpen && (
+                    <div className="absolute top-full left-0 right-0 mt-2 z-50 bg-white rounded-3xl border border-slate-200 shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+                      {/* Search Filter Header */}
+                      <div className="p-3.5 border-b border-slate-100 bg-slate-50/70">
+                        <div className="relative">
+                          <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                          <input
+                            type="text"
+                            value={countrySearchQuery}
+                            onChange={(e) => setCountrySearchQuery(e.target.value)}
+                            placeholder="Search by country name, code, or currency..."
+                            className="w-full bg-white border border-slate-200 rounded-xl pl-10 pr-3.5 py-2.5 text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#4D78FF] focus:ring-2 focus:ring-[#4D78FF]/15 transition-all font-medium"
+                            autoFocus
+                          />
+                          {countrySearchQuery && (
+                            <button
+                              type="button"
+                              onClick={() => setCountrySearchQuery('')}
+                              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-xs font-bold"
+                            >
+                              Clear
+                            </button>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Country List Options */}
+                      <div className="max-h-72 overflow-y-auto divide-y divide-slate-100/80 p-2 scrollbar-thin">
+                        {filteredCountries.length === 0 ? (
+                          <div className="py-8 text-center text-slate-500 text-xs font-medium">
+                            No countries match &ldquo;{countrySearchQuery}&rdquo;
+                          </div>
+                        ) : (
+                          filteredCountries.map((c) => {
+                            const isSelected = selectedCountry.toLowerCase() === c.name.toLowerCase()
+                            return (
+                              <button
+                                key={c.code}
+                                type="button"
+                                onClick={() => handleCountrySelect(c)}
+                                className={`w-full px-4 py-3 rounded-2xl flex items-center justify-between transition-all cursor-pointer text-left ${
+                                  isSelected
+                                    ? 'bg-[#4D78FF]/10 text-[#0A1020]'
+                                    : 'hover:bg-slate-50 text-slate-700'
+                                }`}
+                              >
+                                <div className="flex items-center gap-3.5 min-w-0">
+                                  <span className="text-2xl sm:text-3xl shrink-0" role="img" aria-label={c.name}>
+                                    {c.flag}
+                                  </span>
+                                  <div className="min-w-0">
+                                    <div className="flex items-center gap-2">
+                                      <span className={`text-sm sm:text-base font-bold truncate ${isSelected ? 'text-[#0A1020]' : 'text-slate-800'}`}>
+                                        {c.name}
+                                      </span>
+                                      <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-slate-200/60 text-slate-600">
+                                        {c.code}
+                                      </span>
+                                    </div>
+                                    <span className="text-xs text-slate-500 font-medium">
+                                      Settles in {c.currencySymbol} ({c.currency})
+                                    </span>
+                                  </div>
+                                </div>
+
+                                {isSelected && (
+                                  <div className="w-6 h-6 rounded-full bg-[#10B981] text-white flex items-center justify-center shrink-0">
+                                    <Check className="w-3.5 h-3.5 stroke-[3]" />
+                                  </div>
+                                )}
+                              </button>
+                            )
+                          })
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Currency Selection */}
+              <div className="space-y-3 pt-3 border-t border-slate-100">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-extrabold text-slate-700 uppercase tracking-wider">
+                    Preferred Escrow Currency
+                  </label>
+                  <span className="text-xs text-slate-400 font-medium">Used for milestone locks &amp; payouts</span>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2.5">
+                  {CURRENCIES.map((cur) => {
+                    const isSelected = selectedCurrency === cur.code
+                    return (
+                      <button
+                        key={cur.code}
+                        type="button"
+                        onClick={() => setSelectedCurrency(cur.code)}
+                        className={`py-3.5 px-3 rounded-2xl border-2 text-center transition-all cursor-pointer ${
+                          isSelected
+                            ? 'border-[#0A1020] bg-[#0A1020] text-white shadow-sm'
+                            : 'border-slate-200/90 hover:border-slate-300 bg-[#F5F7FC] text-slate-700 font-bold'
+                        }`}
+                      >
+                        <div className="text-xs font-extrabold">{cur.symbol} {cur.code}</div>
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+
+              {/* Rate or Budget Expectation */}
+              {selectedRole === 'provider' && (
+                <div className="space-y-2 pt-3 border-t border-slate-100">
+                  <label className="text-xs font-extrabold text-slate-700 uppercase tracking-wider">
+                    Typical Base Day Rate / Hourly Rate ({selectedCurrency})
+                  </label>
+                  <div className="relative">
+                    <span className="absolute inset-y-0 left-0 pl-4 flex items-center text-sm font-extrabold text-slate-400">
+                      {selectedCurrency}
+                    </span>
+                    <input
+                      type="text"
+                      value={baseRate}
+                      onChange={(e) => setBaseRate(e.target.value)}
+                      placeholder="e.g. 15,000"
+                      className="w-full bg-[#F5F7FC] border border-slate-200/90 rounded-2xl pl-16 pr-4 py-4 text-sm sm:text-base text-slate-900 focus:outline-none focus:border-[#4D78FF] focus:bg-white focus:ring-2 focus:ring-[#4D78FF]/15 transition-all font-bold placeholder:text-slate-400"
+                    />
+                  </div>
+                  <p className="text-xs text-slate-500 font-medium">
+                    You can submit itemized custom minor-unit quotes for each individual project milestone.
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {/* Bottom Action Bar */}
+            <div className="flex items-center justify-between gap-4 pt-4 border-t border-slate-200/60 mt-6">
+              <button
+                type="button"
+                onClick={handleBack}
+                className="inline-flex items-center gap-2 px-5 py-3 rounded-full text-xs font-bold text-slate-600 bg-white hover:bg-slate-100 hover:text-[#0A1020] border border-slate-200 shadow-2xs hover:border-slate-300 transition-all cursor-pointer group active:scale-95"
+              >
+                <ArrowLeft className="w-3.5 h-3.5 transition-transform group-hover:-translate-x-0.5" />
+                <span>Back</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  if (selectedRole === 'provider') {
+                    setStep('sector')
+                  } else {
+                    setStep('client_industry')
+                  }
+                }}
+                className="inline-flex items-center gap-2 rounded-full px-8 py-3.5 text-xs sm:text-sm font-extrabold bg-[#0A1020] hover:bg-[#4D78FF] text-white shadow-md hover:scale-105 active:scale-95 transition-all cursor-pointer"
+              >
+                <span>{selectedRole === 'provider' ? 'Next: Primary Sector' : 'Next: Organization Sector'}</span>
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* ================================================================= */}
+        {/* STEP 6A-1: SECTOR SELECTION (SectorSelectionPage.tsx)             */}
+        {/* ================================================================= */}
+        {step === 'sector' && selectedRole === 'provider' && (
+          <div className="space-y-8 animate-in fade-in duration-300 max-w-4xl mx-auto w-full">
+            <div className="text-center space-y-3 max-w-2xl mx-auto">
+              <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black text-[#0A1020] tracking-tight leading-[1.08]">
+                Choose your trade or specialty
+              </h1>
+              <p className="text-base sm:text-lg lg:text-xl text-slate-600 font-medium leading-relaxed max-w-2xl mx-auto">
+                We calibrate project invitations, diagnostic toolsets, and guild verification based on your primary sector.
+              </p>
+            </div>
+
+            {/* Sectors Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
               {SECTORS.map((sec) => {
-                const Icon = sec.icon
                 const isSelected = selectedSectorId === sec.id
                 return (
                   <div
                     key={sec.id}
                     onClick={() => setSelectedSectorId(sec.id)}
-                    className={`p-5 rounded-2xl border-2 transition-all cursor-pointer flex items-start gap-4 relative ${
+                    className={`p-4 rounded-2xl border-2 cursor-pointer transition-all flex flex-col justify-between space-y-3 ${
                       isSelected
-                        ? 'border-[#0A1020] bg-white shadow-xl scale-[1.01]'
-                        : 'border-slate-200 bg-white/70 hover:border-slate-300 hover:bg-white'
+                        ? 'border-[#0A1020] bg-white shadow-lg ring-2 ring-[#10B981]'
+                        : 'border-slate-200 hover:border-slate-300 bg-white/70 hover:bg-white'
                     }`}
                   >
-                    <div
-                      className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 ${
-                        isSelected ? `${sec.color} text-white` : 'bg-slate-100 text-slate-700'
-                      }`}
-                    >
-                      <Icon className="w-5 h-5" />
+                    <div className="flex items-center justify-between">
+                      <div
+                        className={`w-9 h-9 rounded-xl flex items-center justify-center text-white ${sec.color}`}
+                      >
+                        {React.createElement(sec.icon, { className: 'w-4 h-4' })}
+                      </div>
+                      {isSelected && (
+                        <div className="w-5 h-5 rounded-full bg-[#10B981] text-white flex items-center justify-center">
+                          <Check className="w-3 h-3 stroke-[3]" />
+                        </div>
+                      )}
                     </div>
-
-                    <div className="flex-1 min-w-0 pr-6">
-                      <h4 className="text-sm font-extrabold text-[#0A1020] tracking-tight">
-                        {sec.name}
-                      </h4>
-                      <p className="text-xs text-slate-500 mt-1 line-clamp-2">
+                    <div>
+                      <div className="text-xs font-extrabold text-slate-900">{sec.name}</div>
+                      <p className="text-[11px] text-slate-500 mt-1 line-clamp-2 leading-relaxed">
                         {sec.description}
                       </p>
                     </div>
-
-                    {isSelected && (
-                      <div className="absolute top-4 right-4 w-5 h-5 rounded-full bg-[#10B981] text-white flex items-center justify-center">
-                        <Check className="w-3.5 h-3.5 stroke-[3]" />
-                      </div>
-                    )}
                   </div>
                 )
               })}
             </div>
 
-            <div className="flex items-center justify-between pt-6 border-t border-slate-200">
+            {/* Custom Sector Entry */}
+            {selectedSectorId === 'other' && (
+              <div className="bg-white p-4 rounded-2xl border border-slate-200 space-y-1.5 animate-in fade-in">
+                <label className="text-xs font-bold text-slate-700">Custom Sector Name</label>
+                <input
+                  type="text"
+                  value={customSectorName}
+                  onChange={(e) => setCustomSectorName(e.target.value)}
+                  placeholder="e.g. CCTV & Access Control Security"
+                  className="w-full bg-[#F5F7FC] border border-slate-200 rounded-xl px-3.5 py-2 text-xs text-slate-900 focus:outline-none focus:border-[#4D78FF] focus:bg-white"
+                />
+              </div>
+            )}
+
+            {/* Bottom Action Bar */}
+            <div className="flex items-center justify-between gap-4 pt-4 border-t border-slate-200/60 mt-6">
               <button
                 type="button"
-                onClick={() => setStep('role')}
-                className="text-xs font-bold text-slate-600 hover:text-slate-900"
+                onClick={handleBack}
+                className="inline-flex items-center gap-2 px-5 py-3 rounded-full text-xs font-bold text-slate-600 bg-white hover:bg-slate-100 hover:text-[#0A1020] border border-slate-200 shadow-2xs hover:border-slate-300 transition-all cursor-pointer group active:scale-95"
               >
-                ← Back to Roles
+                <ArrowLeft className="w-3.5 h-3.5 transition-transform group-hover:-translate-x-0.5" />
+                <span>Back</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => setStep('skills')}
-                className="inline-flex items-center gap-2 rounded-full bg-[#0A1020] hover:bg-[#4D78FF] text-white px-8 py-3 text-xs sm:text-sm font-bold shadow-md hover:scale-105 transition-all"
+                className="inline-flex items-center gap-2 rounded-full px-8 py-3.5 text-xs sm:text-sm font-extrabold bg-[#0A1020] hover:bg-[#4D78FF] text-white shadow-md hover:scale-105 active:scale-95 transition-all cursor-pointer"
               >
-                <span>Next: Choose Skills</span>
+                <span>Next: Select Skills ({currentSector.name})</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
             </div>
@@ -883,40 +1775,83 @@ function OnboardingContent() {
         )}
 
         {/* ================================================================= */}
-        {/* 4. SKILLS SELECTION (Provider Path - SkillSelectionPage)           */}
+        {/* STEP 6A-2: SKILLS SELECTION (SkillSelectionPage.tsx)               */}
         {/* ================================================================= */}
         {step === 'skills' && selectedRole === 'provider' && (
-          <div className="space-y-6 animate-in fade-in duration-300">
-            <div className="text-center space-y-2 max-w-xl mx-auto">
-              <span className="text-xs font-bold text-[#10B981] bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
-                Step 2 of 4: Specific Skills & Services
-              </span>
-              <h2 className="text-3xl sm:text-4xl font-black text-[#0A1020]">
-                What services do you provide?
-              </h2>
-              <p className="text-xs sm:text-sm text-slate-600">
-                Select from popular specializations in {currentSector.name} or type your own.
+          <div className="space-y-8 animate-in fade-in duration-300 max-w-3xl mx-auto w-full">
+            <div className="text-center space-y-3">
+              <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black text-[#0A1020] tracking-tight leading-[1.08]">
+                Select your verified skills
+              </h1>
+              <p className="text-base sm:text-lg lg:text-xl text-slate-600 font-medium max-w-2xl mx-auto leading-relaxed">
+                Pick up to 15 core skills. Clients use these tags to match and disburse itemized tasks.
               </p>
             </div>
 
-            {/* Search and custom skill add */}
-            <div className="bg-white p-4 rounded-2xl border-2 border-slate-200 shadow-sm space-y-3">
-              <div className="flex items-center gap-2 bg-slate-50 px-3.5 py-2 rounded-xl border border-slate-200">
-                <Search className="w-4 h-4 text-slate-400 shrink-0" />
-                <input
-                  type="text"
-                  value={skillSearchQuery}
-                  onChange={(e) => setSkillSearchQuery(e.target.value)}
-                  placeholder="Filter skills (e.g. Inverter, Screen, Conduit, Leak)..."
-                  className="w-full bg-transparent text-xs sm:text-sm text-[#0A1020] focus:outline-none"
-                />
+            <div className="bg-white p-6 sm:p-8 rounded-3xl border border-slate-200/80 shadow-xl space-y-5">
+              {/* Search Bar & Custom Skill Entry */}
+              <div className="flex flex-col sm:flex-row gap-2">
+                <div className="relative flex-1">
+                  <Search className="w-4 h-4 absolute left-3.5 top-3 text-slate-400" />
+                  <input
+                    type="text"
+                    value={skillSearchQuery}
+                    onChange={(e) => setSkillSearchQuery(e.target.value)}
+                    placeholder="Search trade skills or technical specialties..."
+                    className="w-full bg-[#F5F7FC] border border-slate-200 rounded-xl pl-10 pr-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-[#4D78FF] focus:bg-white"
+                  />
+                </div>
+
+                <form onSubmit={handleAddCustomSkill} className="flex gap-2">
+                  <input
+                    type="text"
+                    value={customSkillInput}
+                    onChange={(e) => setCustomSkillInput(e.target.value)}
+                    placeholder="Add custom skill"
+                    className="bg-[#F5F7FC] border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-[#4D78FF] focus:bg-white"
+                  />
+                  <button
+                    type="submit"
+                    className="px-4 py-2.5 rounded-xl bg-slate-900 text-white font-bold text-xs hover:bg-[#4D78FF] transition-all cursor-pointer shrink-0"
+                  >
+                    + Add
+                  </button>
+                </form>
               </div>
 
-              {/* Skill pills pool */}
-              <div className="pt-2">
-                <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2.5">
-                  Popular {currentSector.name} Capabilities:
+              {/* Selected Skills Chips */}
+              {selectedSkills.length > 0 && (
+                <div className="p-3 bg-emerald-50/60 rounded-2xl border border-emerald-200 space-y-2">
+                  <div className="flex items-center justify-between text-[11px] font-extrabold text-emerald-900">
+                    <span>Selected Skills ({selectedSkills.length}/15)</span>
+                    <button
+                      type="button"
+                      onClick={() => setSelectedSkills([])}
+                      className="text-emerald-700 hover:underline cursor-pointer"
+                    >
+                      Clear all
+                    </button>
+                  </div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {selectedSkills.map((s) => (
+                      <span
+                        key={s}
+                        className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-[#10B981] text-white shadow-xs"
+                      >
+                        <span>{s}</span>
+                        <X
+                          className="w-3 h-3 cursor-pointer hover:opacity-80"
+                          onClick={() => toggleSkill(s)}
+                        />
+                      </span>
+                    ))}
+                  </div>
                 </div>
+              )}
+
+              {/* Popular / Filtered Skills Grid */}
+              <div className="space-y-2">
+                <span className="text-xs font-bold text-slate-700">Recommended Skills</span>
                 <div className="flex flex-wrap gap-2">
                   {displayedSkills.map((skill) => {
                     const isSelected = selectedSkills.includes(skill)
@@ -925,67 +1860,42 @@ function OnboardingContent() {
                         key={skill}
                         type="button"
                         onClick={() => toggleSkill(skill)}
-                        className={`text-xs font-bold px-3.5 py-2 rounded-full transition-all flex items-center gap-1.5 cursor-pointer ${
+                        className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all border cursor-pointer ${
                           isSelected
-                            ? 'bg-[#0A1020] text-white shadow-md scale-105'
-                            : 'bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-200'
+                            ? 'bg-[#10B981] text-white border-[#10B981] shadow-xs'
+                            : 'bg-[#F5F7FC] text-slate-700 border-slate-200 hover:border-slate-300 hover:bg-white'
                         }`}
                       >
-                        {isSelected && <Check className="w-3.5 h-3.5 text-[#10B981] stroke-[3]" />}
-                        <span>{skill}</span>
+                        {isSelected ? `✓ ${skill}` : `+ ${skill}`}
                       </button>
                     )
                   })}
                 </div>
               </div>
-
-              {/* Custom skill input */}
-              <form onSubmit={handleAddCustomSkill} className="pt-3 border-t border-slate-100 flex gap-2">
-                <input
-                  type="text"
-                  value={customSkillInput}
-                  onChange={(e) => setCustomSkillInput(e.target.value)}
-                  placeholder="Add custom specialization..."
-                  className="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs focus:outline-none focus:border-black"
-                />
-                <button
-                  type="submit"
-                  className="bg-slate-200 hover:bg-slate-800 hover:text-white text-slate-800 text-xs font-bold px-4 py-2 rounded-xl transition-colors"
-                >
-                  + Add
-                </button>
-              </form>
             </div>
 
-            {/* Selected Skills Summary */}
-            <div className="p-4 rounded-2xl bg-emerald-50/60 border border-emerald-200 text-xs flex items-center justify-between">
-              <div className="flex items-center gap-2 font-bold text-emerald-900">
-                <BadgeCheck className="w-4 h-4 text-[#10B981]" />
-                <span>Selected Skills: {selectedSkills.length} of 12</span>
-              </div>
-              <span className="text-slate-500">Clients discover you by these tags</span>
-            </div>
-
-            <div className="flex items-center justify-between pt-4 border-t border-slate-200">
+            {/* Bottom Action Bar */}
+            <div className="flex items-center justify-between gap-4 pt-4 border-t border-slate-200/60 mt-6">
               <button
                 type="button"
-                onClick={() => setStep('sector')}
-                className="text-xs font-bold text-slate-600 hover:text-slate-900"
+                onClick={handleBack}
+                className="inline-flex items-center gap-2 px-5 py-3 rounded-full text-xs font-bold text-slate-600 bg-white hover:bg-slate-100 hover:text-[#0A1020] border border-slate-200 shadow-2xs hover:border-slate-300 transition-all cursor-pointer group active:scale-95"
               >
-                ← Back to Sectors
+                <ArrowLeft className="w-3.5 h-3.5 transition-transform group-hover:-translate-x-0.5" />
+                <span>Back</span>
               </button>
 
               <button
                 type="button"
                 disabled={selectedSkills.length === 0}
-                onClick={() => setStep('profile')}
-                className={`inline-flex items-center gap-2 rounded-full px-8 py-3 text-xs sm:text-sm font-bold shadow-md transition-all ${
+                onClick={() => setStep('provider_profile')}
+                className={`inline-flex items-center gap-2 rounded-full px-8 py-3.5 text-xs sm:text-sm font-extrabold shadow-md transition-all ${
                   selectedSkills.length > 0
-                    ? 'bg-[#0A1020] hover:bg-[#4D78FF] text-white hover:scale-105 cursor-pointer'
-                    : 'bg-slate-300 text-slate-500 cursor-not-allowed'
+                    ? 'bg-[#0A1020] hover:bg-[#4D78FF] text-white hover:scale-105 active:scale-95 cursor-pointer'
+                    : 'bg-slate-200 text-slate-400 cursor-not-allowed border border-slate-200 shadow-none'
                 }`}
               >
-                <span>Next: Professional Profile</span>
+                <span>Next: Build Specialist Profile</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
             </div>
@@ -993,320 +1903,169 @@ function OnboardingContent() {
         )}
 
         {/* ================================================================= */}
-        {/* 5. PROFILE & IDENTITY SETUP (Shared by Role)                      */}
+        {/* STEP 6A-3: SPECIALIST PROFILE SETUP (FreelancerProfileSetupPage)   */}
         {/* ================================================================= */}
-        {step === 'profile' && (
-          <div className="space-y-6 animate-in fade-in duration-300 max-w-2xl mx-auto w-full">
-            <div className="text-center space-y-2">
-              <span className="text-xs font-bold text-[#10B981] bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
-                {selectedRole === 'provider' ? 'Step 3 of 4: Public Profile' : 'Step 1 of 2: Your Details'}
-              </span>
-              <h2 className="text-3xl sm:text-4xl font-black text-[#0A1020]">
-                {selectedRole === 'provider'
-                  ? 'Set Up Your Trade Profile'
-                  : 'Tell Us About Your Household or Business'}
-              </h2>
-              <p className="text-xs sm:text-sm text-slate-600">
-                {selectedRole === 'provider'
-                  ? 'This information appears on your public Connecta verified profile.'
-                  : 'We tailor emergency dispatch and local quotes to your exact needs.'}
+        {step === 'provider_profile' && selectedRole === 'provider' && (
+          <div className="space-y-8 animate-in fade-in duration-300 max-w-2xl mx-auto w-full">
+            <div className="text-center space-y-3">
+              <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black text-[#0A1020] tracking-tight leading-[1.08]">
+                Build your specialist profile
+              </h1>
+              <p className="text-base sm:text-lg lg:text-xl text-slate-600 font-medium max-w-2xl mx-auto leading-relaxed">
+                Presented to clients and Collabo Squad leads when dispatching high-impact projects.
               </p>
             </div>
 
-            <div className="bg-white p-6 sm:p-8 rounded-3xl border-2 border-black shadow-xl space-y-5">
-              {/* If Client Role */}
-              {selectedRole === 'client' ? (
-                <>
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-extrabold uppercase text-slate-700">
-                      Who is requesting services?
-                    </label>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                      {CLIENT_INDUSTRIES.map((ind) => (
-                        <div
-                          key={ind.id}
-                          onClick={() => setClientIndustry(ind.id)}
-                          className={`p-3.5 rounded-xl border-2 cursor-pointer transition-all ${
-                            clientIndustry === ind.id
-                              ? 'border-[#0A1020] bg-slate-50 font-bold text-[#0A1020]'
-                              : 'border-slate-200 hover:border-slate-300 text-slate-700'
-                          }`}
-                        >
-                          <div className="text-xs font-extrabold">{ind.title}</div>
-                          <div className="text-[11px] text-slate-500 mt-0.5 line-clamp-1">
-                            {ind.desc}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
+            <div className="bg-white p-6 sm:p-8 rounded-3xl border border-slate-200/80 shadow-xl space-y-5">
+              {/* Photo Upload */}
+              <div className="flex items-center gap-5 pb-4 border-b border-slate-100">
+                <div className="relative w-20 h-20 rounded-2xl bg-slate-100 border-2 border-dashed border-slate-300 flex items-center justify-center overflow-hidden shrink-0">
+                  {profileImage ? (
+                    <Image src={profileImage} alt="Profile" fill className="object-cover" />
+                  ) : (
+                    <Camera className="w-7 h-7 text-slate-400" />
+                  )}
+                </div>
 
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-extrabold uppercase text-slate-700">
-                      Primary Service Urgency
-                    </label>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                      {CLIENT_GOALS.map((g) => (
-                        <div
-                          key={g.id}
-                          onClick={() => setClientGoal(g.id)}
-                          className={`p-3.5 rounded-xl border-2 cursor-pointer transition-all ${
-                            clientGoal === g.id
-                              ? 'border-[#10B981] bg-emerald-50/50 text-[#0A1020]'
-                              : 'border-slate-200 hover:border-slate-300 text-slate-700'
-                          }`}
-                        >
-                          <span className="text-[10px] font-extrabold text-[#10B981] bg-white px-2 py-0.5 rounded-full border border-emerald-200">
-                            {g.tag}
-                          </span>
-                          <div className="text-xs font-bold mt-1.5">{g.title}</div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
-                    <div className="space-y-1">
-                      <label className="text-xs font-bold text-slate-700">Your Full Name</label>
-                      <input
-                        type="text"
-                        value={clientContactName}
-                        onChange={(e) => setClientContactName(e.target.value)}
-                        placeholder="e.g. Amina Bello or Alhaji Garba"
-                        className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-black"
-                        required
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <label className="text-xs font-bold text-slate-700">Phone Number (WhatsApp / Calls)</label>
-                      <input
-                        type="tel"
-                        value={clientPhone}
-                        onChange={(e) => setClientPhone(e.target.value)}
-                        placeholder="e.g. +234 803 123 4567"
-                        className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-black"
-                        required
-                      />
-                    </div>
-                  </div>
-
-                  <div className="space-y-1">
-                    <label className="text-xs font-bold text-slate-700">Primary Metropolitan Zone</label>
-                    <select
-                      value={clientZone}
-                      onChange={(e) => setClientZone(e.target.value)}
-                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-black"
-                    >
-                      {KANO_METRO_ZONES.map((zone) => (
-                        <option key={zone} value={zone}>
-                          {zone}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                </>
-              ) : (
-                /* Provider Profile Form */
-                <>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="space-y-1">
-                      <label className="text-xs font-bold text-slate-700">Full Name</label>
-                      <input
-                        type="text"
-                        value={fullName}
-                        onChange={(e) => setFullName(e.target.value)}
-                        placeholder="e.g. Ibrahim Aliyu"
-                        className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-black"
-                        required
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <label className="text-xs font-bold text-slate-700">Workshop or Business Name</label>
-                      <input
-                        type="text"
-                        value={businessName}
-                        onChange={(e) => setBusinessName(e.target.value)}
-                        placeholder="e.g. Arewa Solar Engineering"
-                        className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-black"
-                        required
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="space-y-1">
-                      <label className="text-xs font-bold text-slate-700">Phone Number</label>
-                      <input
-                        type="tel"
-                        value={phone}
-                        onChange={(e) => setPhone(e.target.value)}
-                        placeholder="+234 803..."
-                        className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-black"
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <label className="text-xs font-bold text-slate-700">Years of Experience</label>
-                      <select
-                        value={experienceYears}
-                        onChange={(e) => setExperienceYears(e.target.value)}
-                        className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-black"
-                      >
-                        <option value="1">1–2 years (Emerging)</option>
-                        <option value="3">3–5 years (Skilled)</option>
-                        <option value="8">6–10 years (Senior)</option>
-                        <option value="12">10+ years (Master Guild)</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="space-y-1">
-                      <label className="text-xs font-bold text-slate-700">Location Base Zone</label>
-                      <select
-                        value={locationZone}
-                        onChange={(e) => setLocationZone(e.target.value)}
-                        className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-black"
-                      >
-                        {KANO_METRO_ZONES.map((zone) => (
-                          <option key={zone} value={zone}>
-                            {zone}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-
-                    <div className="space-y-1">
-                      <label className="text-xs font-bold text-slate-700">Typical Starting Rate (₦ NGN)</label>
-                      <input
-                        type="text"
-                        value={baseRate}
-                        onChange={(e) => setBaseRate(e.target.value)}
-                        placeholder="e.g. 10,000"
-                        className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-black"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="space-y-1">
-                    <label className="text-xs font-bold text-slate-700">Short Bio / Trade Background</label>
-                    <textarea
-                      value={bio}
-                      onChange={(e) => setBio(e.target.value)}
-                      rows={3}
-                      placeholder="Explain your trade specialty, past notable installations, or workshop setup..."
-                      className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs text-slate-900 focus:outline-none focus:border-black"
+                <div className="space-y-1">
+                  <div className="text-xs font-bold text-slate-800">Profile Photo or Guild Logo</div>
+                  <p className="text-[11px] text-slate-500">
+                    JPG or PNG under 5MB. Clear face or professional badge recommended.
+                  </p>
+                  <label className="inline-block mt-1">
+                    <span className="text-xs font-extrabold text-[#4D78FF] hover:underline cursor-pointer">
+                      Upload photo
+                    </span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageChange}
+                      className="hidden"
                     />
+                  </label>
+                </div>
+              </div>
+
+              {/* Title / Headline */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-700">Professional Title / Headline</label>
+                <input
+                  type="text"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  placeholder="e.g. Master Solar & Inverter Engineer or Senior Full-Stack Developer"
+                  className="w-full bg-[#F5F7FC] border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-[#4D78FF] focus:bg-white"
+                  required
+                />
+              </div>
+
+              {/* Work Type & Experience */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-slate-700">Preferred Work Model</label>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setWorkType('freelancing')}
+                      className={`py-2 px-3 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
+                        workType === 'freelancing'
+                          ? 'border-[#4D78FF] bg-[#4D78FF]/10 text-[#0A1020]'
+                          : 'border-slate-200 bg-[#F5F7FC] text-slate-600'
+                      }`}
+                    >
+                      Freelance / Remote
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setWorkType('permanent')}
+                      className={`py-2 px-3 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
+                        workType === 'permanent'
+                          ? 'border-[#4D78FF] bg-[#4D78FF]/10 text-[#0A1020]'
+                          : 'border-slate-200 bg-[#F5F7FC] text-slate-600'
+                      }`}
+                    >
+                      Full-Time / Onsite
+                    </button>
                   </div>
-                </>
-              )}
-            </div>
+                </div>
 
-            <div className="flex items-center justify-between pt-4 border-t border-slate-200">
-              <button
-                type="button"
-                onClick={() => {
-                  if (selectedRole === 'client') setStep('role')
-                  if (selectedRole === 'provider') setStep('skills')
-                }}
-                className="text-xs font-bold text-slate-600 hover:text-slate-900"
-              >
-                ← Back
-              </button>
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-slate-700">Years of Experience</label>
+                  <select
+                    value={experienceYears}
+                    onChange={(e) => setExperienceYears(e.target.value)}
+                    className="w-full bg-[#F5F7FC] border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-[#4D78FF] focus:bg-white"
+                  >
+                    <option value="1">1+ Year (Entry Level)</option>
+                    <option value="3">3+ Years (Intermediate)</option>
+                    <option value="5">5+ Years (Mid-Senior)</option>
+                    <option value="8">8+ Years (Lead / Master Guild)</option>
+                    <option value="12">12+ Years (Industry Veteran)</option>
+                  </select>
+                </div>
+              </div>
 
-              <button
-                type="button"
-                onClick={() => {
-                  if (selectedRole === 'client') setStep('progress')
-                  if (selectedRole === 'provider') setStep('verification')
-                }}
-                className="inline-flex items-center gap-2 rounded-full bg-[#0A1020] hover:bg-[#4D78FF] text-white px-8 py-3 text-xs sm:text-sm font-bold shadow-md hover:scale-105 transition-all"
-              >
-                <span>{selectedRole === 'client' ? 'Finalize Workspace' : 'Next: Verification'}</span>
-                <ArrowRight className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
-        )}
+              {/* Bio / Summary */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-700">Bio &amp; Technical Capabilities</label>
+                <textarea
+                  value={bio}
+                  onChange={(e) => setBio(e.target.value)}
+                  rows={3}
+                  placeholder="Detail your equipment certifications, notable installations, previous client outcomes, or diagnostic workflow..."
+                  className="w-full bg-[#F5F7FC] border border-slate-200 rounded-xl p-3 text-xs text-slate-900 focus:outline-none focus:border-[#4D78FF] focus:bg-white"
+                  required
+                />
+              </div>
 
-        {/* ================================================================= */}
-        {/* 6. VERIFICATION (Provider Path - NIN/CAC & Workshop Address)       */}
-        {/* ================================================================= */}
-        {step === 'verification' && selectedRole === 'provider' && (
-          <div className="space-y-6 animate-in fade-in duration-300 max-w-2xl mx-auto w-full">
-            <div className="text-center space-y-2">
-              <span className="text-xs font-bold text-[#10B981] bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
-                Step 4 of 4: Trust & Identity Standard
-              </span>
-              <h2 className="text-3xl sm:text-4xl font-black text-[#0A1020]">
-                Government & Workshop Audit
-              </h2>
-              <p className="text-xs sm:text-sm text-slate-600">
-                To receive the official Connecta Verified Artisan badge and high-value project dispatch.
-              </p>
-            </div>
-
-            <div className="bg-white p-6 sm:p-8 rounded-3xl border-2 border-black shadow-xl space-y-5">
-              <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-700">
-                  National Identity Number (NIN) or CAC Registration Number
-                </label>
-                <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5">
-                  <Lock className="w-4 h-4 text-slate-400" />
+              {/* NIN / National Identity (Verification) */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-slate-100">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-slate-700">National ID / NIN (Optional for badge)</label>
                   <input
                     type="text"
                     value={ninNumber}
                     onChange={(e) => setNinNumber(e.target.value)}
-                    placeholder="e.g. 11-digit NIN or RC/BN Number"
-                    className="w-full bg-transparent text-xs text-slate-900 focus:outline-none"
+                    placeholder="e.g. 11-digit NIN or Passport No"
+                    className="w-full bg-[#F5F7FC] border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-[#4D78FF] focus:bg-white"
                   />
                 </div>
-                <p className="text-[11px] text-slate-400">
-                  Your identity number is securely hashed and verified with government registry.
-                </p>
-              </div>
 
-              <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-700">
-                  Physical Workshop / Office Address
-                </label>
-                <input
-                  type="text"
-                  value={workshopAddress}
-                  onChange={(e) => setWorkshopAddress(e.target.value)}
-                  placeholder="e.g. Shop 14, Bompai Industrial Layout, Kano"
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-black"
-                />
-              </div>
-
-              {/* Guarantees Box */}
-              <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 space-y-2 text-xs text-emerald-900">
-                <div className="font-extrabold flex items-center gap-1.5">
-                  <ShieldCheck className="w-4 h-4 text-[#10B981]" />
-                  <span>Connecta Provider Guarantee</span>
-                </div>
-                <div className="text-[11px] text-emerald-800 leading-relaxed">
-                  ✓ Verified badge displayed on your quotes to customers<br />
-                  ✓ Milestone escrow protection on all jobs (100% payout guaranteed upon work approval)<br />
-                  ✓ Transparent 10% platform fee only on completed contracts
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-slate-700">Workshop / Lab Address (Trades)</label>
+                  <input
+                    type="text"
+                    value={workshopAddress}
+                    onChange={(e) => setWorkshopAddress(e.target.value)}
+                    placeholder="e.g. Shop 4B, Farm Centre, Kano"
+                    className="w-full bg-[#F5F7FC] border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-[#4D78FF] focus:bg-white"
+                  />
                 </div>
               </div>
             </div>
 
-            <div className="flex items-center justify-between pt-4 border-t border-slate-200">
+            {/* Bottom Action Bar */}
+            <div className="flex items-center justify-between gap-4 pt-4 border-t border-slate-200/60 mt-6">
               <button
                 type="button"
-                onClick={() => setStep('profile')}
-                className="text-xs font-bold text-slate-600 hover:text-slate-900"
+                onClick={handleBack}
+                className="inline-flex items-center gap-2 px-5 py-3 rounded-full text-xs font-bold text-slate-600 bg-white hover:bg-slate-100 hover:text-[#0A1020] border border-slate-200 shadow-2xs hover:border-slate-300 transition-all cursor-pointer group active:scale-95"
               >
-                ← Back to Profile
+                <ArrowLeft className="w-3.5 h-3.5 transition-transform group-hover:-translate-x-0.5" />
+                <span>Back</span>
               </button>
 
               <button
                 type="button"
+                disabled={!title.trim() || !bio.trim()}
                 onClick={() => setStep('progress')}
-                className="inline-flex items-center gap-2 rounded-full bg-[#10B981] hover:bg-[#059669] text-white px-8 py-3 text-xs sm:text-sm font-extrabold shadow-md hover:scale-105 transition-all"
+                className={`inline-flex items-center gap-2 rounded-full px-8 py-3.5 text-xs sm:text-sm font-extrabold shadow-md transition-all ${
+                  title.trim() && bio.trim()
+                    ? 'bg-[#10B981] hover:bg-[#059669] text-white hover:scale-105 active:scale-95 cursor-pointer'
+                    : 'bg-slate-200 text-slate-400 cursor-not-allowed border border-slate-200 shadow-none'
+                }`}
               >
-                <span>Save & Initialize Workspace</span>
+                <span>Save Profile &amp; Setup Workspace</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
             </div>
@@ -1314,155 +2073,560 @@ function OnboardingContent() {
         )}
 
         {/* ================================================================= */}
-        {/* 7. PROGRESS INITIALIZATION (ProfileSetupProgressPage adaptation)   */}
+        {/* STEP 6B-1: CLIENT INDUSTRY (ClientIndustryPage.tsx)               */}
         {/* ================================================================= */}
-        {step === 'progress' && (
-          <div className="max-w-md mx-auto text-center space-y-8 animate-in fade-in duration-300">
-            <div className="w-20 h-20 rounded-3xl bg-[#0A2614] text-[#10B981] flex items-center justify-center mx-auto shadow-2xl relative">
-              <Sparkles className="w-10 h-10 animate-spin" style={{ animationDuration: '4s' }} />
-              <div className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-[#F59E0B] flex items-center justify-center text-white text-[10px] font-bold">
-                ✓
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <h3 className="text-2xl sm:text-3xl font-black text-[#0A1020] tracking-tight">
-                Setting Up Your Workspace
-              </h3>
-              <p className="text-xs sm:text-sm text-slate-600">
-                Configuring your verified credentials, escrow wallet, and local zone routing.
+        {step === 'client_industry' && selectedRole === 'client' && (
+          <div className="space-y-8 animate-in fade-in duration-300 max-w-3xl mx-auto w-full">
+            <div className="text-center space-y-3">
+              <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black text-[#0A1020] tracking-tight leading-[1.08]">
+                What is your company sector?
+              </h1>
+              <p className="text-base sm:text-lg lg:text-xl text-slate-600 font-medium max-w-2xl mx-auto leading-relaxed">
+                Helps us match you with top-rated talent specialized in your market domain.
               </p>
             </div>
 
-            {/* Progress bar */}
-            <div className="space-y-2">
-              <div className="w-full bg-slate-200 h-3 rounded-full overflow-hidden p-0.5 border border-slate-300">
-                <div
-                  className="bg-[#10B981] h-full rounded-full transition-all duration-100 ease-out"
-                  style={{ width: `${progressPercent}%` }}
-                />
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+              {CLIENT_INDUSTRIES.map((ind) => {
+                const isSelected = clientIndustry === ind.id
+                return (
+                  <div
+                    key={ind.id}
+                    onClick={() => setClientIndustry(ind.id)}
+                    className={`p-4 rounded-2xl border-2 cursor-pointer transition-all flex flex-col justify-between space-y-3 ${
+                      isSelected
+                        ? 'border-[#0A1020] bg-white shadow-lg ring-2 ring-[#4D78FF]'
+                        : 'border-slate-200 hover:border-slate-300 bg-white/70 hover:bg-white'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center text-slate-700">
+                        {React.createElement(ind.icon, { className: 'w-4 h-4' })}
+                      </div>
+                      {isSelected && (
+                        <div className="w-5 h-5 rounded-full bg-[#4D78FF] text-white flex items-center justify-center">
+                          <Check className="w-3 h-3 stroke-[3]" />
+                        </div>
+                      )}
+                    </div>
+                    <div>
+                      <div className="text-xs font-extrabold text-slate-900">{ind.title}</div>
+                      <p className="text-[11px] text-slate-500 mt-1 line-clamp-2 leading-relaxed">
+                        {ind.desc}
+                      </p>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+
+            {/* Bottom Action Bar */}
+            <div className="flex items-center justify-between gap-4 pt-4 border-t border-slate-200/60 mt-6">
+              <button
+                type="button"
+                onClick={handleBack}
+                className="inline-flex items-center gap-2 px-5 py-3 rounded-full text-xs font-bold text-slate-600 bg-white hover:bg-slate-100 hover:text-[#0A1020] border border-slate-200 shadow-2xs hover:border-slate-300 transition-all cursor-pointer group active:scale-95"
+              >
+                <ArrowLeft className="w-3.5 h-3.5 transition-transform group-hover:-translate-x-0.5" />
+                <span>Back</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setStep('client_goals')}
+                className="inline-flex items-center gap-2 rounded-full px-8 py-3.5 text-xs sm:text-sm font-extrabold bg-[#0A1020] hover:bg-[#4D78FF] text-white shadow-md hover:scale-105 active:scale-95 transition-all cursor-pointer"
+              >
+                <span>Next: Hiring Goals</span>
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* ================================================================= */}
+        {/* STEP 6B-2: CLIENT GOALS & SIZES (ClientGoalsPage.tsx)             */}
+        {/* ================================================================= */}
+        {step === 'client_goals' && selectedRole === 'client' && (
+          <div className="space-y-8 animate-in fade-in duration-300 max-w-2xl mx-auto w-full">
+            <div className="text-center space-y-3">
+              <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black text-[#0A1020] tracking-tight leading-[1.08]">
+                What is your primary hiring goal?
+              </h1>
+              <p className="text-base sm:text-lg lg:text-xl text-slate-600 font-medium max-w-2xl mx-auto leading-relaxed">
+                Customizes your workspace for one-off tasks, milestone squads, or ongoing retainers.
+              </p>
+            </div>
+
+            <div className="bg-white p-6 sm:p-8 rounded-3xl border border-slate-200/80 shadow-xl space-y-5">
+              {/* Hiring Goals */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {CLIENT_GOALS.map((goal) => {
+                  const isSelected = clientGoal === goal.id
+                  return (
+                    <div
+                      key={goal.id}
+                      onClick={() => setClientGoal(goal.id)}
+                      className={`p-4 rounded-2xl border-2 cursor-pointer transition-all flex flex-col justify-between space-y-2.5 ${
+                        isSelected
+                          ? 'border-[#0A1020] bg-slate-50 shadow-xs ring-2 ring-[#4D78FF]'
+                          : 'border-slate-200 hover:border-slate-300 bg-white'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="text-[10px] font-black uppercase tracking-wider text-[#4D78FF] bg-[#4D78FF]/10 px-2.5 py-0.5 rounded-full border border-[#4D78FF]/20">
+                          {goal.tag}
+                        </span>
+                        {isSelected && (
+                          <div className="w-4 h-4 rounded-full bg-[#4D78FF] text-white flex items-center justify-center">
+                            <Check className="w-2.5 h-2.5 stroke-[3]" />
+                          </div>
+                        )}
+                      </div>
+                      <div>
+                        <div className="text-xs font-extrabold text-slate-900">{goal.title}</div>
+                        <p className="text-[11px] text-slate-500 mt-1 line-clamp-2 leading-relaxed">
+                          {goal.desc}
+                        </p>
+                      </div>
+                    </div>
+                  )
+                })}
               </div>
-              <div className="flex justify-between text-xs font-bold text-slate-500">
-                <span>Initializing...</span>
-                <span>{progressPercent}%</span>
+
+              {/* Company Size */}
+              <div className="space-y-1.5 pt-2 border-t border-slate-100">
+                <label className="text-xs font-bold text-slate-700">Current Team / Company Size</label>
+                <select
+                  value={companySize}
+                  onChange={(e) => setCompanySize(e.target.value)}
+                  className="w-full bg-[#F5F7FC] border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-[#4D78FF] focus:bg-white"
+                >
+                  {COMPANY_SIZES.map((sz) => (
+                    <option key={sz} value={sz}>
+                      {sz}
+                    </option>
+                  ))}
+                </select>
               </div>
             </div>
 
-            {/* Loading step checklist */}
-            <div className="bg-white rounded-2xl p-4 border border-slate-200 text-left space-y-2.5 text-xs">
-              <div className="flex items-center gap-2.5 text-slate-700">
-                <CheckCircle2
-                  className={`w-4 h-4 ${
-                    activeProgressTask >= 0 ? 'text-[#10B981]' : 'text-slate-300'
-                  }`}
-                />
-                <span className={activeProgressTask >= 0 ? 'font-bold' : ''}>
-                  Saving account credentials & trade profile
-                </span>
+            {/* Bottom Action Bar */}
+            <div className="flex items-center justify-between gap-4 pt-4 border-t border-slate-200/60 mt-6">
+              <button
+                type="button"
+                onClick={handleBack}
+                className="inline-flex items-center gap-2 px-5 py-3 rounded-full text-xs font-bold text-slate-600 bg-white hover:bg-slate-100 hover:text-[#0A1020] border border-slate-200 shadow-2xs hover:border-slate-300 transition-all cursor-pointer group active:scale-95"
+              >
+                <ArrowLeft className="w-3.5 h-3.5 transition-transform group-hover:-translate-x-0.5" />
+                <span>Back</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setStep('client_profile')}
+                className="inline-flex items-center gap-2 rounded-full px-8 py-3.5 text-xs sm:text-sm font-extrabold bg-[#0A1020] hover:bg-[#4D78FF] text-white shadow-md hover:scale-105 active:scale-95 transition-all cursor-pointer"
+              >
+                <span>Next: Finalize Company Profile</span>
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* ================================================================= */}
+        {/* STEP 6B-3: CLIENT PROFILE SETUP (ClientProfileSetupPage.tsx)       */}
+        {/* ================================================================= */}
+        {step === 'client_profile' && selectedRole === 'client' && (
+          <div className="space-y-8 animate-in fade-in duration-300 max-w-2xl mx-auto w-full">
+            <div className="text-center space-y-3">
+              <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black text-[#0A1020] tracking-tight leading-[1.08]">
+                Finalize your company profile
+              </h1>
+              <p className="text-base sm:text-lg lg:text-xl text-slate-600 font-medium max-w-2xl mx-auto leading-relaxed">
+                Help specialists and candidate squads understand your company and work culture.
+              </p>
+            </div>
+
+            <div className="bg-white p-6 sm:p-8 rounded-3xl border border-slate-200/80 shadow-xl space-y-5">
+              {/* Logo Upload */}
+              <div className="flex items-center gap-5 pb-4 border-b border-slate-100">
+                <div className="relative w-20 h-20 rounded-2xl bg-slate-100 border-2 border-dashed border-slate-300 flex items-center justify-center overflow-hidden shrink-0">
+                  {profileImage ? (
+                    <Image src={profileImage} alt="Logo" fill className="object-cover" />
+                  ) : (
+                    <Building2 className="w-7 h-7 text-slate-400" />
+                  )}
+                </div>
+
+                <div className="space-y-1">
+                  <div className="text-xs font-bold text-slate-800">Company Logo or Brand Icon</div>
+                  <p className="text-[11px] text-slate-500">
+                    JPG or PNG under 5MB. Builds trust with specialists when posting jobs.
+                  </p>
+                  <label className="inline-block mt-1">
+                    <span className="text-xs font-extrabold text-[#4D78FF] hover:underline cursor-pointer">
+                      Upload brand logo
+                    </span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageChange}
+                      className="hidden"
+                    />
+                  </label>
+                </div>
               </div>
-              <div className="flex items-center gap-2.5 text-slate-700">
-                <CheckCircle2
-                  className={`w-4 h-4 ${
-                    activeProgressTask >= 1 ? 'text-[#10B981]' : 'text-slate-300'
-                  }`}
+
+              {/* Company Name */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-700">Company or Project Brand Name</label>
+                <input
+                  type="text"
+                  value={companyName}
+                  onChange={(e) => setCompanyName(e.target.value)}
+                  placeholder="e.g. Zenith Tech Labs or Bello Residence"
+                  className="w-full bg-[#F5F7FC] border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-[#4D78FF] focus:bg-white"
+                  required
                 />
-                <span className={activeProgressTask >= 1 ? 'font-bold' : ''}>
-                  Connecting to Kano Metropolitan dispatch network
-                </span>
               </div>
-              <div className="flex items-center gap-2.5 text-slate-700">
-                <CheckCircle2
-                  className={`w-4 h-4 ${
-                    activeProgressTask >= 2 ? 'text-[#10B981]' : 'text-slate-300'
-                  }`}
+
+              {/* Company Bio */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-700">Company Bio / What You Do</label>
+                <textarea
+                  value={companyBio}
+                  onChange={(e) => setCompanyBio(e.target.value)}
+                  rows={3}
+                  placeholder="Describe your organization, typical projects, and service standards..."
+                  className="w-full bg-[#F5F7FC] border border-slate-200 rounded-xl p-3 text-xs text-slate-900 focus:outline-none focus:border-[#4D78FF] focus:bg-white"
+                  required
                 />
-                <span className={activeProgressTask >= 2 ? 'font-bold' : ''}>
-                  Securing Paystack milestone escrow vault
-                </span>
               </div>
-              <div className="flex items-center gap-2.5 text-slate-700">
-                <CheckCircle2
-                  className={`w-4 h-4 ${
-                    activeProgressTask >= 3 ? 'text-[#10B981]' : 'text-slate-300'
-                  }`}
-                />
-                <span className={activeProgressTask >= 3 ? 'font-bold' : ''}>
-                  Finalizing Connecta 2.0 workspace
-                </span>
+
+              {/* Website */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-700">Website or LinkedIn (Optional)</label>
+                <div className="relative">
+                  <Globe className="w-4 h-4 absolute left-3.5 top-3 text-slate-400" />
+                  <input
+                    type="url"
+                    value={companyWebsite}
+                    onChange={(e) => setCompanyWebsite(e.target.value)}
+                    placeholder="https://yourcompany.com"
+                    className="w-full bg-[#F5F7FC] border border-slate-200 rounded-xl pl-10 pr-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-[#4D78FF] focus:bg-white"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Bottom Action Bar */}
+            <div className="flex items-center justify-between gap-4 pt-4 border-t border-slate-200/60 mt-6">
+              <button
+                type="button"
+                onClick={handleBack}
+                className="inline-flex items-center gap-2 px-5 py-3 rounded-full text-xs font-bold text-slate-600 bg-white hover:bg-slate-100 hover:text-[#0A1020] border border-slate-200 shadow-2xs hover:border-slate-300 transition-all cursor-pointer group active:scale-95"
+              >
+                <ArrowLeft className="w-3.5 h-3.5 transition-transform group-hover:-translate-x-0.5" />
+                <span>Back</span>
+              </button>
+
+              <button
+                type="button"
+                disabled={!companyName.trim()}
+                onClick={() => setStep('progress')}
+                className={`inline-flex items-center gap-2 rounded-full px-8 py-3.5 text-xs sm:text-sm font-extrabold shadow-md transition-all ${
+                  companyName.trim()
+                    ? 'bg-[#10B981] hover:bg-[#059669] text-white hover:scale-105 active:scale-95 cursor-pointer'
+                    : 'bg-slate-200 text-slate-400 cursor-not-allowed border border-slate-200 shadow-none'
+                }`}
+              >
+                <span>Save Profile &amp; Setup Workspace</span>
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* ================================================================= */}
+        {/* STEP 7: SETUP PROGRESS (ProfileSetupProgressPage.tsx)             */}
+        {/* ================================================================= */}
+        {step === 'progress' && (
+          <div className="max-w-xl mx-auto space-y-8 animate-in fade-in duration-300 py-6">
+            {/* Circular Radar & Progress Ring */}
+            <div className="relative flex flex-col items-center justify-center text-center">
+              {/* Pulsing Ambient Glow */}
+              <div className="absolute w-52 h-52 bg-[#4D78FF]/15 rounded-full blur-3xl pointer-events-none animate-pulse" />
+
+              <div className="relative w-40 h-40 flex items-center justify-center">
+                {/* SVG Radial Gauge */}
+                <svg className="w-40 h-40 -rotate-90" viewBox="0 0 120 120">
+                  <circle
+                    cx="60"
+                    cy="60"
+                    r="52"
+                    fill="none"
+                    stroke="#E2E8F0"
+                    strokeWidth="7"
+                    className="opacity-70"
+                  />
+                  <defs>
+                    <linearGradient id="progressGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stopColor="#4D78FF" />
+                      <stop offset="60%" stopColor="#38BDF8" />
+                      <stop offset="100%" stopColor="#10B981" />
+                    </linearGradient>
+                  </defs>
+                  <circle
+                    cx="60"
+                    cy="60"
+                    r="52"
+                    fill="none"
+                    stroke="url(#progressGrad)"
+                    strokeWidth="7"
+                    strokeLinecap="round"
+                    strokeDasharray={326.7}
+                    strokeDashoffset={326.7 * (1 - progressPercent / 100)}
+                    className="transition-all duration-150 ease-out"
+                  />
+                </svg>
+
+                {/* Center Stat */}
+                <div className="absolute flex flex-col items-center justify-center">
+                  <span className="text-4xl font-black text-[#0A1020] tracking-tight">
+                    {progressPercent}%
+                  </span>
+                  <span className="text-[11px] font-black uppercase tracking-widest text-[#4D78FF] mt-1">
+                    {progressPercent >= 100 ? 'Secured' : 'Calibrating'}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Header Text */}
+            <div className="text-center space-y-3 max-w-xl mx-auto">
+              <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-[#10B981]/10 text-[#10B981] text-xs font-bold border border-[#10B981]/20">
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>Workspace Calibration</span>
+              </div>
+              <h2 className="text-4xl sm:text-6xl lg:text-7xl font-black text-[#0A1020] tracking-tight leading-[1.08]">
+                Setting up your workspace
+              </h2>
+              <p className="text-base sm:text-lg lg:text-xl text-slate-600 font-medium leading-relaxed max-w-xl mx-auto">
+                Calibrating your multi-currency escrow vault, sealing credentials, and indexing regional specialist dispatch routing.
+              </p>
+            </div>
+
+            {/* Linear Shimmer Bar */}
+            <div className="w-full bg-slate-200/80 rounded-full h-2.5 overflow-hidden shadow-inner relative">
+              <div
+                className="h-full bg-gradient-to-r from-[#4D78FF] via-[#38BDF8] to-[#10B981] transition-all duration-200 ease-out rounded-full"
+                style={{ width: `${progressPercent}%` }}
+              />
+            </div>
+
+            {/* Real-time Milestone Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+              {[
+                {
+                  id: 0,
+                  title: 'Cryptographic Identity',
+                  desc: 'Profile credentials sealed & verified',
+                  icon: ShieldCheck,
+                },
+                {
+                  id: 1,
+                  title: 'Sector & Tags Index',
+                  desc:
+                    selectedRole === 'provider'
+                      ? `Cataloged in ${currentSector.name}`
+                      : `Configured for ${clientIndustry}`,
+                  icon: Briefcase,
+                },
+                {
+                  id: 2,
+                  title: 'Minor-Unit Escrow Vault',
+                  desc: `Provisioning ${selectedCurrency} escrow milestone routing`,
+                  icon: Lock,
+                },
+                {
+                  id: 3,
+                  title: 'Real-Time Dispatch Engine',
+                  desc: 'Connecting live telemetry & notification channels',
+                  icon: Zap,
+                },
+              ].map((m) => {
+                const isFinished = activeProgressTask > m.id || progressPercent >= 100
+                const isCurrent = activeProgressTask === m.id && progressPercent < 100
+                const IconComponent = m.icon
+
+                return (
+                  <div
+                    key={m.id}
+                    className={`p-4 rounded-2xl border transition-all duration-300 flex items-start gap-3.5 ${
+                      isFinished
+                        ? 'bg-white border-[#10B981]/30 shadow-xs'
+                        : isCurrent
+                        ? 'bg-white border-[#4D78FF] ring-2 ring-[#4D78FF]/15 shadow-md scale-[1.02]'
+                        : 'bg-white/60 border-slate-200/70 opacity-60'
+                    }`}
+                  >
+                    <div
+                      className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-all ${
+                        isFinished
+                          ? 'bg-[#10B981]/10 text-[#10B981]'
+                          : isCurrent
+                          ? 'bg-[#4D78FF]/10 text-[#4D78FF]'
+                          : 'bg-slate-100 text-slate-400'
+                      }`}
+                    >
+                      {isCurrent ? (
+                        <Loader2 className="w-4 h-4 animate-spin text-[#4D78FF]" />
+                      ) : (
+                        <IconComponent className="w-4 h-4" />
+                      )}
+                    </div>
+
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between gap-1">
+                        <span className="text-xs font-bold text-slate-900 truncate">
+                          {m.title}
+                        </span>
+                        {isFinished ? (
+                          <span className="inline-flex items-center gap-1 text-[10px] font-bold text-[#10B981] bg-[#10B981]/10 px-2 py-0.5 rounded-full shrink-0">
+                            <Check className="w-2.5 h-2.5 stroke-[3]" />
+                            <span>Done</span>
+                          </span>
+                        ) : isCurrent ? (
+                          <span className="inline-flex items-center gap-1 text-[10px] font-bold text-[#4D78FF] bg-[#4D78FF]/10 px-2 py-0.5 rounded-full shrink-0">
+                            <span className="w-1.5 h-1.5 rounded-full bg-[#4D78FF] animate-ping" />
+                            <span>Active</span>
+                          </span>
+                        ) : (
+                          <span className="text-[10px] font-medium text-slate-400">
+                            Queued
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-[11px] text-slate-500 mt-0.5 truncate">
+                        {m.desc}
+                      </p>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+
+            {/* Trust Assurance Marks */}
+            <div className="pt-2 flex flex-wrap items-center justify-center gap-6 text-[11px] font-semibold text-slate-500">
+              <div className="flex items-center gap-1.5">
+                <ShieldCheck className="w-3.5 h-3.5 text-[#10B981]" />
+                <span>Bank-Grade 256-Bit SSL</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <Lock className="w-3.5 h-3.5 text-[#4D78FF]" />
+                <span>Multi-Sig Escrow Vault</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <Globe className="w-3.5 h-3.5 text-[#F59E0B]" />
+                <span>NDPR &amp; GDPR Compliant</span>
               </div>
             </div>
           </div>
         )}
 
         {/* ================================================================= */}
-        {/* 8. TERMS & ESCROW AGREEMENT (TermsAndConditionsPage adaptation)   */}
+        {/* STEP 8: TERMS AND CONDITIONS (TermsAndConditionsPage.tsx)         */}
         {/* ================================================================= */}
         {step === 'terms' && (
-          <div className="max-w-2xl mx-auto space-y-6 animate-in fade-in duration-300">
-            <div className="text-center space-y-2">
-              <span className="text-xs font-bold text-[#10B981] bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
-                Platform Safety & Trust Charter
-              </span>
-              <h2 className="text-3xl sm:text-4xl font-black text-[#0A1020]">
-                Connecta Trust & Escrow Agreement
-              </h2>
-              <p className="text-xs sm:text-sm text-slate-600">
-                Review our commitments to safety, transparent kobo pricing, and milestone payouts.
+          <div className="max-w-2xl mx-auto space-y-8 animate-in fade-in duration-300">
+            <div className="text-center space-y-3">
+              <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black text-[#0A1020] tracking-tight leading-[1.08]">
+                Terms &amp; Escrow Charter
+              </h1>
+              <p className="text-base sm:text-lg lg:text-xl text-slate-600 font-medium max-w-2xl mx-auto leading-relaxed">
+                Read our commitments to milestone protection, safety, and itemized transparency.
               </p>
             </div>
 
-            <div className="bg-white p-6 sm:p-8 rounded-3xl border-2 border-black shadow-xl space-y-4">
-              <div className="space-y-3 text-xs text-slate-600 leading-relaxed h-60 overflow-y-auto pr-2 border-b border-slate-100">
+            <div className="bg-white p-6 sm:p-8 rounded-3xl border border-slate-200/80 shadow-xl space-y-4">
+              {/* Scroll Callout Banner */}
+              {!hasScrolledTerms && (
+                <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 flex items-center gap-2 text-amber-800 text-xs font-bold animate-pulse">
+                  <ScrollText className="w-4 h-4 shrink-0" />
+                  <span>Please scroll to the end of the terms box below before accepting.</span>
+                </div>
+              )}
+
+              {/* Scrollable Terms Box */}
+              <div
+                ref={termsContainerRef}
+                onScroll={handleTermsScroll}
+                className="space-y-3.5 text-xs text-slate-600 leading-relaxed h-64 overflow-y-auto pr-3 border-y border-slate-100 py-3"
+              >
                 <h4 className="font-extrabold text-slate-900 text-sm">
-                  1. Milestone Escrow Protection & Minor Unit Transparency
+                  1. Milestone Escrow Protection &amp; Minor Unit Transparency
                 </h4>
                 <p>
-                  All project contracts and service dispatches utilize Connecta Escrow Vaults. Client funds are protected in full and only disbursed after physical job completion and verification of deliverables. Pricing is itemized down to minor units (kobo) with zero surprise markups.
+                  All project contracts and service dispatches utilize Connecta Escrow Vaults. Client funds are protected in full and only disbursed after milestone delivery or physical job completion and approval. Pricing is itemized down to minor currency units with zero surprise markups.
                 </p>
 
                 <h4 className="font-extrabold text-slate-900 text-sm">
-                  2. Photo Evidence & Change Order Protocols
+                  2. Photo Evidence &amp; Change Order Protocols
                 </h4>
                 <p>
-                  Specialists must provide digital before/after photographic documentation of repairs. If concealed technical faults are found on-site, a formal digital Change Order must be submitted and confirmed by the customer before additional work commences.
+                  Specialists must provide photographic or digital proof of deliverables. If concealed technical faults or scope changes are required on-site, a formal digital Change Order must be submitted and confirmed before extra work commences.
                 </p>
 
                 <h4 className="font-extrabold text-slate-900 text-sm">
                   3. Transparent Fee Structure
                 </h4>
                 <p>
-                  Customers browse, broadcast repair needs, and compare quotes 100% free of charge. A transparent 10% platform fee is applied to completed artisan contracts, ensuring ongoing dispute mediation, guild auditing, and system security.
+                  Clients broadcast projects and review quotes 100% free of charge. A transparent platform fee is applied only upon successfully released milestones, funding dispute mediation, guild verification, and escrow infrastructure.
                 </p>
 
                 <h4 className="font-extrabold text-slate-900 text-sm">
                   4. Fair Dispute Mediation
                 </h4>
                 <p>
-                  In the rare event of an unresolvable disagreement, Connecta provides an auditable dispute mediation desk. Funds remain safeguarded in escrow while technical logs and photographic proof are reviewed impartially.
+                  In the event of an unresolvable disagreement, Connecta provides an auditable dispute mediation desk. Funds remain safeguarded in escrow while technical logs and photographic proof are reviewed impartially.
+                </p>
+
+                <h4 className="font-extrabold text-slate-900 text-sm">
+                  5. Identity &amp; Guild Background Verification
+                </h4>
+                <p>
+                  All specialists undergo credentials and identity audits to maintain community trust. Falsification of trade experience or off-platform coercion results in immediate account suspension.
                 </p>
               </div>
 
-              {/* Checkbox agreement */}
-              <label className="flex items-start gap-3 cursor-pointer pt-2">
+              {/* Mandatory Checkbox */}
+              <label
+                className={`flex items-start gap-3 pt-2 ${
+                  hasScrolledTerms ? 'cursor-pointer' : 'opacity-60 cursor-not-allowed'
+                }`}
+              >
                 <input
                   type="checkbox"
+                  disabled={!hasScrolledTerms}
                   checked={termsAccepted}
                   onChange={(e) => setTermsAccepted(e.target.checked)}
-                  className="mt-0.5 w-4 h-4 rounded-sm text-[#10B981] focus:ring-black"
+                  className="mt-0.5 w-4 h-4 rounded-sm text-[#10B981] focus:ring-[#4D78FF]"
                 />
                 <span className="text-xs text-slate-800 font-semibold leading-snug">
-                  I agree to the Connecta Terms of Service, Escrow Safeguards, and Privacy Policy.
+                  I have read and unconditionally accept the Connecta Terms of Service, Escrow Safeguards, and Privacy Policy.
                 </span>
               </label>
             </div>
 
-            <div className="flex items-center justify-between pt-2">
+            {/* Bottom Action Bar */}
+            <div className="flex items-center justify-between gap-4 pt-4 border-t border-slate-200/60 mt-6">
               <button
                 type="button"
-                onClick={() => setStep('profile')}
-                className="text-xs font-bold text-slate-600 hover:text-slate-900"
+                onClick={handleBack}
+                className="inline-flex items-center gap-2 px-5 py-3 rounded-full text-xs font-bold text-slate-600 bg-white hover:bg-slate-100 hover:text-[#0A1020] border border-slate-200 shadow-2xs hover:border-slate-300 transition-all cursor-pointer group active:scale-95"
               >
-                ← Back
+                <ArrowLeft className="w-3.5 h-3.5 transition-transform group-hover:-translate-x-0.5" />
+                <span>Back</span>
               </button>
 
               <button
@@ -1471,11 +2635,11 @@ function OnboardingContent() {
                 onClick={() => setStep('complete')}
                 className={`inline-flex items-center gap-2 rounded-full px-8 py-3.5 text-xs sm:text-sm font-extrabold shadow-md transition-all ${
                   termsAccepted
-                    ? 'bg-[#10B981] hover:bg-[#059669] text-white hover:scale-105 cursor-pointer'
-                    : 'bg-slate-300 text-slate-500 cursor-not-allowed'
+                    ? 'bg-[#10B981] hover:bg-[#059669] text-white hover:scale-105 active:scale-95 cursor-pointer'
+                    : 'bg-slate-200 text-slate-400 cursor-not-allowed border border-slate-200 shadow-none'
                 }`}
               >
-                <span>Accept & Complete Onboarding</span>
+                <span>Accept Terms &amp; Activate Account</span>
                 <Check className="w-4 h-4 stroke-[3]" />
               </button>
             </div>
@@ -1483,39 +2647,49 @@ function OnboardingContent() {
         )}
 
         {/* ================================================================= */}
-        {/* 9. ONBOARDING COMPLETE CELEBRATION (Success Screen)               */}
+        {/* STEP 9: ONBOARDING COMPLETE                                       */}
         {/* ================================================================= */}
         {step === 'complete' && (
-          <div className="max-w-xl mx-auto text-center space-y-6 animate-in fade-in duration-300">
+          <div className="max-w-xl mx-auto text-center space-y-6 animate-in fade-in duration-300 py-4">
             <div className="w-20 h-20 rounded-full bg-emerald-100 text-[#10B981] flex items-center justify-center mx-auto shadow-xl">
               <CheckCircle2 className="w-10 h-10" />
             </div>
 
-            <div className="space-y-2">
-              <span className="text-xs font-bold text-[#10B981] bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
-                Setup Complete
-              </span>
-              <h2 className="text-3xl sm:text-5xl font-black text-[#0A1020] tracking-tight">
+            <div className="space-y-3">
+              <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black text-[#0A1020] tracking-tight leading-[1.08]">
                 Welcome to Connecta!
-              </h2>
-              <p className="text-sm text-slate-600 max-w-md mx-auto leading-relaxed">
+              </h1>
+              <p className="text-base sm:text-lg lg:text-xl font-medium text-slate-600 max-w-2xl mx-auto leading-relaxed">
                 {selectedRole === 'provider'
-                  ? 'Your trade profile and verification credentials have been initialized. You can now receive leads and submit itemized quotes.'
-                  : 'Your account is ready! You can now request emergency repairs, discover verified local pros, and hire with escrow protection.'}
+                  ? 'Your trade profile, skills, and verification ledger have been initialized. You can now receive projects and submit itemized milestone quotes.'
+                  : 'Your hiring workspace is live! You can now broadcast project requirements, hire vetted African talent, and assemble Collabo Squads.'}
               </p>
             </div>
 
-            {/* Profile summary card */}
-            <div className="bg-white rounded-3xl p-6 border-2 border-black text-left shadow-xl space-y-3 text-xs text-slate-700">
+            {/* Profile Summary Card */}
+            <div className="bg-white rounded-3xl p-6 border border-slate-200/80 text-left shadow-xl space-y-3.5 text-xs text-slate-700">
               <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-                <div>
-                  <div className="font-extrabold text-sm text-[#0A1020]">
-                    {selectedRole === 'provider'
-                      ? businessName || fullName || 'Verified Provider'
-                      : clientContactName || 'Verified Hirer'}
-                  </div>
-                  <div className="text-slate-500">
-                    {selectedRole === 'provider' ? currentSector.name : `${clientZone} • ${clientIndustry}`}
+                <div className="flex items-center gap-3">
+                  {profileImage ? (
+                    <div className="relative w-12 h-12 rounded-2xl overflow-hidden shrink-0 border border-slate-200">
+                      <Image src={profileImage} alt="Avatar" fill className="object-cover" />
+                    </div>
+                  ) : (
+                    <div className="w-12 h-12 rounded-2xl bg-[#0A1020] text-white flex items-center justify-center font-black text-sm">
+                      {firstName[0] || companyName[0] || 'C'}
+                    </div>
+                  )}
+                  <div>
+                    <div className="font-extrabold text-sm text-[#0A1020]">
+                      {selectedRole === 'provider'
+                        ? `${firstName} ${lastName}` || 'Verified Specialist'
+                        : companyName || `${firstName} ${lastName}` || 'Verified Client'}
+                    </div>
+                    <div className="text-slate-500">
+                      {selectedRole === 'provider'
+                        ? title || currentSector.name
+                        : `${companySize} • ${clientIndustry}`}
+                    </div>
                   </div>
                 </div>
                 <span className="text-[11px] font-extrabold px-3 py-1 rounded-full bg-[#10B981] text-white">
@@ -1525,28 +2699,33 @@ function OnboardingContent() {
 
               <div className="grid grid-cols-2 gap-2 text-[11px]">
                 <div>
-                  <span className="text-slate-400">Escrow Vault:</span>{' '}
-                  <span className="font-bold text-emerald-700">Connected</span>
+                  <span className="text-slate-400">Escrow Currency:</span>{' '}
+                  <span className="font-bold text-emerald-700">{selectedCurrency}</span>
                 </div>
                 <div>
-                  <span className="text-slate-400">Coverage Zone:</span>{' '}
-                  <span className="font-bold">{selectedRole === 'provider' ? locationZone : clientZone}</span>
+                  <span className="text-slate-400">Primary Hub:</span>{' '}
+                  <span className="font-bold">{locationCity}</span>
                 </div>
               </div>
             </div>
 
-            <div className="pt-4 flex flex-wrap items-center justify-center gap-3">
+            {/* Action Buttons */}
+            <div className="pt-2 flex flex-wrap items-center justify-center gap-3">
               <Link
                 href={selectedRole === 'provider' ? '/admin/verification' : '/requests/new'}
-                className="inline-flex items-center gap-2 rounded-full bg-[#0A1020] hover:bg-[#4D78FF] text-white px-8 py-3.5 text-xs sm:text-sm font-bold shadow-md hover:scale-105 transition-all"
+                className="inline-flex items-center gap-2 rounded-full bg-[#0A1020] hover:bg-[#4D78FF] text-white px-8 py-3.5 text-xs sm:text-sm font-extrabold shadow-md hover:scale-105 active:scale-95 transition-all"
               >
-                <span>{selectedRole === 'provider' ? 'View Verification Status' : 'Post Your First Repair Need'}</span>
+                <span>
+                  {selectedRole === 'provider'
+                    ? 'View Verification Status'
+                    : 'Post Your First Requirement'}
+                </span>
                 <ArrowRight className="w-4 h-4" />
               </Link>
 
               <Link
                 href="/"
-                className="inline-flex items-center gap-2 rounded-full bg-white hover:bg-slate-50 text-slate-800 border-2 border-slate-300 px-6 py-3.5 text-xs sm:text-sm font-bold transition-all"
+                className="inline-flex items-center gap-2 rounded-full bg-white hover:bg-slate-50 text-slate-800 border border-slate-300 px-6 py-3.5 text-xs sm:text-sm font-bold transition-all shadow-xs"
               >
                 <span>Explore Homepage</span>
               </Link>
@@ -1554,11 +2733,6 @@ function OnboardingContent() {
           </div>
         )}
       </main>
-
-      {/* Minimal Footer */}
-      <footer className="py-6 border-t border-slate-200/80 bg-white/60 text-center text-xs text-slate-500 relative z-10">
-        <p>© 2026 Connecta. Developed by Pioneers ICT. All rights reserved.</p>
-      </footer>
     </div>
   )
 }
@@ -1567,11 +2741,8 @@ export default function OnboardingPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen flex items-center justify-center bg-[#F5F7FC] text-[#0A1020]">
-          <div className="flex items-center gap-2 font-bold text-sm">
-            <span className="w-2 h-2 rounded-full bg-[#10B981] animate-ping" />
-            <span>Loading Connecta Onboarding...</span>
-          </div>
+        <div className="min-h-screen bg-[#F5F7FC] flex items-center justify-center font-bold text-xs text-slate-400">
+          Loading Connecta Onboarding...
         </div>
       }
     >

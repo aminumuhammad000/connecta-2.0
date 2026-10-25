@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
     }
 
     const reviewerId = booking?.customer_id || '00000000-0000-0000-0000-000000000001'
-    const revieweeId = booking?.provider_id || 'p1010000-0000-0000-0000-000000000001'
+    const revieweeId = booking?.provider_id || 'b2010000-0000-0000-0000-000000000001'
 
     const { data: review, error: insertError } = await supabase
       .from('reviews')
