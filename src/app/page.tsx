@@ -42,8 +42,11 @@ import {
   ShoppingCart,
   Volume2,
   VolumeX,
+  Menu,
+  X,
 } from 'lucide-react'
-import { ConnectaCornerHelix } from '@/components/Connecta3DDecoration'
+import { SectionBorderDivider } from '@/components/Connecta3DDecoration'
+import ScrollReveal from '@/components/ScrollReveal'
 
 const DYNAMIC_PHRASES = [
   "the world's work",
@@ -179,19 +182,16 @@ const CATEGORIES = [
   },
 ]
 
-// Chowdeck Horizontal Accordion Structure (Matching Explore Supported Trades.png)
+// Chowdeck Trade Directory Structure (Matching Explore Supported Trades)
 const TRADE_ACCORDION_ITEMS = {
   metro: [
     {
       id: 'solar-electrical',
       slug: 'electrical',
       title: 'Solar & Electrical Power',
-      collapsedTitle: 'Solar & Electrical',
       desc: 'Certified solar engineers and licensed electricians for residential inverter setups, hybrid battery systems, safety audits, and clean domestic power.',
       bg: 'bg-[#DBD5F9]',
       textColor: 'text-[#4C1D95]',
-      badge: 'Rapid 45-Min Arrival',
-      badgeColor: 'bg-[#0C513F] text-white',
       tags: ['Solar Inverters', 'Lithium Batteries', 'Distribution Boards', 'Prepaid Meters', 'Safety Earthing'],
       image: '/images/services/electrician_working_on_electrical_panel.jpg',
       alt: 'Electrician working on electrical panel in Kano',
@@ -204,12 +204,9 @@ const TRADE_ACCORDION_ITEMS = {
       id: 'phone-gadgets',
       slug: 'phone-repair',
       title: 'Smart Devices & Gadgets',
-      collapsedTitle: 'Phones & Gadgets',
       desc: 'Fast same-day repairs for cracked smartphone screens, genuine high-capacity battery replacements, logic-board micro-soldering, and certified diagnostics.',
       bg: 'bg-[#FCECB2]',
       textColor: 'text-[#B45309]',
-      badge: 'Same-Day Screen Swaps',
-      badgeColor: 'bg-[#B45309] text-white',
       tags: ['OLED Screens', 'TrueTone Transfer', 'Battery Health 100%', 'Board Micro-Soldering', 'Charging Ports'],
       image: '/images/services/phone_repair_technician.jpg',
       alt: 'Phone technician repairing smartphone in display lab',
@@ -222,12 +219,9 @@ const TRADE_ACCORDION_ITEMS = {
       id: 'ac-cooling',
       slug: 'ac-cooling',
       title: 'AC & Climate Control',
-      collapsedTitle: 'AC & Refrigeration',
       desc: 'Precision air conditioning servicing, eco-friendly refrigerant top-ups, commercial compressor overhauls, and deep antibacterial coil cleaning.',
       bg: 'bg-[#98C7FF]',
       textColor: 'text-[#1D4ED8]',
-      badge: 'Cooling Guarantee',
-      badgeColor: 'bg-[#1D4ED8] text-white',
       tags: ['Refrigerant Top-up', 'Compressor Overhaul', 'Deep Coil Cleaning', 'Split Unit Mounting', 'Chiller Repair'],
       image: '/images/services/air_conditioner_repair_technician.jpg',
       alt: 'Technician servicing air conditioning cooling system',
@@ -240,12 +234,9 @@ const TRADE_ACCORDION_ITEMS = {
       id: 'borehole-plumbing',
       slug: 'plumbing',
       title: 'Plumbing & Water Systems',
-      collapsedTitle: 'Plumbing & Piping',
       desc: 'Vetted plumbers for emergency pipe leak repairs, borehole submersible pump pulling and servicing, overhead tank connections, and clean sanitary fittings.',
       bg: 'bg-[#CBF3E4]',
       textColor: 'text-[#047857]',
-      badge: 'Pressure-Tested Guarantee',
-      badgeColor: 'bg-[#047857] text-white',
       tags: ['Submersible Pumps', 'Pressure Control Valves', 'Pipe Leak Detection', 'Overhead Tanks', 'Clean Piping'],
       image: '/images/services/cleaning_or_maintenance_technician.jpg',
       alt: 'Plumbing specialist inspecting water piping',
@@ -260,12 +251,9 @@ const TRADE_ACCORDION_ITEMS = {
       id: 'auto-mechanic',
       slug: 'auto-mechanic',
       title: 'Automotive & Diagnostics',
-      collapsedTitle: 'Auto Diagnostics',
       desc: 'Computerized vehicle OBD2 diagnostic scanning, ceramic brake service, suspension overhauls, routine oil changes, and expert engine repairs.',
       bg: 'bg-[#DBD5F9]',
       textColor: 'text-[#4C1D95]',
-      badge: 'OBD2 Computer Scan Included',
-      badgeColor: 'bg-[#0C513F] text-white',
       tags: ['OBD2 Engine Scans', 'Ceramic Brake Pads', 'Suspension Bushings', 'Alternators', 'Transmission Check'],
       image: '/images/services/car_mechanic_repairing_engine.jpg',
       alt: 'Mechanic servicing car engine diagnostics in workshop',
@@ -278,12 +266,9 @@ const TRADE_ACCORDION_ITEMS = {
       id: 'carpentry',
       slug: 'carpentry',
       title: 'Carpentry & Woodwork',
-      collapsedTitle: 'Carpentry & Wood',
       desc: 'Master craftsmen for custom office cabinetry, solid hardwood wardrobes, precision door fittings, architectural woodwork, and bespoke furniture framing.',
       bg: 'bg-[#FCECB2]',
       textColor: 'text-[#B45309]',
-      badge: 'Master Guild Certified',
-      badgeColor: 'bg-[#B45309] text-white',
       tags: ['Custom Office Desks', 'Hardwood Wardrobes', 'Door Frame Fitting', 'Roof Trusses', 'Cabinet Joinery'],
       image: '/images/services/carpenter_working_in_nigeria.jpg',
       alt: 'Carpenter working on wooden construction in Nigeria',
@@ -296,12 +281,9 @@ const TRADE_ACCORDION_ITEMS = {
       id: 'computer-repair',
       slug: 'computer-repair',
       title: 'Computers & Hardware Labs',
-      collapsedTitle: 'Computers & Laptops',
       desc: 'Hardware bench repairs, NVMe SSD speed upgrades, screen replacements, thermal paste re-application, logic-board diagnostics, and clean OS restoration.',
       bg: 'bg-[#98C7FF]',
       textColor: 'text-[#1D4ED8]',
-      badge: 'Certified Bench Lab',
-      badgeColor: 'bg-[#1D4ED8] text-white',
       tags: ['Thermal Paste Service', 'NVMe SSD Upgrades', 'Laptop Displays', 'BIOS Diagnostics', 'Data Recovery'],
       image: '/images/services/computer_repair_technician.jpg',
       alt: 'Technician repairing laptop motherboard in workshop',
@@ -314,12 +296,9 @@ const TRADE_ACCORDION_ITEMS = {
       id: 'painting',
       slug: 'painting',
       title: 'Painting & Surface Finishes',
-      collapsedTitle: 'Painting & POP',
       desc: 'Architectural interior and exterior painting, POP plastering, damp-proof waterproofing, decorative wall screeding, and clean post-job site cleanup.',
       bg: 'bg-[#CBF3E4]',
       textColor: 'text-[#047857]',
-      badge: 'Spotless Cleanup Guarantee',
-      badgeColor: 'bg-[#047857] text-white',
       tags: ['POP Plastering', 'Damp Waterproofing', 'Satin Paint Coats', 'Decorative Screeding', 'Exterior Facades'],
       image: '/images/services/house_painter_painting_wall.jpg',
       alt: 'Painter applying smooth coat to interior wall',
@@ -610,6 +589,78 @@ const SEARCH_SUGGESTIONS = [
   { query: 'Motion Graphics & Video Animator', category: 'Design & Creative' },
 ]
 
+interface PopularCardItem {
+  name: string
+  iconColor: string
+  iconType: 'starburst' | 'dome' | 'sparkle' | 'arch' | 'diamond' | 'flower' | 'crystal' | 'circle'
+}
+
+const POPULAR_CARDS: PopularCardItem[] = [
+  { name: 'Web Design', iconColor: '#FFC406', iconType: 'starburst' },
+  { name: 'UI/UX Design', iconColor: '#FF874E', iconType: 'dome' },
+  { name: 'Solar & Inverter', iconColor: '#09C17E', iconType: 'sparkle' },
+  { name: 'Frontend React', iconColor: '#FFB2CD', iconType: 'arch' },
+  { name: 'Plumbing', iconColor: '#38BDF8', iconType: 'diamond' },
+  { name: 'Brand Identity', iconColor: '#A855F7', iconType: 'flower' },
+  { name: 'AC Servicing', iconColor: '#2DD4BF', iconType: 'crystal' },
+  { name: 'Auto Mechanic', iconColor: '#F59E0B', iconType: 'circle' },
+]
+
+function PopularCardIcon({ type, color }: { type: PopularCardItem['iconType']; color: string }) {
+  switch (type) {
+    case 'starburst':
+      return (
+        <svg viewBox="0 0 24 24" className="w-5 h-5 sm:w-6 sm:h-6 shrink-0" style={{ fill: color }}>
+          <path d="M12 2l1.7 2.7 3.2-.8.7 3.1 3 1.3-.9 3.1 2.3 2.2-2.3 2.2.9 3.1-3 1.3-.7 3.1-3.2-.8L12 22l-1.7-2.7-3.2.8-.7-3.1-3-1.3.9-3.1L2 12.6l2.3-2.2-.9-3.1 3-1.3.7-3.1 3.2.8z" />
+        </svg>
+      )
+    case 'dome':
+      return (
+        <svg viewBox="0 0 24 24" className="w-5 h-5 sm:w-6 sm:h-6 shrink-0" style={{ fill: color }}>
+          <path d="M3 17a9 9 0 0 1 18 0H3z" />
+        </svg>
+      )
+    case 'sparkle':
+      return (
+        <svg viewBox="0 0 24 24" className="w-5 h-5 sm:w-6 sm:h-6 shrink-0" style={{ fill: color }}>
+          <path d="M12 2C12 7.5 16.5 12 22 12C16.5 12 12 16.5 12 22C12 16.5 7.5 12 2 12C7.5 12 12 7.5 12 2Z" />
+        </svg>
+      )
+    case 'arch':
+      return (
+        <svg viewBox="0 0 24 24" className="w-5 h-5 sm:w-6 sm:h-6 shrink-0" style={{ fill: color }}>
+          <path d="M4 17a8 8 0 0 1 16 0H4z" />
+        </svg>
+      )
+    case 'diamond':
+      return (
+        <svg viewBox="0 0 24 24" className="w-5 h-5 sm:w-6 sm:h-6 shrink-0" style={{ fill: color }}>
+          <path d="M12 2.5L21 12 12 21.5 3 12z" />
+        </svg>
+      )
+    case 'flower':
+      return (
+        <svg viewBox="0 0 24 24" className="w-5 h-5 sm:w-6 sm:h-6 shrink-0" style={{ fill: color }}>
+          <path d="M12 3a9 9 0 0 0-9 9 9 9 0 0 0 9 9 9 9 0 0 0 9-9 9 9 0 0 0-9-9zm0 4a5 5 0 1 1 0 10 5 5 0 0 1 0-10z" />
+        </svg>
+      )
+    case 'crystal':
+      return (
+        <svg viewBox="0 0 24 24" className="w-5 h-5 sm:w-6 sm:h-6 shrink-0" style={{ fill: color }}>
+          <path d="M12 4C6.5 4 2 12 2 12s4.5 8 10 8 10-8 10-8-4.5-8-10-8zm0 13c-2.8 0-5-2.2-5-5s2.2-5 5-5 5 2.2 5 5-2.2 5-5 5z" />
+        </svg>
+      )
+    case 'circle':
+      return (
+        <svg viewBox="0 0 24 24" className="w-5 h-5 sm:w-6 sm:h-6 shrink-0" style={{ fill: color }}>
+          <circle cx="12" cy="12" r="8" />
+        </svg>
+      )
+    default:
+      return null
+  }
+}
+
 export default function HomePage() {
   const router = useRouter()
   const [searchQuery, setSearchQuery] = useState('')
@@ -626,6 +677,17 @@ export default function HomePage() {
   const [heroMouseOffset, setHeroMouseOffset] = useState({ x: 0, y: 0 })
   const videoRef = useRef<HTMLVideoElement>(null)
   const [isVideoMuted, setIsVideoMuted] = useState(true)
+  const [isScrolled, setIsScrolled] = useState(false)
+  const [mobileNavOpen, setMobileNavOpen] = useState(false)
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 25)
+    }
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    handleScroll()
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
 
   const handleHeroMouseMove = (e: React.MouseEvent<HTMLElement>) => {
     if (!heroRef.current) return
@@ -638,20 +700,6 @@ export default function HomePage() {
   const handleHeroMouseLeave = () => {
     setHeroMouseOffset({ x: 0, y: 0 })
   }
-
-  // Auto-cycle Explore Supported Trades accordion every 3 seconds (smooth shrink & expand)
-  useEffect(() => {
-    if (isAccordionPaused) return
-
-    const items = TRADE_ACCORDION_ITEMS[tradeCategoryGroup] || []
-    if (items.length <= 1) return
-
-    const timer = setInterval(() => {
-      setActiveAccordionIndex((prev) => (prev + 1) % items.length)
-    }, 3000)
-
-    return () => clearInterval(timer)
-  }, [isAccordionPaused, tradeCategoryGroup])
 
   const toggleVideoSound = () => {
     if (videoRef.current) {
@@ -771,11 +819,17 @@ export default function HomePage() {
         }}
       />
 
-      {/* Chowdeck-style Floating Header (Exact match to header.png) */}
-      <div className="sticky top-4 z-50 px-4 sm:px-6">
-        <header className="max-w-7xl mx-auto flex items-center justify-between gap-4">
-          {/* Left Pill Group: Connecta Brand Pill + Country Selector */}
-          <div className="flex items-center gap-2.5 sm:gap-3">
+      {/* Floating Modern Header (Adapts to Landing Page Design) */}
+      <div className="sticky top-3 sm:top-4 z-50 px-3 sm:px-6">
+        <header
+          className={`max-w-7xl mx-auto flex items-center justify-between gap-3 transition-all duration-300 ${
+            isScrolled
+              ? 'bg-white/90 backdrop-blur-xl py-2 px-3 sm:px-5 rounded-full shadow-[0_8px_30px_rgb(0,0,0,0.08)] border border-slate-200/90'
+              : 'py-1'
+          }`}
+        >
+          {/* Left Brand: Connecta Icon & Region Selector */}
+          <div className="flex items-center gap-2 sm:gap-2.5">
             <Link
               href="/"
               className="bg-[#0C513F] hover:bg-[#083b2e] text-white px-4 py-2 sm:px-4.5 sm:py-2.5 rounded-full flex items-center gap-2 shadow-md transition-all hover:scale-105 shrink-0"
@@ -789,10 +843,10 @@ export default function HomePage() {
                   priority
                 />
               </div>
-              <span className="font-extrabold text-sm tracking-tight text-white">connecta</span>
+              <span className="font-extrabold text-sm sm:text-base tracking-tight text-white">connecta</span>
             </Link>
 
-            <div className="flex items-center gap-1.5 text-xs font-bold text-slate-800 bg-white/95 px-3 py-2 rounded-full shadow-md border border-slate-200/80 cursor-pointer hover:bg-slate-50 transition-colors shrink-0">
+            <div className="hidden xs:flex items-center gap-1.5 text-xs font-bold text-slate-800 bg-white/95 px-3 py-2 rounded-full shadow-md border border-slate-200/80 cursor-pointer hover:bg-slate-50 transition-colors shrink-0">
               <span className="text-sm leading-none">🇳🇬</span>
               <span className="font-extrabold text-slate-900 tracking-tight text-xs">NG</span>
               <span className="w-4 h-4 rounded-full border border-slate-400 text-slate-700 flex items-center justify-center text-[10px] ml-0.5">
@@ -801,58 +855,104 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* Center Navigation Pill (Authentic Connecta Links) */}
-          <nav className="hidden lg:flex items-center gap-6 xl:gap-7 text-xs font-extrabold text-slate-900 bg-white/95 px-7 py-3 rounded-full shadow-md border border-slate-200/80 backdrop-blur-md">
-            <Link href="#services" className="hover:text-[#0C513F] transition-colors">
-              Services & Trades
-            </Link>
-            <Link href="#featured-specialists" className="hover:text-[#0C513F] transition-colors">
-              Specialists
-            </Link>
-            <Link href="#how-it-works" className="hover:text-[#0C513F] transition-colors">
-              How It Works
-            </Link>
-            <Link href="#trust-standard" className="hover:text-[#0C513F] transition-colors">
-              Trust & Escrow
-            </Link>
-            <Link href="#about" className="hover:text-[#0C513F] transition-colors">
+          {/* Center Navigation: Ordered About -> Specialists -> How It Works with Larger Font */}
+          <nav className="hidden md:flex items-center gap-1 sm:gap-2 text-sm sm:text-[15px] font-bold text-slate-800 bg-white/95 px-4 sm:px-6 py-2 rounded-full shadow-md border border-slate-200/90 backdrop-blur-xl">
+            <Link
+              href="#about"
+              className="hover:text-[#0C513F] hover:bg-slate-100/80 px-3.5 py-1.5 rounded-full transition-all"
+            >
               About
             </Link>
-            <Link href="#faq" className="hover:text-[#0C513F] transition-colors">
-              FAQs
+            <Link
+              href="#featured-specialists"
+              className="hover:text-[#0C513F] hover:bg-slate-100/80 px-3.5 py-1.5 rounded-full transition-all"
+            >
+              Specialists
+            </Link>
+            <Link
+              href="#how-it-works"
+              className="hover:text-[#0C513F] hover:bg-slate-100/80 px-3.5 py-1.5 rounded-full transition-all"
+            >
+              How It Works
             </Link>
           </nav>
 
-          {/* Right Group: Connecta Action Buttons */}
+          {/* Right Action Buttons */}
           <div className="flex items-center gap-2 sm:gap-2.5">
             <Link
               href="/onboarding?role=provider"
-              className="hidden sm:inline-flex items-center text-xs font-extrabold text-slate-900 bg-white/95 hover:bg-slate-50 px-4.5 py-2.5 rounded-full shadow-md border border-slate-200/80 transition-colors"
+              className="hidden sm:inline-flex items-center text-xs sm:text-sm font-bold text-slate-800 bg-white/95 hover:bg-slate-50 hover:text-[#0C513F] px-4.5 py-2.5 rounded-full shadow-md border border-slate-200/80 transition-all"
             >
               Join as Pro
             </Link>
 
             <Link
               href="/requests/new"
-              className="bg-[#0C513F] hover:bg-[#083b2e] text-white px-5 py-2.5 rounded-full text-xs font-extrabold shadow-md flex items-center gap-1.5 transition-all hover:scale-105 shrink-0"
+              className="bg-[#0C513F] hover:bg-[#083b2e] text-white px-4.5 sm:px-5 py-2.5 rounded-full text-xs sm:text-sm font-extrabold shadow-md flex items-center gap-1.5 transition-all hover:scale-105 shrink-0"
             >
               <span>Hire Talent</span>
               <CornerDownRight className="w-3.5 h-3.5 stroke-[2.5]" />
             </Link>
+
+            {/* Mobile Menu Button */}
+            <button
+              type="button"
+              onClick={() => setMobileNavOpen(!mobileNavOpen)}
+              className="md:hidden p-2 rounded-full bg-white/95 border border-slate-200/90 shadow-md text-slate-800 hover:bg-slate-100 cursor-pointer"
+              aria-label="Toggle navigation menu"
+            >
+              {mobileNavOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </button>
           </div>
         </header>
+
+        {/* Mobile Dropdown Menu */}
+        {mobileNavOpen && (
+          <div className="md:hidden mt-2 max-w-sm mx-auto bg-white/95 backdrop-blur-xl border border-slate-200/90 rounded-2xl shadow-2xl p-4 flex flex-col gap-2">
+            <Link
+              href="#about"
+              onClick={() => setMobileNavOpen(false)}
+              className="px-4 py-2.5 rounded-xl font-bold text-slate-800 hover:bg-slate-100 hover:text-[#0C513F] text-sm"
+            >
+              About
+            </Link>
+            <Link
+              href="#featured-specialists"
+              onClick={() => setMobileNavOpen(false)}
+              className="px-4 py-2.5 rounded-xl font-bold text-slate-800 hover:bg-slate-100 hover:text-[#0C513F] text-sm"
+            >
+              Specialists
+            </Link>
+            <Link
+              href="#how-it-works"
+              onClick={() => setMobileNavOpen(false)}
+              className="px-4 py-2.5 rounded-xl font-bold text-slate-800 hover:bg-slate-100 hover:text-[#0C513F] text-sm"
+            >
+              How It Works
+            </Link>
+            <div className="pt-2 border-t border-slate-100 flex flex-col gap-2">
+              <Link
+                href="/onboarding?role=provider"
+                onClick={() => setMobileNavOpen(false)}
+                className="w-full text-center py-2.5 rounded-full font-bold text-slate-800 bg-slate-100 hover:bg-slate-200 text-xs"
+              >
+                Join as Pro
+              </Link>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Main Content */}
-      <main className="flex-1">
-        {/* Hero Section with Chowdeck-Style Large Text Motion & Ambient Hero Video Background */}
+      <main className="flex-1 overflow-x-clip">
+        {/* Hero Section with Chowdeck-Style Large Text Motion & Translucent Living Background */}
         <section
           ref={heroRef}
           onMouseMove={handleHeroMouseMove}
           onMouseLeave={handleHeroMouseLeave}
-          className="pt-20 pb-24 lg:pt-28 lg:pb-32 overflow-hidden relative min-h-[660px] flex items-center justify-center"
+          className="pt-16 pb-20 sm:pt-24 sm:pb-28 lg:pt-28 lg:pb-32 overflow-hidden relative min-h-[580px] sm:min-h-[660px] flex items-center justify-center"
         >
-          {/* Hero Video as Background of Hero Section with Balanced Translucency */}
+          {/* Hero Video with Translucent Overlay */}
           <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
             <video
               ref={videoRef}
@@ -861,41 +961,34 @@ export default function HomePage() {
               loop
               muted={isVideoMuted}
               playsInline
-              className="w-full h-full object-cover scale-105 opacity-40 transition-opacity duration-700"
+              className="w-full h-full object-cover scale-105 opacity-30 transition-opacity duration-700"
             />
-            {/* Elegant multi-layer overlay for optimal readability while showing video action */}
-            <div className="absolute inset-0 bg-gradient-to-b from-[#F5F7FC]/75 via-[#F5F7FC]/50 to-[#F5F7FC]/90 backdrop-blur-[0.5px]" />
-            <div
-              className="absolute inset-0 opacity-[0.035] pointer-events-none"
-              style={{
-                backgroundImage: 'radial-gradient(#0A1020 1px, transparent 1px)',
-                backgroundSize: '24px 24px',
-              }}
-            />
+            {/* Transparent Soft Gradient Blend */}
+            <div className="absolute inset-0 bg-gradient-to-b from-[#F5F7FC]/80 via-[#F5F7FC]/60 to-[#F5F7FC] backdrop-blur-[1px]" />
           </div>
 
-          {/* Connecta Radiant Chromatic Aura Mesh (Smoothly Follows Mouse Movement with Easing) */}
+          {/* Connecta Radiant Living Brand Color Mesh (Azure, Emerald, Amber) */}
           <div
             className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden z-10 transition-transform duration-700 ease-out"
             style={{
               transform: `translate3d(${heroMouseOffset.x}px, ${heroMouseOffset.y}px, 0)`,
             }}
           >
-            <div className="relative w-[750px] sm:w-[980px] lg:w-[1150px] h-[520px] sm:h-[640px] opacity-70 sm:opacity-85 mix-blend-multiply filter blur-[75px] sm:blur-[115px] lg:blur-[145px] transform-gpu">
-              {/* Center Glow: Connecta Vibrant Emerald (#10B981 / #00C466) */}
-              <div className="absolute top-[18%] left-[24%] w-[380px] h-[340px] rounded-full bg-gradient-to-tr from-[#10B981] via-[#00C466] to-[#34D399] opacity-90 animate-pulse duration-[8000ms]" />
+            <div className="relative w-[750px] sm:w-[980px] lg:w-[1150px] h-[520px] sm:h-[640px] filter blur-[85px] sm:blur-[120px] lg:blur-[150px] transform-gpu opacity-70">
+              {/* Center Glow: Connecta Vibrant Emerald (#10B981) */}
+              <div className="absolute top-[18%] left-[24%] w-[380px] h-[340px] rounded-full bg-gradient-to-tr from-[#10B981] via-[#00C466] to-[#34D399] animate-pulse duration-[8000ms]" />
 
-              {/* Top-Right Ambient Flare: Connecta Golden Amber (#F59E0B / #F5A623) */}
-              <div className="absolute top-[6%] right-[14%] w-[360px] h-[300px] rounded-full bg-gradient-to-br from-[#F59E0B] via-[#F5A623] to-[#F97316] opacity-85" />
+              {/* Top-Right Ambient Flare: Connecta Golden Amber (#F59E0B) */}
+              <div className="absolute top-[6%] right-[14%] w-[360px] h-[300px] rounded-full bg-gradient-to-br from-[#F59E0B] via-[#F5A623] to-[#F97316]" />
 
-              {/* Lower-Center Anchor: Connecta Electric Tech Blue (#4D78FF / #3B82F6) */}
-              <div className="absolute bottom-[10%] left-[18%] w-[440px] h-[340px] rounded-full bg-gradient-to-r from-[#4D78FF] via-[#3B82F6] to-[#2563EB] opacity-90" />
+              {/* Lower-Center Anchor: Connecta Azure Tech Blue (#1A73E8) */}
+              <div className="absolute bottom-[10%] left-[18%] w-[440px] h-[340px] rounded-full bg-gradient-to-r from-[#1A73E8] via-[#3B82F6] to-[#2563EB]" />
 
-              {/* Lower-Right Deep Violet/Indigo: Connecta Tech Indigo (#6366F1 / #8B5CF6) */}
-              <div className="absolute bottom-[8%] right-[18%] w-[380px] h-[320px] rounded-full bg-gradient-to-tl from-[#8B5CF6] via-[#6366F1] to-[#4D78FF] opacity-80" />
+              {/* Lower-Right Tech Indigo */}
+              <div className="absolute bottom-[8%] right-[18%] w-[380px] h-[320px] rounded-full bg-gradient-to-tl from-[#8B5CF6] via-[#6366F1] to-[#1A73E8]" />
 
-              {/* Top-Left Fresh Mint Glow: Connecta Forest Mint (#0C513F / #10B981) */}
-              <div className="absolute top-[12%] left-[10%] w-[320px] h-[280px] rounded-full bg-gradient-to-br from-[#0C513F] to-[#10B981] opacity-70" />
+              {/* Top-Left Fresh Mint Glow: Connecta Forest Mint (#0C513F) */}
+              <div className="absolute top-[12%] left-[10%] w-[320px] h-[280px] rounded-full bg-gradient-to-br from-[#0C513F] to-[#10B981]" />
             </div>
           </div>
 
@@ -923,19 +1016,19 @@ export default function HomePage() {
 
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-20 w-full">
             <div className="max-w-4xl mx-auto text-center space-y-6">
-              {/* Chowdeck-style Hero Heading (Static as requested) */}
-              <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-[#0A1020] leading-[1.08]">
+              {/* Hero Heading Styled with Connecta Brand Colors */}
+              <h1 className="text-3xl sm:text-5xl lg:text-7xl font-extrabold tracking-tight text-[#0A1020] leading-[1.12] sm:leading-[1.08]">
                 African talent, woven into{' '}
-                <span className="inline-block relative text-[#4D78FF] underline decoration-[#F59E0B] decoration-wavy decoration-2">
+                <span className="bg-gradient-to-r from-[#1A73E8] via-[#10B981] to-[#F59E0B] bg-clip-text text-transparent font-black">
                   high-impact Collabo Squads
                 </span>
               </h1>
 
-              <p className="text-base sm:text-xl text-slate-600 leading-relaxed max-w-2xl mx-auto font-normal">
+              <p className="text-sm sm:text-lg lg:text-xl text-slate-600 leading-relaxed max-w-2xl mx-auto font-normal px-2">
                 From plumbers, electricians and technicians to developers, designers and financial advisors, Connecta connects verified African professionals with clients everywhere. Matched with speed, protected by milestone escrow.
               </p>
 
-              {/* Google-style Search Capsule with Real-time Suggestions Dropdown */}
+              {/* Search Capsule with Real-time Suggestions Dropdown */}
               <div ref={searchContainerRef} className="pt-3 max-w-3xl mx-auto relative z-40">
                 <div
                   className={`bg-white transition-all duration-200 shadow-xl hover:shadow-2xl border-2 border-slate-900/10 focus-within:border-[#10B981] focus-within:ring-4 focus-within:ring-[#10B981]/15 p-1.5 sm:p-2 pl-3 sm:pl-4 flex items-center gap-2 sm:gap-3 ${
@@ -976,16 +1069,34 @@ export default function HomePage() {
                   </div>
                   <Link
                     href={`/requests/new?q=${encodeURIComponent(searchQuery)}`}
-                    className="inline-flex items-center gap-2 rounded-full bg-[#0A1020] hover:bg-[#10B981] px-5 sm:px-7 py-3 sm:py-3.5 text-xs sm:text-sm font-extrabold text-white transition-all hover:scale-[1.02] active:scale-[0.98] shrink-0 shadow-md group"
+                    className="inline-flex items-center gap-1.5 sm:gap-2 rounded-full bg-[#0A1020] hover:bg-[#10B981] px-4 sm:px-7 py-2.5 sm:py-3.5 text-xs sm:text-sm font-extrabold text-white transition-all hover:scale-[1.02] active:scale-[0.98] shrink-0 shadow-md group"
                   >
                     <span>Find Talent</span>
                     <span className="text-[#F5A623] group-hover:text-white transition-colors">
-                      {/* 12-Point Golden Starburst matching FAQ */}
                       <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M12 2l1.9 3.9 4.3-.6.5 4.3 4 1.7-1.8 3.9 1.8 3.9-4 1.7-.5 4.3-4.3-.6L12 22l-1.9-3.9-4.3.6-.5-4.3-4-1.7 1.8-3.9-1.8-3.9 4-1.7.5-4.3 4.3.6z" />
                       </svg>
                     </span>
                   </Link>
+                </div>
+
+                {/* Quick Trending Chips below Search */}
+                <div className="pt-3 flex flex-wrap items-center justify-center gap-2 text-xs font-semibold text-slate-600">
+                  <span className="text-slate-400 font-bold">Popular:</span>
+                  {['Web Design', 'UI/UX Design', 'Solar & Inverter', 'Frontend React', 'Plumbing'].map((term) => (
+                    <button
+                      key={term}
+                      type="button"
+                      onClick={() => {
+                        setSearchQuery(term)
+                        const el = document.getElementById('search-input')
+                        el?.focus()
+                      }}
+                      className="px-3 py-1 rounded-full bg-white/80 hover:bg-white border border-slate-200/90 text-slate-700 hover:text-[#0C513F] hover:border-emerald-400 transition-all shadow-2xs cursor-pointer"
+                    >
+                      {term}
+                    </button>
+                  ))}
                 </div>
 
                 {/* Google Search Style Suggestions Dropdown */}
@@ -1066,59 +1177,100 @@ export default function HomePage() {
               </div>
 
               {/* Real Verified Metrics from Connecta Old */}
-              <div className="pt-5 flex flex-wrap items-center justify-center gap-2.5 sm:gap-3 text-xs font-bold text-slate-700">
-                <div className="flex items-center gap-2 bg-white/95 backdrop-blur-md px-3.5 py-2 rounded-full shadow-md border border-slate-200/90 hover:border-[#10B981]/50 hover:shadow-lg transition-all">
-                  <div className="w-5 h-5 rounded-full bg-[#10B981]/15 text-[#10B981] flex items-center justify-center shrink-0">
-                    <svg className="w-3 h-3" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M12 2l1.9 3.9 4.3-.6.5 4.3 4 1.7-1.8 3.9 1.8 3.9-4 1.7-.5 4.3-4.3-.6L12 22l-1.9-3.9-4.3.6-.5-4.3-4-1.7 1.8-3.9-1.8-3.9 4-1.7.5-4.3 4.3.6z" />
-                    </svg>
+              <ScrollReveal variant="fade-up">
+                <div className="pt-6 sm:pt-8 flex flex-wrap items-center justify-center gap-2.5 sm:gap-3 text-xs font-bold text-slate-700">
+                  <div className="flex items-center gap-2 bg-white/95 backdrop-blur-md px-3.5 py-2 rounded-full shadow-md border border-slate-200/90 hover:border-[#10B981]/50 hover:shadow-lg transition-all">
+                    <div className="w-5 h-5 rounded-full bg-[#10B981]/15 text-[#10B981] flex items-center justify-center shrink-0">
+                      <svg className="w-3 h-3" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2l1.9 3.9 4.3-.6.5 4.3 4 1.7-1.8 3.9 1.8 3.9-4 1.7-.5 4.3-4.3-.6L12 22l-1.9-3.9-4.3.6-.5-4.3-4-1.7 1.8-3.9-1.8-3.9 4-1.7.5-4.3 4.3.6z" />
+                      </svg>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <span className="font-black text-[#0A2614] tracking-tight">2,548+</span>
+                      <span className="text-slate-600 font-medium">Professionals Onboard</span>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-1.5">
-                    <span className="font-black text-[#0A2614] tracking-tight">2,548+</span>
-                    <span className="text-slate-600 font-medium">Professionals Onboard</span>
-                  </div>
-                </div>
 
-                <div className="flex items-center gap-2 bg-white/95 backdrop-blur-md px-3.5 py-2 rounded-full shadow-md border border-slate-200/90 hover:border-[#4D78FF]/50 hover:shadow-lg transition-all">
-                  <div className="w-5 h-5 rounded-full bg-[#4D78FF]/15 text-[#4D78FF] flex items-center justify-center shrink-0">
-                    <Globe className="w-3 h-3 stroke-[2.5]" />
+                  <div className="flex items-center gap-2 bg-white/95 backdrop-blur-md px-3.5 py-2 rounded-full shadow-md border border-slate-200/90 hover:border-[#4D78FF]/50 hover:shadow-lg transition-all">
+                    <div className="w-5 h-5 rounded-full bg-[#4D78FF]/15 text-[#4D78FF] flex items-center justify-center shrink-0">
+                      <Globe className="w-3 h-3 stroke-[2.5]" />
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <span className="font-black text-[#0A2614] tracking-tight">2+</span>
+                      <span className="text-slate-600 font-medium">Countries Represented</span>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-1.5">
-                    <span className="font-black text-[#0A2614] tracking-tight">2+</span>
-                    <span className="text-slate-600 font-medium">Countries Represented</span>
-                  </div>
-                </div>
 
-                <div className="flex items-center gap-2 bg-white/95 backdrop-blur-md px-3.5 py-2 rounded-full shadow-md border border-slate-200/90 hover:border-emerald-500/50 hover:shadow-lg transition-all">
-                  <div className="w-5 h-5 rounded-full bg-[#10B981]/15 text-emerald-600 flex items-center justify-center shrink-0">
-                    <ShieldCheck className="w-3 h-3 stroke-[2.5]" />
+                  <div className="flex items-center gap-2 bg-white/95 backdrop-blur-md px-3.5 py-2 rounded-full shadow-md border border-slate-200/90 hover:border-emerald-500/50 hover:shadow-lg transition-all">
+                    <div className="w-5 h-5 rounded-full bg-[#10B981]/15 text-emerald-600 flex items-center justify-center shrink-0">
+                      <ShieldCheck className="w-3 h-3 stroke-[2.5]" />
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <span className="font-black text-emerald-700 tracking-tight">100%</span>
+                      <span className="text-slate-600 font-medium">Escrow Protected</span>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-1.5">
-                    <span className="font-black text-emerald-700 tracking-tight">100%</span>
-                    <span className="text-slate-600 font-medium">Escrow Protected</span>
-                  </div>
-                </div>
 
-                <div className="flex items-center gap-2 bg-white/95 backdrop-blur-md px-3.5 py-2 rounded-full shadow-md border border-slate-200/90 hover:border-[#F59E0B]/50 hover:shadow-lg transition-all">
-                  <div className="w-5 h-5 rounded-full bg-[#F59E0B]/15 text-[#F59E0B] flex items-center justify-center shrink-0">
-                    <svg className="w-3 h-3" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M12 2l1.9 3.9 4.3-.6.5 4.3 4 1.7-1.8 3.9 1.8 3.9-4 1.7-.5 4.3-4.3-.6L12 22l-1.9-3.9-4.3.6-.5-4.3-4-1.7 1.8-3.9-1.8-3.9 4-1.7.5-4.3 4.3.6z" />
-                    </svg>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <span className="font-black text-[#D97706] tracking-tight">&lt;1s</span>
-                    <span className="text-slate-600 font-medium">Avg. AI Match Time</span>
+                  <div className="flex items-center gap-2 bg-white/95 backdrop-blur-md px-3.5 py-2 rounded-full shadow-md border border-slate-200/90 hover:border-[#F59E0B]/50 hover:shadow-lg transition-all">
+                    <div className="w-5 h-5 rounded-full bg-[#F59E0B]/15 text-[#F59E0B] flex items-center justify-center shrink-0">
+                      <svg className="w-3 h-3" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2l1.9 3.9 4.3-.6.5 4.3 4 1.7-1.8 3.9 1.8 3.9-4 1.7-.5 4.3-4.3-.6L12 22l-1.9-3.9-4.3.6-.5-4.3-4-1.7 1.8-3.9-1.8-3.9 4-1.7.5-4.3 4.3.6z" />
+                      </svg>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <span className="font-black text-[#D97706] tracking-tight">&lt;1s</span>
+                      <span className="text-slate-600 font-medium">Avg. AI Match Time</span>
+                    </div>
                   </div>
                 </div>
-              </div>
+              </ScrollReveal>
             </div>
           </div>
         </section>
 
         {/* ================================================================= */}
+        {/* POPULAR SERVICES MOVING CARDS TICKER BAND (Matching cards.png)    */}
+        {/* ================================================================= */}
+        <section className="bg-[#145241] pt-4 pb-4 sm:pt-5 sm:pb-5 relative z-10 overflow-hidden">
+          {/* Infinite scrolling track moving from right to left */}
+          <div className="relative overflow-hidden group py-1">
+            {/* Left & Right Smooth Edge Fade Masks */}
+            <div className="pointer-events-none absolute inset-y-0 left-0 w-12 sm:w-28 bg-gradient-to-r from-[#145241] via-[#145241]/90 to-transparent z-10" />
+            <div className="pointer-events-none absolute inset-y-0 right-0 w-12 sm:w-28 bg-gradient-to-l from-[#145241] via-[#145241]/90 to-transparent z-10" />
+
+            <div className="animate-marquee-left flex items-center gap-3.5 sm:gap-4.5 py-1">
+              {[...POPULAR_CARDS, ...POPULAR_CARDS, ...POPULAR_CARDS, ...POPULAR_CARDS].map((item, idx) => (
+                <button
+                  key={`${item.name}-${idx}`}
+                  type="button"
+                  onClick={() => {
+                    setSearchQuery(item.name)
+                    const el = document.getElementById('search-input')
+                    el?.focus()
+                  }}
+                  className="shrink-0 bg-[#246251] hover:bg-[#2C7561] text-white border border-emerald-400/25 hover:border-emerald-300/80 rounded-full h-[46px] sm:h-[50px] px-5 sm:px-6 flex items-center gap-3 sm:gap-3.5 shadow-sm hover:shadow-lg hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer select-none"
+                >
+                  <div className="shrink-0 flex items-center justify-center">
+                    <PopularCardIcon type={item.iconType} color={item.iconColor} />
+                  </div>
+                  <span className="font-bold text-white text-sm sm:text-[15px] tracking-tight whitespace-nowrap">
+                    {item.name}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Organic Scalloped Edge Divider from section-broder.png into About Section */}
+        <div className="w-full overflow-hidden leading-none -mt-px relative z-20 pointer-events-none select-none bg-[#F5F7FC]">
+          <SectionBorderDivider color="#145241" className="block w-full" />
+        </div>
+
+        {/* ================================================================= */}
         {/* ABOUT (VISION AND MISSION & PHILOSOPHY SECTION)                   */}
         {/* ================================================================= */}
-        <section id="about" className="py-24 sm:py-32 lg:py-36 bg-[#F5F7FC] relative overflow-hidden border-y border-slate-200">
+        <section id="about" className="scroll-mt-24 py-16 sm:py-24 lg:py-32 bg-[#F5F7FC] relative overflow-hidden border-y border-slate-200">
           <span id="vision-mission" className="sr-only" />
           {/* Halftone / Dot pattern from image */}
           <div
@@ -1130,12 +1282,13 @@ export default function HomePage() {
           />
 
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-            <div className="text-center max-w-3xl mx-auto mb-16 sm:mb-20 space-y-4">
+            <ScrollReveal variant="fade-up">
+              <div className="text-center max-w-3xl mx-auto mb-16 sm:mb-20 space-y-4">
               <div className="flex items-center justify-center gap-3">
                 <div className="w-10 h-10 rounded-full border-2 border-[#0A1020] flex items-center justify-center font-bold text-xl shrink-0">
                   ↓
                 </div>
-                <h2 className="text-5xl sm:text-7xl font-black text-[#0A2614] tracking-tight">
+                <h2 className="text-3xl sm:text-5xl lg:text-7xl font-black text-[#0A2614] tracking-tight">
                   Vision &amp; Mission
                 </h2>
               </div>
@@ -1143,15 +1296,17 @@ export default function HomePage() {
                 What we believe and what we&apos;re building across Africa.
               </p>
             </div>
+            </ScrollReveal>
 
             {/* Distinct Cards with Angled Arrows (Exact Match from Root Image) */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch">
+            <ScrollReveal variant="fade-up" delay={80}>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch">
               {/* Vision Card (Amber / Gold from image) */}
-              <div className="bg-[#E67E00] text-white rounded-3xl p-8 sm:p-12 shadow-2xl relative overflow-hidden flex flex-col justify-between">
+              <div className="bg-[#E67E00] text-white rounded-3xl p-6 sm:p-10 lg:p-12 shadow-2xl relative overflow-hidden flex flex-col justify-between">
                 <div className="space-y-6">
                   <div className="flex items-center gap-3">
                     <CornerDownRight className="w-8 h-8 sm:w-10 sm:h-10 text-white shrink-0 stroke-[2.5]" />
-                    <h3 className="text-3xl sm:text-4xl font-extrabold tracking-tight">
+                    <h3 className="text-2xl sm:text-4xl font-extrabold tracking-tight">
                       Vision<br />Statement
                     </h3>
                   </div>
@@ -1166,11 +1321,11 @@ export default function HomePage() {
               </div>
 
               {/* Mission Card (Deep Royal Indigo / Navy from image) */}
-              <div className="bg-[#2E1A47] text-white rounded-3xl p-8 sm:p-12 shadow-2xl relative overflow-hidden flex flex-col justify-between">
+              <div className="bg-[#2E1A47] text-white rounded-3xl p-6 sm:p-10 lg:p-12 shadow-2xl relative overflow-hidden flex flex-col justify-between">
                 <div className="space-y-6">
                   <div className="flex items-center gap-3">
                     <CornerDownRight className="w-8 h-8 sm:w-10 sm:h-10 text-white shrink-0 stroke-[2.5]" />
-                    <h3 className="text-3xl sm:text-4xl font-extrabold tracking-tight">
+                    <h3 className="text-2xl sm:text-4xl font-extrabold tracking-tight">
                       Mission<br />Statement
                     </h3>
                   </div>
@@ -1184,9 +1339,11 @@ export default function HomePage() {
                 </div>
               </div>
             </div>
+            </ScrollReveal>
 
             {/* Core Objectives (Exact Cards from core objectives.png) */}
-            <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+            <ScrollReveal variant="fade-up" delay={120}>
+              <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="bg-[#D97706] text-white rounded-2xl p-6 sm:p-8 shadow-md space-y-3">
                 <div className="flex items-center gap-2">
                   <CornerDownRight className="w-6 h-6 text-white shrink-0 stroke-[2.5]" />
@@ -1217,62 +1374,60 @@ export default function HomePage() {
                 </p>
               </div>
             </div>
-          </div>
-        </section>
+          </ScrollReveal>
+        </div>
+      </section>
 
         {/* ================================================================= */}
         {/* WHO CONNECTA SERVES (EXACT LAYOUT FROM who to expect full section) */}
         {/* ================================================================= */}
-        <section id="who-connecta-serves" className="py-24 sm:py-32 lg:py-36 bg-white relative overflow-hidden">
+        <section id="who-connecta-serves" className="scroll-mt-24 py-16 sm:py-24 lg:py-32 bg-white relative overflow-hidden">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-            <div className="bg-[#0A2614] text-white rounded-3xl p-8 sm:p-14 lg:p-16 relative shadow-2xl overflow-hidden">
-              {/* Halftone / Pattern */}
-              <div
-                className="absolute inset-0 opacity-[0.05] pointer-events-none rounded-3xl overflow-hidden"
-                style={{
-                  backgroundImage: 'radial-gradient(#FFFFFF 1.5px, transparent 1.5px)',
-                  backgroundSize: '18px 18px',
-                }}
-              />
+            <ScrollReveal variant="scale-up" duration={750}>
+              <div className="bg-[#0A2614] text-white rounded-2xl sm:rounded-3xl p-6 sm:p-10 lg:p-16 relative shadow-2xl overflow-hidden">
+                {/* Halftone / Pattern */}
+                <div
+                  className="absolute inset-0 opacity-[0.05] pointer-events-none rounded-3xl overflow-hidden"
+                  style={{
+                    backgroundImage: 'radial-gradient(#FFFFFF 1.5px, transparent 1.5px)',
+                    backgroundSize: '18px 18px',
+                  }}
+                />
 
-              {/* 3D Glass Helix Ribbon & Floating Beads from deco.png (Seamless Top-Right Corner Integration) */}
-              <div className="absolute top-0 right-0 w-[220px] sm:w-[300px] lg:w-[380px] h-[200px] sm:h-[260px] lg:h-[320px] pointer-events-none z-10 flex items-start justify-end overflow-hidden">
-                <ConnectaCornerHelix className="w-full h-full" />
-              </div>
-
-              <div className="relative z-10 max-w-3xl space-y-5">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full border-2 border-white flex items-center justify-center font-bold text-xl shrink-0">
-                    ↓
+                <div className="relative z-10 max-w-3xl space-y-5">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full border-2 border-white flex items-center justify-center font-bold text-xl shrink-0 shadow-sm">
+                      ↓
+                    </div>
+                    <h2 className="text-4xl sm:text-6xl font-black tracking-tight text-white leading-[1.1]">
+                      Who Connecta Serves
+                    </h2>
                   </div>
-                  <h2 className="text-5xl sm:text-7xl font-black tracking-tight text-white">
-                    Who Connecta Serves
-                  </h2>
+                  <p className="text-base sm:text-lg font-medium leading-relaxed text-emerald-100/90 max-w-2xl">
+                    Whether you are hiring qualified tradespeople for your property, contracting digital talent for your company, or forming a multi-skilled Collabo Squad to take on bigger briefs, Connecta is built for the way you work.
+                  </p>
                 </div>
-                <p className="text-base sm:text-lg font-medium leading-relaxed text-emerald-100">
-                  Whether you are hiring qualified tradespeople for your property, contracting digital talent for your company, or forming a multi-skilled Collabo Squad to take on bigger briefs, Connecta is built for the way you work.
-                </p>
-              </div>
 
-              {/* Colorful Pill Grid (Exact Match from Root Image) */}
-              <div className="mt-10 flex flex-wrap gap-3 relative z-10">
-                {WHO_CONNECTA_SERVES.map((pill, idx) => (
-                  <span
-                    key={idx}
-                    className={`${pill.color} text-xs sm:text-sm font-bold px-4 py-2.5 rounded-full shadow-md transition-transform hover:scale-105 cursor-default`}
-                  >
-                    {pill.title}
-                  </span>
-                ))}
+                {/* Colorful Pill Grid (Exact Match from Root Image) */}
+                <div className="mt-10 flex flex-wrap gap-3 relative z-10">
+                  {WHO_CONNECTA_SERVES.map((pill, idx) => (
+                    <span
+                      key={idx}
+                      className={`${pill.color} text-xs sm:text-sm font-bold px-4 py-2.5 rounded-full shadow-md transition-transform hover:scale-105 cursor-default`}
+                    >
+                      {pill.title}
+                    </span>
+                  ))}
+                </div>
               </div>
-            </div>
+            </ScrollReveal>
           </div>
         </section>
 
         {/* ================================================================= */}
         {/* BRAND CHARACTER & TOOLKIT SHOWCASE (ADAPTED TO VISION/MISSION)     */}
         {/* ================================================================= */}
-        <section className="py-16 sm:py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <section className="py-12 sm:py-20 lg:py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {/* Card 1: Electric Azure / Indigo */}
             <div className="bg-[#1E1B4B] text-white rounded-3xl overflow-hidden shadow-2xl relative flex flex-col justify-between border border-white/10 group">
@@ -1393,7 +1548,7 @@ export default function HomePage() {
         {/* ================================================================= */}
         {/* PLATFORM FEATURES (EXACT POST-IT MASKING TAPE LAYOUT FROM IMAGE)  */}
         {/* ================================================================= */}
-        <section id="features" className="py-24 sm:py-32 lg:py-36 bg-[#F5F7FC] relative overflow-hidden border-y border-slate-200">
+        <section id="features" className="py-16 sm:py-24 lg:py-32 bg-[#F5F7FC] relative overflow-hidden border-y border-slate-200">
           {/* Halftone / Dot pattern from program feature.png */}
           <div
             className="absolute inset-0 opacity-[0.06] pointer-events-none"
@@ -1409,7 +1564,7 @@ export default function HomePage() {
               <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 sm:border-[2.5px] border-[#00C466] text-[#00C466] flex items-center justify-center font-bold text-xl sm:text-2xl shrink-0">
                 ↓
               </div>
-              <h2 className="text-5xl sm:text-7xl font-black text-[#0A2614] tracking-tight">
+              <h2 className="text-3xl sm:text-5xl lg:text-7xl font-black text-[#0A2614] tracking-tight">
                 Platform Features
               </h2>
             </div>
@@ -1424,7 +1579,7 @@ export default function HomePage() {
                   style={{ boxShadow: '0 2px 4px rgba(0,0,0,0.18)' }}
                 />
 
-                <div className="bg-[#00C466] text-white rounded-2xl sm:rounded-3xl p-8 sm:p-12 shadow-2xl relative">
+                <div className="bg-[#00C466] text-white rounded-2xl sm:rounded-3xl p-6 sm:p-10 lg:p-12 shadow-2xl relative">
                   {/* Curled paper corner flap at bottom-left */}
                   <div className="absolute -bottom-3 left-0 w-8 sm:w-10 h-3 bg-[#008044] rounded-bl-sm transform origin-top-left -skew-x-12 shadow-xs pointer-events-none" />
 
@@ -1447,7 +1602,7 @@ export default function HomePage() {
                   style={{ boxShadow: '0 2px 4px rgba(0,0,0,0.18)' }}
                 />
 
-                <div className="bg-[#3D2F6B] text-white rounded-2xl sm:rounded-3xl p-8 sm:p-12 shadow-2xl relative">
+                <div className="bg-[#3D2F6B] text-white rounded-2xl sm:rounded-3xl p-6 sm:p-10 lg:p-12 shadow-2xl relative">
                   {/* Curled paper corner flap at bottom-right */}
                   <div className="absolute -bottom-3 right-0 w-8 sm:w-10 h-3 bg-[#241A45] rounded-br-sm transform origin-top-right skew-x-12 shadow-xs pointer-events-none" />
 
@@ -1470,7 +1625,7 @@ export default function HomePage() {
                   style={{ boxShadow: '0 2px 4px rgba(0,0,0,0.18)' }}
                 />
 
-                <div className="bg-[#0B132B] text-white rounded-2xl sm:rounded-3xl p-8 sm:p-12 shadow-2xl relative">
+                <div className="bg-[#0B132B] text-white rounded-2xl sm:rounded-3xl p-6 sm:p-10 lg:p-12 shadow-2xl relative">
                   {/* Curled paper corner flap at bottom-left */}
                   <div className="absolute -bottom-3 left-0 w-8 sm:w-10 h-3 bg-[#050A17] rounded-bl-sm transform origin-top-left -skew-x-12 shadow-xs pointer-events-none" />
 
@@ -1493,7 +1648,7 @@ export default function HomePage() {
                   style={{ boxShadow: '0 2px 4px rgba(0,0,0,0.18)' }}
                 />
 
-                <div className="bg-[#063B23] text-white rounded-2xl sm:rounded-3xl p-8 sm:p-12 shadow-2xl relative">
+                <div className="bg-[#063B23] text-white rounded-2xl sm:rounded-3xl p-6 sm:p-10 lg:p-12 shadow-2xl relative">
                   {/* Curled paper corner flap at bottom-right */}
                   <div className="absolute -bottom-3 right-0 w-8 sm:w-10 h-3 bg-[#032113] rounded-br-sm transform origin-top-right skew-x-12 shadow-xs pointer-events-none" />
 
@@ -1512,198 +1667,191 @@ export default function HomePage() {
         </section>
 
         {/* ================================================================= */}
-        {/* SUPPORTED SERVICE TRADES (CHOWDECK-STYLE EXPANDING ACCORDION)     */}
-        {/* Exact Layout & Visual Identity from Explore Supported Trades.png  */}
+        {/* SUPPORTED SERVICE TRADES (TOP-TO-BOTTOM CARD STACK)               */}
+        {/* Responsive Up-To-Down Layout without redundant badge labels       */}
         {/* ================================================================= */}
-        <section id="services" className="py-24 sm:py-32 lg:py-36 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-          <div className="flex flex-col md:flex-row md:items-end justify-between mb-14 sm:mb-18 gap-6">
-            <div className="space-y-3">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full border-2 border-[#0A1020] flex items-center justify-center font-bold text-xl shrink-0">
-                  ↓
+        <section id="services" className="scroll-mt-24 py-16 sm:py-24 lg:py-32 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+          <ScrollReveal variant="fade-up">
+            <div className="flex flex-col lg:flex-row lg:items-end justify-between mb-10 sm:mb-14 gap-6 pb-6 border-b border-slate-200/80">
+              <div className="space-y-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-full border-2 border-[#0A1020] flex items-center justify-center font-bold text-xl shrink-0 shadow-sm">
+                    ↓
+                  </div>
+                  <h2 className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight text-[#0A2614] leading-[1.1]">
+                    Explore Supported Trades
+                  </h2>
                 </div>
-                <h2 className="text-5xl sm:text-7xl font-black tracking-tight text-[#0A2614]">
-                  Explore Supported Trades
-                </h2>
+                <p className="text-sm sm:text-base lg:text-lg font-medium leading-relaxed text-slate-600 max-w-2xl">
+                  Whatever your trade, there is work for it here. Connecta supports both hands-on trades like plumbing, electrical and carpentry, and digital professions like programming and brand design. Talent across every sector gets hired safely.
+                </p>
               </div>
-              <p className="text-base sm:text-lg font-medium leading-relaxed text-slate-600 max-w-2xl">
-                Whatever your trade, there is work for it here. Connecta supports both hands-on trades like plumbing, electrical and carpentry, and digital professions like programming and brand design. Talent across every sector gets hired safely.
-              </p>
-            </div>
 
-            {/* Category Pillar Switcher */}
-            <div className="flex items-center gap-2 bg-slate-100 p-1.5 rounded-full border border-slate-200 self-start md:self-auto shadow-2xs">
-              <button
-                type="button"
-                onClick={() => {
-                  setTradeCategoryGroup('metro')
-                  setActiveAccordionIndex(0)
-                }}
-                className={`px-4 py-2 rounded-full text-xs font-bold transition-all cursor-pointer ${
-                  tradeCategoryGroup === 'metro'
-                    ? 'bg-[#0A1020] text-white shadow-xs'
-                    : 'text-slate-600 hover:text-slate-900'
-                }`}
-              >
-                Metropolitan Repairs
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setTradeCategoryGroup('workshop')
-                  setActiveAccordionIndex(0)
-                }}
-                className={`px-4 py-2 rounded-full text-xs font-bold transition-all cursor-pointer ${
-                  tradeCategoryGroup === 'workshop'
-                    ? 'bg-[#0A1020] text-white shadow-xs'
-                    : 'text-slate-600 hover:text-slate-900'
-                }`}
-              >
-                Workshop & Vehicles
-              </button>
+              {/* Category Pillar Switcher: Perfectly Fitted and Aligned */}
+              <div className="inline-flex items-center gap-1.5 p-1.5 rounded-full bg-slate-100 border border-slate-200/90 shadow-xs self-start lg:self-auto max-w-full">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setTradeCategoryGroup('metro')
+                    setActiveAccordionIndex(0)
+                  }}
+                  className={`px-4 sm:px-6 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-bold transition-all cursor-pointer whitespace-nowrap ${
+                    tradeCategoryGroup === 'metro'
+                      ? 'bg-[#0A1020] text-white shadow-md'
+                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
+                  }`}
+                >
+                  Metropolitan Repairs
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setTradeCategoryGroup('workshop')
+                    setActiveAccordionIndex(0)
+                  }}
+                  className={`px-4 sm:px-6 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-bold transition-all cursor-pointer whitespace-nowrap ${
+                    tradeCategoryGroup === 'workshop'
+                      ? 'bg-[#0A1020] text-white shadow-md'
+                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
+                  }`}
+                >
+                  Workshop & Vehicles
+                </button>
+              </div>
             </div>
-          </div>
+          </ScrollReveal>
 
-          {/* Chowdeck-style 4-Card Horizontal Expanding Accordion (Auto-cycles every 3s, Smooth Hover & Crossfade) */}
-          <div
-            className="w-full overflow-x-auto sm:overflow-visible pb-2 scrollbar-none"
-            onMouseEnter={() => setIsAccordionPaused(true)}
-            onMouseLeave={() => setIsAccordionPaused(false)}
-          >
-            <div className="flex gap-4 sm:gap-5 items-stretch h-[480px] sm:h-[530px] min-w-[700px] sm:min-w-0 w-full">
+          {/* Up-to-Down Vertical Stack of Cards (100% Mobile & Desktop Responsive) */}
+          <ScrollReveal variant="fade-up" delay={80}>
+            <div className="flex flex-col gap-4 sm:gap-5 w-full">
               {TRADE_ACCORDION_ITEMS[tradeCategoryGroup].map((item, idx) => {
                 const isActive = activeAccordionIndex === idx
                 return (
                   <div
                     key={item.id}
-                    onMouseEnter={() => {
-                      setActiveAccordionIndex(idx)
-                      setIsAccordionPaused(true)
-                    }}
                     onClick={() => {
-                      setActiveAccordionIndex(idx)
-                      setIsAccordionPaused(true)
+                      setActiveAccordionIndex(isActive ? -1 : idx)
                     }}
-                    className={`relative overflow-hidden rounded-[28px] border-2 border-black cursor-pointer select-none transition-[flex-grow,flex-basis,max-width,width,box-shadow,filter] duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${item.bg} ${
+                    className={`relative overflow-hidden rounded-2xl sm:rounded-3xl border-2 border-black/90 cursor-pointer select-none transition-all duration-300 ${item.bg} ${
                       isActive
-                        ? 'flex-[5_1_0%] min-w-[320px] sm:min-w-[440px] shadow-2xl cursor-default'
-                        : 'flex-[1_1_0%] min-w-[76px] sm:min-w-[96px] md:min-w-[108px] max-w-[130px] shadow-sm hover:shadow-lg hover:brightness-[0.97]'
+                        ? 'shadow-xl'
+                        : 'shadow-sm hover:shadow-md hover:brightness-[0.98]'
                     }`}
                   >
-                    {/* EXPANDED CONTENT LAYER (Smooth cross-fade & gentle scale reveal) */}
-                    <div
-                      className={`h-full w-full flex flex-col justify-between p-6 sm:p-9 lg:p-10 transition-all duration-500 ease-out ${
-                        isActive
-                          ? 'opacity-100 scale-100 pointer-events-auto delay-100'
-                          : 'opacity-0 scale-95 pointer-events-none absolute inset-0'
-                      }`}
-                    >
-                      {/* Top Row: Icon + Guarantee Badge */}
-                      <div className="flex items-start justify-between gap-4">
-                        <div className="p-1 shrink-0">
+                    {/* Header Row: Trade Emblem + Title + Toggle Arrow */}
+                    <div className="p-4 sm:p-6 lg:p-7 flex items-center justify-between gap-3 sm:gap-4">
+                      <div className="flex items-center gap-3 sm:gap-5 min-w-0">
+                        <div className="p-1 shrink-0 w-11 h-11 sm:w-13 sm:h-13 rounded-2xl bg-white/70 border border-black/10 flex items-center justify-center shadow-2xs">
                           {renderAccordionTradeIcon(item.icon)}
                         </div>
-                        <span className={`text-[11px] font-extrabold px-3.5 py-1.5 rounded-full shadow-xs flex items-center gap-1.5 shrink-0 ${item.badgeColor}`}>
-                          <span className="w-2 h-2 rounded-full bg-white animate-pulse" />
-                          <span>{item.badge}</span>
-                        </span>
-                      </div>
 
-                      {/* Middle Content: Title, Description, Tags, and Visual Preview */}
-                      <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center my-auto py-2">
-                        <div className="md:col-span-7 space-y-3.5">
-                          <h3 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-tight antialiased">
+                        <div className="min-w-0">
+                          <h3 className="text-lg sm:text-2xl lg:text-3xl font-black text-slate-900 tracking-tight leading-snug">
                             {item.title}
                           </h3>
-                          <p className="text-sm sm:text-base text-slate-700/90 font-medium leading-relaxed max-w-lg antialiased">
-                            {item.desc}
-                          </p>
-                          {/* Sub-Specialty Tags */}
-                          <div className="flex flex-wrap gap-2 pt-1">
-                            {item.tags.map((tag) => (
-                              <span
-                                key={tag}
-                                className="text-xs font-semibold px-3 py-1 rounded-full bg-white/80 backdrop-blur-xs border border-black/10 text-slate-800 shadow-2xs tracking-tight"
-                              >
-                                {tag}
-                              </span>
-                            ))}
-                          </div>
-                        </div>
 
-                        {/* Right Visual: Vetted Artisan Card Frame */}
-                        <div className="md:col-span-5 hidden sm:flex flex-col items-center justify-center">
-                          <div className="relative w-44 h-44 lg:w-48 lg:h-48 rounded-2xl overflow-hidden border-2 border-black/25 shadow-xl bg-slate-900/10 group">
-                            <Image
-                              src={item.image}
-                              alt={item.alt}
-                              fill
-                              sizes="220px"
-                              className="object-cover transition-transform duration-500 hover:scale-105"
-                            />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-                            <div className="absolute bottom-2.5 left-3 right-3 text-white text-xs">
-                              <div className="font-extrabold flex items-center gap-1">
-                                <span>{item.artisanName}</span>
-                                <BadgeCheck className="w-3.5 h-3.5 text-[#10B981]" />
-                              </div>
-                              <div className="text-[10px] text-white/80">{item.artisanRating}</div>
-                            </div>
-                          </div>
+                          {!isActive && (
+                            <p className="text-xs sm:text-sm text-slate-700/80 font-medium truncate max-w-xl sm:max-w-2xl mt-0.5 sm:mt-1">
+                              {item.desc}
+                            </p>
+                          )}
                         </div>
                       </div>
 
-                      {/* Bottom Row: Direct Action CTA */}
-                      <div className="pt-2 flex flex-wrap items-center justify-between gap-4 border-t border-black/10">
-                        <Link
-                          href={`/requests/new?category=${item.slug}`}
-                          className="bg-[#0A1020] hover:bg-black text-white px-6 sm:px-7 py-3 rounded-full text-xs sm:text-sm font-extrabold inline-flex items-center gap-2 shadow-md hover:scale-105 transition-all"
+                      <div className="flex items-center shrink-0">
+                        <div
+                          className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full border-2 border-black flex items-center justify-center transition-transform duration-300 ${
+                            isActive ? 'rotate-180 bg-black text-white' : 'bg-white text-black'
+                          }`}
                         >
-                          <span>Book {item.title}</span>
-                          <CornerDownRight className="w-4 h-4 stroke-[2.5]" />
-                        </Link>
-
-                        <div className="flex items-center gap-2 text-xs font-semibold text-slate-700">
-                          <span className="w-2 h-2 rounded-full bg-[#10B981]" />
-                          <span>Verified Kobo Escrow Protection</span>
+                          <ChevronDown className="w-4 h-4 sm:w-5 sm:h-5 stroke-[2.5]" />
                         </div>
                       </div>
                     </div>
 
-                    {/* COLLAPSED VERTICAL CARD VIEW (Smooth cross-fade & centered vertical typography) */}
+                    {/* Smooth Animated Downward Expansion (Up to Down Flow) */}
                     <div
-                      className={`h-full w-full flex flex-col items-center justify-between py-8 transition-all duration-500 ease-out pointer-events-none ${
+                      className={`grid transition-all duration-400 ease-in-out ${
                         isActive
-                          ? 'opacity-0 scale-95 pointer-events-none absolute inset-0'
-                          : 'opacity-100 scale-100'
+                          ? 'grid-rows-[1fr] opacity-100 pb-5 sm:pb-7 px-4 sm:px-7 lg:px-9'
+                          : 'grid-rows-[0fr] opacity-0 pb-0 px-4 sm:px-7 lg:px-9 pointer-events-none'
                       }`}
                     >
-                      {/* Top: Iconic SVG Emblem */}
-                      <div className="pt-1">
-                        {renderAccordionTradeIcon(item.icon)}
-                      </div>
+                      <div className="overflow-hidden">
+                        <div className="pt-4 pb-2 border-t border-black/10 grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-center">
+                          {/* Left Column: Description, Specialty Tags & CTA */}
+                          <div className="lg:col-span-8 space-y-4">
+                            <p className="text-sm sm:text-base text-slate-800 font-medium leading-relaxed max-w-2xl antialiased">
+                              {item.desc}
+                            </p>
 
-                      {/* Bottom: Rotated Vertical Typography Reading Bottom to Top */}
-                      <div className="flex-1 flex items-end justify-center pb-2">
-                        <span
-                          className={`[writing-mode:vertical-rl] rotate-180 text-lg sm:text-xl lg:text-2xl font-black tracking-tight whitespace-nowrap select-none ${item.textColor}`}
-                        >
-                          {item.collapsedTitle}
-                        </span>
+                            {/* Sub-Specialty Tags */}
+                            <div className="flex flex-wrap gap-1.5 sm:gap-2 pt-1">
+                              {item.tags.map((tag) => (
+                                <span
+                                  key={tag}
+                                  className="text-xs font-semibold px-3 py-1 rounded-full bg-white/90 backdrop-blur-xs border border-black/10 text-slate-800 shadow-2xs tracking-tight"
+                                >
+                                  {tag}
+                                </span>
+                              ))}
+                            </div>
+
+                            {/* Action CTA & Escrow Guarantee */}
+                            <div className="pt-3 flex flex-wrap items-center gap-3 sm:gap-4">
+                              <Link
+                                href={`/requests/new?category=${item.slug}`}
+                                className="bg-[#0A1020] hover:bg-black text-white px-5 sm:px-7 py-2.5 sm:py-3 rounded-full text-xs sm:text-sm font-extrabold inline-flex items-center gap-2 shadow-md hover:scale-105 active:scale-95 transition-all"
+                              >
+                                <span>Book {item.title}</span>
+                                <CornerDownRight className="w-4 h-4 stroke-[2.5]" />
+                              </Link>
+
+                              <div className="flex items-center gap-2 text-xs font-semibold text-slate-700">
+                                <span className="w-2 h-2 rounded-full bg-[#10B981]" />
+                                <span>Verified Kobo Escrow Protection</span>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Right Column: Vetted Artisan Card */}
+                          <div className="lg:col-span-4 flex items-center justify-start lg:justify-end">
+                            <div className="flex items-center gap-3.5 bg-black/85 text-white p-3 sm:p-4 rounded-2xl border border-white/20 shadow-xl max-w-xs w-full">
+                              <div className="relative w-14 h-14 sm:w-16 sm:h-16 rounded-xl overflow-hidden shrink-0 border border-white/20">
+                                <Image
+                                  src={item.image}
+                                  alt={item.alt}
+                                  fill
+                                  sizes="80px"
+                                  className="object-cover"
+                                />
+                              </div>
+                              <div className="min-w-0">
+                                <div className="font-extrabold flex items-center gap-1.5 text-sm">
+                                  <span className="truncate">{item.artisanName}</span>
+                                  <BadgeCheck className="w-4 h-4 text-[#10B981] shrink-0" />
+                                </div>
+                                <div className="text-xs text-white/90 font-medium truncate">{item.artisanTitle}</div>
+                                <div className="text-[11px] text-amber-300 font-bold mt-0.5">{item.artisanRating}</div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
                 )
               })}
             </div>
-          </div>
+          </ScrollReveal>
         </section>
 
         {/* ================================================================= */}
         {/* FEATURED VERIFIED SPECIALISTS (CHOWDECK MASONRY GALLERY LAYOUT)   */}
         {/* Exact Layout from Featured Verified Specialists.png               */}
         {/* ================================================================= */}
-        <section id="featured-specialists" className="py-24 sm:py-32 lg:py-36 bg-[#F8FAFC] border-y border-slate-200 relative overflow-hidden">
+        <section id="featured-specialists" className="scroll-mt-24 py-16 sm:py-24 lg:py-32 bg-[#F8FAFC] border-y border-slate-200 relative overflow-hidden">
+          <span id="specialists" className="sr-only" />
           {/* Subtle Halftone Background */}
           <div
             className="absolute inset-0 opacity-[0.04] pointer-events-none"
@@ -1723,7 +1871,7 @@ export default function HomePage() {
                   </div>
                 </div>
 
-                <h2 className="text-5xl sm:text-7xl font-black tracking-tight text-[#0A2614] leading-[1.05]">
+                <h2 className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight text-[#0A2614] leading-[1.1] sm:leading-[1.05]">
                   Featured Verified Specialists
                 </h2>
 
@@ -1901,13 +2049,15 @@ export default function HomePage() {
         {/* ================================================================= */}
         {/* HOW CONNECTA WORKS (ADAPTED TO CORE OBJECTIVES CARDS LAYOUT)      */}
         {/* ================================================================= */}
-        <section id="how-it-works" className="py-24 sm:py-32 lg:py-36 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-          <div className="max-w-3xl mx-auto text-center mb-16 sm:mb-20 space-y-4">
+        <section id="how-it-works" className="scroll-mt-24 py-16 sm:py-24 lg:py-32 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+          <span id="how-it-work" className="sr-only" />
+          <ScrollReveal variant="fade-up">
+            <div className="max-w-3xl mx-auto text-center mb-16 sm:mb-20 space-y-4">
             <div className="flex items-center justify-center gap-3">
               <div className="w-10 h-10 rounded-full border-2 border-[#0A1020] flex items-center justify-center font-bold text-xl shrink-0">
                 ↓
               </div>
-              <h2 className="text-5xl sm:text-7xl font-black tracking-tight text-[#0A2614]">
+              <h2 className="text-3xl sm:text-5xl lg:text-7xl font-black tracking-tight text-[#0A2614]">
                 How Connecta Works
               </h2>
             </div>
@@ -1922,7 +2072,7 @@ export default function HomePage() {
               return (
                 <div
                   key={st.number}
-                  className={`${st.cardBg} text-white rounded-3xl p-8 sm:p-10 shadow-2xl relative overflow-hidden flex flex-col justify-between border border-white/10 group`}
+                  className={`${st.cardBg} text-white rounded-2xl sm:rounded-3xl p-6 sm:p-10 shadow-2xl relative overflow-hidden flex flex-col justify-between border border-white/10 group`}
                 >
                   {/* Halftone / Dot pattern */}
                   <div
@@ -1963,13 +2113,14 @@ export default function HomePage() {
                 </div>
               )
             })}
-          </div>
+            </div>
+          </ScrollReveal>
         </section>
 
         {/* ================================================================= */}
         {/* THE CONNECTA TRUST STANDARD (EXACT MATCH TO core objectives.png)   */}
         {/* ================================================================= */}
-        <section id="trust-standard" className="py-24 sm:py-32 lg:py-36 bg-[#F4FBF7] relative overflow-hidden border-y border-emerald-100">
+        <section id="trust-standard" className="py-16 sm:py-24 lg:py-32 bg-[#F4FBF7] relative overflow-hidden border-y border-emerald-100">
           {/* Halftone Dot Pattern from core objectives.png */}
           <div
             className="absolute inset-0 opacity-[0.14] pointer-events-none"
@@ -2084,13 +2235,13 @@ export default function HomePage() {
         {/* ================================================================= */}
         {/* CUSTOMER REVIEWS (VISION/MISSION ADAPTATION)                       */}
         {/* ================================================================= */}
-        <section id="reviews" className="py-24 sm:py-32 lg:py-36 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+        <section id="reviews" className="py-16 sm:py-24 lg:py-32 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
           <div className="max-w-3xl mx-auto text-center mb-16 sm:mb-20 space-y-4">
             <div className="flex items-center justify-center gap-3">
               <div className="w-10 h-10 rounded-full border-2 border-[#0A1020] flex items-center justify-center font-bold text-xl shrink-0">
                 ↓
               </div>
-              <h2 className="text-5xl sm:text-7xl font-black tracking-tight text-[#0A2614]">
+              <h2 className="text-3xl sm:text-5xl lg:text-7xl font-black tracking-tight text-[#0A2614]">
                 Verified Customer Stories
               </h2>
             </div>
@@ -2147,14 +2298,14 @@ export default function HomePage() {
         {/* ================================================================= */}
         {/* FREQUENTLY ASKED QUESTIONS (EXACT TWO-COLUMN LAYOUT FROM faqs.png) */}
         {/* ================================================================= */}
-        <section id="faq" className="py-24 sm:py-32 lg:py-36 bg-white border-y border-slate-200 relative overflow-hidden">
+        <section id="faq" className="py-16 sm:py-24 lg:py-32 bg-white border-y border-slate-200 relative overflow-hidden">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             {/* Outer Box Card matching faqs.png */}
-            <div className="border-2 border-[#0A1020] rounded-3xl p-6 sm:p-10 lg:p-14 bg-white shadow-2xl">
+            <div className="border-2 border-[#0A1020] rounded-2xl sm:rounded-3xl p-5 sm:p-8 lg:p-14 bg-white shadow-2xl">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-14 items-start">
                 {/* Left Column: FAQs. */}
                 <div className="space-y-6">
-                  <h2 className="text-5xl sm:text-7xl font-black text-[#0A2614] tracking-tight">
+                  <h2 className="text-3xl sm:text-5xl lg:text-7xl font-black text-[#0A2614] tracking-tight">
                     FAQs.
                   </h2>
 
@@ -2195,7 +2346,7 @@ export default function HomePage() {
 
                 {/* Right Column: Ans. */}
                 <div className="space-y-6">
-                  <h2 className="text-5xl sm:text-7xl font-black text-[#0A2614] tracking-tight">
+                  <h2 className="text-3xl sm:text-5xl lg:text-7xl font-black text-[#0A2614] tracking-tight">
                     Ans.
                   </h2>
 
@@ -2234,9 +2385,9 @@ export default function HomePage() {
         {/* ================================================================= */}
         {/* PROVIDER CTA BANNER (WHO CONNECTA SERVES STYLE GRAND CONTAINER)    */}
         {/* ================================================================= */}
-        <section className="py-24 sm:py-32 lg:py-36 bg-[#F5F7FC]">
+        <section className="py-16 sm:py-24 lg:py-32 bg-[#F5F7FC]">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="bg-[#0A2614] text-white rounded-3xl p-8 sm:p-14 lg:p-16 relative overflow-hidden shadow-2xl">
+            <div className="bg-[#0A2614] text-white rounded-2xl sm:rounded-3xl p-6 sm:p-10 lg:p-16 relative overflow-hidden shadow-2xl">
               {/* Halftone / Dot pattern */}
               <div
                 className="absolute inset-0 opacity-[0.05] pointer-events-none"
@@ -2254,7 +2405,7 @@ export default function HomePage() {
                     </div>
                   </div>
 
-                  <h3 className="text-5xl sm:text-7xl font-black tracking-tight text-white leading-tight">
+                  <h3 className="text-3xl sm:text-5xl lg:text-7xl font-black tracking-tight text-white leading-tight">
                     African talent is ready. Are you?
                   </h3>
                   <p className="text-base sm:text-lg font-medium leading-relaxed text-emerald-100">
@@ -2295,10 +2446,13 @@ export default function HomePage() {
         </section>
       </main>
 
+      {/* Organic Decorative Section Border (Matching section broder.png) */}
+      <SectionBorderDivider flip={true} color="#0A2614" className="-mb-1 relative z-20" />
+
       {/* ================================================================= */}
       {/* SIMPLIFIED GREEN FOOTER (FULL WIDTH EDGE-TO-EDGE IN BRAND GREEN)  */}
       {/* ================================================================= */}
-      <footer className="w-full bg-[#0A2614] text-white pt-16 sm:pt-24 pb-12 border-t-2 border-[#10B981]/20 relative overflow-hidden">
+      <footer className="w-full bg-[#0A2614] text-white pt-12 sm:pt-20 pb-10 border-t-2 border-[#10B981]/20 relative overflow-hidden">
         {/* Halftone / Dot pattern extending full-width */}
         <div
           className="absolute inset-0 opacity-[0.04] pointer-events-none"
