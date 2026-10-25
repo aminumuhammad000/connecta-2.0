@@ -609,8 +609,17 @@ function ForgotPasswordContent() {
       </main>
 
       {/* Footer (matches Login) */}
-      <footer className="w-full max-w-6xl mx-auto px-6 py-6 text-center text-xs text-slate-500 font-medium">
-        &copy; {new Date().getFullYear()} Connecta Marketplace. Regulated Escrow &amp; Verification Protocol.
+      <footer className="w-full max-w-6xl mx-auto px-6 py-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500 font-medium">
+        <span>&copy; {new Date().getFullYear()} Connecta Marketplace. Regulated Escrow &amp; Verification Protocol.</span>
+        <div className="flex items-center gap-4">
+          <Link href="/privacy" className="hover:text-slate-800 hover:underline">
+            Privacy Policy
+          </Link>
+          <span>•</span>
+          <Link href="/terms" className="hover:text-slate-800 hover:underline">
+            Terms of Service
+          </Link>
+        </div>
       </footer>
     </div>
   )

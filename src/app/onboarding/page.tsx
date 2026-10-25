@@ -543,6 +543,82 @@ function OnboardingContent() {
     return () => clearInterval(timer)
   }, [otpSent, isEmailVerified, otpResendCountdown])
 
+  const googleClientId =
+    process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ||
+    '89671982625-iuj8vlsdjhcntlpdal9nbn6qi4hn01hf.apps.googleusercontent.com'
+
+  // Load Google Identity Services script
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    if (!document.getElementById('google-gsi-client')) {
+      const script = document.createElement('script')
+      script.id = 'google-gsi-client'
+      script.src = 'https://accounts.google.com/gsi/client'
+      script.async = true
+      script.defer = true
+      document.body.appendChild(script)
+    }
+  }, [])
+
+  const handleGoogleOnboardingResponse = async (response: any) => {
+    if (!response?.credential) return
+
+    try {
+      const res = await fetch('/api/auth/google', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          credential: response.credential,
+          role: selectedRole || 'client',
+        }),
+      })
+
+      const data = await res.json()
+      if (res.ok && data.data) {
+        if (data.data.fullName) {
+          const parts = data.data.fullName.split(' ')
+          setFirstName(parts[0] || 'Connecta')
+          setLastName(parts.slice(1).join(' ') || 'Member')
+        }
+        if (data.data.email) {
+          setEmail(data.data.email)
+          setIsEmailVerified(true)
+        }
+        if (data.data.avatarUrl) {
+          setProfileImage(data.data.avatarUrl)
+        }
+        setStep('country_currency')
+      }
+    } catch (e) {
+      console.warn('Google Onboarding error:', e)
+    }
+  }
+
+  const handleGoogleOnboarding = () => {
+    if (typeof window !== 'undefined' && (window as any).google?.accounts?.id) {
+      const google = (window as any).google
+      google.accounts.id.initialize({
+        client_id: googleClientId,
+        callback: handleGoogleOnboardingResponse,
+        auto_select: false,
+        cancel_on_tap_outside: true,
+      })
+      google.accounts.id.prompt((notification: any) => {
+        if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+          const redirectUri = window.location.origin + '/onboarding'
+          window.location.href = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${googleClientId}&redirect_uri=${encodeURIComponent(
+            redirectUri
+          )}&response_type=token%20id_token&scope=openid%20email%20profile&nonce=${Date.now()}`
+        }
+      })
+    } else {
+      const redirectUri = window.location.origin + '/onboarding'
+      window.location.href = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${googleClientId}&redirect_uri=${encodeURIComponent(
+        redirectUri
+      )}&response_type=token%20id_token&scope=openid%20email%20profile&nonce=${Date.now()}`
+    }
+  }
+
   // Real Server OTP Dispatch
   const handleSendEmailOtp = async () => {
     if (!email.trim() || !email.includes('@') || !email.includes('.')) {
@@ -1584,12 +1660,7 @@ function OnboardingContent() {
               <div className="space-y-4 pt-1">
                 <button
                   type="button"
-                  onClick={() => {
-                    setFirstName('Google User')
-                    setEmail('user@gmail.com')
-                    setIsEmailVerified(true)
-                    setStep('country_currency')
-                  }}
+                  onClick={handleGoogleOnboarding}
                   className="w-full py-3.5 px-5 rounded-2xl border border-slate-200/90 bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs sm:text-sm shadow-2xs hover:border-slate-300 hover:shadow-xs transition-all flex items-center justify-center gap-3 cursor-pointer group active:scale-[0.99]"
                 >
                   <svg className="w-4 h-4 shrink-0 transition-transform group-hover:scale-105" viewBox="0 0 24 24">
@@ -3520,7 +3591,27 @@ function OnboardingContent() {
                   className="mt-0.5 w-4 h-4 rounded-sm text-[#10B981] focus:ring-[#4D78FF]"
                 />
                 <span className="text-xs text-slate-800 font-semibold leading-snug">
-                  I have read and unconditionally accept the Connecta Terms of Service, Escrow Safeguards, and Privacy Policy.
+                  I have read and unconditionally accept the{' '}
+                  <Link
+                    href="/terms"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-emerald-700 underline underline-offset-2 hover:text-emerald-800"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    Connecta Terms of Service
+                  </Link>
+                  , Escrow Safeguards, and{' '}
+                  <Link
+                    href="/privacy"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-emerald-700 underline underline-offset-2 hover:text-emerald-800"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    Privacy Policy
+                  </Link>
+                  .
                 </span>
               </label>
 

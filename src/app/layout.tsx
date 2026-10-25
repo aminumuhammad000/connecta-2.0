@@ -105,6 +105,12 @@ const jsonLd = {
         addressRegion: "Kano State",
         addressCountry: "NG",
       },
+      sameAs: [
+        "https://x.com/Connectainc",
+        "https://www.facebook.com/profile.php?id=61587476974482",
+        "https://www.instagram.com/connecta_inc",
+        "https://www.tiktok.com/@connecta_inc",
+      ],
     },
     {
       "@type": "WebSite",

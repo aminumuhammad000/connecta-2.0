@@ -121,14 +121,85 @@ function LoginContent() {
     }
   }
 
-  const handleGoogleLogin = () => {
+  const googleClientId =
+    process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ||
+    '89671982625-iuj8vlsdjhcntlpdal9nbn6qi4hn01hf.apps.googleusercontent.com'
+
+  // Load Google Identity Services script
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    if (!document.getElementById('google-gsi-client')) {
+      const script = document.createElement('script')
+      script.id = 'google-gsi-client'
+      script.src = 'https://accounts.google.com/gsi/client'
+      script.async = true
+      script.defer = true
+      document.body.appendChild(script)
+    }
+  }, [])
+
+  const handleGoogleCredentialResponse = async (response: any) => {
+    if (!response?.credential) {
+      setErrorMsg('No Google credential returned. Please try again.')
+      return
+    }
+
     setIsLoading(true)
-    setTimeout(() => {
-      setSuccessMsg(`Authenticated via Google as ${activeRole === 'provider' ? 'Specialist' : 'Client'}`)
+    setErrorMsg('')
+    try {
+      const res = await fetch('/api/auth/google', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          credential: response.credential,
+          role: activeRole,
+        }),
+      })
+
+      const data = await res.json()
+      if (!res.ok) {
+        throw new Error(data.error?.message || data.error || 'Google authentication failed')
+      }
+
+      setSuccessMsg(data.data?.message || 'Signed in successfully via Google!')
       setTimeout(() => {
         router.push('/dashboard')
-      }, 600)
-    }, 500)
+      }, 500)
+    } catch (err: any) {
+      setErrorMsg(err.message || 'Failed to authenticate with Google')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleGoogleLogin = () => {
+    setErrorMsg('')
+    if (typeof window !== 'undefined' && (window as any).google?.accounts?.id) {
+      const google = (window as any).google
+      google.accounts.id.initialize({
+        client_id: googleClientId,
+        callback: handleGoogleCredentialResponse,
+        auto_select: false,
+        cancel_on_tap_outside: true,
+      })
+      google.accounts.id.prompt((notification: any) => {
+        if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+          // If One-Tap is suppressed or blocked by browser popup settings, fallback to standard redirect
+          const redirectUri = window.location.origin + '/login'
+          const oauthUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${googleClientId}&redirect_uri=${encodeURIComponent(
+            redirectUri
+          )}&response_type=token%20id_token&scope=openid%20email%20profile&nonce=${Date.now()}`
+          window.location.href = oauthUrl
+        }
+      })
+    } else {
+      // Direct OAuth fallback
+      const redirectUri = typeof window !== 'undefined' ? window.location.origin + '/login' : ''
+      const oauthUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${googleClientId}&redirect_uri=${encodeURIComponent(
+        redirectUri
+      )}&response_type=token%20id_token&scope=openid%20email%20profile&nonce=${Date.now()}`
+      window.location.href = oauthUrl
+    }
   }
 
   return (
@@ -384,8 +455,17 @@ function LoginContent() {
       </main>
 
       {/* Clean Footer Bar */}
-      <footer className="w-full max-w-6xl mx-auto px-6 py-6 text-center text-xs text-slate-500">
-        &copy; {new Date().getFullYear()} Connecta Technologies Ltd. All rights reserved.
+      <footer className="w-full max-w-6xl mx-auto px-6 py-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
+        <span>&copy; {new Date().getFullYear()} Connecta Technologies Ltd. All rights reserved.</span>
+        <div className="flex items-center gap-4">
+          <Link href="/privacy" className="hover:text-slate-800 hover:underline">
+            Privacy Policy
+          </Link>
+          <span>•</span>
+          <Link href="/terms" className="hover:text-slate-800 hover:underline">
+            Terms of Service
+          </Link>
+        </div>
       </footer>
     </div>
   )

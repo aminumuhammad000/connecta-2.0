@@ -775,8 +775,10 @@ export default function HomePage() {
               description:
                 "Connecting businesses and households with verified African tradespeople and digital professionals, backed by smart matchmaking and milestone escrow security.",
               sameAs: [
-                'https://twitter.com/myconnecta',
-                'https://linkedin.com/company/myconnecta',
+                'https://x.com/Connectainc',
+                'https://www.facebook.com/profile.php?id=61587476974482',
+                'https://www.instagram.com/connecta_inc',
+                'https://www.tiktok.com/@connecta_inc',
               ],
             },
             {
@@ -2537,7 +2539,7 @@ export default function HomePage() {
               </div>
 
               {/* Social Channels & Contact Pill */}
-              <div className="pt-2 flex flex-wrap items-center gap-3">
+              <div className="pt-2 flex flex-wrap items-center gap-2.5">
                 <a
                   href="https://x.com/Connectainc"
                   target="_blank"
@@ -2552,7 +2554,7 @@ export default function HomePage() {
                   target="_blank"
                   rel="noopener noreferrer"
                   className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 flex items-center justify-center text-white text-sm font-bold transition-all hover:scale-105"
-                  title="Facebook"
+                  title="Facebook (@Connecta)"
                 >
                   fb
                 </a>
@@ -2561,16 +2563,41 @@ export default function HomePage() {
                   target="_blank"
                   rel="noopener noreferrer"
                   className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 flex items-center justify-center text-white text-sm font-bold transition-all hover:scale-105"
-                  title="Instagram"
+                  title="Instagram (@connecta_inc)"
                 >
                   ig
                 </a>
                 <a
+                  href="https://www.tiktok.com/@connecta_inc"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 flex items-center justify-center text-white text-xs font-bold transition-all hover:scale-105"
+                  title="TikTok (@connecta_inc)"
+                >
+                  tk
+                </a>
+                <a
+                  href="https://wa.me/2348123456789"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 flex items-center justify-center text-emerald-400 text-xs font-bold transition-all hover:scale-105"
+                  title="WhatsApp (+234 812 345 6789)"
+                >
+                  wa
+                </a>
+                <a
                   href="mailto:support@myconnecta.ng"
-                  className="text-xs font-bold text-emerald-200 bg-white/10 hover:bg-white/20 border border-white/15 px-4 py-2.5 rounded-full transition-colors flex items-center gap-2"
+                  className="text-xs font-bold text-emerald-200 bg-white/10 hover:bg-white/20 border border-white/15 px-3.5 py-2 rounded-full transition-colors flex items-center gap-1.5"
                 >
                   <Mail className="w-3.5 h-3.5 text-[#10B981]" />
                   <span>support@myconnecta.ng</span>
+                </a>
+                <a
+                  href="tel:+2348123456789"
+                  className="text-xs font-bold text-emerald-200 bg-white/10 hover:bg-white/20 border border-white/15 px-3.5 py-2 rounded-full transition-colors flex items-center gap-1.5"
+                >
+                  <Phone className="w-3.5 h-3.5 text-[#10B981]" />
+                  <span>+234 812 345 6789</span>
                 </a>
               </div>
             </div>
@@ -2623,7 +2650,17 @@ export default function HomePage() {
 
           {/* Bottom Status & Copyright Strip */}
           <div className="mt-16 pt-8 border-t border-white/15 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-emerald-100/70">
-            <p>© 2026 Connecta. All rights reserved.</p>
+            <div className="flex flex-wrap items-center gap-3">
+              <p>© 2026 Connecta Technologies Ltd. All rights reserved.</p>
+              <span>•</span>
+              <Link href="/privacy" className="hover:text-white underline-offset-4 hover:underline transition-colors">
+                Privacy Policy
+              </Link>
+              <span>•</span>
+              <Link href="/terms" className="hover:text-white underline-offset-4 hover:underline transition-colors">
+                Terms of Service
+              </Link>
+            </div>
 
             <div className="flex items-center gap-3">
               <span className="flex items-center gap-1.5 text-emerald-300 font-semibold">
