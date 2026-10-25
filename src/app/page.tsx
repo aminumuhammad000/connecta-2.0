@@ -526,19 +526,15 @@ const REVIEWS = [
       'My solar inverter went off unexpectedly during heavy rain. Ibrahim arrived in Nassarawa within an hour, diagnosed a blown balancer, and had our power back before sunset. Completely transparent pricing.',
     author: 'Amina Bello',
     neighborhood: 'Nassarawa GRA, Kano',
-    service: 'Solar Inverter Troubleshooting',
     cardBg: 'bg-[#1E1B4B]',
-    tagColor: 'bg-[#10B981] text-white',
     rating: 5,
   },
   {
     quote:
-      'I had a cracked iPhone 14 Pro screen and was worried about fake replacement screens. Danbatta showed me the genuine OLED panel, transferred TrueTone, and finished in under 45 minutes.',
-    author: 'Usman Farouk',
-    neighborhood: 'Sabon Gari, Kano',
-    service: 'Screen Replacement',
+      'I was using several disconnected boards and getting overwhelmed by unverified repairers. Connecta saved me tons of time—their milestone escrow protection and NIN verification gave me total peace of mind!',
+    author: 'Layla Abbas',
+    neighborhood: 'Marketing Manager, Tech Corridor',
     cardBg: 'bg-[#0A1020]',
-    tagColor: 'bg-[#4D78FF] text-white',
     rating: 5,
   },
   {
@@ -546,37 +542,35 @@ const REVIEWS = [
       'Finding a reliable carpenter for custom office desks in Bompai was always a gamble until Connecta. Kabiru submitted an itemized quote for mahogany wood, delivered on time, and the finishing is top class.',
     author: 'Fatima Sanusi',
     neighborhood: 'Bompai Industrial, Kano',
-    service: 'Custom Office Cabinetry',
     cardBg: 'bg-[#D97706]',
-    tagColor: 'bg-[#0A1020] text-white',
     rating: 5,
   },
 ]
 
 const FAQS = [
   {
-    q: 'What is Connecta?',
-    a: 'Connecta is a technology platform that connects homes and businesses with verified artisans and technicians across Nigeria. We provide transparent itemized quoting, digital job evidence, and escrow protection so you can discover, hire, and get things fixed with total peace of mind.',
+    q: 'How does Milestone Escrow protect my payments?',
+    a: 'When a project or repair milestone is funded, client funds are deposited safely into a Connecta Escrow Vault. Funds are only released to the artisan or technician after the client inspects and approves the submitted work deliverables and photo evidence.',
+  },
+  {
+    q: 'What is a Connecta Collabo Squad?',
+    a: 'Collabo Squads allow verified specialists to assemble cross-functional teams (e.g., Electricians + Solar Technicians + Precision Carpenters) to bid on larger enterprise projects and split milestone earnings automatically through escrow contracts.',
+  },
+  {
+    q: 'How does Connecta AI match talent with jobs?',
+    a: 'Connecta AI Copilot analyzes verified credentials, past milestone ratings, workshop audits, and project fault descriptions to recommend 99.4% accurate candidate matches in under 5 seconds.',
+  },
+  {
+    q: 'What are the platform transaction fees?',
+    a: 'Connecta charges a transparent 10% platform fee on completed contracts. Clients post service requests and compare itemized quotes for free, and technicians enjoy instant withdrawal payouts directly to local Nigerian bank accounts.',
   },
   {
     q: 'Does Connecta offer verified same-day repairs?',
     a: 'Yes. With local artisans stationed across metropolitan zones, emergency repairs such as plumbing pipe leaks, solar inverter faults, and phone screen replacements can typically be attended to within 45 to 60 minutes.',
   },
   {
-    q: 'Will my quotes be transparent with no hidden charges?',
-    a: 'Every quotation on Connecta is itemized with explicit breakdowns for labor, replacement parts, and visit fees in Nigerian Naira. If additional concealed faults are uncovered on-site, the technician must submit a formal digital Change Order with photo evidence that you approve first.',
-  },
-  {
-    q: 'How do I sign up as a service provider on Connecta?',
-    a: 'Simply click "Vendors" or "Become a Provider", submit your trade profile, experience, and upload government-issued ID (NIN, Voter Card, or CAC business certificate). Our verification team reviews submissions within 24 to 48 hours before issuing the Verified Artisan Badge.',
-  },
-  {
     q: 'How are artisans and technicians verified?',
-    a: 'Every provider undergoes a mandatory multi-step check: government-issued identification validation, physical verification of workshop location and trade qualification, apprenticeship guarantor verification, and performance reviews before receiving the Verified Artisan Badge.',
-  },
-  {
-    q: 'What happens if a job is not completed satisfactorily?',
-    a: 'Connecta incorporates a built-in escrow payment safeguard and dispute resolution process. Both customer and technician can submit photo evidence and notes to our support team for an auditable and fair review.',
+    a: 'Every provider undergoes a mandatory multi-step check: government-issued identification validation (NIN/CAC), physical verification of workshop location and trade qualification, apprenticeship guarantor verification, and performance reviews before receiving the Verified Artisan Badge.',
   },
 ]
 
@@ -764,26 +758,61 @@ export default function HomePage() {
 
       {/* Main Content */}
       <main className="flex-1">
-        {/* Hero Section with Chowdeck-Style Large Text Motion & Alley Arrangements */}
-        <section className="pt-16 pb-20 lg:pt-24 lg:pb-28 overflow-hidden relative">
-          {/* Subtle Halftone Pattern */}
-          <div
-            className="absolute inset-0 opacity-[0.035] pointer-events-none"
-            style={{
-              backgroundImage: 'radial-gradient(#0A1020 1px, transparent 1px)',
-              backgroundSize: '24px 24px',
-            }}
-          />
+        {/* Hero Section with Chowdeck-Style Large Text Motion & Ambient Hero Video Background */}
+        <section className="pt-20 pb-24 lg:pt-28 lg:pb-32 overflow-hidden relative min-h-[660px] flex items-center justify-center">
+          {/* Hero Video as Background of Hero Section */}
+          <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+            <video
+              ref={videoRef}
+              src="/hero.mp4"
+              autoPlay
+              loop
+              muted={isVideoMuted}
+              playsInline
+              className="w-full h-full object-cover scale-105 opacity-25 transition-opacity duration-700"
+            />
+            {/* Elegant multi-layer overlay to maintain perfect readability and match Connecta theme */}
+            <div className="absolute inset-0 bg-gradient-to-b from-[#F5F7FC]/80 via-[#F5F7FC]/65 to-[#F5F7FC]" />
+            <div
+              className="absolute inset-0 opacity-[0.035] pointer-events-none"
+              style={{
+                backgroundImage: 'radial-gradient(#0A1020 1px, transparent 1px)',
+                backgroundSize: '24px 24px',
+              }}
+            />
+          </div>
 
           {/* 3D Brand Decorations in Landing Background (Inspired by deco.png) */}
-          <div className="absolute top-10 -left-6 lg:left-4 xl:left-10 pointer-events-none z-0 hidden lg:block opacity-90">
+          <div className="absolute top-10 -left-6 lg:left-4 xl:left-10 pointer-events-none z-10 hidden lg:block opacity-90">
             <ConnectaHeroLeftDecoration />
           </div>
-          <div className="absolute top-14 -right-6 lg:right-4 xl:right-10 pointer-events-none z-0 hidden lg:block opacity-90">
+          <div className="absolute top-14 -right-6 lg:right-4 xl:right-10 pointer-events-none z-10 hidden lg:block opacity-90">
             <ConnectaHeroRightDecoration />
           </div>
 
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          {/* Floating Audio Control Pill */}
+          <div className="absolute bottom-6 right-6 sm:bottom-8 sm:right-8 z-30">
+            <button
+              type="button"
+              onClick={toggleVideoSound}
+              className="flex items-center gap-2 bg-white/95 hover:bg-white text-slate-800 text-xs font-bold px-3.5 py-2 rounded-full shadow-lg border border-slate-200/90 backdrop-blur-md transition-all duration-300 hover:scale-105 cursor-pointer"
+              title={isVideoMuted ? 'Unmute video' : 'Mute video'}
+            >
+              {isVideoMuted ? (
+                <>
+                  <VolumeX className="w-4 h-4 text-slate-500" />
+                  <span>Unmute Video</span>
+                </>
+              ) : (
+                <>
+                  <Volume2 className="w-4 h-4 text-[#10B981]" />
+                  <span>Sound On</span>
+                </>
+              )}
+            </button>
+          </div>
+
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-20 w-full">
             <div className="max-w-4xl mx-auto text-center space-y-6">
               {/* Chowdeck-style Large Heading with Animated Text Motion */}
               <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-[#0A1020] leading-[1.08]">
@@ -919,70 +948,31 @@ export default function HomePage() {
                   </div>
                 )}
               </div>
-            </div>
 
-            {/* Hero Brand Ecosystem Video (hero.mp4) */}
-            <div className="mt-12 sm:mt-16 max-w-5xl mx-auto">
-              <div className="relative rounded-3xl sm:rounded-[32px] overflow-hidden border-[2.5px] border-black shadow-2xl bg-black aspect-video group">
-                <video
-                  ref={videoRef}
-                  src="/hero.mp4"
-                  autoPlay
-                  loop
-                  muted={isVideoMuted}
-                  playsInline
-                  className="w-full h-full object-cover"
-                />
-
-                {/* Subtle Gradient Overlays for Readability */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20 pointer-events-none" />
-
-                {/* Top Floating Badges: Location & Sound Toggle */}
-                <div className="absolute top-4 left-4 sm:top-5 sm:left-5 flex items-center gap-2 bg-black/60 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-white/20 text-white text-xs font-bold shadow-lg">
-                  <span className="w-2 h-2 rounded-full bg-[#10B981] animate-pulse" />
-                  <span>Connecta Ecosystem in Motion · Kano, Nigeria</span>
+              {/* Real Verified Metrics from Connecta Old */}
+              <div className="pt-4 flex flex-wrap items-center justify-center gap-2.5 sm:gap-3.5 text-xs font-bold text-slate-700">
+                <div className="flex items-center gap-2 bg-white/95 backdrop-blur-md px-3.5 py-2 rounded-full shadow-md border border-slate-200/80">
+                  <span className="flex h-2 w-2 rounded-full bg-[#10B981] animate-pulse" />
+                  <span className="font-extrabold text-[#0C513F]">60k+</span>
+                  <span className="text-slate-600 font-medium">Jobs Completed</span>
                 </div>
 
-                <button
-                  type="button"
-                  onClick={toggleVideoSound}
-                  className="absolute top-4 right-4 sm:top-5 sm:right-5 flex items-center gap-2 bg-black/60 hover:bg-black/80 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-white/20 text-white text-xs font-bold shadow-lg transition-all duration-300 hover:scale-105 cursor-pointer"
-                  title={isVideoMuted ? 'Unmute video' : 'Mute video'}
-                >
-                  {isVideoMuted ? (
-                    <>
-                      <VolumeX className="w-4 h-4 text-slate-300" />
-                      <span>Unmute</span>
-                    </>
-                  ) : (
-                    <>
-                      <Volume2 className="w-4 h-4 text-emerald-400" />
-                      <span>Sound On</span>
-                    </>
-                  )}
-                </button>
+                <div className="flex items-center gap-2 bg-white/95 backdrop-blur-md px-3.5 py-2 rounded-full shadow-md border border-slate-200/80">
+                  <Users className="w-3.5 h-3.5 text-[#4D78FF]" />
+                  <span className="font-extrabold text-[#0A1020]">15,000+</span>
+                  <span className="text-slate-600 font-medium">Vetted Specialists</span>
+                </div>
 
-                {/* Bottom Floating Highlights */}
-                <div className="absolute bottom-4 left-4 right-4 sm:bottom-5 sm:left-5 sm:right-5 flex flex-wrap items-center justify-between gap-3 text-white text-xs font-bold pointer-events-none">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className="bg-white/20 backdrop-blur-md px-3 py-1 rounded-full border border-white/20 text-[11px] sm:text-xs">
-                      ⚡ Solar & Inverters
-                    </span>
-                    <span className="bg-white/20 backdrop-blur-md px-3 py-1 rounded-full border border-white/20 text-[11px] sm:text-xs">
-                      💧 Water & Borehole
-                    </span>
-                    <span className="bg-white/20 backdrop-blur-md px-3 py-1 rounded-full border border-white/20 text-[11px] sm:text-xs">
-                      🪵 Woodwork
-                    </span>
-                    <span className="bg-white/20 backdrop-blur-md px-3 py-1 rounded-full border border-white/20 text-[11px] sm:text-xs">
-                      📱 Gadgets Lab
-                    </span>
-                  </div>
+                <div className="flex items-center gap-2 bg-white/95 backdrop-blur-md px-3.5 py-2 rounded-full shadow-md border border-slate-200/80">
+                  <ShieldCheck className="w-3.5 h-3.5 text-[#10B981]" />
+                  <span className="font-extrabold text-emerald-700">₦500M+</span>
+                  <span className="text-slate-600 font-medium">Escrow Protected</span>
+                </div>
 
-                  <span className="hidden sm:inline-flex items-center gap-1.5 bg-[#10B981]/90 backdrop-blur-md px-3 py-1 rounded-full text-white font-extrabold shadow-md text-xs">
-                    <BadgeCheck className="w-3.5 h-3.5" />
-                    <span>100% Verified Community</span>
-                  </span>
+                <div className="hidden sm:flex items-center gap-2 bg-white/95 backdrop-blur-md px-3.5 py-2 rounded-full shadow-md border border-slate-200/80">
+                  <Sparkles className="w-3.5 h-3.5 text-[#F59E0B]" />
+                  <span className="font-extrabold text-[#F59E0B]">99.4%</span>
+                  <span className="text-slate-600 font-medium">AI Precision Match</span>
                 </div>
               </div>
             </div>
@@ -2030,7 +2020,7 @@ export default function HomePage() {
                     Grow your trade business on Connecta.
                   </h3>
                   <p className="text-xs sm:text-sm text-emerald-100 leading-relaxed">
-                    Join hundreds of verified electricians, mechanics, plumbers, and technicians. Receive real customer requests, send professional quotations, and build a lasting reputation.
+                    Join 15,000+ verified specialists, technicians, and Collabo Squads across Nigeria. Receive instant job leads, send transparent milestone quotations, and enjoy guaranteed escrow payouts directly to your local bank account.
                   </p>
 
                   {/* Provider Benefits Pills */}
@@ -2197,18 +2187,49 @@ export default function HomePage() {
               <div className="space-y-2.5 text-xs text-slate-300">
                 <div className="flex items-center gap-2.5">
                   <MapPin className="w-4 h-4 text-[#10B981] shrink-0" />
-                  <span>Headquarters: Kano State, Nigeria</span>
+                  <span>Connecta HQ, Kano, Nigeria</span>
                 </div>
                 <div className="flex items-center gap-2.5">
                   <Mail className="w-4 h-4 text-[#4D78FF] shrink-0" />
-                  <a href="mailto:support@connecta.ng" className="hover:text-emerald-400 transition-colors duration-200">
-                    support@connecta.ng
+                  <a href="mailto:hello@myconnecta.ng" className="hover:text-emerald-400 transition-colors duration-200">
+                    hello@myconnecta.ng
                   </a>
                 </div>
                 <div className="flex items-center gap-2.5">
                   <Phone className="w-4 h-4 text-[#F59E0B] shrink-0" />
-                  <span>+234 800 CONNECTA (Toll-Free Support)</span>
+                  <span>+234 (0) 800 CONNECTA (Toll-Free Support)</span>
                 </div>
+              </div>
+
+              {/* Social Channels from Connecta Old */}
+              <div className="pt-1 flex items-center gap-2.5">
+                <a
+                  href="https://x.com/Connectainc"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-8 h-8 rounded-full bg-white/5 hover:bg-white/15 border border-white/10 flex items-center justify-center text-slate-300 hover:text-white transition-all duration-200"
+                  title="Twitter / X (@Connectainc)"
+                >
+                  <span className="text-xs font-bold">𝕏</span>
+                </a>
+                <a
+                  href="https://www.facebook.com/profile.php?id=61583324766005"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-8 h-8 rounded-full bg-white/5 hover:bg-white/15 border border-white/10 flex items-center justify-center text-slate-300 hover:text-white transition-all duration-200"
+                  title="Facebook"
+                >
+                  <span className="text-xs font-bold">fb</span>
+                </a>
+                <a
+                  href="https://www.instagram.com/connecta_inc"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-8 h-8 rounded-full bg-white/5 hover:bg-white/15 border border-white/10 flex items-center justify-center text-slate-300 hover:text-white transition-all duration-200"
+                  title="Instagram (@connecta_inc)"
+                >
+                  <span className="text-xs font-bold">ig</span>
+                </a>
               </div>
 
               {/* Nigerian Flag & Currency Badge */}
@@ -2397,7 +2418,7 @@ export default function HomePage() {
 
           {/* Polished Bottom Status & Copyright Strip */}
           <div className="pt-6 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-400">
-            <p>© 2026 Connecta Technologies Inc. All rights reserved.</p>
+            <p>© 2026 Connecta. Developed by Pioneers ICT. All rights reserved.</p>
 
             <div className="flex items-center gap-4 text-xs font-medium">
               <span className="flex items-center gap-1.5">
