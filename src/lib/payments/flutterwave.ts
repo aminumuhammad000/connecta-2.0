@@ -84,7 +84,7 @@ export const flutterwaveService = {
         customizations: {
           title: params.title || 'Connecta Escrow Deposit',
           description: params.description || 'Milestone escrow funding & vault deposit',
-          logo: 'https://myconnecta.ng/brand/header/connecta-logo-200x52.png',
+          logo: 'https://myconnectaai.netlify.app/brand/header/connecta-logo-200x52.png',
         },
       }
 

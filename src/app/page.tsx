@@ -848,6 +848,13 @@ export default function HomePage() {
           {/* Center Navigation: Clean, borderless links with subtle hover pills */}
           <nav className="hidden md:flex items-center gap-1 lg:gap-2 text-sm font-semibold text-slate-600">
             <Link
+              href="/discover"
+              className="px-3.5 py-1.5 rounded-full text-emerald-800 font-extrabold hover:bg-emerald-50 transition-all flex items-center gap-1"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
+              <span>Discover</span>
+            </Link>
+            <Link
               href="#about"
               className="px-3.5 py-1.5 rounded-full hover:text-[#0C513F] hover:bg-slate-100/80 transition-all"
             >
@@ -919,6 +926,14 @@ export default function HomePage() {
         {/* Mobile Dropdown Menu */}
         {mobileNavOpen && (
           <div className="pointer-events-auto md:hidden mt-2 max-w-sm mx-auto bg-white/95 backdrop-blur-xl border border-slate-200/90 rounded-2xl shadow-2xl p-4 flex flex-col gap-1.5 text-sm font-semibold text-slate-700">
+            <Link
+              href="/discover"
+              onClick={() => setMobileNavOpen(false)}
+              className="px-3.5 py-2.5 rounded-xl bg-emerald-50 text-emerald-800 font-extrabold flex items-center gap-2"
+            >
+              <Sparkles className="w-4 h-4 text-emerald-600" />
+              <span>Discover Specialists</span>
+            </Link>
             <Link
               href="#about"
               onClick={() => setMobileNavOpen(false)}

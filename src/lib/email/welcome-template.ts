@@ -69,8 +69,8 @@ export function generateWelcomeEmailHtml({
                     <table role="presentation" border="0" cellpadding="0" cellspacing="0">
                       <tr>
                         <td valign="middle">
-                          <a href="https://myconnecta.ng" target="_blank" style="text-decoration: none; display: block;">
-                            <img src="https://myconnecta.ng/brand/header/connecta-logo-200x52.png" alt="Connecta" width="148" height="38" style="display: block; border: 0; outline: none; text-decoration: none; max-width: 148px; height: auto;" />
+                          <a href="https://myconnectaai.netlify.app" target="_blank" style="text-decoration: none; display: block;">
+                            <img src="https://myconnectaai.netlify.app/brand/header/connecta-logo-200x52.png" alt="Connecta" width="148" height="38" style="display: block; border: 0; outline: none; text-decoration: none; max-width: 148px; height: auto;" />
                           </a>
                         </td>
                       </tr>
