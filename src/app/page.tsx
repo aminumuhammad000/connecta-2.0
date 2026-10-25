@@ -863,6 +863,12 @@ export default function HomePage() {
             >
               How It Works
             </Link>
+            <Link
+              href="/dashboard"
+              className="px-3.5 py-1.5 rounded-full text-[#0C513F] font-bold hover:bg-emerald-50 transition-all"
+            >
+              Dashboard
+            </Link>
           </nav>
 
           {/* Right Action Buttons */}
@@ -932,6 +938,13 @@ export default function HomePage() {
             >
               How It Works
             </Link>
+            <Link
+              href="/dashboard"
+              onClick={() => setMobileNavOpen(false)}
+              className="px-3.5 py-2.5 rounded-xl bg-emerald-50 text-[#0C513F] font-bold transition-colors"
+            >
+              Dashboard
+            </Link>
             <div className="pt-2 mt-1 border-t border-slate-100 flex flex-col gap-2">
               <Link
                 href="/onboarding?step=role"
@@ -973,11 +986,11 @@ export default function HomePage() {
           ref={heroRef}
           className="relative min-h-[85vh] sm:min-h-[90vh] w-full flex flex-col justify-center items-center overflow-hidden pt-24 pb-12 sm:pt-28 sm:pb-16 lg:pt-32 lg:pb-20 bg-[#F5F7FC]"
         >
-          {/* Layer 1: Connecta Signature Halftone Dot Matrix Pattern */}
+          {/* Layer 1: Connecta Signature Halftone Dot Matrix Pattern (Full Visibility, No Opacity) */}
           <div
-            className="absolute inset-0 opacity-[0.055] pointer-events-none [mask-image:radial-gradient(ellipse_at_center,black_40%,transparent_80%)]"
+            className="absolute inset-0 pointer-events-none"
             style={{
-              backgroundImage: 'radial-gradient(#0A2614 1.5px, transparent 1.5px)',
+              backgroundImage: 'radial-gradient(#0A2614 2px, transparent 2px)',
               backgroundSize: '24px 24px',
             }}
           />

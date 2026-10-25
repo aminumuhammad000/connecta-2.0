@@ -63,11 +63,7 @@ function LoginContent() {
       await new Promise((resolve) => setTimeout(resolve, 900))
       setSuccessMsg('Welcome back! Initializing your workspace...')
       setTimeout(() => {
-        if (activeRole === 'provider') {
-          router.push('/admin/verification')
-        } else {
-          router.push('/requests/new')
-        }
+        router.push('/dashboard')
       }, 700)
     } catch {
       setErrorMsg('Invalid email or password. Please try again.')
