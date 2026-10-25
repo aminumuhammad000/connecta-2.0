@@ -44,3 +44,5 @@ next-env.d.ts
 # local design reference captures
 *.png
 !public/**
+
+connecta old/

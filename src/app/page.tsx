@@ -43,6 +43,11 @@ import {
   Volume2,
   VolumeX,
 } from 'lucide-react'
+import {
+  ConnectaCornerHelix,
+  ConnectaHeroLeftDecoration,
+  ConnectaHeroRightDecoration,
+} from '@/components/Connecta3DDecoration'
 
 const DYNAMIC_PHRASES = [
   'solar & inverters',
@@ -770,6 +775,14 @@ export default function HomePage() {
             }}
           />
 
+          {/* 3D Brand Decorations in Landing Background (Inspired by deco.png) */}
+          <div className="absolute top-10 -left-6 lg:left-4 xl:left-10 pointer-events-none z-0 hidden lg:block opacity-90">
+            <ConnectaHeroLeftDecoration />
+          </div>
+          <div className="absolute top-14 -right-6 lg:right-4 xl:right-10 pointer-events-none z-0 hidden lg:block opacity-90">
+            <ConnectaHeroRightDecoration />
+          </div>
+
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <div className="max-w-4xl mx-auto text-center space-y-6">
               {/* Chowdeck-style Large Heading with Animated Text Motion */}
@@ -1208,17 +1221,22 @@ export default function HomePage() {
         {/* ================================================================= */}
         {/* WHO CONNECTA SERVES (EXACT LAYOUT FROM who to expect full section) */}
         {/* ================================================================= */}
-        <section id="who-connecta-serves" className="py-20 bg-white">
-          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="bg-[#0A2614] text-white rounded-3xl p-8 sm:p-14 relative overflow-hidden shadow-2xl">
+        <section id="who-connecta-serves" className="py-20 bg-white relative overflow-hidden">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+            <div className="bg-[#0A2614] text-white rounded-3xl p-8 sm:p-14 relative shadow-2xl">
               {/* Halftone / Pattern */}
               <div
-                className="absolute inset-0 opacity-[0.05] pointer-events-none"
+                className="absolute inset-0 opacity-[0.05] pointer-events-none rounded-3xl overflow-hidden"
                 style={{
                   backgroundImage: 'radial-gradient(#FFFFFF 1.5px, transparent 1.5px)',
                   backgroundSize: '18px 18px',
                 }}
               />
+
+              {/* 3D Glass Helix Ribbon & Floating Beads from deco.png (Overhanging Top-Right Corner) */}
+              <div className="absolute -top-16 -right-10 sm:-top-14 sm:-right-6 lg:-top-18 lg:-right-10 pointer-events-none z-20 hidden md:block">
+                <ConnectaCornerHelix />
+              </div>
 
               <div className="relative z-10 max-w-3xl space-y-5">
                 <div className="flex items-center gap-3">
@@ -1882,9 +1900,10 @@ export default function HomePage() {
                         <Star key={idx} className="w-4 h-4 fill-[#F59E0B] text-[#F59E0B]" />
                       ))}
                     </div>
-                    <span className={`text-[11px] font-bold px-3 py-1 rounded-full shadow-sm ${r.tagColor}`}>
-                      {r.service}
-                    </span>
+                    <div className="flex items-center gap-1.5 text-xs font-bold text-emerald-400 bg-white/10 px-2.5 py-1 rounded-full border border-white/15 backdrop-blur-xs">
+                      <BadgeCheck className="w-3.5 h-3.5 text-[#10B981]" />
+                      <span>Verified Booking</span>
+                    </div>
                   </div>
 
                   <p className="text-sm sm:text-base text-white/95 leading-relaxed font-normal italic">
