@@ -74,14 +74,12 @@ export async function createAndSendOtp(email: string): Promise<{ success: boolea
       })
 
       if (error) {
-        console.warn('[Resend Notice]', error.message)
+        console.warn('[Resend Error Notice]', error)
         console.log(`[Connecta Server OTP] 🔑 Verification code for ${cleanEmail}: ${code}`)
         return {
           success: true,
-          message: error.message.includes('own email address')
-            ? `Verification code dispatched! (Resend test tier delivers to connectagigs@gmail.com until domain DNS is verified).`
-            : `Verification code sent to ${cleanEmail}. Please check your inbox.`,
-          devCode: process.env.NODE_ENV !== 'production' ? code : undefined,
+          message: `Verification code generated. Resend delivery note: ${error.message}`,
+          devCode: code,
         }
       }
 
@@ -89,18 +87,19 @@ export async function createAndSendOtp(email: string): Promise<{ success: boolea
       return {
         success: true,
         message: `Verification code sent to ${cleanEmail}. Please check your inbox.`,
+        emailDeliveryId: data?.id,
       }
     } catch (err: any) {
-      console.error('[Resend Error]', err)
+      console.error('[Resend Exception]', err)
       console.log(`[Connecta Server OTP] 🔑 Verification code for ${cleanEmail}: ${code}`)
       return {
         success: true,
-        message: `Verification code dispatched to ${cleanEmail}.`,
-        devCode: process.env.NODE_ENV !== 'production' ? code : undefined,
+        message: `Verification code generated for ${cleanEmail}. Delivery note: ${err.message}`,
+        devCode: code,
       }
     }
   } else {
-    // Development fallback when RESEND_API_KEY is not configured yet
+    // Fallback when RESEND_API_KEY is not configured
     console.log(`\n=============================================================`)
     console.log(`[Connecta Server OTP] ✉️ Real Server OTP Generated:`)
     console.log(`  Recipient : ${cleanEmail}`)
@@ -111,7 +110,7 @@ export async function createAndSendOtp(email: string): Promise<{ success: boolea
     return {
       success: true,
       message: `Verification code sent to ${cleanEmail}.`,
-      devCode: process.env.NODE_ENV !== 'production' ? code : undefined,
+      devCode: code,
     }
   }
 }
