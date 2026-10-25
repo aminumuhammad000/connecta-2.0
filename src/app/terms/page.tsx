@@ -30,9 +30,9 @@ export default function TermsOfServicePage() {
     <div className="min-h-screen bg-[#F5F7FC] text-[#0A1020] flex flex-col justify-between selection:bg-[#10B981]/20">
       {/* Top Navigation */}
       <header className="w-full bg-white/90 backdrop-blur-md border-b border-slate-200/70 sticky top-0 z-50">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-18 flex items-center justify-between gap-4">
-          <Link href="/" className="flex items-center gap-2 group">
-            <div className="relative w-36 h-8 sm:w-44 sm:h-10">
+        <div className="max-w-6xl mx-auto px-3.5 sm:px-6 h-16 sm:h-18 flex items-center justify-between gap-2 sm:gap-4">
+          <Link href="/" className="flex items-center gap-2 group shrink-0">
+            <div className="relative w-28 h-7 sm:w-44 sm:h-10">
               <Image
                 src="/brand/svg/connecta-logo.svg"
                 alt="Connecta"
@@ -43,22 +43,22 @@ export default function TermsOfServicePage() {
             </div>
           </Link>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
             <Link
               href="/discover"
-              className="text-xs sm:text-sm font-bold text-emerald-800 hover:text-emerald-900 px-3 py-2 transition-colors"
+              className="text-xs sm:text-sm font-bold text-emerald-800 hover:text-emerald-900 px-2.5 sm:px-3 py-1.5 transition-colors"
             >
               Discover
             </Link>
             <Link
               href="/login"
-              className="text-xs sm:text-sm font-semibold text-slate-600 hover:text-slate-900 px-3 py-2 transition-colors hidden sm:inline"
+              className="text-xs sm:text-sm font-semibold text-slate-600 hover:text-slate-900 px-2.5 sm:px-3 py-1.5 transition-colors hidden sm:inline"
             >
               Sign In
             </Link>
             <Link
               href="/onboarding?step=role"
-              className="text-xs sm:text-sm font-extrabold px-5 py-2.5 rounded-full bg-[#053F28] hover:bg-[#032a1b] text-white shadow-sm transition-all hover:scale-105"
+              className="text-xs sm:text-sm font-extrabold px-3.5 sm:px-5 py-1.5 sm:py-2.5 rounded-full bg-[#053F28] hover:bg-[#032a1b] text-white shadow-xs hover:shadow-md transition-all hover:scale-105"
             >
               Register
             </Link>

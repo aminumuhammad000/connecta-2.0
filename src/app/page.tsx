@@ -25,6 +25,7 @@ import {
   BadgeCheck,
   FileSearch,
   ChevronDown,
+  ChevronRight,
   Award,
   Layers,
   HeartHandshake,
@@ -693,6 +694,17 @@ export default function HomePage() {
   }, [])
 
   useEffect(() => {
+    if (mobileNavOpen) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = ''
+    }
+    return () => {
+      document.body.style.overflow = ''
+    }
+  }, [mobileNavOpen])
+
+  useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 25)
     }
@@ -822,19 +834,19 @@ export default function HomePage() {
       />
 
       {/* Unified Professional Floating Header */}
-      <div className="fixed top-0 left-0 right-0 z-50 pt-3 sm:pt-4 px-3 sm:px-6 pointer-events-none">
+      <div className="fixed top-0 left-0 right-0 z-50 pt-2 sm:pt-4 px-2.5 sm:px-6 pointer-events-none">
         <header
-          className={`pointer-events-auto max-w-6xl mx-auto flex items-center justify-between gap-4 transition-all duration-300 rounded-full px-4 sm:px-6 py-2.5 sm:py-3 ${
+          className={`pointer-events-auto max-w-6xl mx-auto flex items-center justify-between gap-2 sm:gap-4 transition-all duration-300 rounded-full px-3.5 sm:px-6 py-2 sm:py-2.5 ${
             isScrolled
               ? 'bg-white/95 backdrop-blur-xl border border-slate-200/90 shadow-[0_10px_30px_rgb(0,0,0,0.08)]'
               : 'bg-white/85 backdrop-blur-md border border-slate-200/70 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.06)]'
           }`}
         >
           {/* Left: Brand Logo & Minimal Region */}
-          <div className="flex items-center gap-3 shrink-0">
-            <Link href="/" className="flex items-center gap-2.5 group">
-              <div className="w-8 h-8 rounded-full bg-[#0C513F] flex items-center justify-center p-1.5 shadow-xs transition-transform group-hover:scale-105 shrink-0">
-                <div className="relative w-4.5 h-4.5">
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+            <Link href="/" className="flex items-center gap-2 sm:gap-2.5 group">
+              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#0C513F] flex items-center justify-center p-1.5 shadow-2xs transition-transform group-hover:scale-105 shrink-0">
+                <div className="relative w-4 h-4 sm:w-4.5 sm:h-4.5">
                   <Image
                     src="/brand/connecta-header-icon.svg"
                     alt="Connecta Icon"
@@ -844,14 +856,14 @@ export default function HomePage() {
                   />
                 </div>
               </div>
-              <span className="font-extrabold text-base sm:text-lg tracking-tight text-[#0A1020]">
+              <span className="font-extrabold text-sm sm:text-lg tracking-tight text-[#0A1020]">
                 connecta
               </span>
             </Link>
 
-            <div className="h-4 w-px bg-slate-200 hidden xs:block" />
+            <div className="h-4 w-px bg-slate-200 hidden sm:block" />
 
-            <div className="hidden xs:flex items-center gap-1 text-[11px] font-bold text-slate-600 hover:text-slate-900 transition-colors cursor-pointer px-2 py-1 rounded-full hover:bg-slate-100/70">
+            <div className="hidden sm:flex items-center gap-1 text-[11px] font-bold text-slate-600 hover:text-slate-900 transition-colors cursor-pointer px-2 py-1 rounded-full hover:bg-slate-100/70">
               <span className="text-sm leading-none">🇳🇬</span>
               <span className="font-extrabold text-slate-800">NG</span>
               <ChevronDown className="w-3 h-3 text-slate-400 stroke-[2.5]" />
@@ -887,11 +899,11 @@ export default function HomePage() {
           </nav>
 
           {/* Right Action: Clean single primary CTA */}
-          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+          <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
             {hasAccount ? (
               <Link
                 href="/dashboard"
-                className="inline-flex items-center gap-2 text-xs sm:text-sm font-extrabold text-white bg-[#0C513F] hover:bg-[#083b2e] px-5 py-2.5 rounded-full shadow-sm hover:shadow-md transition-all hover:scale-[1.02] active:scale-[0.98]"
+                className="inline-flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm font-extrabold text-white bg-[#0C513F] hover:bg-[#083b2e] px-3.5 sm:px-5 py-1.5 sm:py-2.5 rounded-full shadow-xs hover:shadow-md transition-all hover:scale-[1.02] active:scale-[0.98]"
               >
                 <span>Dashboard</span>
                 <ArrowRight className="w-3.5 h-3.5" />
@@ -907,7 +919,7 @@ export default function HomePage() {
 
                 <Link
                   href="/onboarding?step=role"
-                  className="inline-flex items-center text-xs sm:text-sm font-extrabold text-white bg-[#0C513F] hover:bg-[#083b2e] px-5 py-2.5 rounded-full transition-all shadow-sm hover:shadow-md hover:scale-[1.02] active:scale-[0.98]"
+                  className="inline-flex items-center text-xs sm:text-sm font-extrabold text-white bg-[#0C513F] hover:bg-[#083b2e] px-3.5 sm:px-5 py-1.5 sm:py-2.5 rounded-full transition-all shadow-xs hover:shadow-md hover:scale-[1.02] active:scale-[0.98]"
                 >
                   Register
                 </Link>
@@ -918,72 +930,104 @@ export default function HomePage() {
             <button
               type="button"
               onClick={() => setMobileNavOpen(!mobileNavOpen)}
-              className="md:hidden p-2 rounded-full text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
+              className="md:hidden w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded-full text-slate-700 hover:bg-slate-100 active:scale-95 transition-all cursor-pointer shrink-0"
               aria-label="Toggle navigation menu"
+              aria-expanded={mobileNavOpen}
             >
-              {mobileNavOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              {mobileNavOpen ? <X className="w-4 h-4 sm:w-5 sm:h-5" /> : <Menu className="w-4 h-4 sm:w-5 sm:h-5" />}
             </button>
           </div>
         </header>
 
-        {/* Mobile Dropdown Menu */}
+        {/* Backdrop for Mobile Drawer */}
         {mobileNavOpen && (
-          <div className="pointer-events-auto md:hidden mt-2 max-w-sm mx-auto bg-white/95 backdrop-blur-xl border border-slate-200/90 rounded-2xl shadow-2xl p-4 flex flex-col gap-1.5 text-sm font-semibold text-slate-700">
+          <div
+            className="fixed inset-0 bg-black/40 backdrop-blur-xs z-40 md:hidden pointer-events-auto transition-opacity duration-200"
+            onClick={() => setMobileNavOpen(false)}
+            aria-hidden="true"
+          />
+        )}
+
+        {/* Mobile Dropdown Menu Card */}
+        {mobileNavOpen && (
+          <div className="pointer-events-auto md:hidden relative z-50 mt-2 w-[calc(100vw-1.5rem)] max-w-sm sm:max-w-md mx-auto bg-white/98 backdrop-blur-2xl border border-slate-200/90 rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.18)] p-4 sm:p-5 flex flex-col gap-1.5 text-sm font-semibold text-slate-800 animate-in fade-in slide-in-from-top-3 duration-200">
+            <div className="flex items-center justify-between pb-2.5 mb-1 border-b border-slate-100 text-xs font-bold text-slate-400 uppercase tracking-wider">
+              <span>Quick Navigation</span>
+              <button
+                type="button"
+                onClick={() => setMobileNavOpen(false)}
+                className="w-7 h-7 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
+                aria-label="Close menu"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
             <Link
               href="/discover"
               onClick={() => setMobileNavOpen(false)}
-              className="px-3.5 py-2.5 rounded-xl hover:bg-slate-100 hover:text-[#0C513F] transition-colors"
+              className="px-4 py-3 rounded-2xl hover:bg-emerald-50 hover:text-emerald-900 transition-colors flex items-center justify-between group"
             >
-              Discover
+              <span className="font-bold text-slate-900 group-hover:text-emerald-900">Discover Specialists</span>
+              <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-emerald-600 transition-transform group-hover:translate-x-0.5" />
             </Link>
             <Link
               href="#how-it-works"
               onClick={() => setMobileNavOpen(false)}
-              className="px-3.5 py-2.5 rounded-xl hover:bg-slate-100 hover:text-[#0C513F] transition-colors"
+              className="px-4 py-3 rounded-2xl hover:bg-emerald-50 hover:text-emerald-900 transition-colors flex items-center justify-between group"
             >
-              How It Works
+              <span className="font-bold text-slate-900 group-hover:text-emerald-900">How It Works</span>
+              <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-emerald-600 transition-transform group-hover:translate-x-0.5" />
             </Link>
             <Link
               href="#featured-specialists"
               onClick={() => setMobileNavOpen(false)}
-              className="px-3.5 py-2.5 rounded-xl hover:bg-slate-100 hover:text-[#0C513F] transition-colors"
+              className="px-4 py-3 rounded-2xl hover:bg-emerald-50 hover:text-emerald-900 transition-colors flex items-center justify-between group"
             >
-              Specialists
+              <span className="font-bold text-slate-900 group-hover:text-emerald-900">Specialists</span>
+              <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-emerald-600 transition-transform group-hover:translate-x-0.5" />
             </Link>
             <Link
               href="#about"
               onClick={() => setMobileNavOpen(false)}
-              className="px-3.5 py-2.5 rounded-xl hover:bg-slate-100 hover:text-[#0C513F] transition-colors"
+              className="px-4 py-3 rounded-2xl hover:bg-emerald-50 hover:text-emerald-900 transition-colors flex items-center justify-between group"
             >
-              About
+              <span className="font-bold text-slate-900 group-hover:text-emerald-900">About Connecta</span>
+              <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-emerald-600 transition-transform group-hover:translate-x-0.5" />
             </Link>
-            <div className="pt-2 mt-1 border-t border-slate-100 flex flex-col gap-2">
+
+            <div className="pt-3 mt-1 border-t border-slate-100 flex flex-col gap-2">
               {hasAccount ? (
                 <Link
                   href="/dashboard"
                   onClick={() => setMobileNavOpen(false)}
-                  className="w-full text-center py-2.5 rounded-full font-extrabold text-white bg-[#0C513F] hover:bg-[#083b2e] text-xs transition-colors shadow-xs"
+                  className="w-full text-center py-3 rounded-full font-black text-white bg-[#0C513F] hover:bg-[#083b2e] text-xs sm:text-sm transition-all shadow-md active:scale-98 flex items-center justify-center gap-1.5"
                 >
-                  Dashboard
+                  <span>Go to Dashboard</span>
+                  <ArrowRight className="w-4 h-4" />
                 </Link>
               ) : (
                 <>
                   <Link
                     href="/onboarding?step=role"
                     onClick={() => setMobileNavOpen(false)}
-                    className="w-full text-center py-2.5 rounded-full font-extrabold text-white bg-[#0C513F] hover:bg-[#083b2e] text-xs transition-colors shadow-xs"
+                    className="w-full text-center py-3 rounded-full font-black text-white bg-[#0C513F] hover:bg-[#083b2e] text-xs sm:text-sm transition-all shadow-md active:scale-98"
                   >
                     Register
                   </Link>
                   <Link
                     href="/login"
                     onClick={() => setMobileNavOpen(false)}
-                    className="w-full text-center py-2.5 rounded-full font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 text-xs transition-colors"
+                    className="w-full text-center py-2.5 rounded-full font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 text-xs sm:text-sm transition-colors"
                   >
                     Sign In
                   </Link>
                 </>
               )}
+            </div>
+
+            <div className="pt-2 text-center text-[10px] text-slate-400 font-semibold">
+              100% Escrow Protected • Nigeria &amp; Pan-Africa
             </div>
           </div>
         )}
