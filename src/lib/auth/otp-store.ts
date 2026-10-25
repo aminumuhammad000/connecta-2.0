@@ -179,7 +179,29 @@ export function verifyOtpCode(email: string, code: string): { success: boolean; 
 
   // Verification succeeded: mark as verified and clean up
   record.verified = true
+  markEmailAsVerifiedForReset(cleanEmail)
   otpStore.delete(cleanEmail)
 
   return { success: true }
+}
+
+// Map to track emails that have successfully verified an OTP for password reset
+const verifiedResetEmails: Map<string, number> = new Map()
+
+export function markEmailAsVerifiedForReset(email: string): void {
+  verifiedResetEmails.set(email.trim().toLowerCase(), Date.now() + 15 * 60 * 1000)
+}
+
+export function isEmailVerifiedForReset(email: string): boolean {
+  const expiresAt = verifiedResetEmails.get(email.trim().toLowerCase())
+  if (!expiresAt) return false
+  if (expiresAt < Date.now()) {
+    verifiedResetEmails.delete(email.trim().toLowerCase())
+    return false
+  }
+  return true
+}
+
+export function consumeVerifiedEmailForReset(email: string): void {
+  verifiedResetEmails.delete(email.trim().toLowerCase())
 }

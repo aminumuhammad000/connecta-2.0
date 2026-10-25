@@ -575,3 +575,16 @@ export function addDispute(dispute: ServerDispute): ServerDispute {
   writeDatabase(db)
   return dispute
 }
+
+export function updateUserPassword(email: string, newPassword: string): boolean {
+  const db = readDatabase()
+  const cleanEmail = email.toLowerCase().trim()
+  const user = db.profiles.find((p) => p.email.toLowerCase() === cleanEmail)
+  if (!user) return false
+
+  user.password = newPassword
+  user.updatedAt = new Date().toISOString()
+  writeDatabase(db)
+  return true
+}
+
