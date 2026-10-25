@@ -30,14 +30,10 @@ export function generateOtpEmailHtml(code: string): string {
                   <td align="left" valign="middle">
                     <table role="presentation" border="0" cellpadding="0" cellspacing="0">
                       <tr>
-                        <td valign="middle" style="padding-right: 10px;">
-                          <svg width="36" height="36" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: block;">
-                            <path d="M 68 24 C 54 12 34 14 22 26 C 14 34 12 46 16 56 C 22 46 32 40 44 40 C 54 40 62 44 68 50 L 80 38 C 76 32 72 28 68 24 Z" fill="#F5A623"/>
-                            <path d="M 16 56 C 20 68 30 78 44 80 C 58 82 72 74 78 62 L 66 54 C 62 62 52 66 44 66 C 34 66 24 62 18 52 L 16 56 Z" fill="#0C513F"/>
-                          </svg>
-                        </td>
                         <td valign="middle">
-                          <span style="font-size: 24px; font-weight: 800; color: #0C513F; letter-spacing: -0.5px;">Connecta</span>
+                          <a href="https://myconnecta.ng" target="_blank" style="text-decoration: none; display: block;">
+                            <img src="https://myconnecta.ng/brand/header/connecta-logo-200x52.png" alt="Connecta" width="140" height="36" style="display: block; border: 0; outline: none; text-decoration: none; max-width: 140px; height: auto;" />
+                          </a>
                         </td>
                       </tr>
                     </table>

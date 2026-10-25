@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, Suspense } from 'react'
+import React, { useState, useEffect, Suspense } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useRouter, useSearchParams } from 'next/navigation'
@@ -36,6 +36,31 @@ function LoginContent() {
   const [errorMsg, setErrorMsg] = useState('')
   const [successMsg, setSuccessMsg] = useState('')
 
+  // Restore remembered credentials on initial mount
+  useEffect(() => {
+    try {
+      const isRemembered = localStorage.getItem('connecta_remember_enabled')
+      const savedEmail = localStorage.getItem('connecta_remember_email')
+      const savedPassword = localStorage.getItem('connecta_remember_password')
+      const savedRole = localStorage.getItem('connecta_remember_role')
+
+      if (isRemembered !== 'false' && savedEmail) {
+        setEmail(savedEmail)
+        setRememberMe(true)
+        if (savedPassword) {
+          setPassword(savedPassword)
+        }
+        if (savedRole === 'client' || savedRole === 'provider') {
+          setActiveRole(savedRole)
+        }
+      } else if (isRemembered === 'false') {
+        setRememberMe(false)
+      }
+    } catch {
+      // localStorage may not be accessible in strict private mode
+    }
+  }, [])
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setErrorMsg('')
@@ -66,6 +91,23 @@ function LoginContent() {
       const data = await res.json()
       if (!res.ok) {
         throw new Error(data.error?.message || data.error || 'Invalid email or password')
+      }
+
+      // Save or clear remembered password credentials based on toggle
+      try {
+        if (rememberMe) {
+          localStorage.setItem('connecta_remember_email', email.trim().toLowerCase())
+          localStorage.setItem('connecta_remember_password', password)
+          localStorage.setItem('connecta_remember_role', activeRole)
+          localStorage.setItem('connecta_remember_enabled', 'true')
+        } else {
+          localStorage.removeItem('connecta_remember_email')
+          localStorage.removeItem('connecta_remember_password')
+          localStorage.removeItem('connecta_remember_role')
+          localStorage.setItem('connecta_remember_enabled', 'false')
+        }
+      } catch {
+        // ignore storage errors
       }
 
       setSuccessMsg(data.data?.message || 'Welcome back! Initializing your workspace...')
@@ -247,16 +289,29 @@ function LoginContent() {
               </div>
             </div>
 
-            {/* Remember Me */}
+            {/* Remember Password */}
             <div className="flex items-center justify-between pt-1">
               <label className="flex items-center gap-2.5 cursor-pointer text-xs sm:text-sm font-semibold text-slate-600 select-none">
                 <input
                   type="checkbox"
                   checked={rememberMe}
-                  onChange={(e) => setRememberMe(e.target.checked)}
+                  onChange={(e) => {
+                    const checked = e.target.checked
+                    setRememberMe(checked)
+                    if (!checked) {
+                      try {
+                        localStorage.removeItem('connecta_remember_email')
+                        localStorage.removeItem('connecta_remember_password')
+                        localStorage.removeItem('connecta_remember_role')
+                        localStorage.setItem('connecta_remember_enabled', 'false')
+                      } catch {
+                        // ignore
+                      }
+                    }
+                  }}
                   className="w-4 h-4 rounded-md text-[#053F28] focus:ring-[#053F28] border-slate-300"
                 />
-                <span>Remember me on this device</span>
+                <span>Remember password on this device</span>
               </label>
             </div>
 

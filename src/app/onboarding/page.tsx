@@ -749,6 +749,10 @@ function OnboardingContent() {
   const [progressPercent, setProgressPercent] = useState(0)
   const [activeProgressTask, setActiveProgressTask] = useState(0)
 
+  // Session Recovery & Persistence States
+  const [isInitialMountComplete, setIsInitialMountComplete] = useState(false)
+  const [restoredBanner, setRestoredBanner] = useState<string | null>(null)
+
   // Scroll detection for dynamic header elevation
   const [isScrolled, setIsScrolled] = useState(false)
 
@@ -766,19 +770,146 @@ function OnboardingContent() {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }, [step])
 
-  // Sync initial query parameter
+  // Session Recovery: Restore exact state on page refresh or reconnection
   useEffect(() => {
-    const qStep = searchParams.get('step')
-    const qRole = searchParams.get('role') as 'client' | 'provider' | null
-    if (qStep && qStep !== step) {
-      setStep(qStep)
-    } else if (!qStep && qRole && step === 'welcome') {
-      setStep('role')
-    }
-    if (qRole && qRole !== selectedRole) {
-      setSelectedRole(qRole)
+    try {
+      const qReset = searchParams.get('reset') === '1'
+      if (qReset) {
+        localStorage.removeItem('connecta_onboarding_session')
+        sessionStorage.removeItem('connecta_onboarding_session')
+        setIsInitialMountComplete(true)
+        return
+      }
+
+      const qStep = searchParams.get('step')
+      const qRole = searchParams.get('role') as 'client' | 'provider' | null
+
+      // Check saved persistent session
+      const rawSession =
+        localStorage.getItem('connecta_onboarding_session') ||
+        sessionStorage.getItem('connecta_onboarding_session')
+
+      if (rawSession) {
+        const session = JSON.parse(rawSession)
+        const ageMs = Date.now() - (session.updatedAt || 0)
+        const isNotExpired = ageMs < 24 * 60 * 60 * 1000 // 24 hours validity
+
+        if (isNotExpired && session.step && session.step !== 'welcome' && session.step !== 'complete') {
+          // Restore form inputs
+          if (session.selectedRole) setSelectedRole(session.selectedRole)
+          if (session.firstName) setFirstName(session.firstName)
+          if (session.lastName) setLastName(session.lastName)
+          if (session.email) setEmail(session.email)
+          if (session.phone) setPhone(session.phone)
+          if (session.whatsapp) setWhatsapp(session.whatsapp)
+          if (typeof session.sameAsPhone === 'boolean') setSameAsPhone(session.sameAsPhone)
+          if (session.locationCity) setLocationCity(session.locationCity)
+          if (session.selectedCountry) setSelectedCountry(session.selectedCountry)
+          if (session.selectedCurrency) setSelectedCurrency(session.selectedCurrency)
+          if (typeof session.isEmailVerified === 'boolean') setIsEmailVerified(session.isEmailVerified)
+          if (session.password) setPassword(session.password)
+          if (session.confirmPassword) setConfirmPassword(session.confirmPassword)
+          if (session.selectedSectorId) setSelectedSectorId(session.selectedSectorId)
+          if (session.customSectorName) setCustomSectorName(session.customSectorName)
+          if (Array.isArray(session.selectedSkills)) setSelectedSkills(session.selectedSkills)
+          if (session.baseRate) setBaseRate(session.baseRate)
+          if (session.title) setTitle(session.title)
+          if (session.bio) setBio(session.bio)
+          if (session.workType) setWorkType(session.workType)
+          if (session.experienceYears) setExperienceYears(session.experienceYears)
+          if (session.ninNumber) setNinNumber(session.ninNumber)
+          if (session.workshopAddress) setWorkshopAddress(session.workshopAddress)
+          if (session.profileImage) setProfileImage(session.profileImage)
+          if (session.clientIndustry) setClientIndustry(session.clientIndustry)
+          if (session.clientGoal) setClientGoal(session.clientGoal)
+          if (session.companyName) setCompanyName(session.companyName)
+          if (session.companyBio) setCompanyBio(session.companyBio)
+          if (session.companySize) setCompanySize(session.companySize)
+          if (session.companyWebsite) setCompanyWebsite(session.companyWebsite)
+          if (session.createdAccountData) setCreatedAccountData(session.createdAccountData)
+
+          // Restore exact step where user left off
+          const targetStep = qStep || session.step
+          setStep(targetStep)
+          setRestoredBanner('Your registration session has been restored. You can continue right where you left off.')
+          setTimeout(() => setRestoredBanner(null), 6000)
+        } else if (qStep) {
+          setStep(qStep)
+          if (qRole) setSelectedRole(qRole)
+        }
+      } else if (qStep) {
+        setStep(qStep)
+        if (qRole) setSelectedRole(qRole)
+      } else if (qRole && step === 'welcome') {
+        setStep('role')
+        setSelectedRole(qRole)
+      }
+    } catch (e) {
+      console.warn('[Session Recovery Notice]', e)
+    } finally {
+      setIsInitialMountComplete(true)
     }
   }, [searchParams])
+
+  // Auto-save onboarding progress to persistent storage whenever state changes
+  useEffect(() => {
+    if (!isInitialMountComplete) return
+    if (step === 'welcome') return
+    if (step === 'complete') {
+      try {
+        localStorage.removeItem('connecta_onboarding_session')
+        sessionStorage.removeItem('connecta_onboarding_session')
+      } catch {}
+      return
+    }
+
+    try {
+      const sessionData = {
+        updatedAt: Date.now(),
+        step,
+        selectedRole,
+        firstName,
+        lastName,
+        email,
+        phone,
+        whatsapp,
+        sameAsPhone,
+        locationCity,
+        selectedCountry,
+        selectedCurrency,
+        isEmailVerified,
+        password,
+        confirmPassword,
+        selectedSectorId,
+        customSectorName,
+        selectedSkills,
+        baseRate,
+        title,
+        bio,
+        workType,
+        experienceYears,
+        ninNumber,
+        workshopAddress,
+        profileImage,
+        clientIndustry,
+        clientGoal,
+        companyName,
+        companyBio,
+        companySize,
+        companyWebsite,
+        createdAccountData,
+      }
+      localStorage.setItem('connecta_onboarding_session', JSON.stringify(sessionData))
+      sessionStorage.setItem('connecta_onboarding_session', JSON.stringify(sessionData))
+    } catch {}
+  }, [
+    step, selectedRole, firstName, lastName, email, phone, whatsapp, sameAsPhone,
+    locationCity, selectedCountry, selectedCurrency, isEmailVerified, password,
+    confirmPassword, selectedSectorId, customSectorName, selectedSkills, baseRate,
+    title, bio, workType, experienceYears, ninNumber, workshopAddress, profileImage,
+    clientIndustry, clientGoal, companyName, companyBio, companySize, companyWebsite,
+    createdAccountData, isInitialMountComplete,
+  ])
 
   // Handle "Same as Phone" sync
   useEffect(() => {
@@ -1217,6 +1348,28 @@ function OnboardingContent() {
 
       {/* Main Multi-Step Container */}
       <main className="flex-1 max-w-5xl w-full mx-auto px-4 pt-6 sm:pt-10 flex flex-col justify-center relative z-10">
+        {/* Restored Session Notification */}
+        {restoredBanner && (
+          <div className="max-w-2xl mx-auto w-full mb-6 p-4 rounded-2xl bg-emerald-50 border border-emerald-200/90 text-emerald-950 text-xs sm:text-sm font-semibold flex items-center justify-between gap-3 animate-in fade-in slide-in-from-top-2 shadow-xs">
+            <div className="flex items-center gap-2.5">
+              <CheckCircle2 className="w-4 h-4 text-[#10B981] shrink-0" />
+              <span>{restoredBanner}</span>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                try {
+                  localStorage.removeItem('connecta_onboarding_session')
+                  sessionStorage.removeItem('connecta_onboarding_session')
+                } catch {}
+                window.location.href = '/onboarding?reset=1'
+              }}
+              className="text-xs text-emerald-700 hover:text-emerald-950 font-bold underline cursor-pointer shrink-0"
+            >
+              Start Fresh
+            </button>
+          </div>
+        )}
         {/* ================================================================= */}
         {/* STEP 1: ONBOARDING SLIDES CAROUSEL (OnboardingScreen.tsx)         */}
         {/* ================================================================= */}
