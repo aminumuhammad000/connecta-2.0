@@ -139,11 +139,14 @@ export default function DiscoverClientView({
 
           {/* Quick nav links for non-registered users */}
           <nav className="hidden md:flex items-center gap-6 text-xs sm:text-sm font-semibold text-slate-600">
-            <Link href="/discover" className="text-emerald-700 font-extrabold">
-              Discover Specialists
+            <Link href="/" className="hover:text-slate-900 transition-colors">
+              Home
             </Link>
-            <Link href="/requests/new" className="hover:text-slate-900 transition-colors">
-              Post Request
+            <Link href="/discover" className="text-emerald-800 font-extrabold">
+              Discover
+            </Link>
+            <Link href="/#how-it-works" className="hover:text-slate-900 transition-colors">
+              How It Works
             </Link>
             <Link href="/privacy" className="hover:text-slate-900 transition-colors">
               Trust &amp; Privacy
@@ -151,18 +154,30 @@ export default function DiscoverClientView({
           </nav>
 
           <div className="flex items-center gap-2.5 sm:gap-3">
-            <Link
-              href="/login"
-              className="text-xs sm:text-sm font-semibold text-slate-600 hover:text-slate-900 px-3 py-2 transition-colors"
-            >
-              Sign In
-            </Link>
-            <Link
-              href="/onboarding"
-              className="text-xs sm:text-sm font-extrabold px-4 sm:px-5 py-2.5 rounded-full bg-[#10B981] hover:bg-[#059669] text-white shadow-sm transition-all hover:scale-105"
-            >
-              Join Connecta
-            </Link>
+            {hasAccount ? (
+              <Link
+                href="/dashboard"
+                className="text-xs sm:text-sm font-extrabold px-5 py-2.5 rounded-full bg-[#053F28] hover:bg-[#032a1b] text-white shadow-sm transition-all hover:scale-105 inline-flex items-center gap-1.5"
+              >
+                <span>Dashboard</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+            ) : (
+              <>
+                <Link
+                  href="/login"
+                  className="text-xs sm:text-sm font-semibold text-slate-600 hover:text-slate-900 px-3 py-2 transition-colors"
+                >
+                  Sign In
+                </Link>
+                <Link
+                  href="/onboarding?step=role"
+                  className="text-xs sm:text-sm font-extrabold px-5 py-2.5 rounded-full bg-[#053F28] hover:bg-[#032a1b] text-white shadow-sm transition-all hover:scale-105"
+                >
+                  Register
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </header>

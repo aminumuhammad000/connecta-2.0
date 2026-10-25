@@ -123,7 +123,7 @@ export default async function ProviderProfilePage({ params }: PageProps) {
           <div className="flex items-center gap-3">
             <Link
               href="/discover"
-              className="text-xs sm:text-sm font-bold text-emerald-700 hover:text-emerald-800 transition-colors inline-flex items-center gap-1"
+              className="text-xs sm:text-sm font-bold text-emerald-800 hover:text-emerald-900 transition-colors inline-flex items-center gap-1"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
               <span>Back to Directory</span>
@@ -135,10 +135,10 @@ export default async function ProviderProfilePage({ params }: PageProps) {
               Sign In
             </Link>
             <Link
-              href="/onboarding"
-              className="text-xs sm:text-sm font-extrabold px-4 sm:px-5 py-2.5 rounded-full bg-[#10B981] hover:bg-[#059669] text-white shadow-sm transition-all hover:scale-105"
+              href="/onboarding?step=role"
+              className="text-xs sm:text-sm font-extrabold px-5 py-2.5 rounded-full bg-[#053F28] hover:bg-[#032a1b] text-white shadow-sm transition-all hover:scale-105"
             >
-              Join Connecta
+              Register
             </Link>
           </div>
         </div>
