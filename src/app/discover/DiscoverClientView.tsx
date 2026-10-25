@@ -55,6 +55,19 @@ export default function DiscoverClientView({
   const [selectedCity, setSelectedCity] = useState('All Cities')
   const [verifiedOnly, setVerifiedOnly] = useState(false)
   const [sortBy, setSortBy] = useState<'rating' | 'reviews' | 'rate_asc' | 'rate_desc'>('rating')
+  const [hasAccount, setHasAccount] = useState(false)
+
+  React.useEffect(() => {
+    try {
+      const hasCookie = document.cookie.split(';').some((c) => c.trim().startsWith('connecta_session='))
+      const hasStoredUser = !!localStorage.getItem('connecta_remember_email')
+      if (hasCookie || hasStoredUser) {
+        setHasAccount(true)
+      }
+    } catch {
+      // ignore
+    }
+  }, [])
 
   const filteredProviders = useMemo(() => {
     let result = [...initialProviders]
