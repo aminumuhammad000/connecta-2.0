@@ -15,18 +15,36 @@ import {
   Menu,
   X,
   RefreshCw,
-  Bell,
   Sparkles,
   ShieldCheck,
-  ChevronRight,
-  LogOut,
   PlusCircle,
-  ExternalLink,
-  CheckCircle2,
+  LogOut,
 } from 'lucide-react'
 
 interface DashboardLayoutProps {
   children: React.ReactNode
+}
+
+interface ServerUserData {
+  id: string
+  fullName: string
+  firstName: string
+  lastName: string
+  email: string
+  role: 'customer' | 'provider'
+  activeRole: 'customer' | 'provider'
+  city: string
+  currency: string
+  avatarUrl?: string | null
+  headline?: string
+  companyName?: string
+}
+
+interface ServerWalletData {
+  balanceMinor: number
+  escrowBalanceMinor: number
+  sparksBalance: number
+  currency: string
 }
 
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
@@ -34,9 +52,95 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const router = useRouter()
 
   // State
+  const [user, setUser] = useState<ServerUserData | null>(null)
+  const [wallet, setWallet] = useState<ServerWalletData | null>(null)
   const [activeRole, setActiveRole] = useState<'client' | 'provider'>('client')
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isSwitching, setIsSwitching] = useState(false)
+  const [isLoadingUser, setIsLoadingUser] = useState(true)
+  const [openJobsCount, setOpenJobsCount] = useState(0)
+  const [activeProjectsCount, setActiveProjectsCount] = useState(0)
+
+  const fetchDashboardData = async () => {
+    try {
+      const res = await fetch('/api/dashboard/overview')
+      if (res.ok) {
+        const body = await res.json()
+        if (body.data) {
+          const u = body.data.user
+          setUser(u)
+          setWallet(body.data.wallet)
+          const currentRole = u.activeRole === 'provider' ? 'provider' : 'client'
+          setActiveRole(currentRole)
+
+          // Set counts
+          if (body.data.recentJobs) {
+            setOpenJobsCount(body.data.recentJobs.length)
+          }
+          if (body.data.activeBooking) {
+            setActiveProjectsCount(1)
+          } else {
+            setActiveProjectsCount(0)
+          }
+        }
+      }
+    } catch (err) {
+      console.error('Failed to fetch dashboard layout data:', err)
+    } finally {
+      setIsLoadingUser(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchDashboardData()
+  }, [])
+
+  const handleRoleToggle = async () => {
+    setIsSwitching(true)
+    try {
+      const nextRole = activeRole === 'client' ? 'provider' : 'client'
+      const res = await fetch('/api/dashboard/role', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ role: nextRole }),
+      })
+
+      if (res.ok) {
+        setActiveRole(nextRole)
+        await fetchDashboardData()
+        // Refresh page router so children re-render with new role mode
+        router.refresh()
+      }
+    } catch (err) {
+      console.error('Failed to switch role:', err)
+    } finally {
+      setIsSwitching(false)
+    }
+  }
+
+  const handleLogout = () => {
+    document.cookie = 'connecta_session=; path=/; max-age=0'
+    document.cookie = 'connecta_role=; path=/; max-age=0'
+    router.push('/login')
+  }
+
+  // Format currency
+  const formatNaira = (minor: number) => {
+    const val = minor / 100
+    if (val >= 1000) {
+      return `₦${(val / 1000).toFixed(0)}k`
+    }
+    return `₦${val.toLocaleString('en-NG')}`
+  }
+
+  const userInitials = user
+    ? `${user.firstName?.[0] || 'C'}${user.lastName?.[0] || 'U'}`.toUpperCase()
+    : 'CU'
+
+  const userDisplayName = user?.fullName || 'Connecta Member'
+  const userDisplaySubtitle = activeRole === 'client'
+    ? (user?.companyName || 'Verified Client')
+    : (user?.headline || 'Certified Specialist Pro')
 
   // Navigation Items
   const navItems = [
@@ -50,28 +154,28 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       label: activeRole === 'client' ? 'Projects & Briefs' : 'Active Contracts',
       path: '/dashboard/projects',
       icon: Briefcase,
-      badge: activeRole === 'client' ? '2' : '1',
+      badge: activeProjectsCount > 0 ? `${activeProjectsCount} Active` : null,
       badgeColor: 'bg-emerald-50 text-emerald-700 border-emerald-200',
     },
     {
       label: 'Marketplace Jobs',
       path: '/dashboard/jobs',
       icon: Search,
-      badge: '4 Live',
+      badge: openJobsCount > 0 ? `${openJobsCount} Live` : null,
       badgeColor: 'bg-blue-50 text-blue-700 border-blue-200',
     },
     {
       label: 'Collabo Squads',
       path: '/dashboard/squads',
       icon: Users,
-      badge: 'Squads',
+      badge: null,
       badgeColor: 'bg-amber-50 text-amber-700 border-amber-200',
     },
     {
       label: 'Escrow Wallet',
       path: '/dashboard/wallet',
       icon: Wallet,
-      badge: '₦480k',
+      badge: wallet ? formatNaira(wallet.escrowBalanceMinor > 0 ? wallet.escrowBalanceMinor : wallet.balanceMinor) : '₦0',
       badgeColor: 'bg-emerald-50 text-emerald-700 border-emerald-200',
     },
     {
@@ -87,14 +191,6 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       badge: null,
     },
   ]
-
-  const handleRoleToggle = () => {
-    setIsSwitching(true)
-    setTimeout(() => {
-      setActiveRole((prev) => (prev === 'client' ? 'provider' : 'client'))
-      setIsSwitching(false)
-    }, 350)
-  }
 
   return (
     <div className="min-h-screen bg-[#F5F7FC] text-[#0A1020] flex flex-col font-sans selection:bg-[#4D78FF] selection:text-white relative">
@@ -164,7 +260,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             {/* AI Sparks Badge */}
             <div className="inline-flex items-center gap-1.5 bg-amber-500/10 border border-amber-500/20 px-3 py-1.5 rounded-full text-xs font-extrabold text-amber-700">
               <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-              <span>{activeRole === 'client' ? '25 Sparks' : '10 Sparks'}</span>
+              <span>{wallet?.sparksBalance ?? (activeRole === 'client' ? 25 : 10)} Sparks</span>
             </div>
 
             {/* Escrow Balance Pill */}
@@ -173,7 +269,9 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               className="hidden md:inline-flex items-center gap-1.5 bg-emerald-500/10 border border-emerald-500/20 px-3.5 py-1.5 rounded-full text-xs font-extrabold text-[#0C513F] hover:bg-emerald-500/20 transition-colors"
             >
               <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-              <span>₦480,000 Escrow</span>
+              <span>
+                {wallet ? (wallet.escrowBalanceMinor > 0 ? formatNaira(wallet.escrowBalanceMinor) : '₦0') : '₦0'} Escrow
+              </span>
             </Link>
 
             {/* Action CTA Button */}
@@ -195,11 +293,26 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               </Link>
             )}
 
-            {/* User Profile Avatar */}
+            {/* User Profile Avatar with Initials */}
             <div className="flex items-center gap-2 pl-1 border-l border-slate-200">
-              <div className="w-8 h-8 rounded-full bg-[#0A1020] text-white font-extrabold text-xs flex items-center justify-center shadow-xs">
-                {activeRole === 'client' ? 'TB' : 'IA'}
-              </div>
+              {user?.avatarUrl ? (
+                <div className="relative w-8 h-8 rounded-full overflow-hidden border border-slate-200 shadow-xs">
+                  <Image src={user.avatarUrl} alt={userDisplayName} fill className="object-cover" />
+                </div>
+              ) : (
+                <div className="w-8 h-8 rounded-full bg-[#0A1020] text-white font-extrabold text-xs flex items-center justify-center shadow-xs">
+                  {userInitials}
+                </div>
+              )}
+
+              <button
+                type="button"
+                onClick={handleLogout}
+                title="Sign out of Connecta"
+                className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors"
+              >
+                <LogOut className="w-4 h-4" />
+              </button>
             </div>
           </div>
         </div>
@@ -212,24 +325,21 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           {/* User Account Card */}
           <div className="bg-white rounded-3xl p-4 border border-slate-200/90 shadow-sm space-y-3">
             <div className="flex items-center gap-3">
-              <div className="relative w-11 h-11 rounded-2xl overflow-hidden bg-slate-100 border border-slate-200 shrink-0">
-                <Image
-                  src={
-                    activeRole === 'client'
-                      ? 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400'
-                      : '/images/services/nigerian_electrician_ibrahim.jpg'
-                  }
-                  alt="User"
-                  fill
-                  className="object-cover"
-                />
+              <div className="relative w-11 h-11 rounded-2xl overflow-hidden bg-slate-100 border border-slate-200 shrink-0 flex items-center justify-center">
+                {user?.avatarUrl ? (
+                  <Image src={user.avatarUrl} alt={userDisplayName} fill className="object-cover" />
+                ) : (
+                  <div className="w-full h-full bg-[#0A1020] text-white font-black text-sm flex items-center justify-center">
+                    {userInitials}
+                  </div>
+                )}
               </div>
               <div className="min-w-0 flex-1">
                 <div className="font-extrabold text-sm text-[#0A1020] truncate">
-                  {activeRole === 'client' ? 'Tunde Bakare' : 'Ibrahim Aliyu'}
+                  {isLoadingUser ? 'Loading...' : userDisplayName}
                 </div>
                 <div className="text-[11px] text-slate-500 font-medium truncate">
-                  {activeRole === 'client' ? 'PayFlow Tech' : 'Master Solar Lead'}
+                  {userDisplaySubtitle}
                 </div>
               </div>
             </div>
@@ -238,6 +348,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             <button
               type="button"
               onClick={handleRoleToggle}
+              disabled={isSwitching}
               className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200/80 text-[11px] font-bold text-slate-700 transition-colors cursor-pointer"
             >
               <RefreshCw className={`w-3 h-3 text-[#0C513F] ${isSwitching ? 'animate-spin' : ''}`} />

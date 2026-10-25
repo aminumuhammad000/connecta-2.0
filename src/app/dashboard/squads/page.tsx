@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import {
@@ -14,43 +14,98 @@ import {
   TrendingUp,
   Percent,
   Plus,
+  Loader2,
 } from 'lucide-react'
-import { DASHBOARD_SQUADS, DashboardSquad } from '@/lib/dashboard/data'
+
+interface ServerSquadItem {
+  id: string
+  name: string
+  tradeSpecialty: string
+  hubCity: string
+  description: string
+  memberCount: number
+  rating: number
+  completedProjects: number
+  revenueMinor: number
+  openSlots: number
+  tags: string[]
+  members?: string[]
+}
 
 export default function DashboardSquadsPage() {
-  const [squads, setSquads] = useState<DashboardSquad[]>(DASHBOARD_SQUADS)
+  const [squads, setSquads] = useState<ServerSquadItem[]>([])
+  const [isLoading, setIsLoading] = useState(true)
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
   const [newSquadName, setNewSquadName] = useState('')
-  const [newSquadHeadline, setNewSquadHeadline] = useState('')
+  const [newSquadSpecialty, setNewSquadSpecialty] = useState('Solar & Industrial Electrical')
+  const [newSquadDescription, setNewSquadDescription] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const [successToast, setSuccessToast] = useState<string | null>(null)
 
-  const handleCreateSquad = (e: React.FormEvent) => {
+  const fetchSquads = async () => {
+    try {
+      const res = await fetch('/api/dashboard/squads')
+      if (res.ok) {
+        const body = await res.json()
+        setSquads(body.data || [])
+      }
+    } catch (err) {
+      console.error('Failed to load squads:', err)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchSquads()
+  }, [])
+
+  const handleCreateSquad = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!newSquadName.trim()) return
 
-    const newSquad: DashboardSquad = {
-      id: `sq-${Date.now()}`,
-      name: newSquadName,
-      slug: newSquadName.toLowerCase().replace(/\s+/g, '-'),
-      headline: newSquadHeadline || 'Multi-Trade Collaborative Team',
-      description: 'Collaborative team delivering comprehensive solutions across essential infrastructure and digital services.',
-      leadProviderName: 'Ibrahim Aliyu',
-      leadProviderAvatar: '/images/services/nigerian_electrician_ibrahim.jpg',
-      rating: 5.0,
-      completedJobsCount: 0,
-      bannerGradient: 'from-[#0C513F] via-[#10B981] to-[#0A2614]',
-      roles: [
-        { roleTitle: 'Squad Lead', providerName: 'Ibrahim Aliyu', splitPercentage: 50, isLead: true },
-        { roleTitle: 'Collaborating Partner', providerName: 'Open Partner Slot', splitPercentage: 50, isLead: false },
-      ],
-    }
+    setIsSubmitting(true)
+    try {
+      const res = await fetch('/api/dashboard/squads', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: newSquadName.trim(),
+          tradeSpecialty: newSquadSpecialty,
+          description: newSquadDescription.trim(),
+        }),
+      })
 
-    setSquads([newSquad, ...squads])
-    setIsCreateModalOpen(false)
-    setNewSquadName('')
-    setNewSquadHeadline('')
-    setSuccessToast(`Collabo Squad "${newSquad.name}" initialized! You can now invite partners and set split formulas.`)
-    setTimeout(() => setSuccessToast(null), 4000)
+      if (res.ok) {
+        setIsCreateModalOpen(false)
+        setNewSquadName('')
+        setNewSquadDescription('')
+        setSuccessToast(`Collabo Squad "${newSquadName}" initialized on server! You can now bid together.`)
+        await fetchSquads()
+        setTimeout(() => setSuccessToast(null), 4000)
+      }
+    } catch (err) {
+      console.error('Squad creation error:', err)
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  const handleJoinSquad = async (squadId: string) => {
+    try {
+      const res = await fetch('/api/dashboard/squads', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'join', squadId }),
+      })
+      if (res.ok) {
+        setSuccessToast('Successfully joined squad guild!')
+        await fetchSquads()
+        setTimeout(() => setSuccessToast(null), 3000)
+      }
+    } catch (err) {
+      console.error('Join squad error:', err)
+    }
   }
 
   return (
@@ -59,7 +114,7 @@ export default function DashboardSquadsPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <span className="text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 tracking-wider">
-            Automated Payment Split Architecture
+            Automated Escrow Split Architecture
           </span>
           <h1 className="text-2xl sm:text-3xl font-black text-[#0A1020] tracking-tight mt-1">
             Collabo Squads Hub
@@ -88,154 +143,157 @@ export default function DashboardSquadsPage() {
       )}
 
       {/* Squad Cards Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {squads.map((sq) => (
-          <div
-            key={sq.id}
-            className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-sm hover:shadow-md transition-all space-y-6 flex flex-col justify-between"
-          >
-            <div className="space-y-4">
-              {/* Squad Header Bar */}
-              <div className="flex items-start justify-between gap-4">
-                <div className="flex items-center gap-3">
-                  <div className="relative w-12 h-12 rounded-2xl overflow-hidden bg-slate-100 border border-slate-200 shrink-0 shadow-xs">
-                    <Image
-                      src={sq.leadProviderAvatar}
-                      alt={sq.name}
-                      fill
-                      className="object-cover"
-                    />
-                  </div>
-                  <div>
-                    <h3 className="font-black text-base sm:text-lg text-[#0A1020] leading-snug">
+      {isLoading ? (
+        <div className="py-20 flex flex-col items-center justify-center gap-2">
+          <Loader2 className="w-7 h-7 text-[#0C513F] animate-spin" />
+          <span className="text-xs font-bold text-slate-500">Loading squads from server...</span>
+        </div>
+      ) : squads.length > 0 ? (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {squads.map((sq) => (
+            <div
+              key={sq.id}
+              className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-sm hover:shadow-md transition-all space-y-6 flex flex-col justify-between"
+            >
+              <div className="space-y-4">
+                <div className="flex items-start justify-between gap-4">
+                  <div className="space-y-1">
+                    <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-md bg-emerald-50 text-[#0C513F] border border-emerald-200">
+                      {sq.tradeSpecialty}
+                    </span>
+                    <h3 className="text-lg font-black text-[#0A1020] tracking-tight">
                       {sq.name}
                     </h3>
-                    <div className="text-xs text-slate-500 font-medium flex items-center gap-1.5 mt-0.5">
-                      <span>Lead: {sq.leadProviderName}</span>
-                      <span>•</span>
-                      <span className="font-bold text-emerald-700 flex items-center gap-0.5">
-                        <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
-                        {sq.rating} ({sq.completedJobsCount} jobs)
-                      </span>
+                    <div className="text-xs text-slate-500 font-medium">
+                      Hub: <span className="font-bold text-slate-800">{sq.hubCity}</span> • {sq.memberCount} Verified Trades
                     </div>
                   </div>
+
+                  <span className="text-xs font-black px-2.5 py-1 rounded-full bg-slate-100 text-slate-800 shrink-0">
+                    {sq.openSlots} Open Slots
+                  </span>
                 </div>
 
-                <span className="text-[10px] font-extrabold uppercase px-2.5 py-1 rounded-full bg-emerald-100 text-[#0C513F] shrink-0">
-                  Active Squad
-                </span>
-              </div>
+                <p className="text-xs text-slate-600 leading-relaxed font-medium">
+                  {sq.description}
+                </p>
 
-              <div className="text-xs font-bold text-[#0C513F] bg-emerald-50/70 p-3 rounded-2xl border border-emerald-100/80">
-                {sq.headline}
-              </div>
-
-              <p className="text-xs text-slate-600 font-medium leading-relaxed">
-                {sq.description}
-              </p>
-
-              {/* Automated Splits Table */}
-              <div className="space-y-2 pt-2 border-t border-slate-100">
-                <div className="flex items-center justify-between text-[11px] font-bold text-slate-400 uppercase tracking-wider">
-                  <span>Squad Roles</span>
-                  <span>Automated Escrow Split</span>
-                </div>
-
-                <div className="space-y-1.5">
-                  {sq.roles.map((r, idx) => (
-                    <div
-                      key={idx}
-                      className="p-3 rounded-xl bg-slate-50 border border-slate-200/70 text-xs flex items-center justify-between gap-3"
-                    >
-                      <div className="flex items-center gap-2">
-                        <span className="w-1.5 h-1.5 rounded-full bg-[#10B981]" />
-                        <span className="font-extrabold text-[#0A1020]">{r.roleTitle}</span>
-                        <span className="text-[11px] text-slate-400">({r.providerName})</span>
-                      </div>
-                      <span className="font-black text-emerald-700 bg-emerald-100/60 px-2 py-0.5 rounded-md">
-                        {r.splitPercentage}%
-                      </span>
-                    </div>
+                <div className="flex flex-wrap gap-1.5 pt-1">
+                  {sq.tags?.map((t, i) => (
+                    <span key={i} className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-slate-100 text-slate-700">
+                      {t}
+                    </span>
                   ))}
                 </div>
               </div>
-            </div>
 
-            {/* Action Bar */}
-            <div className="pt-4 border-t border-slate-100 flex items-center justify-between gap-3">
-              <span className="text-[11px] text-slate-400 font-medium">
-                Milestone releases split automatically
-              </span>
+              <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
+                <div className="flex items-center gap-1.5 text-xs font-bold text-emerald-600">
+                  <ShieldCheck className="w-4 h-4" />
+                  <span>Verified Escrow Split</span>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => handleJoinSquad(sq.id)}
+                  className="inline-flex items-center gap-1 px-4 py-2 rounded-full bg-[#0A1020] hover:bg-[#10B981] text-white text-xs font-extrabold transition-all shadow-xs cursor-pointer active:scale-95"
+                >
+                  <span>Join Squad</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="bg-white rounded-3xl p-12 text-center border border-slate-200 space-y-4 shadow-sm">
+          <div className="w-14 h-14 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center mx-auto">
+            <Users className="w-7 h-7" />
+          </div>
+          <div className="space-y-1.5 max-w-sm mx-auto">
+            <h3 className="text-base font-black text-[#0A1020]">No Active Collabo Squads Yet</h3>
+            <p className="text-xs text-slate-500 font-medium leading-relaxed">
+              Form the first verified multi-trade squad in your city to pool capabilities and bid on major contracts together.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setIsCreateModalOpen(true)}
+            className="inline-flex items-center gap-2 rounded-full bg-[#0A1020] hover:bg-[#10B981] text-white px-5 py-2.5 text-xs font-extrabold shadow-sm transition-all cursor-pointer"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Form First Squad</span>
+          </button>
+        </div>
+      )}
+
+      {/* Create Squad Modal */}
+      {isCreateModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 space-y-5 shadow-2xl border border-slate-200 animate-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+              <h3 className="text-lg font-black text-[#0A1020]">Form Collabo Trade Squad</h3>
               <button
                 type="button"
-                className="inline-flex items-center gap-1.5 text-xs font-bold text-[#0C513F] hover:underline"
+                onClick={() => setIsCreateModalOpen(false)}
+                className="text-slate-400 hover:text-slate-700 p-1"
               >
-                <span>Manage Squad Roles</span>
-                <ArrowRight className="w-3.5 h-3.5" />
+                ✕
               </button>
             </div>
-          </div>
-        ))}
-      </div>
 
-      {/* Form Squad Modal */}
-      {isCreateModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in">
-          <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full border border-slate-200 shadow-2xl space-y-5">
-            <div>
-              <h3 className="text-xl font-black text-[#0A1020]">Form a Collabo Squad</h3>
-              <p className="text-xs text-slate-500 font-medium mt-1">
-                Combine trade, engineering, and digital skills into a single high-impact team profile.
-              </p>
-            </div>
-
-            <form onSubmit={handleCreateSquad} className="space-y-4">
-              <div>
-                <label className="text-xs font-bold text-slate-700">Squad Name</label>
+            <form onSubmit={handleCreateSquad} className="space-y-4 text-xs">
+              <div className="space-y-1.5">
+                <label className="font-bold text-slate-700">Squad Name</label>
                 <input
                   type="text"
+                  placeholder="e.g. Northern Microgrid & Solar Guild"
                   value={newSquadName}
                   onChange={(e) => setNewSquadName(e.target.value)}
-                  className="w-full mt-1 px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-bold text-slate-900 focus:outline-none focus:border-[#0C513F]"
-                  placeholder="e.g. Lagos Commercial Solar & MEP Group"
+                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 font-bold focus:outline-none focus:border-[#4D78FF]"
                   required
                 />
               </div>
 
-              <div>
-                <label className="text-xs font-bold text-slate-700">Squad Headline &amp; Specialization</label>
-                <input
-                  type="text"
-                  value={newSquadHeadline}
-                  onChange={(e) => setNewSquadHeadline(e.target.value)}
-                  className="w-full mt-1 px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-medium text-slate-900 focus:outline-none focus:border-[#0C513F]"
-                  placeholder="e.g. End-to-end solar inverters, plumbing piping & diagnostic monitoring"
+              <div className="space-y-1.5">
+                <label className="font-bold text-slate-700">Primary Trade Discipline</label>
+                <select
+                  value={newSquadSpecialty}
+                  onChange={(e) => setNewSquadSpecialty(e.target.value)}
+                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 font-medium focus:outline-none focus:border-[#4D78FF]"
+                >
+                  <option value="Solar & Industrial Electrical">Solar &amp; Industrial Electrical</option>
+                  <option value="Plumbing, Borehole & Smart Pumps">Plumbing, Borehole &amp; Smart Pumps</option>
+                  <option value="Finishes, Plaster & Precision Joinery">Finishes, Plaster &amp; Precision Joinery</option>
+                  <option value="Full-Stack Web & Cloud Infrastructure">Full-Stack Web &amp; Cloud Infrastructure</option>
+                </select>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="font-bold text-slate-700">Mission &amp; Capabilities Summary</label>
+                <textarea
+                  rows={3}
+                  placeholder="Describe your collaborative expertise and project focus..."
+                  value={newSquadDescription}
+                  onChange={(e) => setNewSquadDescription(e.target.value)}
+                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 font-medium focus:outline-none focus:border-[#4D78FF]"
                 />
               </div>
 
-              <div className="p-3 rounded-2xl bg-amber-50 text-[11px] text-amber-900 font-medium space-y-1">
-                <div className="font-extrabold flex items-center gap-1.5">
-                  <Percent className="w-3.5 h-3.5 text-amber-600" />
-                  <span>Fair Split Guarantee</span>
-                </div>
-                <p>
-                  Connecta automatically deposits agreed percentages directly into each member’s wallet upon client milestone release.
-                </p>
-              </div>
-
-              <div className="flex items-center justify-end gap-3 pt-2">
+              <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
                 <button
                   type="button"
                   onClick={() => setIsCreateModalOpen(false)}
-                  className="px-5 py-2.5 rounded-full text-xs font-bold text-slate-600 hover:bg-slate-100"
+                  className="px-4 py-2 rounded-full text-slate-600 font-bold hover:bg-slate-100"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-6 py-2.5 rounded-full text-xs font-extrabold bg-[#0A1020] text-white hover:bg-[#10B981] shadow-md cursor-pointer"
+                  disabled={isSubmitting}
+                  className="px-6 py-2.5 rounded-full bg-[#0A1020] hover:bg-[#10B981] text-white font-extrabold shadow-sm active:scale-95 transition-all cursor-pointer disabled:opacity-60"
                 >
-                  Create Squad
+                  {isSubmitting ? 'Initializing...' : 'Initialize Squad'}
                 </button>
               </div>
             </form>

@@ -45,4 +45,7 @@ next-env.d.ts
 *.png
 !public/**
 
+# local runtime server database files
+data/*.json
+
 connecta old/

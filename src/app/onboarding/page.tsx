@@ -514,12 +514,11 @@ function OnboardingContent() {
     setCitySearchQuery('')
   }
 
-  // Email validation and OTP state
+  // Email validation and Real Server OTP state
   const [emailStatus, setEmailStatus] = useState<'idle' | 'valid' | 'invalid'>('idle')
   const [isSendingOtp, setIsSendingOtp] = useState(false)
   const [otpSent, setOtpSent] = useState(false)
   const [enteredOtp, setEnteredOtp] = useState('')
-  const [generatedOtp, setGeneratedOtp] = useState('')
   const [isVerifyingOtp, setIsVerifyingOtp] = useState(false)
   const [isEmailVerified, setIsEmailVerified] = useState(false)
   const [otpError, setOtpError] = useState('')
@@ -544,7 +543,8 @@ function OnboardingContent() {
     return () => clearInterval(timer)
   }, [otpSent, isEmailVerified, otpResendCountdown])
 
-  const handleSendEmailOtp = () => {
+  // Real Server OTP Dispatch
+  const handleSendEmailOtp = async () => {
     if (!email.trim() || !email.includes('@') || !email.includes('.')) {
       setOtpError('Please enter a valid email address first.')
       return
@@ -554,38 +554,63 @@ function OnboardingContent() {
     setOtpError('')
     setOtpSuccessMessage('')
 
-    // Generate a random 6-digit numeric OTP code
-    const code = Math.floor(100000 + Math.random() * 900000).toString()
-    setGeneratedOtp(code)
+    try {
+      const res = await fetch('/api/auth/send-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email.trim().toLowerCase() }),
+      })
 
-    setTimeout(() => {
-      setIsSendingOtp(false)
+      const data = await res.json()
+      if (!res.ok) {
+        throw new Error(data.error?.message || data.error || 'Failed to send verification code')
+      }
+
       setOtpSent(true)
       setEnteredOtp('')
       setOtpResendCountdown(60)
       setCanResendOtp(false)
-      setOtpSuccessMessage(`Verification code sent to ${email} (Demo Code: ${code})`)
-    }, 600)
+      setOtpSuccessMessage(data.data?.message || `Verification code sent to ${email}.`)
+    } catch (err: any) {
+      setOtpError(err.message || 'Failed to dispatch verification code. Please try again.')
+    } finally {
+      setIsSendingOtp(false)
+    }
   }
 
-  const handleVerifyEmailOtp = () => {
+  // Real Server OTP Verification
+  const handleVerifyEmailOtp = async (codeToVerify?: string) => {
     setOtpError('')
-    if (enteredOtp.trim().length !== 6) {
+    const targetCode = (typeof codeToVerify === 'string' ? codeToVerify : enteredOtp).trim()
+    if (targetCode.length !== 6) {
       setOtpError('Please enter the complete 6-digit verification code.')
       return
     }
 
     setIsVerifyingOtp(true)
-    setTimeout(() => {
-      setIsVerifyingOtp(false)
-      if (enteredOtp.trim() === generatedOtp || enteredOtp.trim() === '123456') {
-        setIsEmailVerified(true)
-        setOtpError('')
-        setOtpSuccessMessage('Email verified successfully!')
-      } else {
-        setOtpError('Invalid code. Please enter the correct 6-digit code or click resend.')
+    try {
+      const res = await fetch('/api/auth/verify-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: email.trim().toLowerCase(),
+          code: targetCode,
+        }),
+      })
+
+      const data = await res.json()
+      if (!res.ok) {
+        throw new Error(data.error?.message || data.error || 'Invalid verification code')
       }
-    }, 400)
+
+      setIsEmailVerified(true)
+      setOtpError('')
+      setOtpSuccessMessage('Email verified successfully! You can now proceed.')
+    } catch (err: any) {
+      setOtpError(err.message || 'Invalid verification code. Please check your code or request a new one.')
+    } finally {
+      setIsVerifyingOtp(false)
+    }
   }
 
   // Step 2: Security & Password (SignupPasswordPage.tsx)
@@ -660,6 +685,14 @@ function OnboardingContent() {
     setIsSubmitting(true)
     setSubmitError('')
     try {
+      if (createdAccountData?.id) {
+        // Account was already provisioned in database during calibration stage!
+        // Finalize terms acceptance and advance to complete
+        await new Promise((r) => setTimeout(r, 300))
+        setStep('complete')
+        return
+      }
+
       const cityClean = locationCity.split(',')[0].trim() || 'Lagos'
       const payload = {
         role: selectedRole || 'client',
@@ -1655,14 +1688,9 @@ function OnboardingContent() {
                             const val = e.target.value.replace(/\D/g, '')
                             setEnteredOtp(val)
                             setOtpError('')
-                            // Auto-verify if 6 digits are typed
+                            // Real server verification when 6 digits are typed
                             if (val.length === 6) {
-                              if (val === generatedOtp || val === '123456') {
-                                setIsEmailVerified(true)
-                                setOtpSuccessMessage('Email verified successfully!')
-                              } else {
-                                setOtpError('Invalid code. Please enter the correct 6-digit code or resend.')
-                              }
+                              handleVerifyEmailOtp(val)
                             }
                           }}
                           placeholder="• • • • • •"
@@ -1673,7 +1701,7 @@ function OnboardingContent() {
 
                       <button
                         type="button"
-                        onClick={handleVerifyEmailOtp}
+                        onClick={() => handleVerifyEmailOtp()}
                         disabled={isVerifyingOtp || enteredOtp.length !== 6}
                         className={`inline-flex items-center justify-center gap-2 px-8 py-4 rounded-2xl text-xs sm:text-sm font-black transition-all shadow-xs shrink-0 ${
                           enteredOtp.length === 6

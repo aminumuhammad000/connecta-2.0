@@ -3,6 +3,8 @@ import { randomUUID } from 'crypto'
 import { createClient } from '@/lib/supabase/server'
 import { successResponse, errorResponse } from '@/lib/api/response'
 import { onboardingSchema } from '@/lib/validations/auth'
+import { saveUser, findUserByEmail } from '@/lib/auth/user-store'
+import { upsertUser, getOrCreateWallet } from '@/lib/server/db'
 
 function slugify(text: string): string {
   return text
@@ -28,11 +30,80 @@ export async function POST(request: NextRequest) {
     const fullName = `${input.firstName} ${input.lastName}`.trim()
     const userId = randomUUID()
 
+    // Check if account already exists
+    const existingStoredUser = findUserByEmail(input.email)
+    if (existingStoredUser) {
+      return errorResponse('An account with this email address already exists. Please log in instead.', 409)
+    }
+
     // Hourly rate in minor units (kobo, e.g. 5,000 NGN = 500,000 kobo)
     const numericRate = typeof input.hourlyRate === 'string'
       ? parseFloat(input.hourlyRate.replace(/[^0-9.]/g, '')) || 0
       : (input.hourlyRate || 0)
     const hourlyRateMinor = Math.round(numericRate * 100)
+
+    // Save to local persistence backup
+    saveUser({
+      id: userId,
+      fullName,
+      firstName: input.firstName,
+      lastName: input.lastName,
+      email: input.email.toLowerCase(),
+      phone: input.phone,
+      whatsapp: input.whatsapp || input.phone,
+      password: input.password,
+      role: isProvider ? 'provider' : 'customer',
+      country: input.country,
+      city: input.city,
+      currency: input.currency,
+      avatarUrl: input.avatarUrl,
+      businessName: input.businessName,
+      headline: input.headline,
+      bio: input.bio,
+      primaryCategory: input.primaryCategory,
+      skills: input.skills,
+      hourlyRateMinor,
+      ninNumber: input.ninNumber,
+      companyName: input.companyName,
+      clientIndustry: input.clientIndustry,
+      createdAt: new Date().toISOString(),
+      welcomeSparks: isProvider ? 10 : 25,
+    })
+
+    // Save to master server database
+    upsertUser({
+      id: userId,
+      fullName,
+      firstName: input.firstName,
+      lastName: input.lastName,
+      email: input.email.toLowerCase(),
+      phone: input.phone,
+      whatsapp: input.whatsapp || input.phone,
+      password: input.password,
+      role: dbRole,
+      activeRole: dbRole,
+      accountStatus: 'active',
+      country: input.country,
+      city: input.city,
+      currency: input.currency,
+      avatarUrl: input.avatarUrl || null,
+      headline: input.headline || (isProvider ? `${input.primaryCategory || 'Skilled'} Specialist` : 'Hiring Client'),
+      bio: input.bio || '',
+      skills: input.skills || [],
+      hourlyRateMinor,
+      workshopAddress: input.workshopAddress,
+      companyName: input.companyName,
+      companyBio: input.companyBio,
+      companySize: input.companySize,
+      companyWebsite: input.companyWebsite,
+      clientIndustry: input.clientIndustry,
+      clientGoal: input.clientGoal,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    })
+
+    // Initialize wallet with AI Sparks
+    getOrCreateWallet(userId, isProvider ? 10 : 25, input.currency)
 
     let supabaseInserted = false
     let dbErrorDetail: string | null = null
@@ -161,7 +232,20 @@ export async function POST(request: NextRequest) {
         : 'Client workspace account created successfully! Welcome to Connecta.',
     }
 
-    return successResponse(payloadResult, 201)
+    const response = successResponse(payloadResult, 201)
+    response.cookies.set('connecta_session', userId, {
+      path: '/',
+      maxAge: 60 * 60 * 24 * 30,
+      httpOnly: false,
+      sameSite: 'lax',
+    })
+    response.cookies.set('connecta_role', dbRole, {
+      path: '/',
+      maxAge: 60 * 60 * 24 * 30,
+      httpOnly: false,
+      sameSite: 'lax',
+    })
+    return response
   } catch (err: any) {
     return errorResponse(err.message || 'Onboarding registration failed', 500)
   }

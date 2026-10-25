@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import {
   HelpCircle,
@@ -12,29 +12,173 @@ import {
   Mail,
   Phone,
   FileCheck,
+  AlertCircle,
+  Plus,
+  Loader2,
 } from 'lucide-react'
 import { DASHBOARD_FAQS } from '@/lib/dashboard/data'
 
+interface ServerDisputeItem {
+  id: string
+  disputeNumber: string
+  bookingTitle: string
+  amountMinor: number
+  reason: string
+  status: string
+  filedDate: string
+  lastUpdate: string
+  notes: string
+}
+
 export default function DashboardSupportPage() {
   const [openFaq, setOpenFaq] = useState(0)
+  const [disputes, setDisputes] = useState<ServerDisputeItem[]>([])
+  const [isLoadingDisputes, setIsLoadingDisputes] = useState(true)
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [disputeTitle, setDisputeTitle] = useState('')
+  const [disputeReason, setDisputeReason] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [notice, setNotice] = useState<string | null>(null)
+
   const currentFaq = DASHBOARD_FAQS[openFaq]
+
+  const fetchDisputes = async () => {
+    try {
+      const res = await fetch('/api/dashboard/support')
+      if (res.ok) {
+        const body = await res.json()
+        setDisputes(body.data || [])
+      }
+    } catch (err) {
+      console.error('Failed to load disputes:', err)
+    } finally {
+      setIsLoadingDisputes(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchDisputes()
+  }, [])
+
+  const handleSubmitDispute = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!disputeTitle.trim() || !disputeReason.trim()) return
+
+    setIsSubmitting(true)
+    try {
+      const res = await fetch('/api/dashboard/support', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          bookingTitle: disputeTitle.trim(),
+          reason: disputeReason.trim(),
+        }),
+      })
+
+      if (res.ok) {
+        setIsModalOpen(false)
+        setDisputeTitle('')
+        setDisputeReason('')
+        setNotice('Arbitration inquiry submitted to Connecta Escrow Mediation Desk!')
+        await fetchDisputes()
+        setTimeout(() => setNotice(null), 4000)
+      }
+    } catch (err) {
+      console.error('Failed to submit dispute:', err)
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
 
   return (
     <div className="space-y-6 animate-in fade-in duration-200">
       {/* Page Header */}
-      <div>
-        <span className="text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-full bg-emerald-100 text-[#0C513F] tracking-wider">
-          Charter Rules &amp; Dispute Protection
-        </span>
-        <h1 className="text-2xl sm:text-3xl font-black text-[#0A1020] tracking-tight mt-1">
-          Support &amp; Escrow Charter FAQs
-        </h1>
-        <p className="text-xs sm:text-sm text-slate-500 font-medium">
-          Understand milestone release conditions, Collabo Squad split mechanisms, and arbitration rules.
-        </p>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <span className="text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-full bg-emerald-100 text-[#0C513F] tracking-wider">
+            Charter Rules &amp; Dispute Protection
+          </span>
+          <h1 className="text-2xl sm:text-3xl font-black text-[#0A1020] tracking-tight mt-1">
+            Support &amp; Escrow Charter FAQs
+          </h1>
+          <p className="text-xs sm:text-sm text-slate-500 font-medium">
+            Understand milestone release conditions, Collabo Squad split mechanisms, and arbitration rules.
+          </p>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => setIsModalOpen(true)}
+          className="inline-flex items-center gap-2 rounded-full bg-[#0A1020] hover:bg-[#10B981] text-white px-5 py-2.5 text-xs font-extrabold shadow-sm hover:scale-102 active:scale-98 transition-all shrink-0 cursor-pointer"
+        >
+          <Plus className="w-4 h-4" />
+          <span>Open Arbitration Inquiry</span>
+        </button>
       </div>
 
-      {/* Outer Card matching faqs.png from Landing Page */}
+      {notice && (
+        <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold flex items-center gap-2.5 shadow-sm">
+          <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
+          <span>{notice}</span>
+        </div>
+      )}
+
+      {/* Active Disputes & Mediation Status Card */}
+      <div className="bg-white rounded-3xl p-6 sm:p-7 border border-slate-200/90 shadow-sm space-y-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="text-base font-black text-[#0A1020]">
+              Active Arbitration &amp; Dispute Tickets
+            </h3>
+            <p className="text-xs text-slate-500 font-medium">
+              Real-time audit trail of formal claims safeguarded by Connecta Escrow Desk.
+            </p>
+          </div>
+        </div>
+
+        {isLoadingDisputes ? (
+          <div className="py-6 flex items-center justify-center gap-2">
+            <Loader2 className="w-5 h-5 text-[#0C513F] animate-spin" />
+            <span className="text-xs text-slate-500">Checking dispute ledger...</span>
+          </div>
+        ) : disputes.length > 0 ? (
+          <div className="space-y-3">
+            {disputes.map((d) => (
+              <div
+                key={d.id}
+                className="p-4 rounded-2xl border border-amber-200 bg-amber-50/50 space-y-2 text-xs"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="font-extrabold text-[#0A1020]">
+                    {d.disputeNumber} • {d.bookingTitle}
+                  </div>
+                  <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-amber-200 text-amber-900">
+                    {d.status}
+                  </span>
+                </div>
+                <p className="text-slate-600 font-medium">{d.reason}</p>
+                <div className="text-[10px] text-slate-400">
+                  Filed: {d.filedDate} • Status: {d.lastUpdate}
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="p-5 rounded-2xl bg-emerald-50/70 border border-emerald-200/90 flex items-center gap-3.5">
+            <div className="w-10 h-10 rounded-2xl bg-emerald-100 text-[#0C513F] flex items-center justify-center shrink-0">
+              <ShieldCheck className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="font-extrabold text-xs text-[#0C513F]">All Clear — Zero Active Disputes</div>
+              <div className="text-[11px] text-emerald-800/80 font-medium">
+                Your escrow milestone payments and trade interactions are in complete compliance.
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Outer Card matching faqs from Landing Page */}
       <div className="border-2 border-[#0A1020] rounded-3xl p-6 sm:p-8 lg:p-12 bg-white shadow-xl">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-start">
           {/* Left Column: FAQs List */}
@@ -144,6 +288,67 @@ export default function DashboardSupportPage() {
           </div>
         </div>
       </div>
+
+      {/* Inquiry Modal */}
+      {isModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 space-y-5 shadow-2xl border border-slate-200 animate-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+              <h3 className="text-lg font-black text-[#0A1020]">Submit Arbitration Inquiry</h3>
+              <button
+                type="button"
+                onClick={() => setIsModalOpen(false)}
+                className="text-slate-400 hover:text-slate-700 p-1"
+              >
+                ✕
+              </button>
+            </div>
+
+            <form onSubmit={handleSubmitDispute} className="space-y-4 text-xs">
+              <div className="space-y-1.5">
+                <label className="font-bold text-slate-700">Project Title / Booking Reference</label>
+                <input
+                  type="text"
+                  placeholder="e.g. Solar Inverter Installation or #CN-782419"
+                  value={disputeTitle}
+                  onChange={(e) => setDisputeTitle(e.target.value)}
+                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 font-bold focus:outline-none focus:border-[#4D78FF]"
+                  required
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="font-bold text-slate-700">Reason / Nature of Mediation</label>
+                <textarea
+                  rows={4}
+                  placeholder="Describe the discrepancy, inspection fault, or delay..."
+                  value={disputeReason}
+                  onChange={(e) => setDisputeReason(e.target.value)}
+                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 font-medium focus:outline-none focus:border-[#4D78FF]"
+                  required
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={() => setIsModalOpen(false)}
+                  className="px-4 py-2 rounded-full text-slate-600 font-bold hover:bg-slate-100"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="px-6 py-2.5 rounded-full bg-[#0A1020] hover:bg-[#4D78FF] text-white font-extrabold shadow-sm active:scale-95 transition-all cursor-pointer disabled:opacity-60"
+                >
+                  {isSubmitting ? 'Submitting...' : 'File Claim'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
