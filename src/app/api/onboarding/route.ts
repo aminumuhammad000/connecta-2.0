@@ -44,32 +44,41 @@ export async function POST(request: NextRequest) {
     const hourlyRateMinor = Math.round(numericRate * 100)
 
     // Save to local persistence backup
-    saveUser({
-      id: userId,
-      fullName,
-      firstName: input.firstName,
-      lastName: input.lastName,
-      email: input.email.toLowerCase(),
-      phone: input.phone,
-      whatsapp: input.whatsapp || input.phone,
-      password: input.password,
-      role: isProvider ? 'provider' : 'customer',
-      country: input.country,
-      city: input.city,
-      currency: input.currency,
-      avatarUrl: input.avatarUrl,
-      businessName: input.businessName,
-      headline: input.headline,
-      bio: input.bio,
-      primaryCategory: input.primaryCategory,
-      skills: input.skills,
-      hourlyRateMinor,
-      ninNumber: input.ninNumber,
-      companyName: input.companyName,
-      clientIndustry: input.clientIndustry,
-      createdAt: new Date().toISOString(),
-      welcomeSparks: isProvider ? 10 : 25,
-    })
+    try {
+      saveUser({
+        id: userId,
+        fullName,
+        firstName: input.firstName,
+        lastName: input.lastName,
+        email: input.email.toLowerCase(),
+        phone: input.phone,
+        whatsapp: input.whatsapp || input.phone,
+        password: input.password,
+        role: isProvider ? 'provider' : 'customer',
+        country: input.country,
+        city: input.city,
+        currency: input.currency,
+        avatarUrl: input.avatarUrl,
+        businessName: input.businessName,
+        headline: input.headline,
+        bio: input.bio,
+        primaryCategory: input.primaryCategory,
+        skills: input.skills,
+        hourlyRateMinor,
+        ninNumber: input.ninNumber,
+        workshopAddress: input.workshopAddress,
+        companyName: input.companyName,
+        companyBio: input.companyBio,
+        companySize: input.companySize,
+        companyWebsite: input.companyWebsite,
+        clientIndustry: input.clientIndustry,
+        clientGoal: input.clientGoal,
+        createdAt: new Date().toISOString(),
+        welcomeSparks: isProvider ? 10 : 25,
+      })
+    } catch (saveErr) {
+      console.warn('[onboarding] Secondary local user save skipped:', saveErr)
+    }
 
     // Save to master server database
     upsertUser({

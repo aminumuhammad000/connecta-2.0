@@ -1,6 +1,7 @@
 import fs from 'fs'
 import path from 'path'
 import { cookies } from 'next/headers'
+import { getAllUsers } from '@/lib/auth/user-store'
 
 // =============================================================================
 // TYPES & DATA STRUCTURES
@@ -186,7 +187,13 @@ declare global {
   var __connecta_memory_db: ServerDatabaseSchema | undefined
 }
 
-const isServerless = Boolean(process.env.NETLIFY || process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME)
+const isServerless = Boolean(
+  process.env.NETLIFY ||
+  process.env.VERCEL ||
+  process.env.AWS_LAMBDA_FUNCTION_NAME ||
+  process.env.LAMBDA_TASK_ROOT ||
+  (typeof process.cwd === 'function' && process.cwd().startsWith('/var/task'))
+)
 const DB_DIR = isServerless ? '/tmp' : path.resolve(process.cwd(), 'data')
 const DB_FILE = path.join(DB_DIR, 'connecta-db.json')
 
@@ -243,12 +250,10 @@ export function readDatabase(): ServerDatabaseSchema {
       disputes: parsed.disputes || [],
     }
 
-    // Sync from registered-users.json if profiles are missing
-    const registeredUsersFile = path.resolve(process.cwd(), 'data', 'registered-users.json')
-    if (fs.existsSync(registeredUsersFile)) {
-      try {
-        const rawUsers = fs.readFileSync(registeredUsersFile, 'utf-8')
-        const usersList = JSON.parse(rawUsers) as any[]
+    // Sync from registered-users store if profiles are missing
+    try {
+      const usersList = getAllUsers()
+      if (Array.isArray(usersList) && usersList.length > 0) {
         let dirty = false
 
         for (const u of usersList) {
@@ -318,9 +323,9 @@ export function readDatabase(): ServerDatabaseSchema {
         if (dirty) {
           writeDatabase(db)
         }
-      } catch (err) {
-        console.error('Error importing registered users:', err)
       }
+    } catch (err) {
+      console.error('Error importing registered users:', err)
     }
 
     globalThis.__connecta_memory_db = db

@@ -1,4 +1,5 @@
 import { readDatabase, ServerUserProfile } from './db'
+import { getAllUsers } from '@/lib/auth/user-store'
 import fs from 'fs'
 import path from 'path'
 
@@ -293,61 +294,57 @@ export function getAllPublicProviders(filters?: {
     providerMap.set(seed.id, seed)
   }
 
-  // 2. Read from registered-users.json file if present
+  // 2. Read from registered-users store if present
   try {
-    const regUsersPath = path.join(process.cwd(), 'data', 'registered-users.json')
-    if (fs.existsSync(regUsersPath)) {
-      const content = fs.readFileSync(regUsersPath, 'utf-8')
-      const regUsers = JSON.parse(content)
-      if (Array.isArray(regUsers)) {
-        for (const u of regUsers) {
-          if (u.role === 'provider' && u.id) {
-            const category = u.primaryCategory || 'Skilled Services'
-            const categorySlug = normalizeCategorySlug(category)
-            const skills = Array.isArray(u.skills) && u.skills.length > 0 ? u.skills : ['Skilled Craftsmanship', 'Troubleshooting']
-            const businessName = u.businessName || `${u.fullName || 'Verified'} Specialist Services`
+    const regUsers = getAllUsers()
+    if (Array.isArray(regUsers) && regUsers.length > 0) {
+      for (const u of regUsers) {
+        if (u.role === 'provider' && u.id) {
+          const category = u.primaryCategory || 'Skilled Services'
+          const categorySlug = normalizeCategorySlug(category)
+          const skills = Array.isArray(u.skills) && u.skills.length > 0 ? u.skills : ['Skilled Craftsmanship', 'Troubleshooting']
+          const businessName = u.businessName || `${u.fullName || 'Verified'} Specialist Services`
 
-            providerMap.set(u.id, {
-              id: u.id,
-              fullName: u.fullName || `${u.firstName || 'Verified'} ${u.lastName || 'Specialist'}`.trim(),
-              businessName,
-              headline: u.headline || `${category} Specialist in ${u.city || 'Nigeria'}`,
-              bio: u.bio || `Certified and vetted artisan delivering verified services across ${u.city || 'Nigeria'} backed by Connecta 100% Escrow Safeguards.`,
-              category,
-              categorySlug,
-              skills,
-              city: u.city || 'Kano',
-              state: u.city ? `${u.city} State` : 'Kano State',
-              country: u.country || 'Nigeria',
-              hourlyRateMinor: u.hourlyRateMinor || 1500000,
-              averageRating: 4.95,
-              reviewCount: 42,
-              completedJobsCount: 56,
-              experienceYears: 7,
-              verificationStatus: 'verified',
-              avatarUrl: u.avatarUrl || null,
-              workshopAddress: u.workshopAddress || `${u.city || 'Kano'}, Nigeria`,
-              phone: u.phone,
-              whatsapp: u.whatsapp || u.phone,
-              joinedDate: u.createdAt || new Date().toISOString(),
-              badges: ['Identity Verified', 'NIN Audited', '100% Escrow Protected', 'Guild Member'],
-              reviews: [
-                {
-                  id: `rev-${u.id.slice(0, 6)}`,
-                  authorName: 'Verified Client',
-                  rating: 5,
-                  comment: 'Exceptional craftsmanship and punctual communication. Job was delivered on time and approved via escrow release.',
-                  date: '2026-10-20',
-                  projectTitle: `${category} Service Milestone`,
-                },
-              ],
-            })
-          }
+          providerMap.set(u.id, {
+            id: u.id,
+            fullName: u.fullName || `${u.firstName || 'Verified'} ${u.lastName || 'Specialist'}`.trim(),
+            businessName,
+            headline: u.headline || `${category} Specialist in ${u.city || 'Nigeria'}`,
+            bio: u.bio || `Certified and vetted artisan delivering verified services across ${u.city || 'Nigeria'} backed by Connecta 100% Escrow Safeguards.`,
+            category,
+            categorySlug,
+            skills,
+            city: u.city || 'Kano',
+            state: u.city ? `${u.city} State` : 'Kano State',
+            country: u.country || 'Nigeria',
+            hourlyRateMinor: u.hourlyRateMinor || 1500000,
+            averageRating: 4.95,
+            reviewCount: 42,
+            completedJobsCount: 56,
+            experienceYears: 7,
+            verificationStatus: 'verified',
+            avatarUrl: u.avatarUrl || null,
+            workshopAddress: u.workshopAddress || `${u.city || 'Kano'}, Nigeria`,
+            phone: u.phone,
+            whatsapp: u.whatsapp || u.phone,
+            joinedDate: u.createdAt || new Date().toISOString(),
+            badges: ['Identity Verified', 'NIN Audited', '100% Escrow Protected', 'Guild Member'],
+            reviews: [
+              {
+                id: `rev-${u.id.slice(0, 6)}`,
+                authorName: 'Verified Client',
+                rating: 5,
+                comment: 'Exceptional craftsmanship and punctual communication. Job was delivered on time and approved via escrow release.',
+                date: '2026-10-20',
+                projectTitle: `${category} Service Milestone`,
+              },
+            ],
+          })
         }
       }
     }
   } catch (err) {
-    console.warn('[getAllPublicProviders] Error loading registered-users.json:', err)
+    console.warn('[getAllPublicProviders] Error loading registered-users store:', err)
   }
 
   // 3. Read from server memory database
