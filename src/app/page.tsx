@@ -723,7 +723,7 @@ export default function HomePage() {
             <Link href="#about" className="hover:text-[#0C513F] transition-colors">
               Company
             </Link>
-            <Link href="/provider/register" className="hover:text-[#0C513F] transition-colors">
+            <Link href="/onboarding" className="hover:text-[#0C513F] transition-colors">
               Vendors
             </Link>
             <Link href="#how-it-works" className="hover:text-[#0C513F] transition-colors">
@@ -2038,7 +2038,7 @@ export default function HomePage() {
 
                 <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto shrink-0 z-10">
                   <Link
-                    href="/provider/register"
+                    href="/onboarding?role=provider"
                     className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-full bg-[#4D78FF] hover:bg-[#3b63e6] px-8 py-4 text-xs sm:text-sm font-extrabold text-white shadow-xl transition-all hover:scale-105"
                   >
                     <span>Apply as a Provider</span>
@@ -2127,7 +2127,7 @@ export default function HomePage() {
                   <CornerDownRight className="w-4 h-4 stroke-[2.5]" />
                 </Link>
                 <Link
-                  href="/provider/register"
+                  href="/onboarding?role=provider"
                   className="inline-flex items-center gap-2.5 rounded-full bg-white/10 hover:bg-white/15 active:bg-white/20 border border-white/20 hover:border-white/40 text-white px-7 py-4 text-xs sm:text-sm font-bold transition-all duration-300 ease-out hover:-translate-y-0.5 active:translate-y-0 cursor-pointer backdrop-blur-xs"
                 >
                   <span>Join as an Artisan</span>
@@ -2364,7 +2364,7 @@ export default function HomePage() {
               </h4>
               <ul className="space-y-1 text-xs text-slate-400">
                 <li>
-                  <Link href="/provider/register" className="group flex items-center gap-2 py-1 px-2.5 -mx-2.5 rounded-lg hover:bg-white/5 hover:text-white transition-all duration-200 ease-out">
+                  <Link href="/onboarding?role=provider" className="group flex items-center gap-2 py-1 px-2.5 -mx-2.5 rounded-lg hover:bg-white/5 hover:text-white transition-all duration-200 ease-out">
                     <span className="text-emerald-500/60 group-hover:text-emerald-400 transition-colors duration-200 text-sm">›</span>
                     <span className="group-hover:translate-x-1 transition-transform duration-200 ease-out">Apply as a Provider</span>
                   </Link>
