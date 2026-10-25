@@ -49,7 +49,7 @@ export async function sendWelcomeEmail(recipient: EmailRecipient) {
       <p>Connecta connects you with verified local artisans, repair technicians, and craft professionals across Kano and Nigeria.</p>
       <p>Whether you need plumbing, electrical wiring, phone repairs, or auto servicing, you can now request transparent quotes and book with confidence.</p>
       <hr style="border: none; border-top: 1px solid #E5E7EB; margin: 24px 0;" />
-      <p style="font-size: 12px; color: #6B7280;">Connecta 2.0 — Trusted Local Services Marketplace</p>
+      <p style="font-size: 12px; color: #6B7280;">Connecta: Trusted Local Services Marketplace</p>
     </div>
   `
   return await sendEmail({ to: recipient.email, subject: 'Welcome to Connecta!', html })
@@ -79,12 +79,12 @@ export async function sendBookingConfirmationEmail({
       </table>
       <p>You can track technician arrival and exchange messages directly inside your Connecta dashboard.</p>
       <hr style="border: none; border-top: 1px solid #E5E7EB; margin: 24px 0;" />
-      <p style="font-size: 12px; color: #6B7280;">Connecta 2.0</p>
+      <p style="font-size: 12px; color: #6B7280;">Connecta</p>
     </div>
   `
   return await sendEmail({
     to: recipient.email,
-    subject: `Booking Confirmed: #${bookingNumber} — ${serviceTitle}`,
+    subject: `Booking Confirmed: #${bookingNumber} | ${serviceTitle}`,
     html,
   })
 }

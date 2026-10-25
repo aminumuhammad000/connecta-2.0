@@ -19,25 +19,25 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://connecta.ng"),
+  metadataBase: new URL("https://myconnecta.ng"),
   title: {
-    default: "Find Trusted Local Service Professionals | Connecta",
+    default: "Connecta | African Skilled Trades & Digital Professionals",
     template: "%s | Connecta",
   },
   description:
-    "Find plumbers, electricians, repair technicians, carpenters, and other local professionals with Connecta. Discover services, review available work evidence, and make more informed choices.",
+    "A trusted marketplace linking skilled African professionals across essential trades like plumbing and electrical, alongside digital professions, powered by smart matching and escrow-protected payments.",
   keywords: [
-    "local services",
-    "electrician Kano",
-    "plumber Kano",
-    "phone repair Kano",
-    "auto mechanic Kano",
-    "carpenter Kano",
-    "AC repair Nigeria",
-    "verified artisans",
+    "Connecta",
+    "African talent",
+    "plumbing and electrical",
+    "skilled trades Nigeria",
+    "freelance marketplace Africa",
+    "hire African talent",
+    "escrow payments Nigeria",
+    "verified technicians",
   ],
   alternates: {
-    canonical: "https://connecta.ng",
+    canonical: "https://myconnecta.ng",
   },
   icons: {
     icon: [
@@ -51,17 +51,17 @@ export const metadata: Metadata = {
   },
   manifest: "/brand/app-icons/site.webmanifest",
   openGraph: {
-    title: "Find Trusted Local Service Professionals | Connecta",
+    title: "Connecta | Skilled Trades & Digital Professionals",
     description:
-      "Find plumbers, electricians, repair technicians, carpenters, and other local professionals with Connecta. Discover services, review available work evidence, and make more informed choices.",
-    url: "https://connecta.ng",
+      "Find verified plumbers, electricians, repair technicians, software developers, and creatives. Discover vetted services and protected payments.",
+    url: "https://myconnecta.ng",
     siteName: "Connecta",
     images: [
       {
         url: "/brand/social/connecta-social-avatar-512.png",
         width: 512,
         height: 512,
-        alt: "Connecta — Local Service Marketplace",
+        alt: "Connecta: Verified Service Marketplace",
       },
     ],
     locale: "en_NG",

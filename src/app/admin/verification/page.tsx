@@ -188,7 +188,7 @@ export default function AdminVerificationDashboard() {
                     Review Verification Case
                   </h3>
                   <p className="text-xs text-slate-500 mt-0.5">
-                    {selectedCase.providerName} — {selectedCase.trade}
+                    {selectedCase.providerName} · {selectedCase.trade}
                   </p>
                 </div>
                 <button

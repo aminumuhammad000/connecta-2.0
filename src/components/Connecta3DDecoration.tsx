@@ -112,14 +112,14 @@ export function ConnectaCornerHelix({
 }) {
   return (
     <div
-      className={`pointer-events-none select-none relative w-[360px] h-[320px] sm:w-[420px] sm:h-[360px] ${className}`}
+      className={`pointer-events-none select-none relative w-full h-full max-w-[440px] max-h-[380px] ${className}`}
       aria-hidden="true"
     >
       <svg
-        viewBox="0 0 440 380"
+        viewBox="60 30 340 310"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
-        className="w-full h-full overflow-visible"
+        className="w-full h-full object-contain object-top-right overflow-visible"
       >
         <defs>
           {/* Sphere shadow filter */}
