@@ -57,15 +57,17 @@ export async function createAndSendOtp(email: string): Promise<{ success: boolea
   })
 
   const resendApiKey = process.env.RESEND_API_KEY
-  const senderEmail = process.env.RESEND_SENDER_EMAIL || 'onboarding@resend.dev'
+  const senderEmail = process.env.RESEND_SENDER_EMAIL || 'security@myconnecta.ng'
+  const fromAddress = senderEmail.includes('<') ? senderEmail : `Connecta Security <${senderEmail}>`
   const isRealResendKey = resendApiKey && resendApiKey.startsWith('re_') && resendApiKey !== 're_placeholder'
 
   if (isRealResendKey) {
     try {
       const resend = new Resend(resendApiKey)
       const { data, error } = await resend.emails.send({
-        from: `Connecta Security <${senderEmail}>`,
+        from: fromAddress,
         to: cleanEmail,
+        replyTo: 'support@myconnecta.ng',
         subject: `Your Connecta Verification Code: ${code}`,
         html: `
           <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 560px; margin: 0 auto; padding: 32px 24px; background-color: #F8FAFC; border-radius: 16px;">
