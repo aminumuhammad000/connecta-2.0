@@ -79,7 +79,7 @@ export async function createAndSendOtp(email: string): Promise<{ success: boolea
         return {
           success: true,
           message: error.message.includes('own email address')
-            ? `Verification code dispatched! (Resend free tier delivers to connectagigs@gmail.com until custom domain is verified).`
+            ? `Verification code dispatched! (Resend test tier delivers to connectagigs@gmail.com until domain DNS is verified).`
             : `Verification code sent to ${cleanEmail}. Please check your inbox.`,
           devCode: process.env.NODE_ENV !== 'production' ? code : undefined,
         }

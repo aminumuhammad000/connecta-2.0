@@ -46,6 +46,12 @@ export default function PrivacyPolicyPage() {
 
           <div className="flex items-center gap-3">
             <Link
+              href="/discover"
+              className="text-xs sm:text-sm font-bold text-emerald-700 hover:text-emerald-800 px-3 py-2 transition-colors"
+            >
+              Discover Pros
+            </Link>
+            <Link
               href="/login"
               className="text-xs sm:text-sm font-semibold text-slate-600 hover:text-slate-900 px-3 py-2 transition-colors hidden sm:inline"
             >

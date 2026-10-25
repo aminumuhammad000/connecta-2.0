@@ -2516,10 +2516,10 @@ export default function HomePage() {
                     <CornerDownRight className="w-3.5 h-3.5 text-[#10B981]" />
                   </Link>
                   <Link
-                    href="#featured-specialists"
-                    className="p-3 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 text-white font-bold text-xs sm:text-sm flex items-center justify-between transition-all hover:scale-[1.02]"
+                    href="/discover"
+                    className="p-3 rounded-2xl bg-white/10 hover:bg-white/15 border border-white/15 text-emerald-300 font-extrabold text-xs sm:text-sm flex items-center justify-between transition-all hover:scale-[1.02]"
                   >
-                    <span>Specialists</span>
+                    <span>Discover Pros</span>
                     <CornerDownRight className="w-3.5 h-3.5 text-[#10B981]" />
                   </Link>
                   <Link
@@ -2667,6 +2667,10 @@ export default function HomePage() {
           <div className="mt-16 pt-8 border-t border-white/15 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-emerald-100/70">
             <div className="flex flex-wrap items-center gap-3">
               <p>© 2026 Connecta Technologies Ltd. All rights reserved.</p>
+              <span>•</span>
+              <Link href="/discover" className="hover:text-white underline-offset-4 hover:underline transition-colors font-bold text-emerald-300">
+                Discover
+              </Link>
               <span>•</span>
               <Link href="/privacy" className="hover:text-white underline-offset-4 hover:underline transition-colors">
                 Privacy Policy

@@ -31,6 +31,11 @@ interface PageProps {
   params: Promise<{ id: string }>
 }
 
+export async function generateStaticParams() {
+  const providers = getAllPublicProviders()
+  return providers.map((p) => ({ id: p.id }))
+}
+
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { id } = await params
   const provider = getPublicProviderById(id)
