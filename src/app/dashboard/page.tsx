@@ -20,6 +20,7 @@ import {
   TrendingUp,
   AlertCircle,
   Loader2,
+  Wrench,
 } from 'lucide-react'
 import { formatMinorToNaira } from '@/lib/dashboard/data'
 
@@ -36,6 +37,9 @@ interface ServerOverviewData {
     currency: string
     avatarUrl?: string | null
     headline?: string
+    trade?: string
+    bio?: string
+    skills?: string[]
     companyName?: string
   }
   wallet: {
@@ -147,6 +151,15 @@ export default function DashboardOverviewPage() {
                   <PlusCircle className="w-4 h-4" />
                   <span>Post Project Brief</span>
                 </Link>
+                {(!user.skills || user.skills.length === 0) && (
+                  <Link
+                    href="/onboarding?role=provider&step=sector"
+                    className="inline-flex items-center gap-2 rounded-full bg-[#0A1020] hover:bg-[#10B981] text-white px-4 py-3 text-xs sm:text-sm font-bold shadow-xs transition-all"
+                  >
+                    <Wrench className="w-4 h-4" />
+                    <span>Become a Provider</span>
+                  </Link>
+                )}
                 <Link
                   href="/dashboard/wallet"
                   className="inline-flex items-center gap-2 rounded-full bg-white hover:bg-slate-50 text-slate-800 border border-slate-300 px-4 py-3 text-xs sm:text-sm font-bold shadow-xs hover:border-slate-400 transition-all"
@@ -202,7 +215,6 @@ export default function DashboardOverviewPage() {
                   {item.iconType === 'wallet' && <Wallet className="w-4 h-4" />}
                   {item.iconType === 'shield' && <ShieldCheck className="w-4 h-4" />}
                   {item.iconType === 'star' && <Star className="w-4 h-4" />}
-                  {item.iconType === 'sparks' && <Sparkles className="w-4 h-4" />}
                 </div>
               </div>
 

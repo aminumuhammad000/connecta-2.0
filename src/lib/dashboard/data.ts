@@ -134,11 +134,11 @@ export const CLIENT_METRICS: DashboardMetric[] = [
     color: 'amber',
   },
   {
-    label: 'Connecta AI Sparks',
-    value: '25 ⚡',
-    subtext: 'Smart Matchmaking Credits',
-    iconType: 'sparks',
-    color: 'slate',
+    label: 'Escrow Protection',
+    value: '100%',
+    subtext: 'NDIC-Insured Custody',
+    iconType: 'shield',
+    color: 'emerald',
   },
 ]
 
@@ -420,9 +420,9 @@ export const DASHBOARD_FAQS: DashboardFaq[] = [
     a: 'Collabo Squads unite multi-disciplinary trades and tech professionals (e.g. Solar Engineers, Certified Plumbers, and IoT specialists) under one collaborative proposal. When the client approves milestones, Connecta splits payments directly into each specialist’s wallet according to their agreed formula.',
   },
   {
-    q: 'How do Connecta AI Sparks work?',
-    tag: 'AI Matchmaking',
-    a: 'AI Sparks power real-time AI matchmaking, project brief sizing calculations, and automated background checks. New clients receive 25 sparks upon onboarding, and specialists receive 10 sparks with free top-ups on completed reviews.',
+    q: 'How does Connecta protect payments with Milestone Escrow?',
+    tag: 'Escrow Security',
+    a: 'Client funds are securely deposited into our licensed NDIC-insured banking vault. Payouts are only released to specialists after you inspect and approve the completed milestone.',
   },
   {
     q: 'What happens if there is a dispute on job quality or change in scope?',

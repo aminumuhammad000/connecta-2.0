@@ -7,7 +7,6 @@ import {
   ShieldCheck,
   ArrowDownLeft,
   ArrowUpRight,
-  Sparkles,
   Building2,
   Clock,
   CheckCircle2,
@@ -283,7 +282,7 @@ export default function DashboardWalletPage() {
             Connecta Escrow Vault &amp; Wallet
           </h1>
           <p className="text-xs sm:text-sm text-slate-500 font-medium">
-            Manage your milestone escrow deposits, verified payouts, and AI Sparks balance.
+            Manage your milestone escrow deposits, verified payouts, and transaction history.
           </p>
         </div>
 
@@ -378,22 +377,22 @@ export default function DashboardWalletPage() {
             </div>
           </div>
 
-          {/* Card 3: AI Sparks Balance */}
+          {/* Card 3: Milestone Protection */}
           <div className="bg-white rounded-3xl p-6 border border-slate-200/90 shadow-sm space-y-3">
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-                Connecta AI Sparks
+                Escrow Protection
               </span>
               <div className="w-9 h-9 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center">
-                <Sparkles className="w-4 h-4" />
+                <ShieldCheck className="w-4 h-4" />
               </div>
             </div>
             <div>
-              <div className="text-2xl sm:text-3xl font-black text-amber-600 tracking-tight">
-                {sparksBalance} Sparks
+              <div className="text-2xl sm:text-3xl font-black text-[#0A1020] tracking-tight">
+                100% Guaranteed
               </div>
               <div className="text-[11px] font-medium text-slate-500 mt-0.5">
-                Used for instant AI contractor matching &amp; proposal generation
+                Funds released solely upon verified milestone sign-off
               </div>
             </div>
           </div>
@@ -408,7 +407,7 @@ export default function DashboardWalletPage() {
               Audit Trail &amp; Transaction Ledger
             </h3>
             <p className="text-xs text-slate-500 font-medium">
-              Real-time records of all deposits, milestone releases, and Sparks allocations.
+              Real-time records of all deposits, milestone escrow funding, and released payouts.
             </p>
           </div>
           <button
@@ -420,9 +419,11 @@ export default function DashboardWalletPage() {
           </button>
         </div>
 
-        {ledger.length > 0 ? (
+        {ledger.filter((tx) => tx.type !== 'sparks_grant').length > 0 ? (
           <div className="divide-y divide-slate-100">
-            {ledger.map((tx) => (
+            {ledger
+              .filter((tx) => tx.type !== 'sparks_grant')
+              .map((tx) => (
               <div
                 key={tx.id}
                 className="py-3.5 flex items-center justify-between gap-4 text-xs hover:bg-slate-50/50 rounded-xl px-2 transition-colors"
@@ -434,14 +435,11 @@ export default function DashboardWalletPage() {
                         ? 'bg-emerald-100 text-[#0C513F]'
                         : tx.type === 'withdrawal'
                         ? 'bg-blue-100 text-[#1A73E8]'
-                        : tx.type === 'sparks_grant'
-                        ? 'bg-amber-100 text-amber-700'
                         : 'bg-slate-100 text-slate-700'
                     }`}
                   >
                     {tx.type === 'deposit' && <ArrowDownLeft className="w-4 h-4" />}
                     {tx.type === 'withdrawal' && <ArrowUpRight className="w-4 h-4" />}
-                    {tx.type === 'sparks_grant' && <Sparkles className="w-4 h-4" />}
                     {tx.type === 'escrow_lock' && <Lock className="w-4 h-4" />}
                     {tx.type === 'escrow_release' && <CheckCircle2 className="w-4 h-4" />}
                   </div>
@@ -459,14 +457,12 @@ export default function DashboardWalletPage() {
                 <div className="text-right shrink-0">
                   <div
                     className={`font-black text-sm ${
-                      tx.type === 'deposit' || tx.type === 'sparks_grant'
+                      tx.type === 'deposit'
                         ? 'text-emerald-700'
                         : 'text-slate-900'
                     }`}
                   >
-                    {tx.type === 'sparks_grant'
-                      ? `+${tx.amountMinor} Sparks`
-                      : tx.type === 'deposit'
+                    {tx.type === 'deposit'
                       ? `+${formatMinorToNaira(tx.amountMinor)}`
                       : formatMinorToNaira(tx.amountMinor)}
                   </div>

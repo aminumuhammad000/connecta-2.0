@@ -13,7 +13,6 @@ import {
   ShieldCheck,
   CheckCircle2,
   AlertCircle,
-  Sparkles,
   UserCheck,
   Briefcase,
   Loader2,
@@ -35,9 +34,16 @@ function LoginContent() {
   const [isLoading, setIsLoading] = useState(false)
   const [errorMsg, setErrorMsg] = useState('')
   const [successMsg, setSuccessMsg] = useState('')
+  const [accountNotFound, setAccountNotFound] = useState(false)
 
-  // Restore remembered credentials on initial mount
+  // Restore remembered credentials or query params on initial mount
   useEffect(() => {
+    const paramEmail = searchParams.get('email')
+    if (paramEmail) {
+      setEmail(paramEmail)
+      return
+    }
+
     try {
       const isRemembered = localStorage.getItem('connecta_remember_enabled')
       const savedEmail = localStorage.getItem('connecta_remember_email')
@@ -77,6 +83,9 @@ function LoginContent() {
     }
 
     setIsLoading(true)
+    setErrorMsg('')
+    setSuccessMsg('')
+    setAccountNotFound(false)
 
     try {
       const res = await fetch('/api/auth/login', {
@@ -90,6 +99,15 @@ function LoginContent() {
 
       const data = await res.json()
       if (!res.ok) {
+        if (
+          res.status === 404 ||
+          data.error?.code === 'ACCOUNT_NOT_FOUND' ||
+          data.error?.requiresRegistration ||
+          data.error?.message?.toLowerCase().includes('no account found') ||
+          (typeof data.error === 'string' && data.error.toLowerCase().includes('no account found'))
+        ) {
+          setAccountNotFound(true)
+        }
         throw new Error(data.error?.message || data.error || 'Invalid email or password')
       }
 
@@ -269,13 +287,42 @@ function LoginContent() {
             </div>
           )}
 
-          {/* Error Message */}
-          {errorMsg && (
+          {/* Account Not Found Banner with Create Account CTA */}
+          {accountNotFound ? (
+            <div className="p-5 rounded-2xl bg-amber-50 border border-amber-200 space-y-3 animate-in fade-in shadow-2xs">
+              <div className="flex items-center gap-2 text-amber-900 font-bold text-sm">
+                <AlertCircle className="w-4.5 h-4.5 text-amber-600 shrink-0" />
+                <span>No Account Found</span>
+              </div>
+              <p className="text-xs sm:text-sm text-amber-800 font-medium leading-relaxed">
+                There is no Connecta account registered with <strong className="text-slate-900">{email}</strong>. Please create an account to get started.
+              </p>
+              <div className="pt-1 flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
+                <Link
+                  href={`/onboarding?step=contact_info&email=${encodeURIComponent(email)}`}
+                  className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-[#053F28] hover:bg-[#032a1b] text-white text-xs sm:text-sm font-black transition-all shadow-xs active:scale-95 cursor-pointer"
+                >
+                  <span>Create an Account</span>
+                  <ArrowRight className="w-4 h-4" />
+                </Link>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setAccountNotFound(false)
+                    setErrorMsg('')
+                  }}
+                  className="px-4 py-2.5 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold transition-all cursor-pointer"
+                >
+                  Try Another Email
+                </button>
+              </div>
+            </div>
+          ) : errorMsg ? (
             <div className="p-4 rounded-2xl bg-rose-50 border border-rose-200 flex items-start gap-2.5 text-xs sm:text-sm text-rose-800 font-medium animate-in fade-in">
               <AlertCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
               <span>{errorMsg}</span>
             </div>
-          )}
+          ) : null}
 
           {/* Success Message */}
           {successMsg && (

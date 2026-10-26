@@ -1,13 +1,13 @@
 import { z } from 'zod'
 
 export const onboardingSchema = z.object({
-  role: z.enum(['client', 'provider', 'customer']),
+  role: z.enum(['client', 'provider', 'customer']).default('client'),
   firstName: z.string().min(1, 'First name is required').max(100),
   lastName: z.string().min(1, 'Last name is required').max(100),
   email: z.string().email('Valid email address is required').max(150),
-  phone: z.string().min(5, 'Valid phone number is required').max(30),
+  phone: z.string().max(30).optional().default(''),
   whatsapp: z.string().max(30).optional(),
-  password: z.string().min(8, 'Password must be at least 8 characters').max(128),
+  password: z.string().min(8, 'Password must be at least 8 characters').max(128).optional(),
   country: z.string().default('Nigeria'),
   currency: z.string().default('NGN'),
   city: z.string().default('Lagos'),

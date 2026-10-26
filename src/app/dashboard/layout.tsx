@@ -15,7 +15,6 @@ import {
   Menu,
   X,
   RefreshCw,
-  Sparkles,
   ShieldCheck,
   PlusCircle,
   LogOut,
@@ -37,6 +36,9 @@ interface ServerUserData {
   currency: string
   avatarUrl?: string | null
   headline?: string
+  trade?: string
+  bio?: string
+  skills?: string[]
   companyName?: string
 }
 
@@ -96,6 +98,15 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   }, [])
 
   const handleRoleToggle = async () => {
+    // If client is trying to switch to provider, check if provider profile is complete
+    if (activeRole === 'client') {
+      const hasProviderProfile = (user?.skills && user.skills.length > 0) || Boolean(user?.headline && user?.bio)
+      if (!hasProviderProfile) {
+        router.push('/onboarding?role=provider&step=sector')
+        return
+      }
+    }
+
     setIsSwitching(true)
     try {
       const nextRole = activeRole === 'client' ? 'provider' : 'client'
@@ -256,12 +267,6 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               </span>
               <span className="w-1.5 h-1.5 rounded-full bg-[#10B981]" />
             </button>
-
-            {/* AI Sparks Badge */}
-            <div className="inline-flex items-center gap-1.5 bg-amber-500/10 border border-amber-500/20 px-3 py-1.5 rounded-full text-xs font-extrabold text-amber-700">
-              <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-              <span>{wallet?.sparksBalance ?? (activeRole === 'client' ? 25 : 10)} Sparks</span>
-            </div>
 
             {/* Escrow Balance Pill */}
             <Link

@@ -9,11 +9,12 @@ function RegisterRedirect() {
 
   useEffect(() => {
     const role = searchParams.get('role')
-    const step = searchParams.get('step') || (role ? 'contact_info' : 'role')
-    if (role) {
-      router.replace(`/onboarding?step=${step}&role=${role}`)
+    if (role === 'provider') {
+      const step = searchParams.get('step') || 'sector'
+      router.replace(`/onboarding?step=${step}&role=provider`)
     } else {
-      router.replace(`/onboarding?step=${step}`)
+      const step = searchParams.get('step') || 'contact_info'
+      router.replace(`/onboarding?step=${step === 'role' ? 'contact_info' : step}`)
     }
   }, [router, searchParams])
 

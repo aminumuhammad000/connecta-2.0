@@ -13,7 +13,6 @@ import {
   ArrowRight,
   ArrowLeft,
   Search,
-  Sparkles,
   MapPin,
   Building2,
   Briefcase,
@@ -468,17 +467,18 @@ function OnboardingContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
 
+  const initialEmailParam = searchParams.get('email') || ''
   const initialRoleParam = (searchParams.get('role') as 'client' | 'provider') || null
-  const initialStepParam = searchParams.get('step') || (initialRoleParam ? 'role' : 'welcome')
+  const initialStepParam = searchParams.get('step') || (initialRoleParam === 'provider' ? 'sector' : initialEmailParam ? 'contact_info' : 'welcome')
 
-  const [step, setStep] = useState<string>(initialStepParam)
+  const [step, setStep] = useState<string>(initialStepParam === 'role' ? 'contact_info' : initialStepParam)
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0)
-  const [selectedRole, setSelectedRole] = useState<'client' | 'provider' | null>(initialRoleParam)
+  const [selectedRole, setSelectedRole] = useState<'client' | 'provider'>(initialRoleParam === 'provider' ? 'provider' : 'client')
 
   // Step 1: Contact & Identity (SignupPage.tsx)
   const [firstName, setFirstName] = useState('')
   const [lastName, setLastName] = useState('')
-  const [email, setEmail] = useState('')
+  const [email, setEmail] = useState(initialEmailParam)
   const [phone, setPhone] = useState('')
   const [whatsapp, setWhatsapp] = useState('')
   const [sameAsPhone, setSameAsPhone] = useState(false)
@@ -515,7 +515,9 @@ function OnboardingContent() {
   }
 
   // Email validation and Real Server OTP state
-  const [emailStatus, setEmailStatus] = useState<'idle' | 'valid' | 'invalid'>('idle')
+  const [emailStatus, setEmailStatus] = useState<'idle' | 'valid' | 'invalid' | 'registered'>('idle')
+  const [isEmailAlreadyRegistered, setIsEmailAlreadyRegistered] = useState(false)
+  const [isCheckingEmail, setIsCheckingEmail] = useState(false)
   const [isSendingOtp, setIsSendingOtp] = useState(false)
   const [otpSent, setOtpSent] = useState(false)
   const [enteredOtp, setEnteredOtp] = useState('')
@@ -526,6 +528,76 @@ function OnboardingContent() {
   const [otpResendCountdown, setOtpResendCountdown] = useState(60)
   const [canResendOtp, setCanResendOtp] = useState(false)
   const [devCodeHint, setDevCodeHint] = useState<string | null>(null)
+
+  // Instant check if email is already registered
+  const checkEmailControllerRef = useRef<AbortController | null>(null)
+
+  const verifyEmailAvailability = async (targetEmail: string) => {
+    const cleanEmail = targetEmail.trim().toLowerCase()
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/
+    if (!emailRegex.test(cleanEmail) || selectedRole === 'provider') {
+      return
+    }
+
+    if (checkEmailControllerRef.current) {
+      checkEmailControllerRef.current.abort()
+    }
+    const controller = new AbortController()
+    checkEmailControllerRef.current = controller
+
+    setIsCheckingEmail(true)
+    try {
+      const res = await fetch('/api/auth/check-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: cleanEmail }),
+        signal: controller.signal,
+      })
+      const data = await res.json()
+      if (controller.signal.aborted) return
+
+      if (data.data?.registered) {
+        setIsEmailAlreadyRegistered(true)
+        setEmailStatus('registered')
+        setOtpError('This email is already registered. Please log in to your account.')
+      } else {
+        setIsEmailAlreadyRegistered(false)
+        setEmailStatus('valid')
+        setOtpError((prev) => (prev.includes('already registered') ? '' : prev))
+      }
+    } catch (err: any) {
+      if (err.name !== 'AbortError') {
+        // Fallback gracefully
+      }
+    } finally {
+      if (!controller.signal.aborted) {
+        setIsCheckingEmail(false)
+      }
+    }
+  }
+
+  // Real-time reactive check if email is already registered
+  useEffect(() => {
+    const cleanEmail = email.trim().toLowerCase()
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/
+    if (!emailRegex.test(cleanEmail)) {
+      setIsEmailAlreadyRegistered(false)
+      if (emailStatus === 'registered') {
+        setEmailStatus('idle')
+      }
+      return
+    }
+
+    if (selectedRole === 'provider') {
+      return
+    }
+
+    const timer = setTimeout(() => {
+      verifyEmailAvailability(cleanEmail)
+    }, 70)
+
+    return () => clearTimeout(timer)
+  }, [email, selectedRole])
 
   // Countdown timer for OTP resend
   useEffect(() => {
@@ -641,6 +713,11 @@ function OnboardingContent() {
       return
     }
 
+    if (isEmailAlreadyRegistered) {
+      setOtpError('This email is already registered. Please log in to your account.')
+      return
+    }
+
     setIsSendingOtp(true)
     setOtpError('')
     setOtpSuccessMessage('')
@@ -649,11 +726,19 @@ function OnboardingContent() {
       const res = await fetch('/api/auth/send-otp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: email.trim().toLowerCase() }),
+        body: JSON.stringify({
+          email: email.trim().toLowerCase(),
+          intent: selectedRole === 'client' ? 'registration' : undefined,
+        }),
       })
 
       const data = await res.json()
       if (!res.ok) {
+        if (res.status === 409 || data.error?.toLowerCase?.().includes('already registered')) {
+          setIsEmailAlreadyRegistered(true)
+          setEmailStatus('registered')
+          throw new Error('This email is already registered. Please log in.')
+        }
         throw new Error(data.error?.message || data.error || 'Failed to send verification code')
       }
 
@@ -676,7 +761,11 @@ function OnboardingContent() {
 
   // Handle Contact Info Step Navigation with automatic OTP trigger
   const handleContactInfoNext = async () => {
-    if (!firstName.trim() || !phone.trim() || !email.includes('@')) {
+    if (!firstName.trim() || !lastName.trim() || !email.includes('@')) {
+      return
+    }
+    if (isEmailAlreadyRegistered) {
+      setOtpError('This email is already registered. Please log in to your account.')
       return
     }
     if (!isEmailVerified) {
@@ -798,58 +887,17 @@ function OnboardingContent() {
     setSubmitError('')
     try {
       if (createdAccountData?.id) {
-        // Account was already provisioned in database during calibration stage!
-        // Finalize terms acceptance and advance to complete
-        await new Promise((r) => setTimeout(r, 300))
+        await new Promise((r) => setTimeout(r, 200))
         setStep('complete')
         return
       }
 
-      const cityClean = locationCity.split(',')[0].trim() || 'Lagos'
-      const payload = {
-        role: selectedRole || 'client',
-        firstName: firstName.trim() || 'Connecta',
-        lastName: lastName.trim() || 'Member',
-        email: email.trim().toLowerCase(),
-        phone: phone.trim() || '+2348000000000',
-        whatsapp: (sameAsPhone ? phone : whatsapp) || phone || '+2348000000000',
-        password: password || 'Connecta@2026Secure',
-        country: selectedCountry || 'Nigeria',
-        currency: selectedCurrency || 'NGN',
-        city: cityClean,
-        avatarUrl: profileImage || undefined,
-        // Provider fields
-        businessName: title || `${firstName} ${lastName}`.trim(),
-        headline: title ? `${title} in ${cityClean}` : `Verified Specialist in ${cityClean}`,
-        bio: bio || `Specialist delivering verified services across ${cityClean}.`,
-        primaryCategory: currentSector?.name || 'Skilled Trades',
-        skills: selectedSkills && selectedSkills.length ? selectedSkills : ['General Practice'],
-        hourlyRate: baseRate || '15000',
-        ninNumber: ninNumber || undefined,
-        workshopAddress: workshopAddress || `${cityClean}, Nigeria`,
-        // Client fields
-        companyName: companyName || `${firstName} ${lastName}`.trim(),
-        companyBio: companyBio || 'Verified hiring client on Connecta.',
-        companySize: companySize || '2 - 10 Employees',
-        companyWebsite: companyWebsite || undefined,
-        clientIndustry: clientIndustry || 'tech_startup',
-        clientGoal: clientGoal || 'one_off_project',
-        officeAddress: workshopAddress || `${cityClean}, Nigeria`,
+      if (selectedRole === 'provider' && (!selectedSkills || selectedSkills.length === 0)) {
+        setStep('sector')
+        return
       }
 
-      const res = await fetch('/api/onboarding', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      })
-
-      const data = await res.json()
-      if (!res.ok) {
-        throw new Error(data.error || 'Failed to activate account')
-      }
-
-      setCreatedAccountData(data.data)
-      setStep('complete')
+      setStep('progress')
     } catch (err: any) {
       setSubmitError(err.message || 'Account activation failed. Please try again.')
     } finally {
@@ -946,15 +994,25 @@ function OnboardingContent() {
           setRestoredBanner('Your registration session has been restored. You can continue right where you left off.')
           setTimeout(() => setRestoredBanner(null), 6000)
         } else if (qStep) {
+          if (qStep === 'role') {
+            setStep('contact_info')
+            setSelectedRole('client')
+          } else {
+            setStep(qStep)
+            if (qRole) setSelectedRole(qRole)
+          }
+        }
+      } else if (qStep) {
+        if (qStep === 'role') {
+          setStep('contact_info')
+          setSelectedRole('client')
+        } else {
           setStep(qStep)
           if (qRole) setSelectedRole(qRole)
         }
-      } else if (qStep) {
-        setStep(qStep)
-        if (qRole) setSelectedRole(qRole)
-      } else if (qRole && step === 'welcome') {
-        setStep('role')
-        setSelectedRole(qRole)
+      } else if (qRole === 'provider') {
+        setSelectedRole('provider')
+        setStep('sector')
       }
     } catch (e) {
       console.warn('[Session Recovery Notice]', e)
@@ -962,6 +1020,46 @@ function OnboardingContent() {
       setIsInitialMountComplete(true)
     }
   }, [searchParams])
+
+  // Check if authenticated client is accessing provider onboarding
+  useEffect(() => {
+    const qRole = searchParams.get('role')
+    const checkAuthenticatedUser = async () => {
+      try {
+        const res = await fetch('/api/dashboard/overview')
+        if (res.ok) {
+          const body = await res.json()
+          if (body.data?.user) {
+            const u = body.data.user
+            if (u.firstName) setFirstName(u.firstName)
+            if (u.lastName) setLastName(u.lastName)
+            if (u.email) {
+              setEmail(u.email)
+              setIsEmailVerified(true)
+            }
+            if (u.phone) setPhone(u.phone)
+            if (u.city) setLocationCity(u.city)
+            if (u.country) setSelectedCountry(u.country)
+            if (u.currency) setSelectedCurrency(u.currency)
+            if (u.headline) setTitle(u.headline)
+            if (u.bio) setBio(u.bio)
+            if (u.skills && u.skills.length) setSelectedSkills(u.skills)
+            if (u.workshopAddress) setWorkshopAddress(u.workshopAddress)
+            if (u.hourlyRateMinor) setBaseRate((u.hourlyRateMinor / 100).toLocaleString())
+            if (u.avatarUrl) setProfileImage(u.avatarUrl)
+
+            if (qRole === 'provider' || initialRoleParam === 'provider') {
+              setSelectedRole('provider')
+              setStep((prev) => (prev === 'welcome' || prev === 'role' || prev === 'contact_info' ? 'sector' : prev))
+            }
+          }
+        }
+      } catch (err) {
+        // Not authenticated
+      }
+    }
+    checkAuthenticatedUser()
+  }, [searchParams, initialRoleParam])
 
   // Auto-save onboarding progress to persistent storage whenever state changes
   useEffect(() => {
@@ -1034,19 +1132,18 @@ function OnboardingContent() {
   const handleBack = () => {
     switch (step) {
       case 'role':
-        setStep('welcome')
-        break
       case 'contact_info':
-        setStep('role')
+        setStep('welcome')
         break
       case 'password':
         setStep('contact_info')
         break
-      case 'country_currency':
-        setStep('password')
+      case 'terms':
+        if (selectedRole === 'provider') setStep('provider_profile')
+        else setStep('password')
         break
       case 'sector':
-        setStep('country_currency')
+        router.push(selectedRole === 'provider' ? '/dashboard' : '/')
         break
       case 'skills':
         setStep('sector')
@@ -1054,18 +1151,11 @@ function OnboardingContent() {
       case 'provider_profile':
         setStep('skills')
         break
+      case 'country_currency':
       case 'client_industry':
-        setStep('country_currency')
-        break
       case 'client_goals':
-        setStep('client_industry')
-        break
       case 'client_profile':
-        setStep('client_goals')
-        break
-      case 'terms':
-        if (selectedRole === 'client') setStep('client_profile')
-        else setStep('provider_profile')
+        setStep('password')
         break
       default:
         router.push('/')
@@ -1221,8 +1311,8 @@ function OnboardingContent() {
             firstName: firstName.trim() || 'Connecta',
             lastName: lastName.trim() || 'Member',
             email: email.trim().toLowerCase(),
-            phone: phone.trim() || '+2348000000000',
-            whatsapp: (sameAsPhone ? phone : whatsapp) || phone || '+2348000000000',
+            phone: phone.trim() || '',
+            whatsapp: (sameAsPhone ? phone : whatsapp) || phone || '',
             password: password || 'Connecta@2026Secure',
             country: selectedCountry || 'Nigeria',
             currency: selectedCurrency || 'NGN',
@@ -1238,11 +1328,11 @@ function OnboardingContent() {
             ninNumber: ninNumber || undefined,
             workshopAddress: workshopAddress || `${cityClean}, Nigeria`,
             // Client fields
-            companyName: companyName || `${firstName} ${lastName}`.trim(),
-            companyBio: companyBio || 'Verified hiring client on Connecta.',
-            companySize: companySize || '2 - 10 Employees',
+            companyName: companyName || `${firstName} ${lastName}`.trim() + ' Workspace',
+            companyBio: companyBio || 'Connecta client workspace ready for instant milestone escrow contracts.',
+            companySize: companySize || 'Solo / Household',
             companyWebsite: companyWebsite || undefined,
-            clientIndustry: clientIndustry || 'tech_startup',
+            clientIndustry: clientIndustry || 'residential_commercial',
             clientGoal: clientGoal || 'one_off_project',
             officeAddress: workshopAddress || `${cityClean}, Nigeria`,
           }
@@ -1276,7 +1366,7 @@ function OnboardingContent() {
 
           setTimeout(() => {
             if (!isCancelled) {
-              setStep('terms')
+              setStep('complete')
             }
           }, 450)
         } catch (err: any) {
@@ -1295,53 +1385,60 @@ function OnboardingContent() {
   }, [step, selectedRole, firstName, lastName, email, phone, whatsapp, password, selectedCountry, selectedCurrency, locationCity, profileImage, title, bio, currentSector, selectedSkills, baseRate, ninNumber, workshopAddress, companyName, companyBio, companySize, companyWebsite, clientIndustry, clientGoal])
 
   // Stepper calculations adapting progress.png
-  const PROGRESS_STEPS = [
-    { number: 1, label: 'Account' },
-    { number: 2, label: 'Discipline' },
-    { number: 3, label: 'Summit Goals' },
-    { number: 4, label: 'Review & Pass' },
-  ]
+  const PROGRESS_STEPS = selectedRole === 'provider'
+    ? [
+        { number: 1, label: 'Trade Sector' },
+        { number: 2, label: 'Core Skills' },
+        { number: 3, label: 'Profile' },
+        { number: 4, label: 'Activation' },
+      ]
+    : [
+        { number: 1, label: 'Account' },
+        { number: 2, label: 'Security' },
+        { number: 3, label: 'Terms' },
+        { number: 4, label: 'Workspace' },
+      ]
 
   const getStepperStage = (): number => {
-    switch (step) {
-      case 'welcome':
-      case 'role':
-      case 'contact_info':
-      case 'password':
-        return 1
-      case 'country_currency':
-      case 'sector':
-      case 'skills':
-      case 'client_industry':
-        return 2
-      case 'provider_profile':
-      case 'client_goals':
-      case 'client_profile':
-        return 3
-      case 'terms':
-      case 'progress':
-      case 'complete':
-        return 4
-      default:
-        return 1
+    if (selectedRole === 'provider') {
+      switch (step) {
+        case 'sector':
+          return 1
+        case 'skills':
+          return 2
+        case 'provider_profile':
+          return 3
+        case 'terms':
+        case 'progress':
+        case 'complete':
+          return 4
+        default:
+          return 1
+      }
+    } else {
+      switch (step) {
+        case 'welcome':
+        case 'role':
+        case 'contact_info':
+          return 1
+        case 'password':
+          return 2
+        case 'terms':
+          return 3
+        case 'progress':
+        case 'complete':
+          return 4
+        default:
+          return 1
+      }
     }
   }
 
   const currentStage = getStepperStage()
 
   const getStepProgressNumber = () => {
-    switch (currentStage) {
-      case 1:
-        return { current: 1, total: 4, label: 'Account' }
-      case 2:
-        return { current: 2, total: 4, label: 'Discipline' }
-      case 3:
-        return { current: 3, total: 4, label: 'Summit Goals' }
-      case 4:
-        return { current: 4, total: 4, label: 'Review & Pass' }
-      default:
-        return { current: 1, total: 4, label: 'Account' }
-    }
+    const item = PROGRESS_STEPS[currentStage - 1] || PROGRESS_STEPS[0]
+    return { current: currentStage, total: 4, label: item.label }
   }
 
   const stepMeta = getStepProgressNumber()
@@ -1546,10 +1643,13 @@ function OnboardingContent() {
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-2">
               <button
                 type="button"
-                onClick={() => setStep('role')}
+                onClick={() => {
+                  setSelectedRole('client')
+                  setStep('contact_info')
+                }}
                 className="text-xs font-bold text-slate-500 hover:text-slate-900 transition-colors"
               >
-                Skip intro to account selection →
+                Skip intro to registration →
               </button>
 
               <div className="flex items-center gap-3 w-full sm:w-auto">
@@ -1569,7 +1669,8 @@ function OnboardingContent() {
                     if (currentSlideIndex < ONBOARDING_SLIDES.length - 1) {
                       setCurrentSlideIndex((prev) => prev + 1)
                     } else {
-                      setStep('role')
+                      setSelectedRole('client')
+                      setStep('contact_info')
                     }
                   }}
                   className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 rounded-full bg-[#0A1020] hover:bg-[#4D78FF] text-white px-8 py-3.5 text-xs sm:text-sm font-extrabold shadow-md hover:scale-105 active:scale-95 transition-all cursor-pointer"
@@ -1820,9 +1921,17 @@ function OnboardingContent() {
                     <span className="text-xs font-bold text-[#10B981] flex items-center gap-1 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
                       <Check className="w-3.5 h-3.5 stroke-[3]" /> Verified
                     </span>
+                  ) : isEmailAlreadyRegistered ? (
+                    <span className="text-xs font-bold text-rose-600 flex items-center gap-1 bg-rose-50 px-2.5 py-0.5 rounded-full border border-rose-200">
+                      <AlertCircle className="w-3.5 h-3.5" /> Already registered
+                    </span>
+                  ) : isCheckingEmail ? (
+                    <span className="text-xs font-medium text-slate-400 flex items-center gap-1">
+                      <Loader2 className="w-3 h-3 animate-spin" /> Checking...
+                    </span>
                   ) : emailStatus === 'valid' && !otpSent ? (
-                    <span className="text-xs font-bold text-[#4D78FF] flex items-center gap-1">
-                      <Sparkles className="w-3.5 h-3.5" /> Email available
+                    <span className="text-xs font-bold text-[#10B981] flex items-center gap-1">
+                      <Check className="w-3.5 h-3.5" /> Email available
                     </span>
                   ) : null}
                 </div>
@@ -1835,6 +1944,11 @@ function OnboardingContent() {
                     type="email"
                     value={email}
                     disabled={isEmailVerified}
+                    onBlur={() => {
+                      if (email.includes('@') && email.includes('.')) {
+                        verifyEmailAvailability(email)
+                      }
+                    }}
                     onChange={(e) => {
                       const val = e.target.value
                       setEmail(val)
@@ -1845,16 +1959,22 @@ function OnboardingContent() {
                         setOtpError('')
                         setOtpSuccessMessage('')
                       }
-                      if (val.includes('@') && val.includes('.')) {
+                      const clean = val.trim().toLowerCase()
+                      if (/^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/.test(clean)) {
+                        verifyEmailAvailability(clean)
+                      } else if (clean.includes('@') && clean.includes('.')) {
                         setEmailStatus('valid')
                       } else {
                         setEmailStatus('idle')
+                        setIsEmailAlreadyRegistered(false)
                       }
                     }}
                     placeholder="e.g. ibrahim@example.com"
                     className={`w-full bg-[#F5F7FC] border rounded-2xl pl-13 py-4 text-sm sm:text-base text-slate-900 placeholder:text-slate-400 focus:outline-none transition-all font-medium ${
                       isEmailVerified
                         ? 'border-[#10B981] bg-emerald-50/30 pr-32 font-bold text-[#0A1020]'
+                        : isEmailAlreadyRegistered
+                        ? 'border-amber-400 bg-amber-50/20 pr-36 focus:border-amber-500 focus:ring-4 focus:ring-amber-500/15'
                         : emailStatus === 'valid'
                         ? 'border-slate-300 pr-36 focus:border-[#4D78FF] focus:bg-white focus:ring-4 focus:ring-[#4D78FF]/15'
                         : 'border-slate-200 pr-4 focus:border-[#4D78FF] focus:bg-white focus:ring-4 focus:ring-[#4D78FF]/15'
@@ -1882,6 +2002,16 @@ function OnboardingContent() {
                         Edit
                       </button>
                     </div>
+                  ) : isEmailAlreadyRegistered ? (
+                    <div className="absolute inset-y-0 right-0 pr-2.5 flex items-center">
+                      <Link
+                        href={`/login?email=${encodeURIComponent(email)}`}
+                        className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[#0A1020] hover:bg-[#4D78FF] text-white text-xs font-black transition-all cursor-pointer shadow-xs active:scale-95"
+                      >
+                        <span>Log In</span>
+                        <ArrowRight className="w-3 h-3" />
+                      </Link>
+                    </div>
                   ) : emailStatus === 'valid' ? (
                     <div className="absolute inset-y-0 right-0 pr-2.5 flex items-center">
                       <button
@@ -1904,6 +2034,37 @@ function OnboardingContent() {
                     </div>
                   ) : null}
                 </div>
+
+                {/* Email already registered alert banner */}
+                {isEmailAlreadyRegistered && (
+                  <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200 text-left space-y-2.5 animate-in fade-in shadow-2xs">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2 text-amber-900 font-bold text-xs sm:text-sm">
+                        <AlertCircle className="w-4 h-4 text-amber-600 shrink-0" />
+                        <span>Email already registered</span>
+                      </div>
+                      <Link
+                        href={`/login?email=${encodeURIComponent(email)}`}
+                        className="text-xs font-extrabold text-[#0C513F] hover:underline flex items-center gap-1"
+                      >
+                        <span>Go to Login</span>
+                        <ArrowRight className="w-3 h-3" />
+                      </Link>
+                    </div>
+                    <p className="text-xs text-amber-800 leading-relaxed font-medium">
+                      An account with <span className="font-bold text-slate-900">{email}</span> already exists. Please log in to your account.
+                    </p>
+                    <div className="pt-0.5">
+                      <Link
+                        href={`/login?email=${encodeURIComponent(email)}`}
+                        className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-[#0A1020] hover:bg-[#4D78FF] text-white text-xs font-black transition-all shadow-xs active:scale-95 cursor-pointer"
+                      >
+                        <span>Log in to your account</span>
+                        <ArrowRight className="w-3.5 h-3.5" />
+                      </Link>
+                    </div>
+                  </div>
+                )}
 
                 {/* OTP Input Card appears below email */}
                 {otpSent && !isEmailVerified && (
@@ -2019,203 +2180,6 @@ function OnboardingContent() {
                   </div>
                 )}
               </div>
-
-              {/* Phone & WhatsApp */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-6">
-                <div className="space-y-2">
-                  <label className="text-xs sm:text-sm font-semibold text-slate-700">
-                    Phone Number (Calls)
-                  </label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-4.5 flex items-center pointer-events-none text-slate-400">
-                      <Phone className="w-5 h-5" />
-                    </div>
-                    <input
-                      type="tel"
-                      value={phone}
-                      onChange={(e) => setPhone(e.target.value)}
-                      placeholder="e.g. +234 803 123 4567"
-                      className="w-full bg-[#F5F7FC] border border-slate-200 rounded-2xl pl-13 pr-4 py-4 text-sm sm:text-base text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#4D78FF] focus:bg-white focus:ring-4 focus:ring-[#4D78FF]/15 transition-all font-medium"
-                      required
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <label className="text-xs sm:text-sm font-semibold text-slate-700">
-                      WhatsApp Number
-                    </label>
-                    <label className="flex items-center gap-1.5 text-xs font-medium text-slate-600 cursor-pointer select-none hover:text-slate-900 transition-colors">
-                      <input
-                        type="checkbox"
-                        checked={sameAsPhone}
-                        onChange={(e) => setSameAsPhone(e.target.checked)}
-                        className="rounded text-[#10B981] w-3.5 h-3.5 focus:ring-0"
-                      />
-                      <span>Same as phone</span>
-                    </label>
-                  </div>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-4.5 flex items-center pointer-events-none text-slate-400">
-                      <MessageSquare className="w-5 h-5" />
-                    </div>
-                    <input
-                      type="tel"
-                      value={whatsapp}
-                      onChange={(e) => setWhatsapp(e.target.value)}
-                      disabled={sameAsPhone}
-                      placeholder="e.g. +234 803 123 4567"
-                      className="w-full bg-[#F5F7FC] border border-slate-200 rounded-2xl pl-13 pr-4 py-4 text-sm sm:text-base text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#4D78FF] focus:bg-white focus:ring-4 focus:ring-[#4D78FF]/15 transition-all disabled:bg-slate-100 disabled:text-slate-500 font-medium"
-                      required
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Primary City / Regional Hub */}
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <label className="text-xs sm:text-sm font-semibold text-slate-700">
-                    Primary Hub / City
-                  </label>
-                  <span className="text-xs text-slate-400 font-medium">Search or enter custom location</span>
-                </div>
-
-                <div ref={cityDropdownRef} className="relative">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setIsCityDropdownOpen((prev) => !prev)
-                      setCitySearchQuery('')
-                    }}
-                    className={`w-full bg-[#F5F7FC] hover:bg-slate-100/80 border text-left rounded-2xl pl-13 pr-4 py-4 flex items-center justify-between transition-all cursor-pointer group ${
-                      isCityDropdownOpen
-                        ? 'border-[#4D78FF] ring-4 ring-[#4D78FF]/15 bg-white shadow-sm'
-                        : 'border-slate-200 hover:border-slate-300'
-                    }`}
-                    aria-haspopup="listbox"
-                    aria-expanded={isCityDropdownOpen}
-                  >
-                    <div className="absolute inset-y-0 left-0 pl-4.5 flex items-center pointer-events-none text-slate-400">
-                      <MapPin className="w-5 h-5 text-[#4D78FF]" />
-                    </div>
-
-                    <div className="min-w-0 pr-3">
-                      <div className="text-sm sm:text-base font-bold text-slate-900 truncate">
-                        {locationCity || 'Select or enter your city'}
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-2.5 shrink-0">
-                      <span className="hidden sm:inline-block text-xs font-bold text-[#4D78FF] group-hover:underline">
-                        Change
-                      </span>
-                      <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-all ${
-                        isCityDropdownOpen ? 'bg-[#4D78FF] text-white rotate-180' : 'bg-slate-200/70 text-slate-600 group-hover:bg-slate-300/70'
-                      }`}>
-                        <ChevronDown className="w-4 h-4 transition-transform" />
-                      </div>
-                    </div>
-                  </button>
-
-                  {/* Dropdown Menu */}
-                  {isCityDropdownOpen && (
-                    <div className="absolute top-full left-0 right-0 mt-2 z-50 bg-white rounded-3xl border border-slate-200 shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-150">
-                      {/* Search input header */}
-                      <div className="p-3.5 border-b border-slate-100 bg-slate-50/70">
-                        <div className="relative">
-                          <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
-                          <input
-                            type="text"
-                            value={citySearchQuery}
-                            onChange={(e) => setCitySearchQuery(e.target.value)}
-                            onKeyDown={(e) => {
-                              if (e.key === 'Enter') {
-                                e.preventDefault()
-                                if (citySearchQuery.trim()) {
-                                  handleSelectCity(citySearchQuery.trim())
-                                }
-                              }
-                            }}
-                            placeholder="Search or type your city, state, or town..."
-                            className="w-full bg-white border border-slate-200 rounded-xl pl-10 pr-3.5 py-2.5 text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#4D78FF] focus:ring-2 focus:ring-[#4D78FF]/15 transition-all font-medium"
-                            autoFocus
-                          />
-                          {citySearchQuery && (
-                            <button
-                              type="button"
-                              onClick={() => setCitySearchQuery('')}
-                              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-xs font-bold"
-                            >
-                              Clear
-                            </button>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Custom Location Action */}
-                      {citySearchQuery.trim() && !MAJOR_AFRICAN_CITIES.some((c) => c.toLowerCase() === citySearchQuery.trim().toLowerCase()) && (
-                        <div className="p-2 border-b border-slate-100 bg-[#4D78FF]/5">
-                          <button
-                            type="button"
-                            onClick={() => handleSelectCity(citySearchQuery.trim())}
-                            className="w-full px-4 py-3 rounded-2xl flex items-center justify-between text-left hover:bg-[#4D78FF]/10 text-[#4D78FF] transition-all cursor-pointer font-bold text-xs sm:text-sm"
-                          >
-                            <div className="flex items-center gap-2.5">
-                              <span className="w-6 h-6 rounded-full bg-[#4D78FF] text-white flex items-center justify-center text-xs font-black shrink-0">
-                                +
-                              </span>
-                              <span>Use &ldquo;{citySearchQuery.trim()}&rdquo; as my location</span>
-                            </div>
-                            <span className="text-[11px] font-extrabold uppercase tracking-wider bg-[#4D78FF] text-white px-2 py-0.5 rounded-full">
-                              Add Custom
-                            </span>
-                          </button>
-                        </div>
-                      )}
-
-                      {/* Filtered Cities List */}
-                      <div className="max-h-64 overflow-y-auto divide-y divide-slate-100/80 p-2 scrollbar-thin">
-                        {filteredCities.length === 0 && !citySearchQuery.trim() ? (
-                          <div className="py-8 text-center text-slate-500 text-xs font-medium">
-                            No matching locations found. Type above to add your custom city.
-                          </div>
-                        ) : (
-                          filteredCities.map((city) => {
-                            const isSelected = locationCity.toLowerCase() === city.toLowerCase()
-                            return (
-                              <button
-                                key={city}
-                                type="button"
-                                onClick={() => handleSelectCity(city)}
-                                className={`w-full px-4 py-3 rounded-2xl flex items-center justify-between transition-all cursor-pointer text-left ${
-                                  isSelected
-                                    ? 'bg-[#4D78FF]/10 text-[#0A1020]'
-                                    : 'hover:bg-slate-50 text-slate-700'
-                                }`}
-                              >
-                                <div className="flex items-center gap-3 min-w-0">
-                                  <MapPin className={`w-4 h-4 shrink-0 ${isSelected ? 'text-[#4D78FF]' : 'text-slate-400'}`} />
-                                  <span className={`text-xs sm:text-sm truncate ${isSelected ? 'font-black text-[#0A1020]' : 'font-medium'}`}>
-                                    {city}
-                                  </span>
-                                </div>
-
-                                {isSelected && (
-                                  <div className="w-5 h-5 rounded-full bg-[#10B981] text-white flex items-center justify-center shrink-0">
-                                    <Check className="w-3 h-3 stroke-[3]" />
-                                  </div>
-                                )}
-                              </button>
-                            )
-                          })
-                        )}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
             </div>
 
             {/* Bottom Action Bar */}
@@ -2237,43 +2201,53 @@ function OnboardingContent() {
                   </span>
                 )}
 
-                <button
-                  type="button"
-                  disabled={!firstName.trim() || !phone.trim() || !email.includes('@') || isSendingOtp}
-                  onClick={handleContactInfoNext}
-                  className={`inline-flex items-center gap-2 rounded-full px-9 py-4 text-xs sm:text-sm font-black shadow-md transition-all ${
-                    firstName.trim() && phone.trim() && email.includes('@') && !isSendingOtp
-                      ? isEmailVerified
-                        ? 'bg-[#0A1020] hover:bg-[#4D78FF] text-white hover:scale-105 active:scale-95 cursor-pointer'
-                        : 'bg-[#0C513F] hover:bg-[#083b2e] text-white hover:scale-105 active:scale-95 cursor-pointer ring-2 ring-[#0C513F]/20'
-                      : 'bg-slate-200 text-slate-400 cursor-not-allowed border border-slate-200 shadow-none'
-                  }`}
-                >
-                  {isSendingOtp ? (
-                    <>
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                      <span>Sending Verification Code...</span>
-                    </>
-                  ) : !isEmailVerified ? (
-                    otpSent ? (
+                {isEmailAlreadyRegistered ? (
+                  <Link
+                    href={`/login?email=${encodeURIComponent(email)}`}
+                    className="inline-flex items-center gap-2 rounded-full px-9 py-4 text-xs sm:text-sm font-black shadow-md transition-all bg-[#0A1020] hover:bg-[#4D78FF] text-white hover:scale-105 active:scale-95 cursor-pointer"
+                  >
+                    <span>Log In to Existing Account</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </Link>
+                ) : (
+                  <button
+                    type="button"
+                    disabled={!firstName.trim() || !lastName.trim() || !email.includes('@') || isSendingOtp}
+                    onClick={handleContactInfoNext}
+                    className={`inline-flex items-center gap-2 rounded-full px-9 py-4 text-xs sm:text-sm font-black shadow-md transition-all ${
+                      firstName.trim() && lastName.trim() && email.includes('@') && !isSendingOtp
+                        ? isEmailVerified
+                          ? 'bg-[#0A1020] hover:bg-[#4D78FF] text-white hover:scale-105 active:scale-95 cursor-pointer'
+                          : 'bg-[#0C513F] hover:bg-[#083b2e] text-white hover:scale-105 active:scale-95 cursor-pointer ring-2 ring-[#0C513F]/20'
+                        : 'bg-slate-200 text-slate-400 cursor-not-allowed border border-slate-200 shadow-none'
+                    }`}
+                  >
+                    {isSendingOtp ? (
                       <>
-                        <span>Verify OTP to Continue</span>
-                        <ArrowRight className="w-4 h-4" />
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <span>Sending Verification Code...</span>
                       </>
+                    ) : !isEmailVerified ? (
+                      otpSent ? (
+                        <>
+                          <span>Verify OTP to Continue</span>
+                          <ArrowRight className="w-4 h-4" />
+                        </>
+                      ) : (
+                        <>
+                          <Mail className="w-4 h-4" />
+                          <span>Send Code &amp; Continue</span>
+                          <ArrowRight className="w-4 h-4" />
+                        </>
+                      )
                     ) : (
                       <>
-                        <Mail className="w-4 h-4" />
-                        <span>Send Code &amp; Continue</span>
+                        <span>Next: Account Security</span>
                         <ArrowRight className="w-4 h-4" />
                       </>
-                    )
-                  ) : (
-                    <>
-                      <span>Next: Account Security</span>
-                      <ArrowRight className="w-4 h-4" />
-                    </>
-                  )}
-                </button>
+                    )}
+                  </button>
+                )}
               </div>
             </div>
           </div>
@@ -2413,14 +2387,20 @@ function OnboardingContent() {
               <button
                 type="button"
                 disabled={!hasMinLength || password !== confirmPassword}
-                onClick={() => setStep('country_currency')}
+                onClick={() => {
+                  if (selectedRole === 'provider') {
+                    setStep('sector')
+                  } else {
+                    setStep('terms')
+                  }
+                }}
                 className={`inline-flex items-center gap-2 rounded-full px-9 py-4 text-xs sm:text-sm font-black shadow-md transition-all ${
                   hasMinLength && password === confirmPassword
                     ? 'bg-[#0A1020] hover:bg-[#4D78FF] text-white hover:scale-105 active:scale-95 cursor-pointer'
                     : 'bg-slate-200 text-slate-400 cursor-not-allowed border border-slate-200 shadow-none'
                 }`}
               >
-                <span>Next: Location &amp; Currency</span>
+                <span>{selectedRole === 'provider' ? 'Next: Choose Sector' : 'Next: Terms & Agreements'}</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
             </div>
@@ -3011,6 +2991,35 @@ function OnboardingContent() {
                 />
               </div>
 
+              {/* Primary Service City & Base Rate */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-6 pt-3 border-t border-slate-100">
+                <div className="space-y-2">
+                  <label className="text-xs sm:text-sm font-semibold text-slate-700">
+                    Primary Service City / Hub
+                  </label>
+                  <input
+                    type="text"
+                    value={locationCity}
+                    onChange={(e) => setLocationCity(e.target.value)}
+                    placeholder="e.g. Lagos, Kano, or Abuja"
+                    className="w-full bg-[#F5F7FC] border border-slate-200 rounded-2xl px-5 py-4 text-sm sm:text-base text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#4D78FF] focus:bg-white focus:ring-4 focus:ring-[#4D78FF]/15 transition-all font-medium"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-xs sm:text-sm font-semibold text-slate-700">
+                    Typical Base Day / Hourly Rate (NGN)
+                  </label>
+                  <input
+                    type="text"
+                    value={baseRate}
+                    onChange={(e) => setBaseRate(e.target.value)}
+                    placeholder="e.g. 15,000"
+                    className="w-full bg-[#F5F7FC] border border-slate-200 rounded-2xl px-5 py-4 text-sm sm:text-base text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#4D78FF] focus:bg-white focus:ring-4 focus:ring-[#4D78FF]/15 transition-all font-medium"
+                  />
+                </div>
+              </div>
+
               {/* NIN / National Identity (Verification) */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-6 pt-3 border-t border-slate-100">
                 <div className="space-y-2">
@@ -3417,36 +3426,47 @@ function OnboardingContent() {
 
             {/* Error Banner if real registration encountered an issue */}
             {submitError && (
-              <div className="p-4 rounded-2xl bg-rose-50 border border-rose-200 text-left space-y-2 animate-in fade-in max-w-xl mx-auto shadow-xs">
-                <div className="flex items-center gap-2 text-rose-700 font-bold text-sm">
-                  <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
-                  <span>Provisioning Interrupted</span>
+              <div className="p-5 rounded-2xl bg-amber-50 border border-amber-200 text-left space-y-3 animate-in fade-in max-w-xl mx-auto shadow-xs">
+                <div className="flex items-center gap-2 text-amber-900 font-bold text-sm">
+                  <AlertCircle className="w-4 h-4 shrink-0 text-amber-600" />
+                  <span>{submitError.toLowerCase().includes('already registered') || submitError.toLowerCase().includes('already exists') ? 'Account Already Registered' : 'Provisioning Interrupted'}</span>
                 </div>
-                <p className="text-xs text-rose-600 leading-relaxed">{submitError}</p>
+                <p className="text-xs text-amber-800 leading-relaxed font-medium">{submitError}</p>
                 <div className="flex items-center gap-3 pt-1">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setSubmitError('')
-                      setStep(selectedRole === 'client' ? 'client_goals' : 'provider_rates')
-                    }}
-                    className="px-3.5 py-1.5 bg-[#053F28] hover:bg-[#043320] text-white rounded-xl text-xs font-bold transition-all shadow-xs"
-                  >
-                    Edit Account Details
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setSubmitError('')
-                      setProgressPercent(15)
-                      setActiveProgressTask(0)
-                      // re-trigger effect
-                      setStep('progress')
-                    }}
-                    className="px-3.5 py-1.5 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 rounded-xl text-xs font-semibold transition-all"
-                  >
-                    Retry Provisioning
-                  </button>
+                  {submitError.toLowerCase().includes('already registered') || submitError.toLowerCase().includes('already exists') ? (
+                    <Link
+                      href={`/login?email=${encodeURIComponent(email)}`}
+                      className="px-4 py-2.5 bg-[#0A1020] hover:bg-[#4D78FF] text-white rounded-xl text-xs font-black transition-all shadow-xs inline-flex items-center gap-1.5 active:scale-95"
+                    >
+                      <span>Log In to Existing Account</span>
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </Link>
+                  ) : (
+                    <>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSubmitError('')
+                          setStep(selectedRole === 'client' ? 'contact_info' : 'provider_rates')
+                        }}
+                        className="px-3.5 py-1.5 bg-[#053F28] hover:bg-[#043320] text-white rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer"
+                      >
+                        Edit Account Details
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSubmitError('')
+                          setProgressPercent(15)
+                          setActiveProgressTask(0)
+                          setStep('progress')
+                        }}
+                        className="px-3.5 py-1.5 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 rounded-xl text-xs font-semibold transition-all cursor-pointer"
+                      >
+                        Retry Provisioning
+                      </button>
+                    </>
+                  )}
                 </div>
               </div>
             )}
@@ -3454,7 +3474,7 @@ function OnboardingContent() {
             {/* Header Text */}
             <div className="text-center space-y-3 max-w-xl mx-auto">
               <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-[#10B981]/10 text-[#10B981] text-xs font-bold border border-[#10B981]/20">
-                <Sparkles className="w-3.5 h-3.5" />
+                <Check className="w-3.5 h-3.5" />
                 <span>Live Account Provisioning</span>
               </div>
               <h2 className="text-4xl sm:text-6xl lg:text-7xl font-black text-[#0A1020] tracking-tight leading-[1.08]">
@@ -3788,11 +3808,6 @@ function OnboardingContent() {
                   <span className="text-[11px] font-extrabold px-3 py-1 rounded-full bg-[#10B981] text-white">
                     Active
                   </span>
-                  {createdAccountData?.welcomeSparks && (
-                    <span className="text-[10px] font-bold text-amber-600 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full flex items-center gap-1">
-                      <span>⚡ +{createdAccountData.welcomeSparks} Sparks</span>
-                    </span>
-                  )}
                 </div>
               </div>
 

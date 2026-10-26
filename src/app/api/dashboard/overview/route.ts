@@ -42,6 +42,8 @@ export async function GET(request: NextRequest) {
       return `₦${val.toLocaleString('en-NG', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`
     }
 
+    const completedContractsCount = bookings.filter((b) => b.bookingStatus === 'completed').length
+
     const clientMetrics = [
       {
         label: 'Escrow Safeguarded',
@@ -65,11 +67,11 @@ export async function GET(request: NextRequest) {
         color: 'emerald',
       },
       {
-        label: 'AI Sparks Balance',
-        value: `${wallet.sparksBalance} Sparks`,
-        subtext: 'Auto-matching & smart briefs',
-        iconType: 'sparks',
-        color: 'amber',
+        label: 'Completed Projects',
+        value: completedContractsCount.toString(),
+        subtext: 'Safely inspected & settled',
+        iconType: 'shield',
+        color: 'emerald',
       },
     ]
 
@@ -96,11 +98,11 @@ export async function GET(request: NextRequest) {
         color: 'emerald',
       },
       {
-        label: 'AI Sparks Balance',
-        value: `${wallet.sparksBalance} Sparks`,
-        subtext: 'Lead bidding & boost tokens',
-        iconType: 'sparks',
-        color: 'amber',
+        label: 'Completed Jobs',
+        value: completedContractsCount.toString(),
+        subtext: 'Inspected & paid out',
+        iconType: 'star',
+        color: 'emerald',
       },
     ]
 

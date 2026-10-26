@@ -9,10 +9,10 @@ function RegisterRoleRedirect() {
 
   useEffect(() => {
     const role = searchParams.get('role')
-    if (role) {
-      router.replace(`/onboarding?step=role&role=${role}`)
+    if (role === 'provider') {
+      router.replace('/onboarding?step=sector&role=provider')
     } else {
-      router.replace('/onboarding?step=role')
+      router.replace('/onboarding?step=contact_info')
     }
   }, [router, searchParams])
 

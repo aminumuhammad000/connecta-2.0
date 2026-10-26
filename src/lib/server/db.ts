@@ -23,13 +23,16 @@ export interface ServerUserProfile {
   city: string
   currency: string
   avatarUrl?: string | null
+  businessName?: string
   headline?: string
   trade?: string
   category?: string
+  primaryCategory?: string
   bio?: string
   skills?: string[]
   hourlyRateMinor?: number
   workshopAddress?: string
+  ninNumber?: string
   experienceYears?: number
   yearsExperience?: number
   companyName?: string
@@ -38,6 +41,7 @@ export interface ServerUserProfile {
   companyWebsite?: string
   clientIndustry?: string
   clientGoal?: string
+  welcomeSparks?: number
   createdAt: string
   updatedAt: string
 }
@@ -327,18 +331,6 @@ export function readDatabase(): ServerDatabaseSchema {
                 currency: u.currency || 'NGN',
                 updatedAt: new Date().toISOString(),
               })
-
-              db.wallet_transactions.unshift({
-                id: `TX-${Date.now().toString().slice(-6)}`,
-                userId: u.id,
-                title: 'Welcome AI Sparks Bonus',
-                type: 'sparks_grant',
-                amountMinor: u.welcomeSparks || defaultSparks,
-                currency: 'SPARK',
-                status: 'completed',
-                reference: `REG-SPARK-${u.id.slice(0, 8)}`,
-                date: u.createdAt || new Date().toISOString(),
-              })
             }
           }
         }
@@ -458,20 +450,6 @@ export function getOrCreateWallet(userId: string, defaultSparks = 25, currency =
       updatedAt: new Date().toISOString(),
     }
     db.wallets.push(wallet)
-
-    // Record welcome bonus transaction
-    db.wallet_transactions.unshift({
-      id: `TX-${Date.now().toString().slice(-6)}`,
-      userId,
-      title: 'Welcome AI Sparks Bonus',
-      type: 'sparks_grant',
-      amountMinor: defaultSparks,
-      currency: 'SPARK',
-      status: 'completed',
-      reference: `REG-SPARK-${Date.now()}`,
-      date: new Date().toISOString(),
-    })
-
     writeDatabase(db)
   }
   return wallet

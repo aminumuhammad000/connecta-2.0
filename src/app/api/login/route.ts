@@ -1,6 +1,8 @@
 import { NextRequest } from 'next/server'
 import { successResponse, errorResponse } from '@/lib/api/response'
-import { findUserByEmail, readDatabase, upsertUser, ServerUserProfile } from '@/lib/server/db'
+import { findUserByEmail, upsertUser, ServerUserProfile } from '@/lib/server/db'
+import { findUserByEmail as findInStore } from '@/lib/auth/user-store'
+import { createClient } from '@/lib/supabase/server'
 
 export async function POST(request: NextRequest) {
   try {
@@ -12,44 +14,94 @@ export async function POST(request: NextRequest) {
     }
 
     const cleanEmail = email.toLowerCase().trim()
-    const existing = findUserByEmail(cleanEmail)
+    let existing: ServerUserProfile | null = findUserByEmail(cleanEmail)
 
-    let user: ServerUserProfile
-
-    if (existing) {
-      if (existing.password && existing.password !== password) {
-        return errorResponse('Incorrect password. Please verify and try again.', 401)
+    // Check secondary user-store if not found in db cache
+    if (!existing) {
+      const stored = findInStore(cleanEmail)
+      if (stored) {
+        existing = {
+          id: stored.id,
+          fullName: stored.fullName,
+          firstName: stored.firstName,
+          lastName: stored.lastName,
+          email: stored.email,
+          phone: stored.phone || '',
+          whatsapp: stored.whatsapp || stored.phone || '',
+          password: stored.password,
+          role: stored.role === 'provider' ? 'provider' : 'customer',
+          activeRole: stored.role === 'provider' ? 'provider' : 'customer',
+          accountStatus: 'active',
+          country: stored.country || 'Nigeria',
+          city: stored.city || 'Lagos',
+          currency: stored.currency || 'NGN',
+          avatarUrl: stored.avatarUrl,
+          headline: stored.headline,
+          bio: stored.bio,
+          skills: stored.skills,
+          createdAt: stored.createdAt,
+          updatedAt: stored.createdAt,
+        }
+        upsertUser(existing)
       }
-      user = existing
-    } else {
-      // If user doesn't exist yet, register them as an active user
-      const db = readDatabase()
-      const role = cleanEmail.includes('specialist') || cleanEmail.includes('pro') ? 'provider' : 'customer'
-      const parts = cleanEmail.split('@')[0].split('.')
-      const firstName = parts[0] ? parts[0].charAt(0).toUpperCase() + parts[0].slice(1) : 'Connecta'
-      const lastName = parts[1] ? parts[1].charAt(0).toUpperCase() + parts[1].slice(1) : 'Member'
-
-      user = {
-        id: crypto.randomUUID(),
-        fullName: `${firstName} ${lastName}`,
-        firstName,
-        lastName,
-        email: cleanEmail,
-        phone: '+2348000000000',
-        password,
-        role,
-        activeRole: role,
-        accountStatus: 'active',
-        country: 'Nigeria',
-        city: 'Kano',
-        currency: 'NGN',
-        headline: role === 'provider' ? 'Certified Specialist Pro' : 'Hiring Client Workspace',
-        companyName: role === 'customer' ? `${firstName} Holdings` : undefined,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      }
-      upsertUser(user)
     }
+
+    // Check Supabase profiles if not found locally
+    if (!existing) {
+      try {
+        const supabase = await createClient()
+        const { data } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('email', cleanEmail)
+          .maybeSingle()
+
+        if (data) {
+          const role = data.roles?.includes('provider') ? 'provider' : 'customer'
+          existing = {
+            id: data.id,
+            fullName: data.full_name || 'Connecta Member',
+            firstName: data.first_name || 'Connecta',
+            lastName: data.last_name || 'Member',
+            email: data.email,
+            phone: data.phone || '',
+            whatsapp: data.whatsapp || data.phone || '',
+            role,
+            activeRole: role,
+            accountStatus: data.account_status || 'active',
+            country: data.country || 'Nigeria',
+            city: data.city || 'Lagos',
+            currency: data.currency || 'NGN',
+            avatarUrl: data.avatar_url,
+            createdAt: data.created_at,
+            updatedAt: data.updated_at,
+          }
+          upsertUser(existing)
+        }
+      } catch {
+        // Supabase query fallback
+      }
+    }
+
+    // If user does NOT have an account, prompt them to create one
+    if (!existing) {
+      return errorResponse(
+        'No account found with this email address. Please create an account to get started.',
+        404,
+        {
+          code: 'ACCOUNT_NOT_FOUND',
+          requiresRegistration: true,
+          email: cleanEmail,
+        }
+      )
+    }
+
+    // Check password
+    if (existing.password && existing.password !== password) {
+      return errorResponse('Incorrect password. Please verify and try again.', 401)
+    }
+
+    const user = existing
 
     const response = successResponse({
       message: 'Authentication successful. Redirecting to your workspace...',
