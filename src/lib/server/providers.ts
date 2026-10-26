@@ -1,5 +1,6 @@
 import { readDatabase, ServerUserProfile } from './db'
 import { getAllUsers } from '@/lib/auth/user-store'
+import { getCityCoordinatesWithJitter } from '@/lib/geo'
 import fs from 'fs'
 import path from 'path'
 
@@ -49,6 +50,9 @@ export interface PublicProvider {
   verificationStatus: 'verified' | 'unverified'
   avatarUrl?: string | null
   workshopAddress?: string
+  latitude?: number
+  longitude?: number
+  distanceKm?: number
   phone?: string
   whatsapp?: string
   joinedDate: string
@@ -78,6 +82,8 @@ const SEED_PROVIDERS: PublicProvider[] = [
     verificationStatus: 'verified',
     avatarUrl: '/images/services/phone_repair_technician.jpg',
     workshopAddress: 'Shop 14, Farm Centre GSM Village, Kano',
+    latitude: 11.9754,
+    longitude: 8.5385,
     phone: '+2348031234567',
     whatsapp: '+2348031234567',
     joinedDate: '2025-01-15T08:00:00.000Z',
@@ -121,6 +127,8 @@ const SEED_PROVIDERS: PublicProvider[] = [
     verificationStatus: 'verified',
     avatarUrl: '/images/services/nigerian_plumber_jonah.jpg',
     workshopAddress: 'Plot 4B Zoo Road Industrial Layout, Kano',
+    latitude: 11.968,
+    longitude: 8.528,
     phone: '+2348029876543',
     whatsapp: '+2348029876543',
     joinedDate: '2025-02-10T10:00:00.000Z',
@@ -156,6 +164,8 @@ const SEED_PROVIDERS: PublicProvider[] = [
     verificationStatus: 'verified',
     avatarUrl: '/images/services/nigerian_electrician_ibrahim.jpg',
     workshopAddress: '12 Commercial Avenue, Yaba, Lagos',
+    latitude: 6.516,
+    longitude: 3.385,
     phone: '+2348123450987',
     whatsapp: '+2348123450987',
     joinedDate: '2025-01-20T11:00:00.000Z',
@@ -191,6 +201,8 @@ const SEED_PROVIDERS: PublicProvider[] = [
     verificationStatus: 'verified',
     avatarUrl: '/images/services/car_mechanic_repairing_engine.jpg',
     workshopAddress: 'Apo Mechanic Village, Zone E, Abuja',
+    latitude: 9.0068,
+    longitude: 7.4988,
     phone: '+2348076543210',
     whatsapp: '+2348076543210',
     joinedDate: '2025-03-01T09:00:00.000Z',
@@ -226,6 +238,8 @@ const SEED_PROVIDERS: PublicProvider[] = [
     verificationStatus: 'verified',
     avatarUrl: '/images/services/nigerian_specialist_salamah.jpg',
     workshopAddress: 'Bompai Industrial Area, Kano',
+    latitude: 12.023,
+    longitude: 8.548,
     phone: '+2348098761234',
     whatsapp: '+2348098761234',
     joinedDate: '2025-02-18T14:00:00.000Z',
@@ -261,6 +275,8 @@ const SEED_PROVIDERS: PublicProvider[] = [
     verificationStatus: 'verified',
     avatarUrl: '/images/services/nigerian_carpenter_kabiru.jpg',
     workshopAddress: 'Trans-Amadi Industrial Layout, Port Harcourt',
+    latitude: 4.8156,
+    longitude: 7.0498,
     phone: '+2348055566778',
     whatsapp: '+2348055566778',
     joinedDate: '2025-01-28T16:00:00.000Z',
@@ -296,6 +312,8 @@ const SEED_PROVIDERS: PublicProvider[] = [
     verificationStatus: 'verified',
     avatarUrl: '/images/services/electrician_working_on_electrical_panel.jpg',
     workshopAddress: 'Bompai Heavy Industrial Area, Kano',
+    latitude: 12.021,
+    longitude: 8.545,
     phone: '+2348039876541',
     whatsapp: '+2348039876541',
     joinedDate: '2025-01-12T09:00:00.000Z',
@@ -331,6 +349,8 @@ const SEED_PROVIDERS: PublicProvider[] = [
     verificationStatus: 'verified',
     avatarUrl: '/images/services/house_painter_painting_wall.jpg',
     workshopAddress: 'Zoo Road Commercial Corridor, Kano',
+    latitude: 11.965,
+    longitude: 8.529,
     phone: '+2348021122334',
     whatsapp: '+2348021122334',
     joinedDate: '2025-02-05T11:00:00.000Z',
@@ -366,6 +386,8 @@ const SEED_PROVIDERS: PublicProvider[] = [
     verificationStatus: 'verified',
     avatarUrl: '/images/services/cleaning_or_maintenance_technician.jpg',
     workshopAddress: 'Dala Commercial Layout, Kano',
+    latitude: 12.008,
+    longitude: 8.514,
     phone: '+2348067788990',
     whatsapp: '+2348067788990',
     joinedDate: '2025-01-25T14:00:00.000Z',
@@ -399,6 +421,42 @@ function normalizeCategorySlug(category: string): string {
   return 'general-service'
 }
 
+// In-memory store for newly added dynamic client reviews
+const DYNAMIC_REVIEWS_MAP = new Map<string, ProviderReview[]>()
+
+export function addPublicProviderReview(
+  providerId: string,
+  review: {
+    authorName: string
+    rating: number
+    comment: string
+    projectTitle?: string
+  }
+): ProviderReview {
+  const newReview: ProviderReview = {
+    id: `rev-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+    authorName: review.authorName || 'Verified Client',
+    rating: review.rating,
+    comment: review.comment,
+    date: new Date().toISOString().split('T')[0],
+    projectTitle: review.projectTitle || 'Verified Service Milestone',
+  }
+
+  const existing = DYNAMIC_REVIEWS_MAP.get(providerId) || []
+  DYNAMIC_REVIEWS_MAP.set(providerId, [newReview, ...existing])
+
+  // Also update seed provider if in foundational array
+  const seed = SEED_PROVIDERS.find((p) => p.id === providerId)
+  if (seed) {
+    seed.reviews = [newReview, ...seed.reviews]
+    seed.reviewCount = seed.reviews.length
+    const totalRating = seed.reviews.reduce((sum, r) => sum + r.rating, 0)
+    seed.averageRating = Math.round((totalRating / seed.reviews.length) * 100) / 100
+  }
+
+  return newReview
+}
+
 /**
  * Loads all public providers: merges real registered providers from server-db and registered-users.json
  * with the foundational seed artisans.
@@ -429,16 +487,19 @@ export function getAllPublicProviders(filters?: {
           const skills = Array.isArray(u.skills) && u.skills.length > 0 ? u.skills : ['Skilled Craftsmanship', 'Troubleshooting']
           const businessName = u.businessName || `${u.fullName || 'Verified'} Specialist Services`
 
+          const city = u.city || 'Kano'
+          const coords = getCityCoordinatesWithJitter(city, u.id)
+
           providerMap.set(u.id, {
             id: u.id,
             fullName: u.fullName || `${u.firstName || 'Verified'} ${u.lastName || 'Specialist'}`.trim(),
             businessName,
-            headline: u.headline || `${category} Specialist in ${u.city || 'Nigeria'}`,
-            bio: u.bio || `Certified and vetted artisan delivering verified services across ${u.city || 'Nigeria'} backed by Connecta 100% Escrow Safeguards.`,
+            headline: u.headline || `${category} Specialist in ${city}`,
+            bio: u.bio || `Certified and vetted artisan delivering verified services across ${city} backed by Connecta 100% Escrow Safeguards.`,
             category,
             categorySlug,
             skills,
-            city: u.city || 'Kano',
+            city,
             state: u.city ? `${u.city} State` : 'Kano State',
             country: u.country || 'Nigeria',
             hourlyRateMinor: u.hourlyRateMinor || 1500000,
@@ -448,7 +509,9 @@ export function getAllPublicProviders(filters?: {
             experienceYears: 7,
             verificationStatus: 'verified',
             avatarUrl: u.avatarUrl || null,
-            workshopAddress: u.workshopAddress || `${u.city || 'Kano'}, Nigeria`,
+            workshopAddress: u.workshopAddress || `${city}, Nigeria`,
+            latitude: coords.lat,
+            longitude: coords.lng,
             phone: u.phone,
             whatsapp: u.whatsapp || u.phone,
             joinedDate: u.createdAt || new Date().toISOString(),
@@ -483,17 +546,20 @@ export function getAllPublicProviders(filters?: {
 
           // If not already present or if this is the authoritative profile
           if (!providerMap.has(p.id)) {
+            const city = p.city || 'Kano'
+            const coords = getCityCoordinatesWithJitter(city, p.id)
+
             providerMap.set(p.id, {
               id: p.id,
               fullName: p.fullName,
               businessName,
-              headline: p.headline || `${category} Specialist in ${p.city}`,
-              bio: p.bio || `Verified artisan delivering insured services across ${p.city}.`,
+              headline: p.headline || `${category} Specialist in ${city}`,
+              bio: p.bio || `Verified artisan delivering insured services across ${city}.`,
               category,
               categorySlug,
               skills: p.skills || ['General Practice'],
-              city: p.city || 'Kano',
-              state: `${p.city || 'Kano'} State`,
+              city,
+              state: `${city} State`,
               country: p.country || 'Nigeria',
               hourlyRateMinor: p.hourlyRateMinor || 1500000,
               averageRating: 4.92,
@@ -502,7 +568,9 @@ export function getAllPublicProviders(filters?: {
               experienceYears: 6,
               verificationStatus: 'verified',
               avatarUrl: p.avatarUrl || null,
-              workshopAddress: p.workshopAddress || `${p.city}, Nigeria`,
+              workshopAddress: p.workshopAddress || `${city}, Nigeria`,
+              latitude: coords.lat,
+              longitude: coords.lng,
               phone: p.phone,
               whatsapp: p.whatsapp || p.phone,
               joinedDate: p.createdAt || new Date().toISOString(),
@@ -524,6 +592,21 @@ export function getAllPublicProviders(filters?: {
     }
   } catch (err) {
     console.warn('[getAllPublicProviders] Error reading memory DB:', err)
+  }
+
+  // Merge dynamically submitted verified client reviews
+  for (const [providerId, reviews] of DYNAMIC_REVIEWS_MAP.entries()) {
+    const prov = providerMap.get(providerId)
+    if (prov) {
+      const existingIds = new Set(prov.reviews.map((r) => r.id))
+      const toAdd = reviews.filter((r) => !existingIds.has(r.id))
+      if (toAdd.length > 0) {
+        prov.reviews = [...toAdd, ...prov.reviews]
+        prov.reviewCount = prov.reviews.length
+        const totalRating = prov.reviews.reduce((sum, r) => sum + r.rating, 0)
+        prov.averageRating = Math.round((totalRating / prov.reviews.length) * 100) / 100
+      }
+    }
   }
 
   let list = Array.from(providerMap.values())

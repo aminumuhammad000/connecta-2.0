@@ -8,8 +8,7 @@ const FLW_OAUTH_URL = 'https://idp.flutterwave.com/realms/flutterwave/protocol/o
 
 const getSecretKey = () => process.env.FLUTTERWAVE_SECRET_KEY || ''
 const getClientId = () => process.env.FLUTTERWAVE_CLIENT_ID || ''
-const getSecretHash = () =>
-  process.env.FLUTTERWAVE_SECRET_HASH || '550909250e84b035e62a2cdf6f3f002c39f8ee6b0c1eca3a'
+const getSecretHash = () => process.env.FLUTTERWAVE_SECRET_HASH || ''
 
 let cachedToken = ''
 let tokenExpiresAt = 0

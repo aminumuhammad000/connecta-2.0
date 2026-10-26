@@ -45,18 +45,28 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       canonical: `https://myconnecta.ng/discover/${provider.id}`,
     },
     openGraph: {
-      title: `${provider.fullName} | Connecta Verified ${provider.category}`,
-      description: provider.bio,
+      title: `${provider.fullName} | Verified ${provider.category} on Connecta`,
+      description: `${provider.headline} • Rated ${provider.averageRating}/5 (${provider.reviewCount} reviews) • ₦${nairaRate}/hr • Verified in ${provider.city}, Nigeria. 100% Escrow Safeguarded.`,
       url: `https://myconnecta.ng/discover/${provider.id}`,
+      siteName: 'Connecta Nigeria',
+      locale: 'en_NG',
       type: 'profile',
       images: [
         {
           url: provider.avatarUrl || 'https://myconnecta.ng/brand/social/connecta-social-avatar-512.png',
           width: 512,
           height: 512,
-          alt: provider.fullName,
+          alt: `${provider.fullName} - ${provider.category}`,
         },
       ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${provider.fullName} | Verified ${provider.category} on Connecta`,
+      description: `${provider.headline} • ₦${nairaRate}/hr • Verified specialist in ${provider.city}, Nigeria with 100% Escrow Safeguard.`,
+      site: '@ConnectaNG',
+      creator: '@ConnectaNG',
+      images: [provider.avatarUrl || 'https://myconnecta.ng/brand/social/connecta-social-avatar-512.png'],
     },
   }
 }

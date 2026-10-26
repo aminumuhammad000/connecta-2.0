@@ -3,8 +3,7 @@
  */
 
 const GOOGLE_CLIENT_ID =
-  process.env.GOOGLE_CLIENT_ID ||
-  '89671982625-iuj8vlsdjhcntlpdal9nbn6qi4hn01hf.apps.googleusercontent.com'
+  process.env.GOOGLE_CLIENT_ID || process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || ''
 
 export interface GoogleTokenPayload {
   email: string
@@ -29,9 +28,9 @@ export async function verifyGoogleToken(idToken: string): Promise<GoogleTokenPay
       throw new Error(data.error_description || data.error || 'Invalid Google token')
     }
 
-    // Verify audience matches our Client ID
+    // Verify audience matches our Client ID (if configured)
     const aud = data.aud
-    if (aud !== GOOGLE_CLIENT_ID && !aud?.startsWith('89671982625-')) {
+    if (GOOGLE_CLIENT_ID && aud !== GOOGLE_CLIENT_ID) {
       console.warn(`[Google Auth Warning] Audience mismatch: got ${aud}, expected ${GOOGLE_CLIENT_ID}`)
     }
 
