@@ -121,7 +121,23 @@ function LoginContent() {
     }
   }
 
-  const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || ''
+  const googleClientId =
+    process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ||
+    '89671982625-iuj8vlsdjhcntlpdal9nbn6qi4hn01hf.apps.googleusercontent.com'
+
+  // Listen for Google OAuth hash redirect (e.g. /login#id_token=...)
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const hash = window.location.hash
+    if (hash && (hash.includes('id_token=') || hash.includes('credential='))) {
+      const params = new URLSearchParams(hash.replace(/^#/, ''))
+      const idToken = params.get('id_token') || params.get('credential')
+      if (idToken) {
+        window.history.replaceState(null, '', window.location.pathname)
+        handleGoogleCredentialResponse({ credential: idToken })
+      }
+    }
+  }, [])
 
   // Load Google Identity Services script
   useEffect(() => {

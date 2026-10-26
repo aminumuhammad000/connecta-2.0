@@ -105,12 +105,12 @@ const ONBOARDING_SLIDES: OnboardingSlide[] = [
   {
     id: 1,
     badge: '15,000+ Vetted Specialists',
-    title: 'Discover Top African Talent',
-    highlight: '& Collabo Squads',
+    title: 'Discover Top Local Service Artisans',
+    highlight: '& Skilled Technicians',
     description:
-      'Connect instantly with background-checked tech developers, creative designers, electricians, solar engineers, and trade technicians across Africa.',
+      'Connect instantly with background-checked plumbers, electricians, carpenters, solar engineers, and trade technicians across Nigeria.',
     stats: '15,000+',
-    statsLabel: 'Verified Talent',
+    statsLabel: 'Verified Artisans',
     icon: Users,
     cardBg: 'bg-[#0A2614]',
     accentColor: '#10B981',
@@ -347,9 +347,9 @@ const SECTORS: SectorOption[] = [
 
 const CLIENT_INDUSTRIES = [
   {
-    id: 'tech_startup',
-    title: 'Technology & Startups',
-    desc: 'SaaS, mobile apps, AI products, fintech, web platforms & engineering squads.',
+    id: 'residential_commercial',
+    title: 'Residential & Commercial Properties',
+    desc: 'Offices, estates, residences, and retail spaces needing ongoing trade maintenance and repairs.',
     icon: Code,
   },
   {
@@ -400,10 +400,10 @@ const CLIENT_GOALS = [
     icon: Clock,
   },
   {
-    id: 'collabo_team',
-    title: 'Collabo Squad Hiring',
-    desc: 'Assemble a cross-functional squad (e.g. Lead Dev, UI Designer, QA) for a major launch.',
-    tag: 'Multi-Skilled',
+    id: 'multi_trade_team',
+    title: 'Multi-Trade Artisan Team',
+    desc: 'Assemble a combined local trade crew (e.g. Electrician, Certified Plumber, Carpenter) for full property projects.',
+    tag: 'Multi-Trade',
     icon: Users,
   },
   {
@@ -544,7 +544,23 @@ function OnboardingContent() {
     return () => clearInterval(timer)
   }, [otpSent, isEmailVerified, otpResendCountdown])
 
-  const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || ''
+  const googleClientId =
+    process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ||
+    '89671982625-iuj8vlsdjhcntlpdal9nbn6qi4hn01hf.apps.googleusercontent.com'
+
+  // Listen for Google OAuth hash redirect (e.g. /onboarding#id_token=...)
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const hash = window.location.hash
+    if (hash && (hash.includes('id_token=') || hash.includes('credential='))) {
+      const params = new URLSearchParams(hash.replace(/^#/, ''))
+      const idToken = params.get('id_token') || params.get('credential')
+      if (idToken) {
+        window.history.replaceState(null, '', window.location.pathname)
+        handleGoogleOnboardingResponse({ credential: idToken })
+      }
+    }
+  }, [])
 
   // Load Google Identity Services script
   useEffect(() => {
@@ -1621,12 +1637,12 @@ function OnboardingContent() {
                 <div>
                   <h3 className="text-xl sm:text-2xl font-black text-[#0A1020]">I&apos;m a Client</h3>
                   <p className="text-xs sm:text-sm text-slate-600 mt-1.5 leading-relaxed">
-                    Hire background-checked talent, assemble Collabo Squads, and fund escrow milestones.
+                    Hire background-checked plumbers, electricians, carpenters, and technicians with 100% escrow protection.
                   </p>
                 </div>
 
                 <div className="pt-2 border-t border-slate-100 text-xs font-bold text-[#4D78FF] flex items-center gap-1">
-                  <span>Start hiring talent</span>
+                  <span>Start hiring local pros</span>
                   <ArrowRight className="w-3.5 h-3.5" />
                 </div>
               </div>
@@ -2879,7 +2895,7 @@ function OnboardingContent() {
                 Build your specialist profile
               </h1>
               <p className="text-base sm:text-lg lg:text-xl text-slate-600 font-medium max-w-2xl mx-auto leading-relaxed">
-                Presented to clients and Collabo Squad leads when dispatching high-impact projects.
+                Presented to residential households and businesses looking to hire verified local service specialists.
               </p>
             </div>
 
@@ -2924,7 +2940,7 @@ function OnboardingContent() {
                   type="text"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  placeholder="e.g. Master Solar & Inverter Engineer or Senior Full-Stack Developer"
+                  placeholder="e.g. Master Plumber, Precision Electrician, or Solar & Inverter Technician"
                   className="w-full bg-[#F5F7FC] border border-slate-200 rounded-2xl px-5 py-4 text-sm sm:text-base text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#4D78FF] focus:bg-white focus:ring-4 focus:ring-[#4D78FF]/15 transition-all font-medium"
                   required
                 />
@@ -3136,7 +3152,7 @@ function OnboardingContent() {
                 What is your primary hiring goal?
               </h1>
               <p className="text-base sm:text-lg lg:text-xl text-slate-600 font-medium max-w-2xl mx-auto leading-relaxed">
-                Customizes your workspace for one-off tasks, milestone squads, or ongoing retainers.
+                Customizes your workspace for one-off repairs, multi-trade projects, or ongoing facility maintenance.
               </p>
             </div>
 
@@ -3230,7 +3246,7 @@ function OnboardingContent() {
                 Finalize your company profile
               </h1>
               <p className="text-base sm:text-lg lg:text-xl text-slate-600 font-medium max-w-2xl mx-auto leading-relaxed">
-                Help specialists and candidate squads understand your company and work culture.
+                Help local specialists understand your property, facility, or project requirements.
               </p>
             </div>
 
@@ -3737,8 +3753,8 @@ function OnboardingContent() {
               </h1>
               <p className="text-base sm:text-lg lg:text-xl font-medium text-slate-600 max-w-2xl mx-auto leading-relaxed">
                 {selectedRole === 'provider'
-                  ? 'Your trade profile, skills, and verification ledger have been initialized. You can now receive projects and submit itemized milestone quotes.'
-                  : 'Your hiring workspace is live! You can now broadcast project requirements, hire vetted African talent, and assemble Collabo Squads.'}
+                  ? 'Your trade profile, skills, and verification ledger have been initialized. You can now receive local service jobs and submit itemized milestone quotes.'
+                  : 'Your hiring workspace is live! You can now post service requests, hire vetted local artisans and technicians, and fund milestone escrow securely.'}
               </p>
             </div>
 
