@@ -12,6 +12,23 @@ export interface ProviderReview {
   projectTitle: string
 }
 
+export interface FeaturedSpecialist {
+  id: string
+  name: string
+  business: string
+  trade: string
+  location: string
+  rating: number
+  reviews: number
+  jobs: number
+  verified: boolean
+  experience: string
+  avatar: string
+  recentJob: string
+  cardBg: string
+  accentPill: string
+}
+
 export interface PublicProvider {
   id: string
   fullName: string
@@ -59,7 +76,7 @@ const SEED_PROVIDERS: PublicProvider[] = [
     completedJobsCount: 142,
     experienceYears: 10,
     verificationStatus: 'verified',
-    avatarUrl: null,
+    avatarUrl: '/images/services/phone_repair_technician.jpg',
     workshopAddress: 'Shop 14, Farm Centre GSM Village, Kano',
     phone: '+2348031234567',
     whatsapp: '+2348031234567',
@@ -102,7 +119,7 @@ const SEED_PROVIDERS: PublicProvider[] = [
     completedJobsCount: 89,
     experienceYears: 12,
     verificationStatus: 'verified',
-    avatarUrl: null,
+    avatarUrl: '/images/services/nigerian_plumber_jonah.jpg',
     workshopAddress: 'Plot 4B Zoo Road Industrial Layout, Kano',
     phone: '+2348029876543',
     whatsapp: '+2348029876543',
@@ -137,7 +154,7 @@ const SEED_PROVIDERS: PublicProvider[] = [
     completedJobsCount: 164,
     experienceYears: 9,
     verificationStatus: 'verified',
-    avatarUrl: null,
+    avatarUrl: '/images/services/nigerian_electrician_ibrahim.jpg',
     workshopAddress: '12 Commercial Avenue, Yaba, Lagos',
     phone: '+2348123450987',
     whatsapp: '+2348123450987',
@@ -172,7 +189,7 @@ const SEED_PROVIDERS: PublicProvider[] = [
     completedJobsCount: 105,
     experienceYears: 14,
     verificationStatus: 'verified',
-    avatarUrl: null,
+    avatarUrl: '/images/services/car_mechanic_repairing_engine.jpg',
     workshopAddress: 'Apo Mechanic Village, Zone E, Abuja',
     phone: '+2348076543210',
     whatsapp: '+2348076543210',
@@ -207,7 +224,7 @@ const SEED_PROVIDERS: PublicProvider[] = [
     completedJobsCount: 82,
     experienceYears: 8,
     verificationStatus: 'verified',
-    avatarUrl: null,
+    avatarUrl: '/images/services/nigerian_specialist_salamah.jpg',
     workshopAddress: 'Bompai Industrial Area, Kano',
     phone: '+2348098761234',
     whatsapp: '+2348098761234',
@@ -242,7 +259,7 @@ const SEED_PROVIDERS: PublicProvider[] = [
     completedJobsCount: 65,
     experienceYears: 11,
     verificationStatus: 'verified',
-    avatarUrl: null,
+    avatarUrl: '/images/services/nigerian_carpenter_kabiru.jpg',
     workshopAddress: 'Trans-Amadi Industrial Layout, Port Harcourt',
     phone: '+2348055566778',
     whatsapp: '+2348055566778',
@@ -259,18 +276,125 @@ const SEED_PROVIDERS: PublicProvider[] = [
       },
     ],
   },
+  {
+    id: 'b2010000-0000-0000-0000-000000000007',
+    fullName: 'Aliyu Sani',
+    businessName: 'Arewa Generator & PowerTech Overhaul Hub',
+    headline: 'Master Diesel & Petrol Generator Specialist in Kano',
+    bio: 'Over 13 years of heavy generator repair experience specializing in Perkins, Mikano, Cummins, and residential petrol generator overhaul, routine oil servicing, injector calibration, and ATS automatic changeover switches across Kano.',
+    category: 'Generator Repair & Servicing',
+    categorySlug: 'generator-repair',
+    skills: ['Diesel Overhaul', 'ATS Changeover Switches', 'Injector Pump Calibration', 'Generator Servicing', 'Alternator Rewind'],
+    city: 'Kano',
+    state: 'Kano State',
+    country: 'Nigeria',
+    hourlyRateMinor: 1400000, // ₦14,000 / hr
+    averageRating: 4.93,
+    reviewCount: 58,
+    completedJobsCount: 92,
+    experienceYears: 13,
+    verificationStatus: 'verified',
+    avatarUrl: '/images/services/electrician_working_on_electrical_panel.jpg',
+    workshopAddress: 'Bompai Heavy Industrial Area, Kano',
+    phone: '+2348039876541',
+    whatsapp: '+2348039876541',
+    joinedDate: '2025-01-12T09:00:00.000Z',
+    badges: ['Guild Certified', 'Identity Verified', '100% Escrow Safeguard', 'Kano Power Guild'],
+    reviews: [
+      {
+        id: 'rev-108',
+        authorName: 'Malam Kabiru',
+        rating: 5,
+        comment: 'Serviced our 50kVA Perkins genset and wired the ATS box cleanly. Tested under load perfectly.',
+        date: '2026-09-28',
+        projectTitle: '50kVA Generator Overhaul & ATS Automation',
+      },
+    ],
+  },
+  {
+    id: 'b2010000-0000-0000-0000-000000000008',
+    fullName: 'Mustapha Nura',
+    businessName: 'Kano Prime Wall Screeding & Surface Studio',
+    headline: 'Master Architectural Painter & POP Plaster Specialist',
+    bio: 'Professional residential interior and exterior painting, POP plastering, damp-proof waterproofing, satin wall screeding, and spotless post-job site cleanup across Nassarawa, Tarauni, and Fagge in Kano.',
+    category: 'Painting & Wall Finishing',
+    categorySlug: 'painting',
+    skills: ['Satin Wall Screeding', 'POP Plastering', 'Damp Waterproofing', 'Exterior Facades', 'Decorative Coatings'],
+    city: 'Kano',
+    state: 'Kano State',
+    country: 'Nigeria',
+    hourlyRateMinor: 1100000, // ₦11,000 / hr
+    averageRating: 4.91,
+    reviewCount: 44,
+    completedJobsCount: 67,
+    experienceYears: 9,
+    verificationStatus: 'verified',
+    avatarUrl: '/images/services/house_painter_painting_wall.jpg',
+    workshopAddress: 'Zoo Road Commercial Corridor, Kano',
+    phone: '+2348021122334',
+    whatsapp: '+2348021122334',
+    joinedDate: '2025-02-05T11:00:00.000Z',
+    badges: ['Master Guild Painter', 'Identity Audited', '100% Escrow Protected'],
+    reviews: [
+      {
+        id: 'rev-109',
+        authorName: 'Hajiya Fatima',
+        rating: 5,
+        comment: 'Smoothed our interior walls with silk finish screed. Sharp edges around the POP and very tidy workers.',
+        date: '2026-10-04',
+        projectTitle: '4-Bedroom Duplex Interior Painting & POP Screeding',
+      },
+    ],
+  },
+  {
+    id: 'b2010000-0000-0000-0000-000000000009',
+    fullName: 'Shehu Danladi',
+    businessName: 'Dala Structural Tiling & Masonry Works',
+    headline: 'Master Mason, Precision Floor Tiler & Renovation Lead',
+    bio: 'Vetted master mason for precision floor and wall ceramic tiling, compound blocklaying, structural plastering, screeding, and roof leak sealing in Kano metropolitan areas.',
+    category: 'Masonry, Tiling & Renovation',
+    categorySlug: 'construction',
+    skills: ['Ceramic & Granite Tiling', 'Wall Screeding', 'Compound Blockwork', 'Concrete Works', 'Roof Leak Sealing'],
+    city: 'Kano',
+    state: 'Kano State',
+    country: 'Nigeria',
+    hourlyRateMinor: 1250000, // ₦12,500 / hr
+    averageRating: 4.89,
+    reviewCount: 51,
+    completedJobsCount: 78,
+    experienceYears: 11,
+    verificationStatus: 'verified',
+    avatarUrl: '/images/services/cleaning_or_maintenance_technician.jpg',
+    workshopAddress: 'Dala Commercial Layout, Kano',
+    phone: '+2348067788990',
+    whatsapp: '+2348067788990',
+    joinedDate: '2025-01-25T14:00:00.000Z',
+    badges: ['Guild Verified', 'Identity Audited', 'Escrow Insured'],
+    reviews: [
+      {
+        id: 'rev-110',
+        authorName: 'Engr. Sanusi Bello',
+        rating: 5,
+        comment: 'Laid 240 sqm of 60x60 vitrified porcelain tiles with zero uneven edges. Excellent spirit level precision.',
+        date: '2026-09-15',
+        projectTitle: 'Commercial Complex Floor Tiling & Skirting',
+      },
+    ],
+  },
 ]
 
 function normalizeCategorySlug(category: string): string {
   const lower = category.toLowerCase()
   if (lower.includes('plumb')) return 'plumbing'
   if (lower.includes('solar') || lower.includes('electric') || lower.includes('power')) return 'electrical'
-  if (lower.includes('phone') || lower.includes('tablet') || lower.includes('screen')) return 'phone-repair'
-  if (lower.includes('comput') || lower.includes('laptop')) return 'computer-repair'
+  if (lower.includes('generator') || lower.includes('genset')) return 'generator-repair'
+  if (lower.includes('cool') || lower.includes('air') || lower.includes('ac') || lower.includes('hvac')) return 'ac-cooling'
   if (lower.includes('carpent') || lower.includes('wood') || lower.includes('roof')) return 'carpentry'
   if (lower.includes('auto') || lower.includes('mechanic') || lower.includes('car')) return 'auto-mechanic'
   if (lower.includes('paint') || lower.includes('wall')) return 'painting'
-  if (lower.includes('cool') || lower.includes('air') || lower.includes('ac') || lower.includes('hvac')) return 'ac-cooling'
+  if (lower.includes('mason') || lower.includes('tile') || lower.includes('construct') || lower.includes('renovat')) return 'construction'
+  if (lower.includes('phone') || lower.includes('tablet') || lower.includes('screen')) return 'phone-repair'
+  if (lower.includes('comput') || lower.includes('laptop')) return 'computer-repair'
   if (lower.includes('software') || lower.includes('tech') || lower.includes('code') || lower.includes('dev')) return 'tech-software'
   return 'general-service'
 }
@@ -535,4 +659,106 @@ export function generateProviderSchema(provider: PublicProvider, baseUrl: string
       url: baseUrl,
     },
   }
+}
+
+/**
+ * Returns the 4 featured verified specialists seeded in the database with their Cloudinary assets.
+ */
+export function getFeaturedSpecialists(): FeaturedSpecialist[] {
+  try {
+    const db = readDatabase()
+    if (db && Array.isArray(db.profiles)) {
+      const dbFeatured = db.profiles.filter(
+        (p: any) => p.isFeatured || (typeof p.id === 'string' && p.id.startsWith('feat-'))
+      )
+      if (dbFeatured.length >= 4) {
+        return dbFeatured.slice(0, 4).map((p: any) => ({
+          id: p.id,
+          name: p.fullName,
+          business: p.companyName || `${p.fullName} Services`,
+          trade: p.trade || p.headline || 'Certified Specialist',
+          location: p.location || `${p.city || 'Kano'}, Nigeria`,
+          rating: p.rating || 4.98,
+          reviews: p.reviewsCount || 74,
+          jobs: p.completedJobsCount || 118,
+          verified: true,
+          experience: p.experience || `${p.experienceYears || 8} yrs exp`,
+          avatar: p.avatarUrl || 'https://res.cloudinary.com/j0anrwlg/image/upload/v1793023313/connecta/featured_specialists/ibrahim.jpg',
+          recentJob: p.recentJob || 'Commercial Service Milestone Completed',
+          cardBg: p.cardBg || 'bg-[#1E1B4B]',
+          accentPill: p.accentPill || 'bg-[#10B981] text-white',
+        }))
+      }
+    }
+  } catch (err) {
+    console.warn('[getFeaturedSpecialists] fallback to seed', err)
+  }
+
+  // Authoritative fallback with Cloudinary-hosted URLs
+  return [
+    {
+      id: 'feat-ibrahim-aliyu-01',
+      name: 'Ibrahim Aliyu',
+      business: 'Aliyu Power & Solar Systems',
+      trade: 'Master Electrician & Solar Installer',
+      location: 'Kano / Lagos',
+      rating: 4.99,
+      reviews: 74,
+      jobs: 118,
+      verified: true,
+      experience: '8 yrs exp',
+      avatar: 'https://res.cloudinary.com/j0anrwlg/image/upload/v1793023313/connecta/featured_specialists/ibrahim.jpg',
+      recentJob: '30kVA Solar Hybrid Installation & Panel Rewiring',
+      cardBg: 'bg-[#1E1B4B]',
+      accentPill: 'bg-[#10B981] text-white',
+    },
+    {
+      id: 'feat-jonah-blessing-02',
+      name: 'Jonah Blessing',
+      business: 'Apex Fluidics & Plumbing Works',
+      trade: 'Certified Plumber & Pipe Maintenance Lead',
+      location: 'Port Harcourt / Lagos',
+      rating: 4.95,
+      reviews: 64,
+      jobs: 92,
+      verified: true,
+      experience: '7 yrs exp',
+      avatar: 'https://res.cloudinary.com/j0anrwlg/image/upload/v1793023318/connecta/featured_specialists/jonah.jpg',
+      recentJob: 'Commercial Building Pressure Booster & Pipe Overhaul',
+      cardBg: 'bg-[#0A1020]',
+      accentPill: 'bg-[#4D78FF] text-white',
+    },
+    {
+      id: 'feat-kabiru-sani-03',
+      name: 'Kabiru Sani',
+      business: 'Arewa Timber & Bespoke Carpentry',
+      trade: 'Precision Woodwork & Joinery Artisan',
+      location: 'Kano (Sabon Gari)',
+      rating: 4.98,
+      reviews: 82,
+      jobs: 135,
+      verified: true,
+      experience: '12 yrs exp',
+      avatar: 'https://res.cloudinary.com/j0anrwlg/image/upload/v1793023322/connecta/featured_specialists/kabiru.jpg',
+      recentJob: 'Custom Hardwood Office Furniture & Ceiling Framing',
+      cardBg: 'bg-[#2E1A47]',
+      accentPill: 'bg-[#F59E0B] text-white',
+    },
+    {
+      id: 'feat-salamah-othman-04',
+      name: 'Salamah Othman',
+      business: 'Kano Precision Diagnostic Tech',
+      trade: 'Electronic Hardware & Micro-Soldering Specialist',
+      location: 'Kano (Farm Centre)',
+      rating: 4.96,
+      reviews: 58,
+      jobs: 88,
+      verified: true,
+      experience: '6 yrs exp',
+      avatar: 'https://res.cloudinary.com/j0anrwlg/image/upload/v1793023323/connecta/featured_specialists/salamah.jpg',
+      recentJob: 'Multi-brand ECU & Logic Board Diagnostic Repair',
+      cardBg: 'bg-[#0A2614]',
+      accentPill: 'bg-[#10B981] text-white',
+    },
+  ]
 }

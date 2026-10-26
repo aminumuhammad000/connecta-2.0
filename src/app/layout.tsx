@@ -22,20 +22,22 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL("https://myconnecta.ng"),
   title: {
-    default: "Connecta | African Skilled Trades & Digital Professionals",
+    default: "Connecta | Find Trusted Local Service Professionals in Kano",
     template: "%s | Connecta",
   },
   description:
-    "A trusted marketplace linking skilled African professionals across essential trades like plumbing and electrical, alongside digital professions, powered by smart matching and escrow-protected payments.",
+    "Connecta helps you discover local service professionals for home repairs, installations, and everyday maintenance in Kano, Nigeria. Find trusted plumbers, electricians, AC technicians, carpenters, and painters.",
   keywords: [
     "Connecta",
-    "African talent",
-    "plumbing and electrical",
+    "local services Kano",
+    "plumbers in Kano",
+    "electricians in Kano",
+    "AC repair Kano",
+    "carpentry Kano",
+    "painters Kano",
+    "home repairs Kano",
+    "handyman Kano",
     "skilled trades Nigeria",
-    "freelance marketplace Africa",
-    "hire African talent",
-    "escrow payments Nigeria",
-    "verified technicians",
   ],
   alternates: {
     canonical: "https://myconnecta.ng",
@@ -52,9 +54,9 @@ export const metadata: Metadata = {
   },
   manifest: "/brand/app-icons/site.webmanifest",
   openGraph: {
-    title: "Connecta | Skilled Trades & Digital Professionals",
+    title: "Connecta | Find Trusted Local Service Professionals in Kano",
     description:
-      "Find verified plumbers, electricians, repair technicians, software developers, and creatives. Discover vetted services and protected payments.",
+      "Connecta helps you discover local service professionals for home repairs, installations, and everyday maintenance in Kano, Nigeria. Find trusted plumbers, electricians, AC technicians, carpenters, and painters.",
     url: "https://myconnecta.ng",
     siteName: "Connecta",
     images: [
@@ -62,7 +64,7 @@ export const metadata: Metadata = {
         url: "/brand/social/connecta-social-avatar-512.png",
         width: 512,
         height: 512,
-        alt: "Connecta: Verified Service Marketplace",
+        alt: "Connecta: Local Services Marketplace in Kano",
       },
     ],
     locale: "en_NG",

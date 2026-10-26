@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import {
@@ -11,40 +11,71 @@ import {
   CheckCircle2,
   Wrench,
   Zap,
-  Smartphone,
-  Laptop,
   Hammer,
   Car,
   Wind,
-  Code,
+  Paintbrush,
+  HardHat,
   ArrowRight,
-  Filter,
   Sparkles,
   Award,
+  Briefcase,
   ChevronRight,
-  UserCheck,
-  Phone,
-  Mail,
+  ChevronDown,
+  CornerDownRight,
   SlidersHorizontal,
   X,
   Menu,
-  ExternalLink,
+  TrendingUp,
+  Mail,
+  Phone,
+  ArrowUp,
 } from 'lucide-react'
+import { SectionBorderDivider } from '@/components/Connecta3DDecoration'
 import { PublicProvider } from '@/lib/server/providers'
 
 const CATEGORIES = [
-  { slug: 'all', name: 'All Services', icon: Sparkles },
-  { slug: 'electrical', name: 'Solar & Electrical', icon: Zap },
+  { slug: 'all', name: 'All Local Trades', icon: Sparkles },
   { slug: 'plumbing', name: 'Plumbing & Pipes', icon: Wrench },
-  { slug: 'phone-repair', name: 'Phone Repairs', icon: Smartphone },
-  { slug: 'computer-repair', name: 'Computer & Tech', icon: Laptop },
-  { slug: 'auto-mechanic', name: 'Auto Mechanics', icon: Car },
-  { slug: 'ac-cooling', name: 'AC & Cold Chain', icon: Wind },
-  { slug: 'carpentry', name: 'Carpentry & Roofing', icon: Hammer },
-  { slug: 'tech-software', name: 'Software & Web', icon: Code },
+  { slug: 'electrical', name: 'Electrical & Solar', icon: Zap },
+  { slug: 'ac-cooling', name: 'AC & Refrigeration', icon: Wind },
+  { slug: 'carpentry', name: 'Carpentry & Woodwork', icon: Hammer },
+  { slug: 'generator-repair', name: 'Generator Overhaul', icon: Wrench },
+  { slug: 'auto-mechanic', name: 'Auto Diagnostics', icon: Car },
+  { slug: 'painting', name: 'Painting & Screeding', icon: Paintbrush },
+  { slug: 'construction', name: 'Masonry & Tiling', icon: HardHat },
 ]
 
-const CITIES = ['All Cities', 'Kano', 'Lagos', 'Abuja', 'Port Harcourt', 'Ibadan', 'Kaduna']
+interface SearchSuggestion {
+  text: string
+  subtitle?: string
+  category?: string
+  type: 'popular' | 'trade' | 'specialist' | 'service'
+}
+
+const POPULAR_KANO_SUGGESTIONS: SearchSuggestion[] = [
+  { text: 'Plumbing', subtitle: 'Pipes, borehole pumps & leakage repair', category: 'plumbing', type: 'popular' },
+  { text: 'Solar & Inverter', subtitle: 'Panels, hybrid inverters & battery backup', category: 'electrical', type: 'popular' },
+  { text: 'AC Servicing', subtitle: 'Cooling maintenance, gas refill & installations', category: 'ac-cooling', type: 'popular' },
+  { text: 'Generator Overhaul', subtitle: 'Diesel & petrol plant repair & servicing', category: 'generator-repair', type: 'popular' },
+  { text: 'Carpentry', subtitle: 'Furniture, roofing, doors & custom woodwork', category: 'carpentry', type: 'popular' },
+]
+
+const ALL_SEARCH_SUGGESTIONS: SearchSuggestion[] = [
+  ...POPULAR_KANO_SUGGESTIONS,
+  { text: 'Plumbing & Pipes', subtitle: 'Certified plumbers across Kano', category: 'plumbing', type: 'trade' },
+  { text: 'Electrical & Solar', subtitle: 'Wiring, solar setups & power troubleshooting', category: 'electrical', type: 'trade' },
+  { text: 'AC & Refrigeration', subtitle: 'Cold chain, air conditioners & chillers', category: 'ac-cooling', type: 'trade' },
+  { text: 'Carpentry & Woodwork', subtitle: 'Master artisans & roofers', category: 'carpentry', type: 'trade' },
+  { text: 'Generator Overhaul', subtitle: 'Perkins, Mikano, Lister & petrol generator experts', category: 'generator-repair', type: 'trade' },
+  { text: 'Auto Diagnostics', subtitle: 'Vehicle computer scans, ECU & auto mechanics', category: 'auto-mechanic', type: 'trade' },
+  { text: 'Painting & Screeding', subtitle: 'Wall preparation, screeding & luxury paint', category: 'painting', type: 'trade' },
+  { text: 'Masonry & Tiling', subtitle: 'Interlocking tiles, bricklaying & POP ceilings', category: 'construction', type: 'trade' },
+  { text: 'Borehole Submersible Pumps', subtitle: 'High pressure pumps & tanks in Kano', category: 'plumbing', type: 'service' },
+  { text: 'Phone & Micro-Soldering', subtitle: 'Screen repair & logic board micro-soldering', category: 'all', type: 'service' },
+]
+
+const CITIES = ['All Locations', 'Kano', 'Lagos', 'Abuja', 'Kaduna', 'Port Harcourt']
 
 export default function DiscoverClientView({
   initialProviders,
@@ -53,11 +84,149 @@ export default function DiscoverClientView({
 }) {
   const [search, setSearch] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('all')
-  const [selectedCity, setSelectedCity] = useState('All Cities')
+  const [selectedCity, setSelectedCity] = useState('All Locations')
   const [verifiedOnly, setVerifiedOnly] = useState(false)
   const [sortBy, setSortBy] = useState<'rating' | 'reviews' | 'rate_asc' | 'rate_desc'>('rating')
   const [hasAccount, setHasAccount] = useState(false)
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
+  const [isScrolled, setIsScrolled] = useState(false)
+  const [isSuggestionsOpen, setIsSuggestionsOpen] = useState(false)
+  const [highlightedIndex, setHighlightedIndex] = useState(-1)
+  const searchContainerRef = useRef<HTMLDivElement>(null)
+  const searchInputRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 25)
+    }
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    handleScroll()
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (searchContainerRef.current && !searchContainerRef.current.contains(event.target as Node)) {
+        setIsSuggestionsOpen(false)
+        setHighlightedIndex(-1)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [])
+
+  const categoryCounts = useMemo(() => {
+    const counts: Record<string, number> = { all: initialProviders.length }
+    for (const cat of CATEGORIES) {
+      if (cat.slug === 'all') continue
+      counts[cat.slug] = initialProviders.filter(
+        (p) =>
+          p.categorySlug === cat.slug ||
+          p.category.toLowerCase().includes(cat.slug.replace('-', ' '))
+      ).length
+    }
+    return counts
+  }, [initialProviders])
+
+  const dynamicSuggestions = useMemo(() => {
+    const list: SearchSuggestion[] = []
+    for (const p of initialProviders) {
+      if (p.businessName) {
+        list.push({
+          text: p.businessName,
+          subtitle: `${p.category} • ${p.city}`,
+          category: p.categorySlug,
+          type: 'specialist',
+        })
+      }
+      if (p.fullName) {
+        list.push({
+          text: p.fullName,
+          subtitle: `${p.headline} (${p.city})`,
+          category: p.categorySlug,
+          type: 'specialist',
+        })
+      }
+      if (p.skills && p.skills.length > 0) {
+        for (const skill of p.skills.slice(0, 2)) {
+          list.push({
+            text: skill,
+            subtitle: `Specialty under ${p.category}`,
+            category: p.categorySlug,
+            type: 'service',
+          })
+        }
+      }
+    }
+    return list
+  }, [initialProviders])
+
+  const activeSuggestions = useMemo(() => {
+    const query = search.trim().toLowerCase()
+    if (!query) {
+      return POPULAR_KANO_SUGGESTIONS
+    }
+
+    const pool = [...ALL_SEARCH_SUGGESTIONS, ...dynamicSuggestions]
+    const seen = new Set<string>()
+    const startsWith: SearchSuggestion[] = []
+    const contains: SearchSuggestion[] = []
+
+    for (const item of pool) {
+      const key = item.text.toLowerCase()
+      if (seen.has(key)) continue
+
+      if (key.startsWith(query)) {
+        seen.add(key)
+        startsWith.push(item)
+      } else if (
+        key.includes(query) ||
+        (item.subtitle && item.subtitle.toLowerCase().includes(query))
+      ) {
+        seen.add(key)
+        contains.push(item)
+      }
+    }
+
+    return [...startsWith, ...contains].slice(0, 6)
+  }, [search, dynamicSuggestions])
+
+  const handleSelectSuggestion = (suggestion: SearchSuggestion) => {
+    setSearch(suggestion.text)
+    if (suggestion.category && suggestion.category !== 'all') {
+      setSelectedCategory(suggestion.category)
+    }
+    setIsSuggestionsOpen(false)
+    setHighlightedIndex(-1)
+  }
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (!isSuggestionsOpen && (e.key === 'ArrowDown' || e.key === 'ArrowUp')) {
+      setIsSuggestionsOpen(true)
+      return
+    }
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault()
+      setHighlightedIndex((prev) => (prev < activeSuggestions.length - 1 ? prev + 1 : 0))
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault()
+      setHighlightedIndex((prev) => (prev > 0 ? prev - 1 : activeSuggestions.length - 1))
+    } else if (e.key === 'Enter') {
+      if (isSuggestionsOpen && highlightedIndex >= 0 && highlightedIndex < activeSuggestions.length) {
+        e.preventDefault()
+        handleSelectSuggestion(activeSuggestions[highlightedIndex])
+      } else {
+        setIsSuggestionsOpen(false)
+      }
+    } else if (e.key === 'Escape') {
+      setIsSuggestionsOpen(false)
+      setHighlightedIndex(-1)
+    }
+  }
 
   React.useEffect(() => {
     if (mobileNavOpen) {
@@ -107,7 +276,7 @@ export default function DiscoverClientView({
       )
     }
 
-    if (selectedCity !== 'All Cities') {
+    if (selectedCity !== 'All Locations') {
       result = result.filter((p) => p.city.toLowerCase() === selectedCity.toLowerCase())
     }
 
@@ -134,43 +303,87 @@ export default function DiscoverClientView({
   }
 
   return (
-    <div className="min-h-screen bg-[#F5F7FC] text-[#0A1020] flex flex-col justify-between selection:bg-[#10B981]/20">
-      {/* Top Navigation */}
-      <header className="w-full bg-white/95 backdrop-blur-md border-b border-slate-200/70 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-3.5 sm:px-6 h-16 sm:h-18 flex items-center justify-between gap-2 sm:gap-4">
-          <Link href="/" className="flex items-center gap-2 group shrink-0">
-            <div className="relative w-30 h-7 sm:w-44 sm:h-10">
-              <Image
-                src="/brand/svg/connecta-logo.svg"
-                alt="Connecta"
-                fill
-                className="object-contain"
-                priority
-              />
-            </div>
-          </Link>
+    <div className="min-h-screen bg-[#F5F7FC] text-[#0A1020] flex flex-col justify-between selection:bg-[#10B981]/20 relative">
+      {/* Signature Full-Page Halftone Dot Matrix Pattern */}
+      <div
+        className="fixed inset-0 pointer-events-none opacity-[0.09] z-0"
+        style={{
+          backgroundImage: 'radial-gradient(#0A2614 2px, transparent 2px)',
+          backgroundSize: '24px 24px',
+        }}
+      />
 
-          {/* Quick nav links for desktop */}
-          <nav className="hidden md:flex items-center gap-6 text-xs sm:text-sm font-semibold text-slate-600">
-            <Link href="/" className="hover:text-slate-900 transition-colors">
-              Home
+      {/* Unified Professional Floating Header - Exact Match to Landing Page */}
+      <div className="fixed top-0 left-0 right-0 z-50 pt-2 sm:pt-4 px-2.5 sm:px-6 pointer-events-none">
+        <header
+          className={`pointer-events-auto max-w-6xl mx-auto flex items-center justify-between gap-2 sm:gap-4 transition-all duration-300 rounded-full px-3.5 sm:px-6 py-2 sm:py-2.5 ${
+            isScrolled
+              ? 'bg-white/95 backdrop-blur-xl border border-slate-200/90 shadow-[0_10px_30px_rgb(0,0,0,0.08)]'
+              : 'bg-white/85 backdrop-blur-md border border-slate-200/70 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.06)]'
+          }`}
+        >
+          {/* Left: Brand Logo & Minimal Region */}
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+            <Link href="/" className="flex items-center gap-2 sm:gap-2.5 group">
+              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#0C513F] flex items-center justify-center p-1.5 shadow-2xs transition-transform group-hover:scale-105 shrink-0">
+                <div className="relative w-4 h-4 sm:w-4.5 sm:h-4.5">
+                  <Image
+                    src="/brand/connecta-header-icon.svg"
+                    alt="Connecta Icon"
+                    fill
+                    className="object-contain"
+                    priority
+                  />
+                </div>
+              </div>
+              <span className="font-extrabold text-sm sm:text-lg tracking-tight text-[#0A1020]">
+                connecta
+              </span>
             </Link>
-            <Link href="/discover" className="text-emerald-800 font-extrabold">
+
+            <div className="h-4 w-px bg-slate-200 hidden sm:block" />
+
+            <div className="hidden sm:flex items-center gap-1 text-[11px] font-bold text-slate-600 hover:text-slate-900 transition-colors cursor-pointer px-2 py-1 rounded-full hover:bg-slate-100/70">
+              <span className="text-sm leading-none">🇳🇬</span>
+              <span className="font-extrabold text-slate-800">NG</span>
+              <ChevronDown className="w-3 h-3 text-slate-400 stroke-[2.5]" />
+            </div>
+          </div>
+
+          {/* Center Navigation: Clean, borderless links with subtle hover pills */}
+          <nav className="hidden md:flex items-center gap-1 lg:gap-2 text-sm font-semibold text-slate-600">
+            <Link
+              href="/discover"
+              className="px-3.5 py-1.5 rounded-full text-[#0C513F] font-black bg-slate-100/90 shadow-2xs transition-all"
+            >
               Discover
             </Link>
-            <Link href="/#how-it-works" className="hover:text-slate-900 transition-colors">
+            <Link
+              href="/#how-it-works"
+              className="px-3.5 py-1.5 rounded-full hover:text-[#0C513F] hover:bg-slate-100/80 transition-all"
+            >
               How It Works
             </Link>
-            <Link href="/privacy" className="hover:text-slate-900 transition-colors">
-              Trust &amp; Privacy
+            <Link
+              href="/#featured-specialists"
+              className="px-3.5 py-1.5 rounded-full hover:text-[#0C513F] hover:bg-slate-100/80 transition-all"
+            >
+              Specialists
+            </Link>
+            <Link
+              href="/#about"
+              className="px-3.5 py-1.5 rounded-full hover:text-[#0C513F] hover:bg-slate-100/80 transition-all"
+            >
+              About
             </Link>
           </nav>
 
-          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+          {/* Right Action: Clean single primary CTA on desktop, only hamburger menu on mobile */}
+          <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
             {hasAccount ? (
               <Link
                 href="/dashboard"
-                className="text-xs sm:text-sm font-extrabold px-3.5 sm:px-5 py-1.5 sm:py-2.5 rounded-full bg-[#053F28] hover:bg-[#032a1b] text-white shadow-xs hover:shadow-md transition-all hover:scale-105 inline-flex items-center gap-1.5"
+                className="hidden md:inline-flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm font-extrabold text-white bg-[#0C513F] hover:bg-[#083b2e] px-3.5 sm:px-5 py-1.5 sm:py-2.5 rounded-full shadow-xs hover:shadow-md transition-all hover:scale-[1.02] active:scale-[0.98]"
               >
                 <span>Dashboard</span>
                 <ArrowRight className="w-3.5 h-3.5" />
@@ -179,20 +392,21 @@ export default function DiscoverClientView({
               <>
                 <Link
                   href="/login"
-                  className="hidden sm:inline-flex text-xs sm:text-sm font-semibold text-slate-600 hover:text-slate-900 px-3 py-1.5 transition-colors"
+                  className="hidden md:inline-flex items-center text-xs sm:text-sm font-semibold text-slate-700 hover:text-[#0A1020] px-3.5 py-1.5 rounded-full hover:bg-slate-100/80 transition-colors"
                 >
                   Sign In
                 </Link>
+
                 <Link
                   href="/onboarding?step=role"
-                  className="text-xs sm:text-sm font-extrabold px-3.5 sm:px-5 py-1.5 sm:py-2.5 rounded-full bg-[#053F28] hover:bg-[#032a1b] text-white shadow-xs hover:shadow-md transition-all hover:scale-105"
+                  className="hidden md:inline-flex items-center text-xs sm:text-sm font-extrabold text-white bg-[#0C513F] hover:bg-[#083b2e] px-3.5 sm:px-5 py-1.5 sm:py-2.5 rounded-full transition-all shadow-xs hover:shadow-md hover:scale-[1.02] active:scale-[0.98]"
                 >
                   Register
                 </Link>
               </>
             )}
 
-            {/* Mobile Menu Button */}
+            {/* Mobile Menu Button - Sole right element on mobile */}
             <button
               type="button"
               onClick={() => setMobileNavOpen(!mobileNavOpen)}
@@ -203,20 +417,20 @@ export default function DiscoverClientView({
               {mobileNavOpen ? <X className="w-4 h-4 sm:w-5 sm:h-5" /> : <Menu className="w-4 h-4 sm:w-5 sm:h-5" />}
             </button>
           </div>
-        </div>
+        </header>
 
-        {/* Mobile Backdrop */}
+        {/* Backdrop for Mobile Drawer */}
         {mobileNavOpen && (
           <div
-            className="fixed inset-0 bg-black/40 backdrop-blur-xs z-40 md:hidden transition-opacity duration-200"
+            className="fixed inset-0 bg-black/40 backdrop-blur-xs z-40 md:hidden pointer-events-auto transition-opacity duration-200"
             onClick={() => setMobileNavOpen(false)}
             aria-hidden="true"
           />
         )}
 
-        {/* Mobile Dropdown Drawer */}
+        {/* Mobile Dropdown Menu Card */}
         {mobileNavOpen && (
-          <div className="relative z-50 md:hidden mx-3 mt-2 mb-3 bg-white/98 backdrop-blur-2xl border border-slate-200/90 rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.18)] p-4 sm:p-5 flex flex-col gap-1.5 text-sm font-semibold text-slate-800 animate-in fade-in slide-in-from-top-3 duration-200">
+          <div className="pointer-events-auto md:hidden relative z-50 mt-2 w-[calc(100vw-1.5rem)] max-w-sm sm:max-w-md mx-auto bg-white/98 backdrop-blur-2xl border border-slate-200/90 rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.18)] p-4 sm:p-5 flex flex-col gap-1.5 text-sm font-semibold text-slate-800 animate-in fade-in slide-in-from-top-3 duration-200">
             <div className="flex items-center justify-between pb-2.5 mb-1 border-b border-slate-100 text-xs font-bold text-slate-400 uppercase tracking-wider">
               <span>Quick Navigation</span>
               <button
@@ -230,23 +444,13 @@ export default function DiscoverClientView({
             </div>
 
             <Link
-              href="/"
-              onClick={() => setMobileNavOpen(false)}
-              className="px-4 py-3 rounded-2xl hover:bg-emerald-50 hover:text-emerald-900 transition-colors flex items-center justify-between group"
-            >
-              <span className="font-bold text-slate-900 group-hover:text-emerald-900">Home</span>
-              <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-emerald-600 transition-transform group-hover:translate-x-0.5" />
-            </Link>
-
-            <Link
               href="/discover"
               onClick={() => setMobileNavOpen(false)}
-              className="px-4 py-3 rounded-2xl bg-emerald-50 text-emerald-900 font-bold transition-colors flex items-center justify-between"
+              className="px-4 py-3 rounded-2xl bg-emerald-50 text-emerald-950 transition-colors flex items-center justify-between group"
             >
-              <span>Discover Specialists</span>
-              <ChevronRight className="w-4 h-4 text-emerald-600" />
+              <span className="font-extrabold text-[#0C513F]">Discover Specialists</span>
+              <ChevronRight className="w-4 h-4 text-[#10B981] transition-transform group-hover:translate-x-0.5" />
             </Link>
-
             <Link
               href="/#how-it-works"
               onClick={() => setMobileNavOpen(false)}
@@ -255,13 +459,20 @@ export default function DiscoverClientView({
               <span className="font-bold text-slate-900 group-hover:text-emerald-900">How It Works</span>
               <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-emerald-600 transition-transform group-hover:translate-x-0.5" />
             </Link>
-
             <Link
-              href="/privacy"
+              href="/#featured-specialists"
               onClick={() => setMobileNavOpen(false)}
               className="px-4 py-3 rounded-2xl hover:bg-emerald-50 hover:text-emerald-900 transition-colors flex items-center justify-between group"
             >
-              <span className="font-bold text-slate-900 group-hover:text-emerald-900">Trust &amp; Privacy</span>
+              <span className="font-bold text-slate-900 group-hover:text-emerald-900">Specialists</span>
+              <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-emerald-600 transition-transform group-hover:translate-x-0.5" />
+            </Link>
+            <Link
+              href="/#about"
+              onClick={() => setMobileNavOpen(false)}
+              className="px-4 py-3 rounded-2xl hover:bg-emerald-50 hover:text-emerald-900 transition-colors flex items-center justify-between group"
+            >
+              <span className="font-bold text-slate-900 group-hover:text-emerald-900">About Connecta</span>
               <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-emerald-600 transition-transform group-hover:translate-x-0.5" />
             </Link>
 
@@ -300,161 +511,289 @@ export default function DiscoverClientView({
             </div>
           </div>
         )}
-      </header>
+      </div>
 
       {/* Main Discover Container */}
-      <main className="flex-1 pb-16">
-        {/* Hero Search Section */}
-        <section className="bg-gradient-to-b from-white via-emerald-50/25 to-[#F5F7FC] border-b border-slate-200/70 pt-8 sm:pt-12 pb-10 sm:pb-14 px-4">
-          <div className="max-w-6xl mx-auto space-y-5 text-center sm:text-left">
-            <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2.5">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100/90 border border-emerald-200 text-emerald-800 text-xs font-bold uppercase tracking-wider">
-                <ShieldCheck className="w-3.5 h-3.5 text-emerald-700" />
-                <span>Verified Artisan Database</span>
-              </span>
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 text-slate-700 text-xs font-bold">
-                <Award className="w-3.5 h-3.5 text-amber-600" />
-                <span>100% Milestone Escrow Safeguard</span>
-              </span>
-            </div>
+      <main className="relative z-10 flex-1 pt-20 sm:pt-24 pb-16">
+        {/* Hero Search Section - Signature Landing Page Aesthetic with Google Search Suggestions */}
+        <section className="relative py-8 sm:py-10 bg-transparent border-b border-slate-200/80">
+          {/* Background effects container with overflow-hidden */}
+          <div className="absolute inset-0 overflow-hidden pointer-events-none">
+            {/* Ambient Aurora Glows */}
+            <div className="absolute -top-16 left-1/4 -translate-x-1/2 w-[380px] sm:w-[500px] h-[280px] sm:h-[350px] bg-[#1A73E8]/10 rounded-full blur-[100px]" />
+            <div className="absolute top-1/3 right-1/4 translate-x-1/3 w-[400px] sm:w-[520px] h-[300px] sm:h-[380px] bg-[#10B981]/12 rounded-full blur-[110px]" />
+            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 w-[440px] sm:w-[600px] h-[220px] sm:h-[280px] bg-[#F59E0B]/10 rounded-full blur-[90px]" />
+          </div>
 
-            <div className="space-y-2">
-              <h1 className="text-3xl sm:text-5xl font-black text-[#0A1020] tracking-tight leading-tight">
-                Discover Verified Service Providers in Nigeria
-              </h1>
-              <p className="text-sm sm:text-base text-slate-600 max-w-2xl font-normal leading-relaxed">
-                Connect directly with vetted electricians, master plumbers, auto technicians, and phone engineers. Inspect qualifications, compare real transparent rates, and hire with escrow protection.
-              </p>
-            </div>
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 relative z-30 text-center">
+            <h1 className="sr-only">Discover Verified Local Service Professionals in Kano</h1>
 
-            {/* Master Search Bar */}
-            <div className="pt-2 max-w-4xl">
-              <div className="p-2 sm:p-2.5 rounded-2xl sm:rounded-3xl bg-white shadow-lg border border-slate-200 flex flex-col sm:flex-row items-center gap-2">
-                <div className="relative flex-1 w-full flex items-center">
-                  <Search className="w-5 h-5 text-slate-400 absolute left-4 shrink-0" />
+            {/* Master Search Capsule with Google Search-Style Suggestions Dropdown */}
+            <div ref={searchContainerRef} className="relative max-w-3xl mx-auto text-left">
+              <div className="bg-white transition-all duration-200 shadow-xl hover:shadow-2xl border-2 border-slate-900/10 focus-within:border-[#10B981] focus-within:ring-4 focus-within:ring-[#10B981]/15 p-2 sm:p-2.5 pl-4 rounded-2xl sm:rounded-full flex flex-col sm:flex-row items-center gap-2.5">
+                <div className="relative flex-1 w-full flex items-center min-w-0">
+                  <div className="w-9 h-9 rounded-full bg-slate-100 flex items-center justify-center shrink-0 text-[#0A2614] mr-2.5 border border-slate-200/80 shadow-xs">
+                    <Search className="w-4 h-4 stroke-[2.5]" />
+                  </div>
                   <input
+                    ref={searchInputRef}
                     type="text"
                     value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                    placeholder="Search by trade (e.g. Solar, Inverter, Plumbing, iPhone screen) or name..."
-                    className="w-full pl-12 pr-10 py-3 rounded-xl sm:rounded-2xl text-xs sm:text-sm font-semibold text-slate-900 placeholder:text-slate-400 focus:outline-none"
+                    onChange={(e) => {
+                      setSearch(e.target.value)
+                      setIsSuggestionsOpen(true)
+                      setHighlightedIndex(-1)
+                    }}
+                    onFocus={() => setIsSuggestionsOpen(true)}
+                    onKeyDown={handleKeyDown}
+                    placeholder="Search by trade (e.g. Plumber in Kano, Solar, AC Repair, Carpenter) or name..."
+                    className="w-full bg-transparent text-xs sm:text-sm font-semibold text-[#0A1020] placeholder:text-slate-400 focus:outline-none truncate"
                   />
                   {search && (
                     <button
                       type="button"
-                      onClick={() => setSearch('')}
-                      className="absolute right-3 text-slate-400 hover:text-slate-600"
+                      onClick={() => {
+                        setSearch('')
+                        setIsSuggestionsOpen(false)
+                        searchInputRef.current?.focus()
+                      }}
+                      className="w-6 h-6 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 flex items-center justify-center text-xs font-bold shrink-0 transition-colors mr-2 cursor-pointer"
+                      aria-label="Clear search"
                     >
-                      <X className="w-4 h-4" />
+                      ✕
                     </button>
                   )}
                 </div>
 
-                <div className="flex items-center gap-2 w-full sm:w-auto">
-                  {/* City Selector */}
-                  <select
-                    value={selectedCity}
-                    onChange={(e) => setSelectedCity(e.target.value)}
-                    className="px-3 py-3 rounded-xl sm:rounded-2xl border border-slate-200 text-xs font-bold text-slate-700 bg-slate-50 focus:outline-none focus:bg-white"
-                  >
-                    {CITIES.map((c) => (
-                      <option key={c} value={c}>
-                        {c === 'All Cities' ? '📍 All Cities' : `📍 ${c}`}
-                      </option>
-                    ))}
-                  </select>
+                <div className="flex items-center gap-2 w-full sm:w-auto shrink-0">
+                  {/* City Selector with Real MapPin SVG Icon */}
+                  <div className="relative flex items-center w-full sm:w-auto">
+                    <MapPin className="absolute left-3 w-4 h-4 text-[#10B981] pointer-events-none shrink-0" />
+                    <select
+                      value={selectedCity}
+                      onChange={(e) => setSelectedCity(e.target.value)}
+                      className="w-full sm:w-auto pl-9 pr-8 py-2.5 rounded-full border border-slate-200 text-xs font-bold text-slate-700 bg-slate-50 hover:bg-slate-100/80 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#10B981]/30 cursor-pointer appearance-none transition-colors"
+                      aria-label="Filter by location"
+                    >
+                      {CITIES.map((c) => (
+                        <option key={c} value={c}>
+                          {c}
+                        </option>
+                      ))}
+                    </select>
+                    <ChevronDown className="absolute right-2.5 w-3.5 h-3.5 text-slate-400 pointer-events-none shrink-0" />
+                  </div>
 
                   <button
                     type="button"
-                    onClick={() => {
-                      // Focus or refresh search
-                    }}
-                    className="px-5 py-3 rounded-xl sm:rounded-2xl bg-[#053F28] hover:bg-[#032a1b] text-white text-xs sm:text-sm font-extrabold shadow-sm transition-all shrink-0 cursor-pointer"
+                    onClick={() => setIsSuggestionsOpen(false)}
+                    className="w-full sm:w-auto px-6 py-2.5 rounded-full bg-[#0A1020] hover:bg-[#10B981] text-white text-xs sm:text-sm font-extrabold shadow-sm transition-all hover:scale-[1.02] active:scale-[0.98] shrink-0 cursor-pointer"
                   >
-                    Find Pros
+                    Search
                   </button>
                 </div>
               </div>
-            </div>
 
-            {/* Non-Registered Visitor Callout Strip */}
-            <div className="pt-1 flex flex-wrap items-center gap-2 text-xs text-slate-500 font-medium">
-              <span>Looking to hire without browsing?</span>
-              <Link
-                href="/requests/new"
-                className="text-emerald-700 font-bold hover:underline inline-flex items-center gap-1"
-              >
-                <span>Post a free request brief</span>
-                <ArrowRight className="w-3 h-3" />
-              </Link>
-              <span>•</span>
-              <Link
-                href="/onboarding?step=role&role=provider"
-                className="text-slate-700 font-bold hover:underline"
-              >
-                Register as a Specialist
-              </Link>
+              {/* Google Search-Style Suggestions Dropdown */}
+              {isSuggestionsOpen && activeSuggestions.length > 0 && (
+                <div className="absolute top-[calc(100%+8px)] left-0 right-0 z-50 bg-white rounded-2xl sm:rounded-3xl shadow-2xl border border-slate-200/90 overflow-hidden divide-y divide-slate-100 animate-in fade-in slide-in-from-top-1 duration-150">
+                  <div className="flex items-center justify-between px-4 py-2.5 bg-slate-50 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                    <span className="flex items-center gap-1.5">
+                      {search.trim() ? (
+                        <>
+                          <Search className="w-3.5 h-3.5 text-[#10B981]" />
+                          Search Suggestions
+                        </>
+                      ) : (
+                        <>
+                          <TrendingUp className="w-3.5 h-3.5 text-[#10B981]" />
+                          Popular in Kano
+                        </>
+                      )}
+                    </span>
+                    <span className="hidden sm:inline text-[10px] font-normal text-slate-400">
+                      ↑↓ to navigate • ↵ to select • esc to close
+                    </span>
+                  </div>
+
+                  <ul className="py-1 max-h-72 overflow-y-auto">
+                    {activeSuggestions.map((item, idx) => {
+                      const isHighlighted = highlightedIndex === idx
+                      return (
+                        <li key={`${item.text}-${idx}`}>
+                          <button
+                            type="button"
+                            onClick={() => handleSelectSuggestion(item)}
+                            onMouseEnter={() => setHighlightedIndex(idx)}
+                            className={`w-full flex items-center justify-between px-4 py-2.5 text-left transition-colors cursor-pointer group ${
+                              isHighlighted ? 'bg-emerald-50/90 text-emerald-950' : 'hover:bg-slate-50 text-[#0A1020]'
+                            }`}
+                          >
+                            <div className="flex items-center gap-3 min-w-0 pr-3">
+                              <div
+                                className={`w-7 h-7 rounded-full flex items-center justify-center shrink-0 transition-colors ${
+                                  isHighlighted
+                                    ? 'bg-[#10B981] text-white'
+                                    : 'bg-slate-100 text-slate-500 group-hover:bg-[#10B981]/15 group-hover:text-[#0C513F]'
+                                }`}
+                              >
+                                {item.type === 'popular' ? (
+                                  <TrendingUp className="w-3.5 h-3.5" />
+                                ) : (
+                                  <Search className="w-3.5 h-3.5" />
+                                )}
+                              </div>
+                              <div className="min-w-0">
+                                <p className="text-xs sm:text-sm font-bold truncate">
+                                  {item.text}
+                                </p>
+                                {item.subtitle && (
+                                  <p className="text-[11px] text-slate-400 font-medium truncate">
+                                    {item.subtitle}
+                                  </p>
+                                )}
+                              </div>
+                            </div>
+
+                            <div className="shrink-0 flex items-center gap-2">
+                              <span
+                                className={`text-[10px] font-bold px-2 py-0.5 rounded-full transition-colors ${
+                                  isHighlighted
+                                    ? 'bg-emerald-200 text-emerald-900'
+                                    : 'bg-slate-100 text-slate-600 group-hover:bg-slate-200'
+                                }`}
+                              >
+                                {item.type === 'popular'
+                                  ? 'Popular in Kano'
+                                  : item.type === 'trade'
+                                  ? 'Trade'
+                                  : item.type === 'specialist'
+                                  ? 'Verified Pro'
+                                  : 'Service'}
+                              </span>
+                              <ArrowRight
+                                className={`w-3.5 h-3.5 transition-transform ${
+                                  isHighlighted
+                                    ? 'text-[#10B981] translate-x-0.5'
+                                    : 'text-slate-300 group-hover:text-slate-500'
+                                }`}
+                              />
+                            </div>
+                          </button>
+                        </li>
+                      )
+                    })}
+                  </ul>
+
+                  {search.trim() && (
+                    <div className="px-4 py-2.5 bg-slate-50/70 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+                      <button
+                        type="button"
+                        onClick={() => setIsSuggestionsOpen(false)}
+                        className="font-bold text-[#0C513F] hover:underline flex items-center gap-1.5 cursor-pointer"
+                      >
+                        <Search className="w-3.5 h-3.5" />
+                        Search for &ldquo;{search}&rdquo; in {selectedCity}
+                      </button>
+                      <span className="text-[10px] text-slate-400 font-medium">Press ↵</span>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         </section>
 
         {/* Filter Badges & Directory Controls */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-6 sm:pt-8 space-y-6">
-          {/* Category Horizontal Scrolling Pills */}
-          <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
-            {CATEGORIES.map((cat) => {
-              const Icon = cat.icon
-              const isActive = selectedCategory === cat.slug
-              return (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 space-y-6">
+          {/* Category Filter Pills - Modern & Professional */}
+          <div className="bg-white rounded-2xl border border-slate-100/90 shadow-2xs p-3.5 sm:p-4">
+            <div className="flex items-center justify-between pb-3 px-1 border-b border-slate-100 mb-3">
+              <div className="flex items-center gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#10B981]" />
+                <h3 className="text-xs sm:text-sm font-semibold text-slate-800 tracking-tight">
+                  Explore Local Trades
+                </h3>
+                <span className="text-xs font-medium text-slate-400">
+                  • {CATEGORIES.length - 1} Specializations
+                </span>
+              </div>
+              {selectedCategory !== 'all' && (
                 <button
-                  key={cat.slug}
                   type="button"
-                  onClick={() => setSelectedCategory(cat.slug)}
-                  className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
-                    isActive
-                      ? 'bg-[#053F28] text-white shadow-sm'
-                      : 'bg-white hover:bg-slate-100 text-slate-700 border border-slate-200'
-                  }`}
+                  onClick={() => setSelectedCategory('all')}
+                  className="text-xs font-semibold text-[#10B981] hover:text-[#0C513F] transition-colors cursor-pointer"
                 >
-                  <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-emerald-400' : 'text-slate-500'}`} />
-                  <span>{cat.name}</span>
+                  View All
                 </button>
-              )
-            })}
+              )}
+            </div>
+
+            <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-2.5">
+              {CATEGORIES.map((cat) => {
+                const Icon = cat.icon
+                const isActive = selectedCategory === cat.slug
+                const count = categoryCounts[cat.slug] ?? 0
+                return (
+                  <button
+                    key={cat.slug}
+                    type="button"
+                    onClick={() => setSelectedCategory(cat.slug)}
+                    className={`inline-flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-full text-xs sm:text-[13px] font-medium transition-all cursor-pointer ${
+                      isActive
+                        ? 'bg-[#0C513F] text-white shadow-xs'
+                        : 'bg-slate-50/80 hover:bg-slate-100 text-slate-600 hover:text-slate-900 border border-slate-200/60'
+                    }`}
+                  >
+                    <Icon className={`w-3.5 h-3.5 shrink-0 ${isActive ? 'text-[#10B981]' : 'text-slate-400'}`} />
+                    <span className="whitespace-nowrap">{cat.name}</span>
+                    <span
+                      className={`text-[10px] px-1.5 py-0.5 rounded-full font-semibold transition-colors ${
+                        isActive
+                          ? 'bg-white/20 text-white'
+                          : 'bg-slate-200/70 text-slate-500'
+                      }`}
+                    >
+                      {count}
+                    </span>
+                  </button>
+                )
+              })}
+            </div>
           </div>
 
           {/* Sub-Filters and Count Bar */}
-          <div className="flex flex-wrap items-center justify-between gap-4 pb-2 border-b border-slate-200">
+          <div className="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-slate-200">
             <div className="flex items-center gap-3">
-              <span className="text-xs font-black text-slate-900">
+              <span className="text-sm font-black text-slate-900">
                 {filteredProviders.length} Verified Specialist{filteredProviders.length === 1 ? '' : 's'} Found
               </span>
-              {(selectedCategory !== 'all' || selectedCity !== 'All Cities' || search) && (
+              {(selectedCategory !== 'all' || selectedCity !== 'All Locations' || search) && (
                 <button
                   type="button"
                   onClick={() => {
                     setSelectedCategory('all')
-                    setSelectedCity('All Cities')
+                    setSelectedCity('All Locations')
                     setSearch('')
                     setVerifiedOnly(false)
                   }}
-                  className="text-[11px] font-bold text-rose-600 hover:underline cursor-pointer"
+                  className="text-xs font-bold text-rose-600 hover:underline cursor-pointer"
                 >
                   Reset Filters
                 </button>
               )}
             </div>
 
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-4">
               {/* Verified Only Toggle */}
               <label className="flex items-center gap-2 cursor-pointer text-xs font-bold text-slate-700 select-none">
                 <input
                   type="checkbox"
                   checked={verifiedOnly}
                   onChange={(e) => setVerifiedOnly(e.target.checked)}
-                  className="w-4 h-4 rounded-sm text-emerald-600 focus:ring-emerald-500"
+                  className="w-4 h-4 rounded-sm text-[#10B981] focus:ring-[#10B981]"
                 />
-                <span>Guild Verified Only</span>
+                <span>Guild &amp; NIN Verified Only</span>
               </label>
 
               {/* Sort By Dropdown */}
@@ -463,7 +802,7 @@ export default function DiscoverClientView({
                 <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value as any)}
-                  className="px-2.5 py-1.5 rounded-xl border border-slate-200 bg-white font-bold text-slate-700 focus:outline-none"
+                  className="px-3 py-1.5 rounded-full border border-slate-200 bg-white font-bold text-slate-700 focus:outline-none cursor-pointer"
                 >
                   <option value="rating">Highest Rated</option>
                   <option value="reviews">Most Reviews</option>
@@ -474,121 +813,136 @@ export default function DiscoverClientView({
             </div>
           </div>
 
-          {/* Providers Grid */}
+          {/* Providers Grid - Exact Adaptation of usercard.png Style */}
           {filteredProviders.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredProviders.map((provider) => (
                 <article
                   key={provider.id}
-                  className="bg-white rounded-3xl p-6 border border-slate-200/90 shadow-xs hover:shadow-lg transition-all flex flex-col justify-between group"
+                  className="bg-white rounded-[24px] p-3.5 sm:p-4 border border-slate-100 hover:border-slate-200 shadow-2xs hover:shadow-md transition-all duration-300 flex flex-col justify-between group"
                 >
-                  <div className="space-y-4">
-                    {/* Header: Avatar, Name & Location */}
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="flex items-start gap-3">
-                        <div className="relative w-12 h-12 rounded-2xl bg-gradient-to-br from-[#053F28] to-[#10B981] flex items-center justify-center text-white font-black text-lg shadow-xs shrink-0 overflow-hidden">
-                          {provider.avatarUrl ? (
-                            <Image
-                              src={provider.avatarUrl}
-                              alt={provider.fullName}
-                              fill
-                              className="object-cover"
-                            />
-                          ) : (
-                            <span>{provider.fullName.slice(0, 2).toUpperCase()}</span>
-                          )}
+                  <div>
+                    {/* Top Portrait Photo Container */}
+                    <div className="relative w-full aspect-[4/3] rounded-[20px] overflow-hidden bg-slate-100 shrink-0">
+                      <Image
+                        src={provider.avatarUrl || '/brand/social/connecta-social-avatar-512.png'}
+                        alt={provider.fullName}
+                        fill
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                        className="object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+
+                      {/* Signature Circular Country Flag Badge */}
+                      <div
+                        className="absolute bottom-2.5 right-2.5 w-8 h-8 rounded-full border-2 border-white shadow-2xs overflow-hidden flex shrink-0 z-10"
+                        title={`${provider.country || 'Nigeria'} • Verified Resident Specialist`}
+                      >
+                        <span className="w-1/3 h-full bg-[#008751]" />
+                        <span className="w-1/3 h-full bg-white" />
+                        <span className="w-1/3 h-full bg-[#008751]" />
+                      </div>
+                    </div>
+
+                    {/* Information Section */}
+                    <div className="pt-3.5 px-1 space-y-1.5">
+                      {/* Name with Verified Scallop Badge */}
+                      <div>
+                        <div className="flex items-center justify-between gap-2">
+                          <Link
+                            href={`/discover/${provider.id}`}
+                            className="font-bold text-slate-900 text-lg tracking-tight leading-tight hover:text-[#0C513F] transition-colors truncate block"
+                          >
+                            {provider.fullName}
+                          </Link>
                           {provider.verificationStatus === 'verified' && (
-                            <div className="absolute -bottom-1 -right-1 bg-white rounded-full p-0.5 shadow-xs">
-                              <CheckCircle2 className="w-4 h-4 text-emerald-600 fill-emerald-100" />
+                            <div
+                              className="shrink-0 w-4.5 h-4.5 rounded-full bg-[#E11D48] text-white flex items-center justify-center shadow-2xs"
+                              title="Verified Specialist"
+                            >
+                              <svg className="w-2.5 h-2.5 fill-current" viewBox="0 0 24 24">
+                                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
+                              </svg>
                             </div>
                           )}
                         </div>
 
-                        <div>
-                          <Link
-                            href={`/discover/${provider.id}`}
-                            className="font-black text-slate-900 text-base leading-snug group-hover:text-emerald-700 transition-colors block"
-                          >
-                            {provider.businessName}
-                          </Link>
-                          <div className="text-xs text-slate-500 font-medium">
-                            {provider.fullName} • {provider.experienceYears}+ yrs exp
-                          </div>
+                        {/* Specialization / Role Subtitle */}
+                        <p className="text-xs sm:text-[13px] font-medium text-slate-500 pt-0.5">
+                          {provider.category}
+                        </p>
+                      </div>
+
+                      {/* Business & Location Line */}
+                      <div className="flex items-center justify-between text-xs text-slate-500 pt-0.5">
+                        <span className="truncate">{provider.businessName}</span>
+                        <span className="flex items-center gap-1 text-slate-400 shrink-0 ml-2">
+                          <MapPin className="w-3 h-3" />
+                          <span>{provider.city}</span>
+                        </span>
+                      </div>
+
+                      {/* Trimmed Bio Snippet */}
+                      <p className="text-xs text-slate-400 leading-relaxed line-clamp-1">
+                        {provider.headline || provider.bio}
+                      </p>
+
+                      {/* Stats Strip with Clean Icons */}
+                      <div className="flex items-center gap-4 pt-2.5 text-xs sm:text-sm border-t border-slate-100">
+                        <div className="flex items-center gap-1.5 text-slate-600" title={`${provider.reviewCount} reviews`}>
+                          <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-400 shrink-0" />
+                          <span className="font-semibold text-slate-800">{provider.averageRating.toFixed(1)}</span>
+                          <span className="text-[11px] text-slate-400 font-normal">({provider.reviewCount})</span>
+                        </div>
+
+                        <div className="flex items-center gap-1.5 text-slate-600" title={`${provider.completedJobsCount} jobs completed`}>
+                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                          <span className="font-semibold text-slate-800">{provider.completedJobsCount}</span>
+                        </div>
+
+                        <div className="flex items-center gap-1.5 text-slate-600" title={`${provider.experienceYears}+ years experience`}>
+                          <Briefcase className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                          <span className="font-medium text-slate-600">{provider.experienceYears}y</span>
                         </div>
                       </div>
 
-                      {/* City Badge */}
-                      <span className="inline-flex items-center gap-1 text-[11px] font-bold text-slate-600 bg-slate-100 px-2.5 py-1 rounded-full shrink-0">
-                        <MapPin className="w-3 h-3 text-slate-400" />
-                        <span>{provider.city}</span>
-                      </span>
-                    </div>
-
-                    {/* Headline & Category */}
-                    <div className="space-y-1">
-                      <div className="inline-block px-2.5 py-0.5 rounded-md bg-emerald-50 text-emerald-800 text-[11px] font-extrabold uppercase">
-                        {provider.category}
+                      {/* Skills Tags */}
+                      <div className="flex flex-wrap gap-1.5 pt-1">
+                        {provider.skills.slice(0, 3).map((skill, idx) => (
+                          <span
+                            key={idx}
+                            className="text-[10px] font-medium px-2 py-0.5 rounded-md bg-slate-50 text-slate-600 border border-slate-100"
+                          >
+                            {skill}
+                          </span>
+                        ))}
+                        {provider.skills.length > 3 && (
+                          <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-md text-slate-400">
+                            +{provider.skills.length - 3} more
+                          </span>
+                        )}
                       </div>
-                      <h3 className="font-bold text-xs sm:text-sm text-slate-800 leading-snug line-clamp-2">
-                        {provider.headline}
-                      </h3>
-                      <p className="text-xs text-slate-600 leading-relaxed line-clamp-3">
-                        {provider.bio}
-                      </p>
-                    </div>
-
-                    {/* Rating & Stats Strip */}
-                    <div className="flex items-center justify-between text-xs py-2 border-y border-slate-100">
-                      <div className="flex items-center gap-1.5">
-                        <Star className="w-4 h-4 text-amber-500 fill-amber-400" />
-                        <span className="font-black text-slate-900">{provider.averageRating.toFixed(2)}</span>
-                        <span className="text-slate-400 font-medium">({provider.reviewCount})</span>
-                      </div>
-                      <div className="text-slate-500 font-semibold">
-                        <strong className="text-slate-800">{provider.completedJobsCount}</strong> jobs completed
-                      </div>
-                    </div>
-
-                    {/* Top Skills Tags */}
-                    <div className="flex flex-wrap gap-1.5">
-                      {provider.skills.slice(0, 3).map((skill, idx) => (
-                        <span
-                          key={idx}
-                          className="text-[10px] font-bold px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700"
-                        >
-                          {skill}
-                        </span>
-                      ))}
-                      {provider.skills.length > 3 && (
-                        <span className="text-[10px] font-bold px-2 py-1 rounded-lg bg-slate-50 text-slate-400">
-                          +{provider.skills.length - 3} more
-                        </span>
-                      )}
                     </div>
                   </div>
 
-                  {/* Card Bottom: Rate & Direct CTAs */}
-                  <div className="pt-5 mt-4 border-t border-slate-100 flex items-center justify-between gap-3">
-                    <div>
-                      <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                        Starting Rate
-                      </div>
-                      <div className="text-base font-black text-emerald-800">
+                  {/* Card Bottom: Rate & Action Buttons */}
+                  <div className="pt-3 mt-2.5 border-t border-slate-100 flex items-center justify-between gap-3">
+                    <div className="flex items-baseline gap-1" title="Hourly rate">
+                      <span className="text-base sm:text-lg font-bold text-[#0C513F] tracking-tight">
                         {formatNaira(provider.hourlyRateMinor)}
-                        <span className="text-xs text-slate-400 font-normal"> / hr</span>
-                      </div>
+                      </span>
+                      <span className="text-xs font-normal text-slate-400">/hr</span>
                     </div>
 
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 shrink-0">
                       <Link
                         href={`/discover/${provider.id}`}
-                        className="px-3.5 py-2 rounded-full border border-slate-200 hover:border-slate-300 text-slate-700 hover:text-slate-900 text-xs font-bold transition-colors"
+                        className="px-3.5 sm:px-4 py-2 rounded-xl border border-slate-200 hover:border-slate-800 text-slate-700 hover:text-slate-900 hover:bg-slate-50 text-xs sm:text-[13px] font-semibold transition-all shadow-2xs"
                       >
-                        Profile
+                        View Profile
                       </Link>
                       <Link
                         href={`/requests/new?providerId=${provider.id}&category=${encodeURIComponent(provider.category)}`}
-                        className="px-4 py-2 rounded-full bg-[#053F28] hover:bg-[#032a1b] text-white text-xs font-extrabold shadow-sm transition-all hover:scale-105 inline-flex items-center gap-1"
+                        className="px-3.5 sm:px-4 py-2 rounded-xl bg-[#0A1020] hover:bg-[#10B981] text-white text-xs sm:text-[13px] font-semibold shadow-2xs transition-all hover:scale-[1.02] inline-flex items-center gap-1"
                       >
                         <span>Hire</span>
                         <ArrowRight className="w-3 h-3" />
@@ -611,132 +965,254 @@ export default function DiscoverClientView({
                 type="button"
                 onClick={() => {
                   setSelectedCategory('all')
-                  setSelectedCity('All Cities')
+                  setSelectedCity('All Locations')
                   setSearch('')
                   setVerifiedOnly(false)
                 }}
-                className="px-5 py-2.5 rounded-full bg-[#053F28] text-white text-xs font-extrabold"
+                className="px-5 py-2.5 rounded-full bg-[#0A1020] hover:bg-[#10B981] text-white text-xs font-extrabold transition-colors cursor-pointer"
               >
                 Clear All Filters
               </button>
             </div>
           )}
 
-          {/* Bottom Callout Banner for Non-Registered Visitors */}
-          <section className="mt-12 bg-gradient-to-br from-[#062419] to-[#0A3D2A] rounded-3xl p-8 sm:p-10 text-white shadow-xl flex flex-col sm:flex-row items-center justify-between gap-6">
-            <div className="space-y-2 text-center sm:text-left">
-              <span className="text-xs font-bold uppercase tracking-wider text-emerald-300">
-                Are you a skilled technician or tradesperson?
-              </span>
-              <h3 className="text-2xl sm:text-3xl font-black text-white">
-                Join Connecta and Get Discovered by Paying Clients
-              </h3>
-              <p className="text-xs sm:text-sm text-emerald-100/90 max-w-xl">
-                Showcase your certifications, get verified badges, and enjoy 100% guaranteed milestone payments with instant local bank payouts.
-              </p>
-            </div>
-
-            <div className="flex flex-wrap items-center gap-3 shrink-0">
-              <Link
-                href="/onboarding?step=role&role=provider"
-                className="px-6 py-3.5 rounded-full bg-[#10B981] hover:bg-[#059669] text-white text-xs sm:text-sm font-extrabold shadow-md transition-all hover:scale-105"
-              >
-                Join as Specialist
-              </Link>
-              <Link
-                href="/requests/new"
-                className="px-5 py-3.5 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 text-white text-xs sm:text-sm font-extrabold transition-all"
-              >
-                Post a Job Brief
-              </Link>
-            </div>
-          </section>
         </div>
       </main>
 
-      {/* Footer (Full with Social Links & Legal) */}
-      <footer className="w-full bg-white border-t border-slate-200/80 pt-10 pb-8 px-4 sm:px-6">
-        <div className="max-w-7xl mx-auto space-y-8">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 pb-6 border-b border-slate-100">
-            <div className="space-y-1">
-              <div className="relative w-36 h-8">
-                <Image
-                  src="/brand/svg/connecta-logo.svg"
-                  alt="Connecta"
-                  fill
-                  className="object-contain"
-                />
+      {/* Organic Decorative Section Border (Matching Landing Page) */}
+      <SectionBorderDivider flip={true} color="#0A2614" className="-mb-1 relative z-20" />
+
+      {/* ================================================================= */}
+      {/* SIMPLIFIED GREEN FOOTER (EXACT MATCH TO LANDING PAGE FOOTER)       */}
+      {/* ================================================================= */}
+      <footer className="w-full bg-[#0A2614] text-white pt-12 sm:pt-20 pb-10 border-t-2 border-[#10B981]/20 relative overflow-hidden">
+        {/* Halftone / Dot pattern extending full-width */}
+        <div
+          className="absolute inset-0 opacity-[0.04] pointer-events-none"
+          style={{
+            backgroundImage: 'radial-gradient(#FFFFFF 1.5px, transparent 1.5px)',
+            backgroundSize: '20px 20px',
+          }}
+        />
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-start">
+            {/* Left Column: Connecta Brand & Navigation */}
+            <div className="lg:col-span-7 space-y-8">
+              <div className="space-y-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full border-2 border-white flex items-center justify-center font-bold text-xl shrink-0 text-white">
+                    ↓
+                  </div>
+                  <h2 className="text-4xl sm:text-6xl font-black text-white tracking-tight">
+                    Connecta.
+                  </h2>
+                </div>
+                <p className="text-base sm:text-lg font-medium leading-relaxed text-emerald-100/90 max-w-xl">
+                  Connecting households and businesses in Kano and across Nigeria with verified local service professionals — plumbers, electricians, AC technicians, carpenters, and painters — through milestone escrow.
+                </p>
               </div>
-              <p className="text-xs text-slate-500">
-                A verified marketplace linking skilled African professionals with clients worldwide.
-              </p>
+
+              {/* Quick Navigation Links arranged cleanly like a footer */}
+              <div className="space-y-3 pt-2">
+                <p className="text-xs font-bold uppercase tracking-wider text-[#10B981]">
+                  Explore Platform
+                </p>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                  <Link
+                    href="/#services"
+                    className="p-3 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 text-white font-bold text-xs sm:text-sm flex items-center justify-between transition-all hover:scale-[1.02]"
+                  >
+                    <span>Services &amp; Trades</span>
+                    <CornerDownRight className="w-3.5 h-3.5 text-[#10B981]" />
+                  </Link>
+                  <Link
+                    href="/discover"
+                    className="p-3 rounded-2xl bg-white/10 hover:bg-white/15 border border-white/15 text-emerald-300 font-extrabold text-xs sm:text-sm flex items-center justify-between transition-all hover:scale-[1.02]"
+                  >
+                    <span>Discover Pros</span>
+                    <CornerDownRight className="w-3.5 h-3.5 text-[#10B981]" />
+                  </Link>
+                  <Link
+                    href="/#how-it-works"
+                    className="p-3 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 text-white font-bold text-xs sm:text-sm flex items-center justify-between transition-all hover:scale-[1.02]"
+                  >
+                    <span>How It Works</span>
+                    <CornerDownRight className="w-3.5 h-3.5 text-[#10B981]" />
+                  </Link>
+                  <Link
+                    href="/#trust-standard"
+                    className="p-3 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 text-white font-bold text-xs sm:text-sm flex items-center justify-between transition-all hover:scale-[1.02]"
+                  >
+                    <span>Trust &amp; Escrow</span>
+                    <CornerDownRight className="w-3.5 h-3.5 text-[#10B981]" />
+                  </Link>
+                  <Link
+                    href="/#faq"
+                    className="p-3 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 text-white font-bold text-xs sm:text-sm flex items-center justify-between transition-all hover:scale-[1.02]"
+                  >
+                    <span>FAQs</span>
+                    <CornerDownRight className="w-3.5 h-3.5 text-[#10B981]" />
+                  </Link>
+                  <Link
+                    href="/onboarding?step=role"
+                    className="p-3 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 text-white font-bold text-xs sm:text-sm flex items-center justify-between transition-all hover:scale-[1.02]"
+                  >
+                    <span>Get Started</span>
+                    <CornerDownRight className="w-3.5 h-3.5 text-[#10B981]" />
+                  </Link>
+                </div>
+              </div>
+
+              {/* Social Channels & Contact Pill */}
+              <div className="pt-2 flex flex-wrap items-center gap-2.5">
+                <a
+                  href="https://x.com/Connectainc"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 flex items-center justify-center text-white text-sm font-bold transition-all hover:scale-105"
+                  title="Twitter / X (@Connectainc)"
+                >
+                  𝕏
+                </a>
+                <a
+                  href="https://www.facebook.com/profile.php?id=61587476974482"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 flex items-center justify-center text-white text-sm font-bold transition-all hover:scale-105"
+                  title="Facebook (@Connecta)"
+                >
+                  fb
+                </a>
+                <a
+                  href="https://www.instagram.com/connecta_inc"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 flex items-center justify-center text-white text-sm font-bold transition-all hover:scale-105"
+                  title="Instagram (@connecta_inc)"
+                >
+                  ig
+                </a>
+                <a
+                  href="https://www.tiktok.com/@connecta_inc"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 flex items-center justify-center text-white text-xs font-bold transition-all hover:scale-105"
+                  title="TikTok (@connecta_inc)"
+                >
+                  tk
+                </a>
+                <a
+                  href="https://wa.me/2348123456789"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 flex items-center justify-center text-emerald-400 text-xs font-bold transition-all hover:scale-105"
+                  title="WhatsApp (+234 812 345 6789)"
+                >
+                  wa
+                </a>
+                <a
+                  href="mailto:support@myconnecta.ng"
+                  className="text-xs font-bold text-emerald-200 bg-white/10 hover:bg-white/20 border border-white/15 px-3.5 py-2 rounded-full transition-colors flex items-center gap-1.5"
+                >
+                  <Mail className="w-3.5 h-3.5 text-[#10B981]" />
+                  <span>support@myconnecta.ng</span>
+                </a>
+                <a
+                  href="tel:+2348123456789"
+                  className="text-xs font-bold text-emerald-200 bg-white/10 hover:bg-white/20 border border-white/15 px-3.5 py-2 rounded-full transition-colors flex items-center gap-1.5"
+                >
+                  <Phone className="w-3.5 h-3.5 text-[#10B981]" />
+                  <span>+234 812 345 6789</span>
+                </a>
+              </div>
             </div>
 
-            {/* Official Social Links */}
-            <div className="flex flex-wrap items-center gap-2">
-              <a
-                href="https://x.com/Connectainc"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-800 text-xs font-bold transition-all"
-                title="Twitter / X (@Connectainc)"
-              >
-                𝕏
-              </a>
-              <a
-                href="https://www.facebook.com/profile.php?id=61587476974482"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-800 text-xs font-bold transition-all"
-                title="Facebook"
-              >
-                fb
-              </a>
-              <a
-                href="https://www.instagram.com/connecta_inc"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-800 text-xs font-bold transition-all"
-                title="Instagram"
-              >
-                ig
-              </a>
-              <a
-                href="https://www.tiktok.com/@connecta_inc"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-800 text-xs font-bold transition-all"
-                title="TikTok"
-              >
-                tk
-              </a>
-              <a
-                href="https://wa.me/2348123456789"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-9 h-9 rounded-full bg-emerald-50 hover:bg-emerald-100 flex items-center justify-center text-emerald-700 text-xs font-bold transition-all"
-                title="WhatsApp"
-              >
-                wa
-              </a>
+            {/* Right Column: Saturated Emerald Callout Card */}
+            <div className="lg:col-span-5 w-full">
+              <div className="bg-[#10B981] rounded-3xl p-8 sm:p-10 text-[#062419] shadow-2xl min-h-[380px] sm:min-h-[420px] flex flex-col justify-between relative">
+                {/* Deep Green 12-Point Starburst */}
+                <div className="text-[#062419]">
+                  <svg className="w-8 h-8" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2l1.9 3.9 4.3-.6.5 4.3 4 1.7-1.8 3.9 1.8 3.9-4 1.7-.5 4.3-4.3-.6L12 22l-1.9-3.9-4.3.6-.5-4.3-4-1.7 1.8-3.9-1.8-3.9 4-1.7.5-4.3 4.3.6z" />
+                  </svg>
+                </div>
+
+                {/* Main Callout Copy */}
+                <div className="space-y-4 my-auto py-4">
+                  <h3 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight leading-tight text-[#062419]">
+                    Ready to hire or offer services?
+                  </h3>
+                  <p className="text-base sm:text-lg font-semibold leading-relaxed text-[#062419]/90">
+                    Post a project brief in under a minute or create your specialist profile. 100% milestone escrow protection with instant local payouts.
+                  </p>
+                </div>
+
+                {/* Action Buttons inside Card */}
+                <div className="flex flex-wrap items-center gap-3 pt-2">
+                  <Link
+                    href="/requests/new"
+                    className="bg-[#062419] hover:bg-black text-white px-7 py-3.5 rounded-full text-xs sm:text-sm font-extrabold shadow-lg transition-all hover:scale-105 inline-flex items-center gap-2"
+                  >
+                    <span>Post a Request</span>
+                    <CornerDownRight className="w-4 h-4 stroke-[2.5]" />
+                  </Link>
+                  <Link
+                    href="/onboarding?step=role&role=provider"
+                    className="bg-white/20 hover:bg-white/30 border border-[#062419]/25 text-[#062419] px-6 py-3.5 rounded-full text-xs sm:text-sm font-extrabold transition-all"
+                  >
+                    Join as Specialist
+                  </Link>
+                </div>
+
+                {/* Card Bottom Meta Strip */}
+                <div className="mt-8 pt-6 border-t border-[#062419]/20 flex items-center justify-between text-xs font-bold text-[#062419]/80">
+                  <span>100% Escrow Secured</span>
+                  <span>myconnecta.ng</span>
+                </div>
+              </div>
             </div>
           </div>
 
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
-            <p>© 2026 Connecta Technologies Ltd. All rights reserved.</p>
-            <div className="flex items-center gap-4">
-              <Link href="/discover" className="text-emerald-700 font-bold hover:underline">
-                Discover Directory
+          {/* Bottom Status & Copyright Strip */}
+          <div className="mt-16 pt-8 border-t border-white/15 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-emerald-100/70">
+            <div className="flex flex-wrap items-center gap-3">
+              <p>© 2026 Connecta Technologies Ltd. All rights reserved.</p>
+              <span>•</span>
+              <Link href="/discover" className="hover:text-white underline-offset-4 hover:underline transition-colors font-bold text-emerald-300">
+                Discover
               </Link>
               <span>•</span>
-              <Link href="/privacy" className="hover:text-slate-800 hover:underline">
+              <Link href="/privacy" className="hover:text-white underline-offset-4 hover:underline transition-colors">
                 Privacy Policy
               </Link>
               <span>•</span>
-              <Link href="/terms" className="hover:text-slate-800 hover:underline">
+              <Link href="/terms" className="hover:text-white underline-offset-4 hover:underline transition-colors">
                 Terms of Service
               </Link>
             </div>
+
+            <div className="flex items-center gap-3">
+              <span className="flex items-center gap-1.5 text-emerald-300 font-semibold">
+                <span className="w-2 h-2 rounded-full bg-[#10B981] animate-pulse" />
+                <span>Verified Marketplace</span>
+              </span>
+              <span>•</span>
+              <span>Nigeria &amp; Pan-Africa</span>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => {
+                if (typeof window !== 'undefined') {
+                  window.scrollTo({ top: 0, behavior: 'smooth' })
+                }
+              }}
+              className="inline-flex items-center gap-1.5 text-xs font-bold text-white bg-white/10 hover:bg-white/20 px-3.5 py-1.5 rounded-full border border-white/20 transition-all hover:scale-105 cursor-pointer"
+            >
+              <span>Back to top</span>
+              <ArrowUp className="w-3.5 h-3.5" />
+            </button>
           </div>
         </div>
       </footer>

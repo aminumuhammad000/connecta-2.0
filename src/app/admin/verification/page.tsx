@@ -79,11 +79,20 @@ export default function AdminVerificationDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] flex flex-col">
-      <header className="border-b border-slate-200 bg-[#111827] text-white py-4 px-6 sticky top-0 z-30">
+    <div className="min-h-screen bg-[#F5F7FC] flex flex-col font-sans relative">
+      {/* Halftone Dot Matrix Pattern */}
+      <div
+        className="fixed inset-0 opacity-[0.06] pointer-events-none"
+        style={{
+          backgroundImage: 'radial-gradient(#0A2614 2px, transparent 2px)',
+          backgroundSize: '24px 24px',
+        }}
+      />
+
+      <header className="border-b border-slate-800 bg-[#0A1020] text-white py-4 px-6 sticky top-0 z-30">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Link href="/" className="relative w-28 h-7 block">
+            <Link href="/" className="relative w-32 h-8 block">
               <Image
                 src="/brand/svg/connecta-logo-white.svg"
                 alt="Connecta Logo"
@@ -91,12 +100,15 @@ export default function AdminVerificationDashboard() {
                 className="object-contain"
               />
             </Link>
-            <span className="text-xs bg-red-500/20 text-red-400 font-semibold px-2 py-0.5 rounded border border-red-500/30">
-              Admin Portal
-            </span>
+            <Link
+              href="/admin"
+              className="text-xs bg-[#10B981]/20 text-[#10B981] font-extrabold px-3 py-1 rounded-full border border-[#10B981]/30 hover:bg-[#10B981]/30 transition-all inline-flex items-center gap-1.5"
+            >
+              <span>← Command Center</span>
+            </Link>
           </div>
-          <div className="text-xs text-gray-300">
-            Role: <span className="font-semibold text-white">Verification Officer</span>
+          <div className="text-xs text-slate-300">
+            Role: <span className="font-bold text-white">Verification Officer (Kano Hub)</span>
           </div>
         </div>
       </header>

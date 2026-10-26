@@ -24,10 +24,14 @@ export interface ServerUserProfile {
   currency: string
   avatarUrl?: string | null
   headline?: string
+  trade?: string
+  category?: string
   bio?: string
   skills?: string[]
   hourlyRateMinor?: number
   workshopAddress?: string
+  experienceYears?: number
+  yearsExperience?: number
   companyName?: string
   companyBio?: string
   companySize?: string
@@ -163,6 +167,23 @@ export interface ServerDispute {
   notes: string
 }
 
+export interface ServerEmailDispatch {
+  id: string
+  subject: string
+  audienceType: 'all' | 'clients' | 'providers' | 'trade' | 'individual'
+  targetTrade?: string
+  recipientName?: string
+  recipientEmail?: string
+  recipientCount: number
+  category: string
+  message: string
+  ctaText?: string
+  ctaUrl?: string
+  sentAt: string
+  sentBy: string
+  status: 'sent' | 'delivered'
+}
+
 export interface ServerDatabaseSchema {
   profiles: ServerUserProfile[]
   wallets: ServerUserWallet[]
@@ -172,6 +193,7 @@ export interface ServerDatabaseSchema {
   squads: ServerSquad[]
   community_posts: ServerCommunityPost[]
   disputes: ServerDispute[]
+  email_dispatches?: ServerEmailDispatch[]
 }
 
 // =============================================================================
@@ -248,6 +270,7 @@ export function readDatabase(): ServerDatabaseSchema {
       squads: parsed.squads || [],
       community_posts: parsed.community_posts || [],
       disputes: parsed.disputes || [],
+      email_dispatches: parsed.email_dispatches || [],
     }
 
     // Sync from registered-users store if profiles are missing

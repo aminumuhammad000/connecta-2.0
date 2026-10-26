@@ -50,21 +50,20 @@ import { SectionBorderDivider } from '@/components/Connecta3DDecoration'
 import ScrollReveal from '@/components/ScrollReveal'
 
 const DYNAMIC_PHRASES = [
-  "the world's work",
-  'essential trades & skilled services',
-  'technology & programming',
-  'plumbing, solar & electrical',
-  'design & creative projects',
-  'carpentry & home installations',
-  'high-impact Collabo Squads',
+  'trusted local services',
+  'plumbing, pipes & water systems',
+  'electrical wiring & solar inverters',
+  'carpentry, joinery & furniture',
+  'AC servicing & refrigeration repair',
+  'painting, screeding & wall finishes',
+  'everyday home repairs in Kano',
 ]
 
 const TRADE_TABS = [
-  { id: 'all', label: 'All Trades (8)' },
-  { id: 'power', label: 'Electrical & Solar' },
-  { id: 'devices', label: 'Phones & Gadgets' },
-  { id: 'home', label: 'Woodwork & Home' },
-  { id: 'cooling-plumbing', label: 'Cooling & Pipes' },
+  { id: 'all', label: 'All Local Trades (8)' },
+  { id: 'power', label: 'Electrical & Power' },
+  { id: 'cooling-plumbing', label: 'Plumbing & Cooling' },
+  { id: 'home', label: 'Carpentry & Woodwork' },
   { id: 'vehicles', label: 'Auto Diagnostics' },
 ]
 
@@ -84,18 +83,18 @@ const CATEGORIES = [
     tags: ['Solar Sizing', 'Inverters', 'Breakers'],
   },
   {
-    name: 'Phone & Tablet Repair',
-    slug: 'phone-repair',
-    group: 'devices',
-    image: '/images/services/phone_repair_technician.jpg',
-    alt: 'Technician repairing smartphone motherboard and screen',
-    desc: 'Screens, battery replacements, charging ports, board micro-soldering',
-    badge: 'Same Day',
+    name: 'Generator Repair & Servicing',
+    slug: 'generator-repair',
+    group: 'power',
+    image: '/images/services/car_mechanic_repairing_engine.jpg',
+    alt: 'Technician servicing generator engine and electrical components',
+    desc: 'Diesel & petrol generator overhaul, routine servicing, ATS changeover',
+    badge: 'Essential',
     badgeColor: 'bg-[#10B981] text-white',
-    speed: 'Under 1 hr repair',
+    speed: 'Same-day callout',
     themeBg: 'bg-[#0A1020]',
     accentColor: '#4D78FF',
-    tags: ['OLED Screens', 'TrueTone', 'Motherboards'],
+    tags: ['Diesel Servicing', 'ATS Switches', 'Carburetors'],
   },
   {
     name: 'Carpentry & Woodwork',
@@ -126,18 +125,18 @@ const CATEGORIES = [
     tags: ['Gas Top-Up', 'Compressors', 'Duct Flushing'],
   },
   {
-    name: 'Computer & Laptop Repair',
-    slug: 'computer-repair',
-    group: 'devices',
-    image: '/images/services/computer_repair_technician.jpg',
-    alt: 'Technician repairing laptop hardware in workshop',
-    desc: 'Hardware upgrades, OS reinstallation, screens & thermal paste fixes',
-    badge: 'Bench Lab',
+    name: 'Masonry, Tiling & Roofing',
+    slug: 'construction',
+    group: 'home',
+    image: '/images/services/cleaning_or_maintenance_technician.jpg',
+    alt: 'Technician inspecting wall, tile and roof surfaces',
+    desc: 'Floor and wall tiling, blocklaying, screeding, roof leak repairs',
+    badge: 'Structural',
     badgeColor: 'bg-[#8B7CFF] text-white',
-    speed: 'Hardware diagnostic',
+    speed: 'Quality materials',
     themeBg: 'bg-[#1E1B4B]',
     accentColor: '#8B7CFF',
-    tags: ['Thermal Paste', 'NVMe SSDs', 'Diagnostics'],
+    tags: ['Floor Tiling', 'Wall Screeding', 'Roof Leaks'],
   },
   {
     name: 'Auto Mechanics & Diagnostics',
@@ -171,7 +170,7 @@ const CATEGORIES = [
     name: 'Plumbing & Pipe Maintenance',
     slug: 'plumbing',
     group: 'cooling-plumbing',
-    image: '/images/services/cleaning_or_maintenance_technician.jpg',
+    image: '/images/services/nigerian_plumber_jonah.jpg',
     alt: 'Maintenance specialist working on piping equipment',
     desc: 'Water pipe leaks, borehole pumps, kitchen & bathroom installations',
     badge: 'Emergency Ready',
@@ -202,18 +201,18 @@ const TRADE_ACCORDION_ITEMS = {
       icon: 'storefront',
     },
     {
-      id: 'phone-gadgets',
-      slug: 'phone-repair',
-      title: 'Smart Devices & Gadgets',
-      desc: 'Fast same-day repairs for cracked smartphone screens, genuine high-capacity battery replacements, logic-board micro-soldering, and certified diagnostics.',
+      id: 'generator-power',
+      slug: 'generator-repair',
+      title: 'Generator & Power Systems',
+      desc: 'Expert technicians for diesel and petrol generator overhauls, routine oil servicing, ATS automatic transfer switch installation, and domestic power backup.',
       bg: 'bg-[#FCECB2]',
       textColor: 'text-[#B45309]',
-      tags: ['OLED Screens', 'TrueTone Transfer', 'Battery Health 100%', 'Board Micro-Soldering', 'Charging Ports'],
-      image: '/images/services/nigerian_specialist_salamah.jpg',
-      alt: 'Phone technician repairing smartphone in display lab',
-      artisanName: 'Garba Danbatta',
-      artisanTitle: 'Display & Board Specialist',
-      artisanRating: '4.92 ★ (64 reviews)',
+      tags: ['Diesel Engines', 'ATS Changeover', 'Carburetor Cleaning', 'Oil & Filter Change', 'Starter Motor'],
+      image: '/images/services/car_mechanic_repairing_engine.jpg',
+      alt: 'Technician servicing diesel generator engine',
+      artisanName: 'Balarabe Lawan',
+      artisanTitle: 'Master Generator Mechanic',
+      artisanRating: '4.93 ★ (56 reviews)',
       icon: 'basket',
     },
     {
@@ -279,18 +278,18 @@ const TRADE_ACCORDION_ITEMS = {
       icon: 'basket',
     },
     {
-      id: 'computer-repair',
-      slug: 'computer-repair',
-      title: 'Computers & Hardware Labs',
-      desc: 'Hardware bench repairs, NVMe SSD speed upgrades, screen replacements, thermal paste re-application, logic-board diagnostics, and clean OS restoration.',
+      id: 'masonry-renovation',
+      slug: 'construction',
+      title: 'Masonry, Tiling & Renovation',
+      desc: 'Experienced masons and tilers for blocklaying, floor and wall ceramic tiling, structural screeding, lintels, and compound wall repairs across Kano neighborhoods.',
       bg: 'bg-[#98C7FF]',
       textColor: 'text-[#1D4ED8]',
-      tags: ['Thermal Paste Service', 'NVMe SSD Upgrades', 'Laptop Displays', 'BIOS Diagnostics', 'Data Recovery'],
-      image: '/images/services/computer_repair_technician.jpg',
-      alt: 'Technician repairing laptop motherboard in workshop',
-      artisanName: 'Hamza Tech',
-      artisanTitle: 'Computer Hardware Specialist',
-      artisanRating: '4.89 ★ (31 reviews)',
+      tags: ['Ceramic Tiling', 'Wall Screeding', 'Compound Blockwork', 'Flooring Touchups', 'Lintel Alignment'],
+      image: '/images/services/cleaning_or_maintenance_technician.jpg',
+      alt: 'Mason working on property screeding and tiling',
+      artisanName: 'Shehu Danladi',
+      artisanTitle: 'Master Mason & Tiler',
+      artisanRating: '4.91 ★ (39 reviews)',
       icon: 'bottle',
     },
     {
@@ -381,7 +380,7 @@ function renderAccordionTradeIcon(icon: string) {
 
 const FEATURED_PROVIDERS = [
   {
-    id: 'p1',
+    id: 'feat-ibrahim-aliyu-01',
     name: 'Ibrahim Aliyu',
     business: 'Aliyu Power & Solar Systems',
     trade: 'Master Electrician & Solar Installer',
@@ -391,13 +390,13 @@ const FEATURED_PROVIDERS = [
     jobs: 118,
     verified: true,
     experience: '8 yrs exp',
-    avatar: '/images/services/nigerian_electrician_ibrahim.jpg',
+    avatar: 'https://res.cloudinary.com/j0anrwlg/image/upload/v1793023313/connecta/featured_specialists/ibrahim.jpg',
     recentJob: '30kVA Solar Hybrid Installation & Panel Rewiring',
     cardBg: 'bg-[#1E1B4B]',
     accentPill: 'bg-[#10B981] text-white',
   },
   {
-    id: 'p2',
+    id: 'feat-jonah-blessing-02',
     name: 'Jonah Blessing',
     business: 'Apex Fluidics & Plumbing Works',
     trade: 'Certified Plumber & Pipe Maintenance Lead',
@@ -407,13 +406,13 @@ const FEATURED_PROVIDERS = [
     jobs: 92,
     verified: true,
     experience: '7 yrs exp',
-    avatar: '/images/services/nigerian_plumber_jonah.jpg',
+    avatar: 'https://res.cloudinary.com/j0anrwlg/image/upload/v1793023318/connecta/featured_specialists/jonah.jpg',
     recentJob: 'Commercial Building Pressure Booster & Pipe Overhaul',
     cardBg: 'bg-[#0A1020]',
     accentPill: 'bg-[#4D78FF] text-white',
   },
   {
-    id: 'p3',
+    id: 'feat-kabiru-sani-03',
     name: 'Kabiru Sani',
     business: 'Heritage Woodwork & Precision Joinery',
     trade: 'Master Carpenter & Architectural Joiner',
@@ -423,42 +422,42 @@ const FEATURED_PROVIDERS = [
     jobs: 140,
     verified: true,
     experience: '10 yrs exp',
-    avatar: '/images/services/nigerian_carpenter_kabiru.jpg',
+    avatar: 'https://res.cloudinary.com/j0anrwlg/image/upload/v1793023322/connecta/featured_specialists/kabiru.jpg',
     recentJob: 'Custom Office Cabinetry & Acoustical Timber Paneling',
     cardBg: 'bg-[#D97706]',
     accentPill: 'bg-[#0A1020] text-white',
   },
   {
-    id: 'p4',
+    id: 'feat-salamah-othman-04',
     name: 'Salamah Othman',
-    business: 'MicroTech Hardware Diagnostics',
-    trade: 'Device Diagnostics & Electronics Technician',
-    location: 'Lagos, Nigeria',
+    business: 'Kano Climate & Refrigeration Hub',
+    trade: 'AC Technician & Refrigeration Specialist',
+    location: 'Kano, Nigeria',
     rating: 4.96,
     reviews: 58,
     jobs: 88,
     verified: true,
     experience: '6 yrs exp',
-    avatar: '/images/services/nigerian_specialist_salamah.jpg',
-    recentJob: 'Multi-Board Micro-soldering & Logic Diagnostic Repair',
+    avatar: 'https://res.cloudinary.com/j0anrwlg/image/upload/v1793023323/connecta/featured_specialists/salamah.jpg',
+    recentJob: 'Split Unit Multi-Zone Inverter AC Servicing & Leak Sealing',
     cardBg: 'bg-[#064E3B]',
     accentPill: 'bg-[#10B981] text-white',
   },
 ]
 
 const WHO_CONNECTA_SERVES = [
-  { title: 'Clients & Global Startups', color: 'bg-[#0A1020] text-white' },
-  { title: 'Freelancers & Independent Pros', color: 'bg-[#2E1A47] text-white' },
-  { title: 'Collabo Squads & Teams', color: 'bg-[#4D78FF] text-white' },
-  { title: 'Technology & Programming', color: 'bg-[#10B981] text-white' },
-  { title: 'Design & Creative Pros', color: 'bg-[#F59E0B] text-white' },
-  { title: 'Marketing & Sales Experts', color: 'bg-[#0A1020] text-white' },
-  { title: 'Business & Finance Talent', color: 'bg-[#8B7CFF] text-white' },
-  { title: 'Writing & Translation', color: 'bg-[#10B981] text-white' },
-  { title: 'Hospitality & Events Crews', color: 'bg-[#F59E0B] text-white' },
-  { title: 'Health & Fitness Coaches', color: 'bg-[#4D78FF] text-white' },
-  { title: 'Education & Training Tutors', color: 'bg-[#2E1A47] text-white' },
-  { title: 'Remote & Onsite Talent', color: 'bg-[#064E3B] text-white' },
+  { title: 'Homeowners & Residents', color: 'bg-[#0A1020] text-white' },
+  { title: 'Tenants & Landlords', color: 'bg-[#2E1A47] text-white' },
+  { title: 'Independent Local Artisans', color: 'bg-[#4D78FF] text-white' },
+  { title: 'Plumbers & Pipefitters', color: 'bg-[#10B981] text-white' },
+  { title: 'Electricians & Solar Techs', color: 'bg-[#F59E0B] text-white' },
+  { title: 'Carpenters & Furniture Makers', color: 'bg-[#0A1020] text-white' },
+  { title: 'AC & Refrigeration Pros', color: 'bg-[#8B7CFF] text-white' },
+  { title: 'Painters & Wall Decorators', color: 'bg-[#10B981] text-white' },
+  { title: 'Automotive Mechanics', color: 'bg-[#F59E0B] text-white' },
+  { title: 'Generator Repair Technicians', color: 'bg-[#4D78FF] text-white' },
+  { title: 'Masons, Tilers & Roofers', color: 'bg-[#2E1A47] text-white' },
+  { title: 'Local Handymen & Cleaners', color: 'bg-[#064E3B] text-white' },
 ]
 
 const TRUST_GUARANTEES = [
@@ -487,16 +486,16 @@ const THREE_STAGES = [
   {
     number: '01',
     title: 'Describe The Work',
-    desc: 'Post a project or tell Connecta AI what you need in plain words. Specify milestones, deliverables, requirements, and budget without complicated forms.',
+    desc: 'Post a repair request or describe what you need in plain words. Specify the problem, address in Kano, and your budget without complicated forms.',
     cardBg: 'bg-[#1E1B4B]',
     accentColor: '#10B981',
-    footerMeta: 'Plain English Brief · AI Prompt Engine',
+    footerMeta: 'Plain English Brief · Local Matching',
     icon: Search,
   },
   {
     number: '02',
     title: 'Get Matched & Fund Escrow',
-    desc: 'AI surfaces the best-fit freelancers or Collabo Squads ranked by real fit in seconds. Fund milestones up front so talent starts knowing money is secured.',
+    desc: 'Connecta surfaces top-rated local plumbers, electricians, or technicians nearby. Secure the job budget in escrow so work starts with total confidence.',
     cardBg: 'bg-[#10B981]',
     accentColor: '#FFFFFF',
     footerMeta: 'Transparent Fit Score · Escrow Vault',
@@ -504,8 +503,8 @@ const THREE_STAGES = [
   },
   {
     number: '03',
-    title: 'Collaborate, Approve & Release',
-    desc: 'Work in a shared project workspace with real-time chat, file sharing, and task tracking. Review deliverables, release escrow, and cash out to local accounts.',
+    title: 'Inspect, Approve & Release',
+    desc: 'Your artisan arrives and completes the work. Inspect the finished job, approve the milestone, and release payment directly to the provider’s account.',
     cardBg: 'bg-[#0A1020]',
     accentColor: '#4D78FF',
     footerMeta: 'Instant Local Payouts · 2-Way Reviews',
@@ -516,25 +515,25 @@ const THREE_STAGES = [
 const REVIEWS = [
   {
     quote:
-      'We needed commercial solar inverters installed and custom boardroom cabinetry built. Through Connecta, we matched with a verified master electrician and certified carpenter within hours. The escrow release gave us total confidence.',
+      'We had an emergency water tank overflow and broken pipe valve in Nassarawa GRA, Kano. Through Connecta, we matched with a verified plumber who arrived within 40 minutes and fixed it cleanly. Milestone escrow gave us total peace of mind.',
     author: 'Zainab Adeyemi',
-    neighborhood: 'Managing Director, Marula & Co · Lagos, Nigeria',
+    neighborhood: 'Homeowner · Nassarawa GRA, Kano',
     cardBg: 'bg-[#1E1B4B]',
     rating: 5,
   },
   {
     quote:
-      'Whether you need a licensed plumber for your residence or a software engineer for your startup, Connecta brings genuine verified talent with milestone protection and instant local withdrawals.',
-    author: 'Kwame Ochieng',
-    neighborhood: 'Senior Tech Consultant · Nairobi / Lagos',
+      'Finding a trustworthy electrician for inverter wiring in Kano used to mean endless phone calls and uncertain quality. Connecta connected us with Ibrahim, who did a flawless job with clear pricing and zero hassle.',
+    author: 'Alhaji Kabir Bello',
+    neighborhood: 'Business Owner · Bompai Industrial Area, Kano',
     cardBg: 'bg-[#0A1020]',
     rating: 5,
   },
   {
     quote:
-      'Finding verified diagnostic technicians and skilled developers used to take weeks of guesswork. Connecta verified professionals delivered the job on time, with payment released only after thorough inspection.',
+      'Our office split AC units were blowing hot air during the hottest week. Connecta technician diagnosed the compressor and recharged refrigerant the very same afternoon. Payment was released only after thorough inspection.',
     author: 'Amina Diallo',
-    neighborhood: 'Operations Director, Sahel Logistics · Dakar, Senegal',
+    neighborhood: 'Facility Manager · Tarauni, Kano',
     cardBg: 'bg-[#D97706]',
     rating: 5,
   },
@@ -543,51 +542,51 @@ const REVIEWS = [
 const FAQS = [
   {
     q: 'How do I create an account?',
-    a: 'Download the Connecta app or sign up on the web, then choose your account type: client, specialist, or both. Creating an account is free and takes under a minute.',
+    a: 'Sign up on the web or mobile in under a minute. Choose whether you want to find a service professional or join as a local service provider.',
   },
   {
-    q: 'Is Connecta only for digital tech professionals?',
-    a: "Not at all. Connecta covers essential skilled trades like plumbing, electrical and solar installations, AC repair, carpentry and auto mechanics, alongside digital fields like software engineering, design, marketing and finance. Whether you need an experienced plumber or a full-stack engineer, Connecta has verified professionals ready.",
+    q: 'What local services are available on Connecta?',
+    a: "Connecta focuses on essential local trades including plumbing, electrical wiring, solar inverter installation, AC and refrigeration repair, carpentry, painting and wall finishing, generator maintenance, auto diagnostics, and general home repairs in Kano and across Nigeria.",
   },
   {
     q: 'How does identity verification work?',
-    a: "You will be guided through a quick verification step that confirms your government-issued identity. Once approved, you earn a verification badge that appears on your profile and builds instant trust with clients.",
+    a: "Every local provider undergoes government-issued identity checks and trade verification. Once approved, an official trust badge appears on their profile so you can hire with total confidence.",
   },
   {
     q: 'How does escrow protect my payment?',
-    a: 'Clients fund milestones up front. The money is held securely and released to the specialist only when the client approves the completed work. Nobody chases invoices, and nobody works unprotected.',
+    a: 'Customers fund milestones up front into a protected escrow vault. The money is only released to the service provider after you inspect and approve the completed work. You never pay upfront for incomplete repairs.',
   },
   {
-    q: 'When and how do I get paid?',
-    a: 'Payments release the moment a milestone is approved, landing directly in your Connecta wallet. From there you can cash out straight to local bank accounts across Africa where available.',
+    q: 'When and how do service providers get paid?',
+    a: 'Payments release the moment a customer approves the completed job, landing directly in your Connecta wallet. From there you can cash out straight to any Nigerian commercial bank account.',
   },
   {
-    q: 'What happens if a project goes wrong?',
-    a: "Every project has a clear resolution process. You can open a dispute with evidence, and our trust and safety team reviews it fairly. Funds stay protected in escrow until the dispute is resolved.",
+    q: 'What happens if a job has issues or is incomplete?',
+    a: "Every project has a clear resolution process. You can submit photos and evidence, and our team reviews it fairly. Funds stay protected in escrow until the dispute is resolved.",
   },
   {
-    q: 'What are Collabo Squads?',
-    a: 'A Collabo Squad is a team of specialists who combine complementary skills into one profile, tackle projects too big for one person, and get paid as a team with automatic, fair splits.',
+    q: 'Can tradespeople collaborate on larger projects?',
+    a: 'Yes. With Collabo Squads, multiple skilled tradespeople (such as an electrician, a plumber, and a carpenter) can team up for full property renovations, with payments automatically split to each artisan upon milestone approval.',
   },
   {
-    q: 'Where can I download the app?',
-    a: 'The Connecta app is available on the App Store and Google Play for iOS and Android, with smart matching, real-time chat, and an escrow wallet built in.',
+    q: 'Is Connecta free to join for customers and providers?',
+    a: 'Yes. Joining Connecta and browsing local professionals is completely free. Providers do not pay expensive monthly subscriptions to see job requests in their area.',
   },
 ]
 
 const SEARCH_SUGGESTIONS = [
-  { query: 'Plumbing & Emergency Pipe Repairs', category: 'Plumbing & Cooling' },
-  { query: 'Solar Inverter & Electrical Installation', category: 'Electrical & Power' },
-  { query: 'Custom Woodwork & Furniture Joinery', category: 'Carpentry & Home' },
-  { query: 'Phone, Tablet & Laptop Hardware Diagnostics', category: 'Devices & Gadgets' },
-  { query: 'React & Mobile App Developer', category: 'Technology & Programming' },
-  { query: 'Brand Identity & UI/UX Designer', category: 'Design & Creative' },
-  { query: 'Social Media & Growth Marketer', category: 'Marketing & Sales' },
-  { query: 'Auto Diagnostics & Engine Mechanic', category: 'Auto & Mobility' },
-  { query: 'Financial Modeling & Bookkeeper', category: 'Business & Finance' },
-  { query: 'Collabo Squad for Brand & Office Launch', category: 'Collabo Squads' },
-  { query: 'Full-Stack Node.js Engineer', category: 'Technology & Programming' },
-  { query: 'Motion Graphics & Video Animator', category: 'Design & Creative' },
+  { query: 'Plumbing & Emergency Pipe Leak Repair', category: 'Plumbing & Water' },
+  { query: 'Solar Inverter & House Electrical Wiring', category: 'Electrical & Power' },
+  { query: 'Air Conditioning Servicing & Gas Refill', category: 'AC & Cooling' },
+  { query: 'Carpentry & Custom Furniture Joinery', category: 'Carpentry & Wood' },
+  { query: 'Generator Repair & ATS Changeover Switch', category: 'Generator & Power' },
+  { query: 'Interior Wall Painting & POP Plastering', category: 'Painting & Finishing' },
+  { query: 'Borehole Submersible Pump Extraction & Repair', category: 'Plumbing & Water' },
+  { query: 'Car Engine Diagnostics & Brake Service', category: 'Auto Mechanics' },
+  { query: 'Floor Tiling, Screeding & Grouting', category: 'Masonry & Tiling' },
+  { query: 'Roof Leak Repair & Ceiling Restoration', category: 'Roofing & Handyman' },
+  { query: 'Deep Home Cleaning & Fumigation Service', category: 'Cleaning & Care' },
+  { query: 'Door Lock Replacement & General Handyman', category: 'Handyman Services' },
 ]
 
 interface PopularCardItem {
@@ -597,14 +596,14 @@ interface PopularCardItem {
 }
 
 const POPULAR_CARDS: PopularCardItem[] = [
-  { name: 'Web Design', iconColor: '#FFC406', iconType: 'starburst' },
-  { name: 'UI/UX Design', iconColor: '#FF874E', iconType: 'dome' },
-  { name: 'Solar & Inverter', iconColor: '#09C17E', iconType: 'sparkle' },
-  { name: 'Frontend React', iconColor: '#FFB2CD', iconType: 'arch' },
   { name: 'Plumbing', iconColor: '#38BDF8', iconType: 'diamond' },
-  { name: 'Brand Identity', iconColor: '#A855F7', iconType: 'flower' },
-  { name: 'AC Servicing', iconColor: '#2DD4BF', iconType: 'crystal' },
-  { name: 'Auto Mechanic', iconColor: '#F59E0B', iconType: 'circle' },
+  { name: 'Electrical Wiring', iconColor: '#FFC406', iconType: 'starburst' },
+  { name: 'AC & Refrigeration', iconColor: '#2DD4BF', iconType: 'crystal' },
+  { name: 'Carpentry', iconColor: '#FF874E', iconType: 'dome' },
+  { name: 'Solar & Inverters', iconColor: '#09C17E', iconType: 'sparkle' },
+  { name: 'Painting & POP', iconColor: '#A855F7', iconType: 'flower' },
+  { name: 'Auto Mechanics', iconColor: '#F59E0B', iconType: 'circle' },
+  { name: 'Generator Repair', iconColor: '#FFB2CD', iconType: 'arch' },
 ]
 
 function PopularCardIcon({ type, color }: { type: PopularCardItem['iconType']; color: string }) {
@@ -680,6 +679,20 @@ export default function HomePage() {
   const [isScrolled, setIsScrolled] = useState(false)
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
   const [hasAccount, setHasAccount] = useState(false)
+  const [featuredSpecialists, setFeaturedSpecialists] = useState(FEATURED_PROVIDERS)
+
+  useEffect(() => {
+    fetch('/api/providers/featured')
+      .then((res) => res.json())
+      .then((res) => {
+        if (res.success && Array.isArray(res.data) && res.data.length >= 4) {
+          setFeaturedSpecialists(res.data)
+        }
+      })
+      .catch((err) => {
+        console.warn('Featured specialists fetch error:', err)
+      })
+  }, [])
 
   useEffect(() => {
     try {
@@ -798,7 +811,7 @@ export default function HomePage() {
               url: 'https://myconnecta.ng',
               logo: 'https://myconnecta.ng/brand/connecta-header-icon.svg',
               description:
-                "Connecting businesses and households with verified African tradespeople and digital professionals, backed by smart matchmaking and milestone escrow security.",
+                "Connecting households and businesses in Kano, Nigeria with verified local service professionals — plumbers, electricians, AC technicians, carpenters, and painters — backed by milestone escrow security.",
               sameAs: [
                 'https://x.com/Connectainc',
                 'https://www.facebook.com/profile.php?id=61587476974482',
@@ -898,12 +911,12 @@ export default function HomePage() {
             </Link>
           </nav>
 
-          {/* Right Action: Clean single primary CTA */}
+          {/* Right Action: Clean single primary CTA on desktop, only hamburger menu on mobile */}
           <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
             {hasAccount ? (
               <Link
                 href="/dashboard"
-                className="inline-flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm font-extrabold text-white bg-[#0C513F] hover:bg-[#083b2e] px-3.5 sm:px-5 py-1.5 sm:py-2.5 rounded-full shadow-xs hover:shadow-md transition-all hover:scale-[1.02] active:scale-[0.98]"
+                className="hidden md:inline-flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm font-extrabold text-white bg-[#0C513F] hover:bg-[#083b2e] px-3.5 sm:px-5 py-1.5 sm:py-2.5 rounded-full shadow-xs hover:shadow-md transition-all hover:scale-[1.02] active:scale-[0.98]"
               >
                 <span>Dashboard</span>
                 <ArrowRight className="w-3.5 h-3.5" />
@@ -912,21 +925,21 @@ export default function HomePage() {
               <>
                 <Link
                   href="/login"
-                  className="hidden sm:inline-flex items-center text-xs sm:text-sm font-semibold text-slate-700 hover:text-[#0A1020] px-3.5 py-1.5 rounded-full hover:bg-slate-100/80 transition-colors"
+                  className="hidden md:inline-flex items-center text-xs sm:text-sm font-semibold text-slate-700 hover:text-[#0A1020] px-3.5 py-1.5 rounded-full hover:bg-slate-100/80 transition-colors"
                 >
                   Sign In
                 </Link>
 
                 <Link
                   href="/onboarding?step=role"
-                  className="inline-flex items-center text-xs sm:text-sm font-extrabold text-white bg-[#0C513F] hover:bg-[#083b2e] px-3.5 sm:px-5 py-1.5 sm:py-2.5 rounded-full transition-all shadow-xs hover:shadow-md hover:scale-[1.02] active:scale-[0.98]"
+                  className="hidden md:inline-flex items-center text-xs sm:text-sm font-extrabold text-white bg-[#0C513F] hover:bg-[#083b2e] px-3.5 sm:px-5 py-1.5 sm:py-2.5 rounded-full transition-all shadow-xs hover:shadow-md hover:scale-[1.02] active:scale-[0.98]"
                 >
                   Register
                 </Link>
               </>
             )}
 
-            {/* Mobile Menu Button */}
+            {/* Mobile Menu Button - Sole right element on mobile */}
             <button
               type="button"
               onClick={() => setMobileNavOpen(!mobileNavOpen)}
@@ -1040,20 +1053,20 @@ export default function HomePage() {
           ref={heroRef}
           className="relative min-h-[85vh] sm:min-h-[90vh] w-full flex flex-col justify-center items-center overflow-hidden pt-24 pb-12 sm:pt-28 sm:pb-16 lg:pt-32 lg:pb-20 bg-[#F5F7FC]"
         >
-          {/* Layer 1: Connecta Signature Halftone Dot Matrix Pattern (Full Visibility, No Opacity) */}
+          {/* Layer 1: Connecta Signature Halftone Dot Matrix Pattern */}
           <div
-            className="absolute inset-0 pointer-events-none"
+            className="absolute inset-0 opacity-[0.08] pointer-events-none"
             style={{
               backgroundImage: 'radial-gradient(#0A2614 2px, transparent 2px)',
               backgroundSize: '24px 24px',
             }}
           />
 
-          {/* Layer 2: Concentric AI Matchmaking & Collabo Squad Orbital Rings */}
+          {/* Layer 2: Concentric Matchmaking Orbital Rings */}
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none select-none">
             {/* Outer Ring */}
             <div className="w-[840px] sm:w-[980px] h-[840px] sm:h-[980px] rounded-full border border-slate-900/[0.035] flex items-center justify-center">
-              {/* Mid Ring (Dashed AI Matching Radius) */}
+              {/* Mid Ring (Dashed Matching Radius) */}
               <div className="w-[620px] sm:w-[720px] h-[620px] sm:h-[720px] rounded-full border border-dashed border-emerald-500/[0.08] flex items-center justify-center relative">
                 {/* Orbiting Talent Node Marker (Amber) */}
                 <div className="absolute top-10 right-28 w-2 h-2 rounded-full bg-[#F59E0B]/50 shadow-sm" />
@@ -1078,11 +1091,16 @@ export default function HomePage() {
             <div className="max-w-4xl mx-auto text-center space-y-4 sm:space-y-6">
               {/* Hero Heading Styled with Connecta Brand Colors */}
               <h1 className="text-3xl sm:text-5xl lg:text-6xl xl:text-7xl font-extrabold tracking-tight text-[#0A1020] leading-[1.12] sm:leading-[1.08]">
-                African talent, woven into{' '}
+                Find Trusted Local Professionals,{' '}
                 <span className="bg-gradient-to-r from-[#1A73E8] via-[#10B981] to-[#F59E0B] bg-clip-text text-transparent font-black">
-                  high-impact Collabo Squads
+                  ready for any job in Kano.
                 </span>
               </h1>
+
+              {/* Subtitle */}
+              <p className="text-base sm:text-lg lg:text-xl font-medium leading-relaxed text-slate-600 max-w-2xl mx-auto">
+                Connecta connects you with vetted plumbers, electricians, AC technicians, carpenters, and skilled artisans across Kano. Identity verified, honest reviews, and milestone escrow security.
+              </p>
 
               {/* Search Capsule with Real-time Suggestions Dropdown */}
               <div ref={searchContainerRef} className="pt-1 sm:pt-2 max-w-3xl mx-auto relative z-40 w-full">
@@ -1108,7 +1126,7 @@ export default function HomePage() {
                       }}
                       onFocus={() => setIsSearchFocused(true)}
                       onKeyDown={handleKeyDown}
-                      placeholder="Describe what you need (e.g. Plumber in Lagos, Solar Installer, UI/UX Designer, React Dev)..."
+                      placeholder="Describe what you need (e.g. Plumber for pipe leak, Electrician, AC Repair, Carpenter)..."
                       className="w-full bg-transparent text-xs sm:text-sm md:text-base text-[#0A1020] font-medium placeholder:text-slate-400 focus:outline-none truncate"
                     />
                     {searchQuery && (
@@ -1128,7 +1146,7 @@ export default function HomePage() {
                     href={`/requests/new?q=${encodeURIComponent(searchQuery)}`}
                     className="inline-flex items-center gap-1.5 sm:gap-2 rounded-full bg-[#0A1020] hover:bg-[#10B981] px-4 sm:px-7 py-2.5 sm:py-3.5 text-xs sm:text-sm font-extrabold text-white transition-all hover:scale-[1.02] active:scale-[0.98] shrink-0 shadow-md group"
                   >
-                    <span>Find Talent</span>
+                    <span>Find a Professional</span>
                     <span className="text-[#F5A623] group-hover:text-white transition-colors">
                       <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M12 2l1.9 3.9 4.3-.6.5 4.3 4 1.7-1.8 3.9 1.8 3.9-4 1.7-.5 4.3-4.3-.6L12 22l-1.9-3.9-4.3.6-.5-4.3-4-1.7 1.8-3.9-1.8-3.9 4-1.7.5-4.3 4.3.6z" />
@@ -1145,7 +1163,7 @@ export default function HomePage() {
                       {!searchQuery.trim() && (
                         <div className="px-5 py-2 text-[11px] font-extrabold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
                           <Sparkles className="w-3 h-3 text-[#F59E0B]" />
-                          <span>Trending Searches in Nigeria</span>
+                          <span>Trending Services in Kano &amp; Nigeria</span>
                         </div>
                       )}
                       {suggestions.map((item, idx) => {
@@ -1226,7 +1244,7 @@ export default function HomePage() {
                     </div>
                     <div className="flex items-center gap-1.5">
                       <span className="font-black text-white tracking-tight">2,548+</span>
-                      <span className="text-white/90 font-medium">Professionals Onboard</span>
+                      <span className="text-white/90 font-medium">Local Artisans Onboard</span>
                     </div>
                   </div>
 
@@ -1236,8 +1254,8 @@ export default function HomePage() {
                       <Globe className="w-3 h-3 stroke-[2.5]" />
                     </div>
                     <div className="flex items-center gap-1.5">
-                      <span className="font-black text-white tracking-tight">2+</span>
-                      <span className="text-white/90 font-medium">Countries Represented</span>
+                      <span className="font-black text-white tracking-tight">Kano</span>
+                      <span className="text-white/90 font-medium">&amp; Key Northern Hubs</span>
                     </div>
                   </div>
 
@@ -1330,7 +1348,7 @@ export default function HomePage() {
                 </h2>
               </div>
               <p className="text-base sm:text-lg font-medium leading-relaxed text-slate-600">
-                What we believe and what we&apos;re building across Africa.
+                Why we are organizing trusted local trade services in Kano and across Nigeria.
               </p>
             </div>
             </ScrollReveal>
@@ -1348,12 +1366,12 @@ export default function HomePage() {
                     </h3>
                   </div>
                   <p className="text-base sm:text-lg leading-relaxed font-medium text-white/95">
-                    A single place where anyone can find work or hire talent across any field, with the trust rails of identity verification, genuine reviews, and milestone escrow that make continent-wide and cross-border work actually work. Opportunity should follow skill, not postcode.
+                    A single trusted marketplace where every homeowner, tenant, and business in Kano can easily discover, evaluate, and hire verified local service professionals — plumbers, electricians, AC technicians, carpenters, and painters — backed by identity verification, genuine reviews, and milestone escrow security.
                   </p>
                 </div>
                 <div className="mt-8 pt-6 border-t border-white/20 flex items-center justify-between text-xs font-bold text-white/90">
-                  <span>Connecta Ecosystem</span>
-                  <span>Pan-African Talent</span>
+                  <span>Connecta Local Trades</span>
+                  <span>Kano &amp; Nationwide</span>
                 </div>
               </div>
 
@@ -1367,11 +1385,11 @@ export default function HomePage() {
                     </h3>
                   </div>
                   <p className="text-base sm:text-lg leading-relaxed font-medium text-white/95">
-                    Connecta began with a simple conviction: talent is everywhere on the continent, but access to good work is not. We are closing that gap across both essential skilled trades and modern digital careers, empowering African professionals and global clients with smart discovery and protected payments.
+                    Connecta began with a simple conviction: finding a reliable artisan shouldn&apos;t depend on informal contacts or unverified referrals. We connect customers with qualified local trade professionals for installations, emergency repairs, and everyday property maintenance with transparent discovery and protected payments.
                   </p>
                 </div>
                 <div className="mt-8 pt-6 border-t border-white/20 flex items-center justify-between text-xs font-bold text-white/90">
-                  <span>Built for Clients &amp; Freelancers</span>
+                  <span>Built for Customers &amp; Providers</span>
                   <span>100% Escrow Secured</span>
                 </div>
               </div>
@@ -1384,20 +1402,20 @@ export default function HomePage() {
               <div className="bg-[#D97706] text-white rounded-2xl p-6 sm:p-8 shadow-md space-y-3">
                 <div className="flex items-center gap-2">
                   <CornerDownRight className="w-6 h-6 text-white shrink-0 stroke-[2.5]" />
-                  <h4 className="text-lg font-bold">Continent-Wide Reach:</h4>
+                  <h4 className="text-lg font-bold">Local Neighborhood Reach:</h4>
                 </div>
                 <p className="text-xs sm:text-sm text-white/90 leading-relaxed">
-                  Talent from every region of Africa, working locally in your neighborhood or internationally online, bridging skilled professionals directly with clients worldwide.
+                  Verified local artisans near you across Kano municipal districts and key Nigerian cities, ready for same-day emergency callouts or planned home installations.
                 </p>
               </div>
 
               <div className="bg-[#10B981] text-white rounded-2xl p-6 sm:p-8 shadow-md space-y-3">
                 <div className="flex items-center gap-2">
                   <CornerDownRight className="w-6 h-6 text-white shrink-0 stroke-[2.5]" />
-                  <h4 className="text-lg font-bold">Every Sector Covered:</h4>
+                  <h4 className="text-lg font-bold">Every Essential Trade:</h4>
                 </div>
                 <p className="text-xs sm:text-sm text-white/90 leading-relaxed">
-                  Essential physical trades and digital fields: plumbing, electrical, carpentry, auto care, software, design, marketing, finance, and events.
+                  Hands-on skilled trades: plumbing, electrical wiring, carpentry, AC &amp; refrigeration, painting, generator servicing, masonry, tiling, and auto repairs.
                 </p>
               </div>
 
@@ -1407,7 +1425,7 @@ export default function HomePage() {
                   <h4 className="text-lg font-bold">Built on Real Trust:</h4>
                 </div>
                 <p className="text-xs sm:text-sm text-white/90 leading-relaxed">
-                  Verified identities, honest two-way reviews, and escrow-protected payments on every milestone so strangers work together safely.
+                  Verified identities, honest customer ratings, and milestone escrow protection so you never pay upfront for incomplete repairs.
                 </p>
               </div>
             </div>
@@ -1441,7 +1459,7 @@ export default function HomePage() {
                     </h2>
                   </div>
                   <p className="text-base sm:text-lg font-medium leading-relaxed text-emerald-100/90 max-w-2xl">
-                    Whether you are hiring qualified tradespeople for your property, contracting digital talent for your company, or forming a multi-skilled Collabo Squad to take on bigger briefs, Connecta is built for the way you work.
+                    Whether you are a homeowner needing emergency repairs, a property manager renovating an apartment, or a skilled local tradesperson looking to reach more paying customers in Kano, Connecta is built for you.
                   </p>
                 </div>
 
@@ -1472,11 +1490,11 @@ export default function HomePage() {
                   ↓
                 </div>
                 <h2 className="text-3xl sm:text-5xl lg:text-7xl font-black tracking-tight text-[#0A1020] leading-[1.08]">
-                  Built for Modern Work
+                  Built for Dependable Local Service
                 </h2>
               </div>
               <p className="text-base sm:text-lg lg:text-xl font-medium leading-relaxed text-slate-600 max-w-2xl pl-0 sm:pl-16">
-                Connecting skilled trades and digital professionals across Africa through intelligent matching, verified trust, and collaborative squads.
+                Connecting households and businesses with verified local service professionals through intelligent matching, verified trust, and transparent pricing.
               </p>
             </div>
           </ScrollReveal>
@@ -1491,7 +1509,7 @@ export default function HomePage() {
                     <Wrench className="w-9 h-9" />
                   </div>
                   <div className="w-24 h-24 rounded-full bg-[#4D78FF]/25 border border-[#4D78FF]/50 flex items-center justify-center text-[#93C5FD] -ml-4 shadow-xl backdrop-blur-xs">
-                    <Laptop className="w-9 h-9" />
+                    <Hammer className="w-9 h-9" />
                   </div>
                 </div>
               </div>
@@ -1499,10 +1517,10 @@ export default function HomePage() {
               {/* Title & Description */}
               <div className="p-7 sm:p-9 space-y-3 flex-1 flex flex-col justify-start">
                 <h3 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
-                  Across Every Sector
+                  Across Essential Trades
                 </h3>
                 <p className="text-sm sm:text-base text-slate-300 leading-relaxed font-normal">
-                  Connecta brings together both hands-on trades and digital careers. From plumbing, electrical and auto care to software engineering, design, marketing and finance, talent across every trade finds work and gets hired.
+                  Connecta brings together vetted artisans across everyday trades. From plumbing, electrical and AC repair to carpentry, painting, generator servicing and auto care, finding the right specialist in Kano is simple and fast.
                 </p>
               </div>
             </div>
@@ -1523,10 +1541,10 @@ export default function HomePage() {
               {/* Title & Description */}
               <div className="p-7 sm:p-9 space-y-3 flex-1 flex flex-col justify-start">
                 <h3 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
-                  Meet Your Match in Seconds
+                  Meet Your Pro in Seconds
                 </h3>
                 <p className="text-sm sm:text-base text-amber-50 leading-relaxed font-normal">
-                  Tell Connecta what the project needs in plain words. The matching engine studies skills, experience, ratings, availability, and budget to surface fit-ranked recommendations in &lt;1s.
+                  Tell Connecta what repair or installation you need in plain words. Our matching engine studies trade skills, customer ratings, proximity in Kano, and budget to surface fit-ranked recommendations in &lt;1s.
                 </p>
               </div>
             </div>
@@ -1546,10 +1564,10 @@ export default function HomePage() {
               {/* Title & Description */}
               <div className="p-7 sm:p-9 space-y-3 flex-1 flex flex-col justify-start">
                 <h3 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
-                  Great Work Isn&apos;t Solo
+                  Coordinated Trade Squads
                 </h3>
                 <p className="text-sm sm:text-base text-emerald-100 leading-relaxed font-normal">
-                  Form a Collabo Squad, combine your skills into one shared profile, and take on briefs too big for one person. Shared workspaces, role tracking, and automatic fair payment splits.
+                  Planning a full home renovation or solar installation? Form or hire multidisciplinary squads combining master electricians, plumbers, and carpenters under one coordinated proposal with automatic split payments.
                 </p>
               </div>
             </div>
@@ -1596,17 +1614,17 @@ export default function HomePage() {
 
                   <div className="space-y-3">
                     <h3 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white tracking-tight leading-snug">
-                      Describe The Work You Need
+                      Describe The Repair You Need
                     </h3>
                     <p className="text-sm sm:text-base font-medium text-white/95 leading-relaxed">
-                      (No Guesswork) Post a project or tell Connecta AI what you need in plain words. Specify deliverables, milestones, and budget without complicated forms.
+                      (No Guesswork) Post a service request or describe what needs fixing in plain words. Specify your neighborhood in Kano, timing, and budget without complicated forms.
                     </p>
                     <div className="pt-2">
                       <Link
                         href="/requests/new"
                         className="inline-flex items-center gap-1.5 text-xs font-black bg-white text-[#0A2614] hover:bg-slate-100 px-4 py-2 rounded-full transition-transform hover:scale-105 shadow-sm"
                       >
-                        <span>Describe Your Project</span>
+                        <span>Request a Repair</span>
                         <CornerDownRight className="w-3.5 h-3.5" />
                       </Link>
                     </div>
@@ -1628,17 +1646,17 @@ export default function HomePage() {
 
                   <div className="space-y-3">
                     <h3 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white tracking-tight leading-snug">
-                      Connecta AI Matching in Seconds
+                      Connecta Matching in Seconds
                     </h3>
                     <p className="text-sm sm:text-base font-medium text-white/95 leading-relaxed">
-                      (&lt;1s Match Time) No endless scrolling through profiles. The matching engine studies skills, experience, ratings, availability, and budget to surface talent that actually fits.
+                      (&lt;1s Match Time) No endless phone calls or uncertain referrals. Our system matches you with qualified local artisans ranked by proximity, customer reviews, and verified skills.
                     </p>
                     <div className="pt-2">
                       <Link
                         href="/requests/new"
                         className="inline-flex items-center gap-1.5 text-xs font-black bg-white text-[#3D2F6B] hover:bg-slate-100 px-4 py-2 rounded-full transition-transform hover:scale-105 shadow-sm"
                       >
-                        <span>Find Instant Match</span>
+                        <span>Find Local Artisan</span>
                         <CornerDownRight className="w-3.5 h-3.5" />
                       </Link>
                     </div>
@@ -1730,7 +1748,7 @@ export default function HomePage() {
                   </h2>
                 </div>
                 <p className="text-sm sm:text-base lg:text-lg font-medium leading-relaxed text-slate-600 max-w-2xl">
-                  Whatever your trade, there is work for it here. Connecta supports both hands-on trades like plumbing, electrical and carpentry, and digital professions like programming and brand design. Talent across every sector gets hired safely.
+                  Whatever repair, installation, or maintenance your home or business needs, find verified professionals here. Connecta covers essential local trades — plumbing, electrical, carpentry, AC servicing, painting, and generator care.
                 </p>
               </div>
 
@@ -1923,7 +1941,7 @@ export default function HomePage() {
                 </h2>
 
                 <p className="text-base sm:text-lg font-medium leading-relaxed text-slate-600">
-                  Connect with vetted tradespeople and digital professionals across Africa. Government ID verified, fit-ranked by Connecta AI, and backed by milestone escrow protection.
+                  Connect with vetted local trade professionals in Kano and across Nigeria. Government ID verified, trade skill audited, and backed by milestone escrow protection.
                 </p>
 
                 {/* Trust Guarantee Checklist Cards (Smooth & Aligned) */}
@@ -1954,11 +1972,11 @@ export default function HomePage() {
                     href="/requests/new"
                     className="inline-flex items-center gap-2 rounded-full bg-[#0A1020] hover:bg-[#10B981] text-white px-8 py-4 text-sm font-extrabold shadow-xl hover:scale-105 transition-all"
                   >
-                    <span>Explore All Talent</span>
+                    <span>Explore All Professionals</span>
                     <CornerDownRight className="w-4 h-4 stroke-[2.5]" />
                   </Link>
                   <span className="text-xs font-semibold text-slate-500">
-                    2,548+ active professionals ready
+                    2,548+ active local tradespeople ready
                   </span>
                 </div>
               </div>
@@ -1970,12 +1988,12 @@ export default function HomePage() {
                   <div className="space-y-4 sm:space-y-6">
                     {/* Card 1: Square Photo (Ibrahim Aliyu - Master Electrician) */}
                     <Link
-                      href={`/requests/new?providerId=${FEATURED_PROVIDERS[0].id}`}
+                      href={`/requests/new?providerId=${featuredSpecialists[0]?.id || 'feat-ibrahim-aliyu-01'}`}
                       className="group relative block aspect-square rounded-[28px] sm:rounded-[36px] overflow-hidden shadow-xl border-2 border-black/10 bg-slate-100 transition-all duration-300 hover:shadow-2xl hover:-translate-y-1"
                     >
                       <Image
-                        src={FEATURED_PROVIDERS[0].avatar}
-                        alt={FEATURED_PROVIDERS[0].name}
+                        src={featuredSpecialists[0]?.avatar || 'https://res.cloudinary.com/j0anrwlg/image/upload/v1793023313/connecta/featured_specialists/ibrahim.jpg'}
+                        alt={featuredSpecialists[0]?.name || 'Featured Specialist'}
                         fill
                         sizes="(max-width: 768px) 50vw, 30vw"
                         className="object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
@@ -1985,26 +2003,26 @@ export default function HomePage() {
                       {/* Bottom Info Overlay */}
                       <div className="absolute bottom-3 sm:bottom-4 left-3 sm:left-4 right-3 sm:right-4 text-white space-y-1">
                         <div className="font-extrabold text-base sm:text-lg group-hover:text-emerald-300 transition-colors">
-                          {FEATURED_PROVIDERS[0].name}
+                          {featuredSpecialists[0]?.name}
                         </div>
                         <div className="text-xs font-semibold text-emerald-200 truncate">
-                          {FEATURED_PROVIDERS[0].trade}
+                          {featuredSpecialists[0]?.trade}
                         </div>
                         <div className="flex items-center gap-1 text-[11px] text-white/80">
                           <MapPin className="w-3 h-3 text-[#10B981]" />
-                          <span>{FEATURED_PROVIDERS[0].location}</span>
+                          <span>{featuredSpecialists[0]?.location}</span>
                         </div>
                       </div>
                     </Link>
 
                     {/* Card 2: Portrait Aspect Ratio (Jonah Blessing - Plumbing & Fluidics) */}
                     <Link
-                      href={`/requests/new?providerId=${FEATURED_PROVIDERS[1].id}`}
+                      href={`/requests/new?providerId=${featuredSpecialists[1]?.id || 'feat-jonah-blessing-02'}`}
                       className="group relative block aspect-[4/5] rounded-[28px] sm:rounded-[36px] overflow-hidden shadow-xl border-2 border-black/10 bg-slate-100 transition-all duration-300 hover:shadow-2xl hover:-translate-y-1"
                     >
                       <Image
-                        src={FEATURED_PROVIDERS[1].avatar}
-                        alt={FEATURED_PROVIDERS[1].name}
+                        src={featuredSpecialists[1]?.avatar || 'https://res.cloudinary.com/j0anrwlg/image/upload/v1793023318/connecta/featured_specialists/jonah.jpg'}
+                        alt={featuredSpecialists[1]?.name || 'Featured Specialist'}
                         fill
                         sizes="(max-width: 768px) 50vw, 30vw"
                         className="object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
@@ -2014,14 +2032,14 @@ export default function HomePage() {
                       {/* Bottom Info Overlay */}
                       <div className="absolute bottom-3 sm:bottom-4 left-3 sm:left-4 right-3 sm:right-4 text-white space-y-1">
                         <div className="font-extrabold text-base sm:text-lg group-hover:text-emerald-300 transition-colors">
-                          {FEATURED_PROVIDERS[1].name}
+                          {featuredSpecialists[1]?.name}
                         </div>
                         <div className="text-xs font-semibold text-emerald-200 truncate">
-                          {FEATURED_PROVIDERS[1].trade}
+                          {featuredSpecialists[1]?.trade}
                         </div>
                         <div className="flex items-center gap-1 text-[11px] text-white/80">
                           <MapPin className="w-3 h-3 text-[#10B981]" />
-                          <span>{FEATURED_PROVIDERS[1].location}</span>
+                          <span>{featuredSpecialists[1]?.location}</span>
                         </div>
                       </div>
                     </Link>
@@ -2031,12 +2049,12 @@ export default function HomePage() {
                   <div className="space-y-4 sm:space-y-6">
                     {/* Card 3: Landscape Aspect Ratio (Kabiru Sani - Precision Woodwork) */}
                     <Link
-                      href={`/requests/new?providerId=${FEATURED_PROVIDERS[2].id}`}
+                      href={`/requests/new?providerId=${featuredSpecialists[2]?.id || 'feat-kabiru-sani-03'}`}
                       className="group relative block aspect-[4/3] rounded-[28px] sm:rounded-[36px] overflow-hidden shadow-xl border-2 border-black/10 bg-slate-100 transition-all duration-300 hover:shadow-2xl hover:-translate-y-1"
                     >
                       <Image
-                        src={FEATURED_PROVIDERS[2].avatar}
-                        alt={FEATURED_PROVIDERS[2].name}
+                        src={featuredSpecialists[2]?.avatar || 'https://res.cloudinary.com/j0anrwlg/image/upload/v1793023322/connecta/featured_specialists/kabiru.jpg'}
+                        alt={featuredSpecialists[2]?.name || 'Featured Specialist'}
                         fill
                         sizes="(max-width: 768px) 50vw, 30vw"
                         className="object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
@@ -2046,26 +2064,26 @@ export default function HomePage() {
                       {/* Bottom Info Overlay */}
                       <div className="absolute bottom-3 sm:bottom-4 left-3 sm:left-4 right-3 sm:right-4 text-white space-y-1">
                         <div className="font-extrabold text-base sm:text-lg group-hover:text-emerald-300 transition-colors">
-                          {FEATURED_PROVIDERS[2].name}
+                          {featuredSpecialists[2]?.name}
                         </div>
                         <div className="text-xs font-semibold text-emerald-200 truncate">
-                          {FEATURED_PROVIDERS[2].trade}
+                          {featuredSpecialists[2]?.trade}
                         </div>
                         <div className="flex items-center gap-1 text-[11px] text-white/80">
                           <MapPin className="w-3 h-3 text-[#10B981]" />
-                          <span>{FEATURED_PROVIDERS[2].location}</span>
+                          <span>{featuredSpecialists[2]?.location}</span>
                         </div>
                       </div>
                     </Link>
 
                     {/* Card 4: Square Aspect Ratio (Salamah Othman - Device Diagnostics) */}
                     <Link
-                      href={`/requests/new?providerId=${FEATURED_PROVIDERS[3].id}`}
+                      href={`/requests/new?providerId=${featuredSpecialists[3]?.id || 'feat-salamah-othman-04'}`}
                       className="group relative block aspect-square rounded-[28px] sm:rounded-[36px] overflow-hidden shadow-xl border-2 border-black/10 bg-slate-100 transition-all duration-300 hover:shadow-2xl hover:-translate-y-1"
                     >
                       <Image
-                        src={FEATURED_PROVIDERS[3].avatar}
-                        alt={FEATURED_PROVIDERS[3].name}
+                        src={featuredSpecialists[3]?.avatar || 'https://res.cloudinary.com/j0anrwlg/image/upload/v1793023323/connecta/featured_specialists/salamah.jpg'}
+                        alt={featuredSpecialists[3]?.name || 'Featured Specialist'}
                         fill
                         sizes="(max-width: 768px) 50vw, 30vw"
                         className="object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
@@ -2075,14 +2093,14 @@ export default function HomePage() {
                       {/* Bottom Info Overlay */}
                       <div className="absolute bottom-3 sm:bottom-4 left-3 sm:left-4 right-3 sm:right-4 text-white space-y-1">
                         <div className="font-extrabold text-base sm:text-lg group-hover:text-emerald-300 transition-colors">
-                          {FEATURED_PROVIDERS[3].name}
+                          {featuredSpecialists[3]?.name}
                         </div>
                         <div className="text-xs font-semibold text-emerald-200 truncate">
-                          {FEATURED_PROVIDERS[3].trade}
+                          {featuredSpecialists[3]?.trade}
                         </div>
                         <div className="flex items-center gap-1 text-[11px] text-white/80">
                           <MapPin className="w-3 h-3 text-[#10B981]" />
-                          <span>{FEATURED_PROVIDERS[3].location}</span>
+                          <span>{featuredSpecialists[3]?.location}</span>
                         </div>
                       </div>
                     </Link>
@@ -2465,10 +2483,10 @@ export default function HomePage() {
                   </div>
 
                   <h3 className="text-3xl sm:text-5xl lg:text-7xl font-black tracking-tight text-white leading-tight">
-                    African talent is ready. Are you?
+                    Skilled local tradespeople. Ready for your job.
                   </h3>
                   <p className="text-base sm:text-lg font-medium leading-relaxed text-emerald-100">
-                    Post a project and meet your match today, or build the profile that puts your work in front of clients worldwide. Free to join · Escrow-protected · Local payouts available.
+                    Post your repair or installation request and connect with trusted artisans in Kano today, or register your trade business to reach more paying customers. Free to join · Escrow-protected · Local bank payouts.
                   </p>
 
                   {/* Provider Benefits Pills */}
@@ -2489,14 +2507,14 @@ export default function HomePage() {
                     href="/requests/new"
                     className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-full bg-[#4D78FF] hover:bg-[#3b63e6] px-8 py-4 text-xs sm:text-sm font-extrabold text-white shadow-xl transition-all hover:scale-105"
                   >
-                    <span>Hire African Talent</span>
+                    <span>Find a Professional</span>
                     <CornerDownRight className="w-4 h-4 stroke-[2.5]" />
                   </Link>
                   <Link
                     href="/onboarding?step=role&role=provider"
                     className="w-full sm:w-auto inline-flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 border border-white/20 px-6 py-4 text-xs sm:text-sm font-bold text-white transition-colors"
                   >
-                    Start Freelancing
+                    Join as a Provider
                   </Link>
                 </div>
               </div>
@@ -2535,7 +2553,7 @@ export default function HomePage() {
                   </h2>
                 </div>
                 <p className="text-base sm:text-lg font-medium leading-relaxed text-emerald-100/90 max-w-xl">
-                  African talent, woven into the world&apos;s work. Connecting households and businesses with verified tradespeople and digital professionals through milestone escrow.
+                  Connecting households and businesses in Kano and across Nigeria with verified local service professionals — plumbers, electricians, AC technicians, carpenters, and painters — through milestone escrow.
                 </p>
               </div>
 

@@ -9,26 +9,28 @@ import {
 import DiscoverClientView from './DiscoverClientView'
 
 export const metadata: Metadata = {
-  title: 'Discover Verified Artisans & Service Providers in Nigeria | Connecta',
+  title: 'Discover Verified Local Service Professionals in Kano & Nigeria | Connecta',
   description:
-    'Browse vetted electricians, master plumbers, AC technicians, phone board engineers, and skilled trade professionals across Nigeria. 100% milestone escrow protection and transparent hourly rates.',
+    'Find and hire vetted local service professionals in Kano, Nigeria — including plumbers, electricians, AC technicians, carpenters, generator specialists, and skilled tradespeople with 100% milestone escrow protection.',
   keywords: [
-    'find electricians Kano',
-    'hire plumbers Nigeria',
-    'verified artisans Lagos',
-    'solar inverter installers Abuja',
-    'phone repair specialists',
-    'auto mechanics Port Harcourt',
-    'escrow service marketplace Nigeria',
+    'find plumbers Kano',
+    'hire electricians Kano',
+    'AC repair technician Kano',
+    'verified carpenters Kano',
+    'generator repair Kano',
+    'local service professionals Kano Nigeria',
+    'auto mechanics Kano',
+    'house painter Kano',
+    'milestone escrow artisans Nigeria',
     'Connecta discover',
   ],
   alternates: {
     canonical: 'https://myconnecta.ng/discover',
   },
   openGraph: {
-    title: 'Discover Verified Artisans & Service Providers | Connecta',
+    title: 'Discover Verified Local Service Professionals in Kano | Connecta',
     description:
-      'Search vetted technicians and trade specialists across Nigeria. Compare rates, read real client reviews, and hire with escrow milestone protection.',
+      'Browse vetted plumbers, electricians, AC technicians, carpenters, and local artisans in Kano. Compare transparent rates, inspect verified reviews, and hire with milestone escrow protection.',
     url: 'https://myconnecta.ng/discover',
     siteName: 'Connecta',
     images: [
@@ -36,7 +38,7 @@ export const metadata: Metadata = {
         url: 'https://myconnecta.ng/brand/social/connecta-social-avatar-512.png',
         width: 512,
         height: 512,
-        alt: 'Connecta Discover Service Providers',
+        alt: 'Connecta Discover Local Service Professionals',
       },
     ],
   },
