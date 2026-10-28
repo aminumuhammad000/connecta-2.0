@@ -478,7 +478,7 @@ const PROVIDER_BENEFITS = [
   { title: 'Instant Local Bank & Wallet Payouts', color: 'bg-[#F59E0B] text-white' },
   { title: 'Official Identity Verified Badge', color: 'bg-[#2E1A47] text-white' },
   { title: 'AI-Ranked Discovery & Matches', color: 'bg-[#0A1020] text-white' },
-  { title: 'Collabo Squads with Automatic Splits', color: 'bg-[#064E3B] text-white' },
+  { title: 'Direct Client Quotations & Fast Hires', color: 'bg-[#064E3B] text-white' },
   { title: 'Shared Workspaces & Real-Time Chat', color: 'bg-[#8B7CFF] text-white' },
 ]
 
@@ -886,6 +886,13 @@ export default function HomePage() {
           {/* Center Navigation: Clean, borderless links with subtle hover pills */}
           <nav className="hidden md:flex items-center gap-1 lg:gap-2 text-sm font-semibold text-slate-600">
             <Link
+              href="/ai"
+              className="px-3.5 py-1.5 rounded-full text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200/80 transition-all flex items-center gap-1.5 font-bold"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
+              <span>AI Search</span>
+            </Link>
+            <Link
               href="/discover"
               className="px-3.5 py-1.5 rounded-full hover:text-[#0C513F] hover:bg-slate-100/80 transition-all"
             >
@@ -976,6 +983,17 @@ export default function HomePage() {
               </button>
             </div>
 
+            <Link
+              href="/ai"
+              onClick={() => setMobileNavOpen(false)}
+              className="px-4 py-3 rounded-2xl bg-emerald-50 hover:bg-emerald-100 text-emerald-950 transition-colors flex items-center justify-between group border border-emerald-200/60"
+            >
+              <span className="font-black text-[#0C513F] flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-emerald-600" />
+                AI Assistant (ChatGPT UI)
+              </span>
+              <ChevronRight className="w-4 h-4 text-emerald-600 transition-transform group-hover:translate-x-0.5" />
+            </Link>
             <Link
               href="/discover"
               onClick={() => setMobileNavOpen(false)}

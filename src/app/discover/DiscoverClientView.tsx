@@ -620,6 +620,21 @@ export default function DiscoverClientView({
           </div>
 
           <div className="max-w-6xl mx-auto px-4 sm:px-6 relative z-30 text-center">
+            {/* ChatGPT Mode Switcher Pill */}
+            <div className="mb-4 inline-flex items-center gap-2 p-1.5 pr-4 rounded-full bg-slate-900 text-white border border-slate-700/80 shadow-md text-xs font-bold">
+              <span className="px-2.5 py-0.5 rounded-full bg-[#10B981] text-[#090D16] text-[10px] font-black uppercase">
+                AI Screen
+              </span>
+              <span className="text-slate-300 hidden sm:inline">Prefer a ChatGPT-style conversational assistant?</span>
+              <Link
+                href="/ai"
+                className="text-[#10B981] hover:underline flex items-center gap-1 font-extrabold"
+              >
+                <span>Open ChatGPT UI Chatbot</span>
+                <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
+              </Link>
+            </div>
+
             <AiServiceDiscoveryInput
               onSearchResults={handleAiSearchResults}
               onReset={handleClearAiSearch}

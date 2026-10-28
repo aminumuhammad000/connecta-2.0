@@ -102,7 +102,7 @@ export default function DashboardSupportPage() {
             Support &amp; Escrow Charter FAQs
           </h1>
           <p className="text-xs sm:text-sm text-slate-500 font-medium">
-            Understand milestone release conditions, Collabo Squad split mechanisms, and arbitration rules.
+            Understand milestone release conditions, escrow safeguards, and arbitration rules.
           </p>
         </div>
 

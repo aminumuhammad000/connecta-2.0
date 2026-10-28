@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
-import Image from 'next/image'
 import {
   Briefcase,
   Wallet,
@@ -13,11 +12,9 @@ import {
   Clock,
   MapPin,
   CheckCircle2,
-  Users,
   Search,
   PlusCircle,
   ChevronRight,
-  TrendingUp,
   AlertCircle,
   Loader2,
   Wrench,
@@ -58,7 +55,6 @@ interface ServerOverviewData {
   }>
   activeBooking: any | null
   recentJobs: any[]
-  squads: any[]
 }
 
 export default function DashboardOverviewPage() {
@@ -71,7 +67,7 @@ export default function DashboardOverviewPage() {
       try {
         const res = await fetch('/api/dashboard/overview')
         if (!res.ok) {
-          throw new Error('Failed to load server dashboard data')
+          throw new Error('Failed to load dashboard overview data')
         }
         const json = await res.json()
         setData(json.data)
@@ -86,22 +82,22 @@ export default function DashboardOverviewPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-[60vh] flex flex-col items-center justify-center gap-3">
-        <Loader2 className="w-8 h-8 text-[#0C513F] animate-spin" />
-        <span className="text-xs font-bold text-slate-500">Connecting to server workspace...</span>
+      <div className="min-h-[50vh] flex flex-col items-center justify-center gap-3">
+        <Loader2 className="w-7 h-7 text-[#0C513F] animate-spin" />
+        <span className="text-xs font-medium text-zinc-500">Loading your workspace...</span>
       </div>
     )
   }
 
   if (error || !data) {
     return (
-      <div className="bg-white rounded-3xl p-8 border border-slate-200 text-center space-y-4">
-        <AlertCircle className="w-10 h-10 text-rose-500 mx-auto" />
-        <h3 className="text-base font-bold text-slate-800">Server Connection Error</h3>
-        <p className="text-xs text-slate-500 max-w-md mx-auto">{error || 'Unable to connect to dashboard server API.'}</p>
+      <div className="bg-white rounded-2xl p-8 border border-zinc-200 text-center space-y-4">
+        <AlertCircle className="w-9 h-9 text-rose-500 mx-auto" />
+        <h3 className="text-sm font-semibold text-zinc-900">Dashboard Unavailable</h3>
+        <p className="text-xs text-zinc-500 max-w-md mx-auto">{error || 'Unable to retrieve workspace data.'}</p>
         <button
           onClick={() => window.location.reload()}
-          className="px-5 py-2.5 rounded-full bg-[#0A1020] text-white text-xs font-bold hover:bg-[#4D78FF] transition-all"
+          className="px-4 py-2 rounded-xl bg-zinc-900 text-white text-xs font-medium hover:bg-zinc-800 transition-all"
         >
           Retry Connection
         </button>
@@ -109,163 +105,109 @@ export default function DashboardOverviewPage() {
     )
   }
 
-  const { user, wallet, metrics, activeBooking, recentJobs, squads } = data
-  const isClient = user.activeRole !== 'provider'
+  const { user, wallet, metrics, activeBooking, recentJobs } = data
 
   return (
     <div className="space-y-6">
-      {/* Top Welcome Banner */}
-      <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-sm relative overflow-hidden">
-        {/* Subtle Decorative Ambient Glow */}
-        <div className="absolute top-0 right-0 w-80 h-80 bg-gradient-to-bl from-[#10B981]/10 via-[#1A73E8]/8 to-transparent rounded-full blur-2xl pointer-events-none" />
-
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div className="space-y-2">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="text-[11px] font-extrabold uppercase px-2.5 py-0.5 rounded-full bg-emerald-100 text-[#0C513F] tracking-wider">
-                {isClient ? 'Verified Client Workspace' : 'Master Specialist Pro'}
-              </span>
-              <span className="text-xs text-slate-400 font-medium">•</span>
-              <span className="text-xs font-bold text-slate-600 flex items-center gap-1">
-                <MapPin className="w-3.5 h-3.5 text-slate-400" />
-                {user.city ? `${user.city}, Nigeria` : 'Nigeria'}
-              </span>
-            </div>
-            <h1 className="text-2xl sm:text-3xl font-black text-[#0A1020] tracking-tight">
-              Welcome back, {user.fullName} 👋
-            </h1>
-            <p className="text-xs sm:text-sm text-slate-600 font-medium max-w-xl leading-relaxed">
-              {isClient
-                ? 'Your milestone escrow contracts are fully insured. Post a project brief or review bids from verified local trades.'
-                : 'Your trade credentials and wallet are active. Browse incoming project briefs and submit escrow-protected quotes.'}
-            </p>
+      {/* Quiet Welcome Card */}
+      <div className="bg-white rounded-2xl p-6 sm:p-7 border border-zinc-200/80 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-5">
+        <div className="space-y-1.5">
+          <div className="flex items-center gap-2">
+            <span className="inline-flex items-center gap-1.5 text-[11px] font-medium text-zinc-500">
+              <MapPin className="w-3.5 h-3.5 text-zinc-400" />
+              {user.city ? `${user.city}, Nigeria` : 'Nigeria'}
+            </span>
+            <span className="text-zinc-300">•</span>
+            <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#0C513F]">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+              Protected Escrow Vault
+            </span>
           </div>
 
-          <div className="flex items-center gap-3 shrink-0">
-            {isClient ? (
-              <>
-                <Link
-                  href="/requests/new"
-                  className="inline-flex items-center gap-2 rounded-full bg-[#0C513F] hover:bg-[#083b2e] text-white px-5 py-3 text-xs sm:text-sm font-extrabold shadow-md hover:scale-102 active:scale-98 transition-all"
-                >
-                  <PlusCircle className="w-4 h-4" />
-                  <span>Post Project Brief</span>
-                </Link>
-                {(!user.skills || user.skills.length === 0) && (
-                  <Link
-                    href="/onboarding?role=provider&step=sector"
-                    className="inline-flex items-center gap-2 rounded-full bg-[#0A1020] hover:bg-[#10B981] text-white px-4 py-3 text-xs sm:text-sm font-bold shadow-xs transition-all"
-                  >
-                    <Wrench className="w-4 h-4" />
-                    <span>Become a Provider</span>
-                  </Link>
-                )}
-                <Link
-                  href="/dashboard/wallet"
-                  className="inline-flex items-center gap-2 rounded-full bg-white hover:bg-slate-50 text-slate-800 border border-slate-300 px-4 py-3 text-xs sm:text-sm font-bold shadow-xs hover:border-slate-400 transition-all"
-                >
-                  <span>Deposit Escrow</span>
-                </Link>
-              </>
-            ) : (
-              <>
-                <Link
-                  href="/dashboard/jobs"
-                  className="inline-flex items-center gap-2 rounded-full bg-[#0A1020] hover:bg-[#10B981] text-white px-5 py-3 text-xs sm:text-sm font-extrabold shadow-md hover:scale-102 active:scale-98 transition-all"
-                >
-                  <Search className="w-4 h-4" />
-                  <span>Explore Jobs</span>
-                </Link>
-                <Link
-                  href="/dashboard/wallet"
-                  className="inline-flex items-center gap-2 rounded-full bg-white hover:bg-slate-50 text-slate-800 border border-slate-300 px-4 py-3 text-xs sm:text-sm font-bold shadow-xs hover:border-slate-400 transition-all"
-                >
-                  <span>Payouts</span>
-                </Link>
-              </>
-            )}
-          </div>
+          <h1 className="text-xl sm:text-2xl font-bold text-zinc-900 tracking-tight">
+            Welcome back, {user.fullName}
+          </h1>
+
+          <p className="text-xs sm:text-sm text-zinc-500 max-w-xl font-normal leading-relaxed">
+            Manage your active milestone contracts, discover verified artisans, or post a new service brief with guaranteed escrow protection.
+          </p>
+        </div>
+
+        {/* Primary Header Action */}
+        <div className="flex items-center gap-2.5 shrink-0">
+          <Link
+            href="/requests/new"
+            className="inline-flex items-center gap-2 rounded-xl bg-[#0C513F] hover:bg-[#083b2e] text-white px-4 py-2.5 text-xs font-semibold shadow-xs hover:shadow transition-all active:scale-98"
+          >
+            <PlusCircle className="w-4 h-4" />
+            <span>Post Request</span>
+          </Link>
+
+          <Link
+            href="/ai"
+            className="inline-flex items-center gap-2 rounded-xl bg-zinc-50 hover:bg-zinc-100 text-zinc-700 border border-zinc-200/80 px-3.5 py-2.5 text-xs font-medium transition-all"
+          >
+            <Sparkles className="w-3.5 h-3.5 text-[#0C513F]" />
+            <span>AI Search</span>
+          </Link>
         </div>
       </div>
 
       {/* KPI Metric Cards Grid */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {metrics.map((item, idx) => {
           return (
             <div
               key={idx}
-              className="bg-white rounded-3xl p-5 sm:p-6 border border-slate-200/90 shadow-sm hover:shadow-md transition-all space-y-3"
+              className="bg-white rounded-2xl p-4 sm:p-5 border border-zinc-200/80 shadow-xs hover:border-zinc-300 transition-all space-y-2"
             >
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                <span className="text-xs font-medium text-zinc-500">
                   {item.label}
                 </span>
-                <div
-                  className={`w-9 h-9 rounded-2xl flex items-center justify-center ${
-                    item.color === 'emerald'
-                      ? 'bg-emerald-100 text-[#0C513F]'
-                      : item.color === 'blue'
-                      ? 'bg-blue-100 text-blue-700'
-                      : item.color === 'amber'
-                      ? 'bg-amber-100 text-amber-700'
-                      : 'bg-slate-100 text-slate-700'
-                  }`}
-                >
-                  {item.iconType === 'briefcase' && <Briefcase className="w-4 h-4" />}
-                  {item.iconType === 'wallet' && <Wallet className="w-4 h-4" />}
-                  {item.iconType === 'shield' && <ShieldCheck className="w-4 h-4" />}
-                  {item.iconType === 'star' && <Star className="w-4 h-4" />}
+                <div className="w-8 h-8 rounded-lg bg-zinc-50 border border-zinc-100 text-zinc-600 flex items-center justify-center">
+                  {item.iconType === 'briefcase' && <Briefcase className="w-4 h-4 text-zinc-600" />}
+                  {item.iconType === 'wallet' && <Wallet className="w-4 h-4 text-[#0C513F]" />}
+                  {item.iconType === 'shield' && <ShieldCheck className="w-4 h-4 text-emerald-600" />}
+                  {item.iconType === 'star' && <Star className="w-4 h-4 text-amber-500" />}
                 </div>
               </div>
 
               <div>
-                <div className="text-xl sm:text-2xl font-black text-[#0A1020] tracking-tight">
+                <div className="text-xl sm:text-2xl font-bold text-zinc-900 tracking-tight">
                   {item.value}
                 </div>
-                <div className="text-[11px] font-medium text-slate-500 mt-0.5 truncate">
+                <div className="text-[11px] font-medium text-zinc-400 mt-0.5 truncate">
                   {item.subtext}
                 </div>
               </div>
-
-              {item.changePercent && (
-                <div className="pt-2 border-t border-slate-100 flex items-center gap-1.5 text-[10px] font-extrabold text-emerald-600">
-                  <TrendingUp className="w-3 h-3" />
-                  <span>{item.changePercent}</span>
-                </div>
-              )}
             </div>
           )
         })}
       </div>
 
-      {/* Active Contract / Milestone Escrow Tracker Card */}
+      {/* Active Contract / Milestone Tracker */}
       {activeBooking ? (
-        <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-sm space-y-6">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-slate-100">
+        <div className="bg-white rounded-2xl p-6 border border-zinc-200/80 shadow-xs space-y-5">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-zinc-100">
             <div className="space-y-1">
               <div className="flex items-center gap-2">
-                <span className="text-xs font-black px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-700">
-                  Active Escrow Contract #{activeBooking.bookingNumber}
+                <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-emerald-50 text-[#0C513F] border border-emerald-200/60">
+                  Active Contract #{activeBooking.bookingNumber}
                 </span>
-                <span className="text-xs text-slate-400 font-medium">•</span>
-                <span className="text-xs font-bold text-emerald-600 flex items-center gap-1">
-                  <CheckCircle2 className="w-3.5 h-3.5" />
-                  100% Escrow Protected
+                <span className="text-zinc-300">•</span>
+                <span className="text-xs text-zinc-500">
+                  Artisan: <strong className="text-zinc-800">{activeBooking.providerName}</strong> ({activeBooking.providerTitle})
                 </span>
               </div>
-              <h2 className="text-lg sm:text-xl font-black text-[#0A1020] tracking-tight">
+              <h2 className="text-base sm:text-lg font-bold text-zinc-900 tracking-tight">
                 {activeBooking.title}
               </h2>
-              <div className="text-xs text-slate-500 font-medium">
-                Contractor: <span className="font-bold text-slate-800">{activeBooking.providerName}</span> ({activeBooking.providerTitle})
-              </div>
             </div>
 
-            <div className="text-left sm:text-right shrink-0">
-              <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">
-                Total Contract Locked
-              </div>
-              <div className="text-xl sm:text-2xl font-black text-emerald-700 tracking-tight">
+            <div className="sm:text-right shrink-0">
+              <div className="text-[11px] font-medium text-zinc-400">Total in Escrow</div>
+              <div className="text-lg sm:text-xl font-bold text-zinc-900">
                 {formatMinorToNaira(activeBooking.totalAmountMinor)}
               </div>
             </div>
@@ -273,47 +215,47 @@ export default function DashboardOverviewPage() {
 
           {/* Milestone Steps Timeline */}
           <div className="space-y-3">
-            <div className="flex items-center justify-between text-xs font-extrabold text-slate-700">
-              <span>Milestone Progress</span>
-              <span className="text-[#0C513F]">{activeBooking.progressPercentage}% Complete</span>
+            <div className="flex items-center justify-between text-xs">
+              <span className="font-medium text-zinc-600">Contract Milestones</span>
+              <span className="font-semibold text-[#0C513F]">{activeBooking.progressPercentage}% Completed</span>
             </div>
 
             {/* Progress Bar */}
-            <div className="w-full h-1.5 rounded-full bg-slate-100 overflow-hidden">
+            <div className="w-full h-2 rounded-full bg-zinc-100 overflow-hidden">
               <div
-                className="h-full rounded-full bg-gradient-to-r from-[#10B981] to-[#0C513F] transition-all duration-500"
+                className="h-full rounded-full bg-[#0C513F] transition-all duration-500"
                 style={{ width: `${activeBooking.progressPercentage}%` }}
               />
             </div>
 
             {/* Individual Milestones List */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 pt-1">
               {activeBooking.milestones?.map((m: any, idx: number) => (
                 <div
                   key={m.id || idx}
-                  className={`p-3.5 rounded-2xl border text-xs flex items-center justify-between gap-3 ${
+                  className={`p-3 rounded-xl border text-xs flex items-center justify-between gap-3 ${
                     m.status === 'completed'
-                      ? 'bg-emerald-50/70 border-emerald-200 text-emerald-900'
+                      ? 'bg-emerald-50/50 border-emerald-200/70 text-emerald-950'
                       : m.status === 'current'
-                      ? 'bg-amber-50/80 border-amber-300 text-amber-950 ring-2 ring-amber-400/20'
-                      : 'bg-slate-50 border-slate-200 text-slate-500'
+                      ? 'bg-zinc-50 border-zinc-300 text-zinc-900'
+                      : 'bg-white border-zinc-200/70 text-zinc-400'
                   }`}
                 >
                   <div className="flex items-center gap-2.5 min-w-0">
                     <div
-                      className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 font-bold text-[10px] ${
+                      className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 text-[10px] font-bold ${
                         m.status === 'completed'
                           ? 'bg-emerald-600 text-white'
                           : m.status === 'current'
-                          ? 'bg-amber-500 text-white animate-pulse'
-                          : 'bg-slate-200 text-slate-600'
+                          ? 'bg-[#0C513F] text-white'
+                          : 'bg-zinc-100 text-zinc-400'
                       }`}
                     >
                       {idx + 1}
                     </div>
-                    <span className="font-semibold truncate">{m.title}</span>
+                    <span className="font-medium truncate">{m.title}</span>
                   </div>
-                  <div className="font-black shrink-0 text-right">
+                  <div className="font-semibold shrink-0 text-right">
                     {formatMinorToNaira(m.amountMinor)}
                   </div>
                 </div>
@@ -322,210 +264,226 @@ export default function DashboardOverviewPage() {
           </div>
 
           {/* Actions Bar */}
-          <div className="pt-2 flex flex-wrap items-center justify-between gap-4 border-t border-slate-100">
-            <div className="text-xs text-slate-500 font-medium flex items-center gap-1.5">
-              <Clock className="w-3.5 h-3.5 text-slate-400" />
+          <div className="pt-2 flex flex-wrap items-center justify-between gap-3 border-t border-zinc-100">
+            <div className="text-xs text-zinc-500 flex items-center gap-1.5 font-normal">
+              <Clock className="w-3.5 h-3.5 text-zinc-400" />
               <span>Inspection scheduled for milestone delivery verification.</span>
             </div>
 
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2.5">
               <Link
                 href="/dashboard/projects"
-                className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-700 hover:text-[#0C513F] px-4 py-2 rounded-full hover:bg-slate-100 transition-colors"
+                className="inline-flex items-center gap-1.5 text-xs font-medium text-zinc-600 hover:text-zinc-900 px-3 py-1.5 rounded-lg hover:bg-zinc-100 transition-colors"
               >
-                <span>View Milestone Details</span>
+                <span>View Details</span>
                 <ChevronRight className="w-3.5 h-3.5" />
               </Link>
 
               <Link
                 href="/dashboard/projects"
-                className="inline-flex items-center gap-2 rounded-full bg-[#10B981] hover:bg-[#059669] text-white px-5 py-2.5 text-xs font-extrabold shadow-sm hover:scale-102 active:scale-98 transition-all"
+                className="inline-flex items-center gap-1.5 rounded-xl bg-[#0C513F] hover:bg-[#083b2e] text-white px-4 py-2 text-xs font-semibold shadow-xs transition-all"
               >
-                <span>{isClient ? 'Inspect & Release Milestone' : 'Submit Evidence'}</span>
+                <span>Inspect &amp; Release</span>
               </Link>
             </div>
           </div>
         </div>
       ) : (
-        /* Empty State Card - No fake contract! */
-        <div className="bg-white rounded-3xl p-8 sm:p-10 border border-slate-200/90 shadow-sm text-center space-y-4">
-          <div className="w-14 h-14 rounded-2xl bg-emerald-50 border border-emerald-200 text-[#0C513F] flex items-center justify-center mx-auto shadow-xs">
-            <ShieldCheck className="w-7 h-7" />
+        /* Empty State Card */
+        <div className="bg-white rounded-2xl p-6 sm:p-8 border border-zinc-200/80 shadow-xs text-center space-y-3">
+          <div className="w-10 h-10 rounded-xl bg-zinc-50 border border-zinc-200/80 text-[#0C513F] flex items-center justify-center mx-auto">
+            <ShieldCheck className="w-5 h-5" />
           </div>
-          <div className="space-y-1.5 max-w-md mx-auto">
-            <h3 className="text-lg font-black text-[#0A1020] tracking-tight">
-              No In-Flight Escrow Contracts Yet
+          <div className="space-y-1 max-w-sm mx-auto">
+            <h3 className="text-sm font-semibold text-zinc-900">
+              No Active Contracts
             </h3>
-            <p className="text-xs sm:text-sm text-slate-500 font-medium leading-relaxed">
-              When you hire a specialist or accept an incoming project quote, your milestone agreement and 100% escrow safeguard will appear here in real-time.
+            <p className="text-xs text-zinc-500 leading-relaxed font-normal">
+              When you hire a specialist or start a project, your milestone agreement and escrow status will update here automatically.
             </p>
           </div>
-          <div className="pt-2 flex flex-wrap items-center justify-center gap-3">
-            {isClient ? (
-              <Link
-                href="/requests/new"
-                className="inline-flex items-center gap-2 rounded-full bg-[#0C513F] hover:bg-[#083b2e] text-white px-6 py-3 text-xs sm:text-sm font-extrabold shadow-md hover:scale-102 active:scale-98 transition-all"
-              >
-                <PlusCircle className="w-4 h-4" />
-                <span>Post Your First Project Brief</span>
-              </Link>
-            ) : (
-              <Link
-                href="/dashboard/jobs"
-                className="inline-flex items-center gap-2 rounded-full bg-[#0A1020] hover:bg-[#10B981] text-white px-6 py-3 text-xs sm:text-sm font-extrabold shadow-md hover:scale-102 active:scale-98 transition-all"
-              >
-                <Search className="w-4 h-4" />
-                <span>Browse Live Job Briefs</span>
-              </Link>
-            )}
+          <div className="pt-1 flex items-center justify-center gap-2">
             <Link
-              href="/dashboard/wallet"
-              className="inline-flex items-center gap-2 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-800 px-5 py-3 text-xs sm:text-sm font-bold transition-all"
+              href="/requests/new"
+              className="inline-flex items-center gap-1.5 rounded-xl bg-[#0C513F] hover:bg-[#083b2e] text-white px-3.5 py-2 text-xs font-semibold shadow-xs transition-all"
             >
-              <span>View Escrow Vault</span>
+              <PlusCircle className="w-3.5 h-3.5" />
+              <span>Post Request</span>
+            </Link>
+            <Link
+              href="/dashboard/jobs"
+              className="inline-flex items-center gap-1.5 rounded-xl bg-zinc-50 hover:bg-zinc-100 text-zinc-700 border border-zinc-200/80 px-3.5 py-2 text-xs font-medium transition-all"
+            >
+              <Search className="w-3.5 h-3.5" />
+              <span>Browse Jobs</span>
             </Link>
           </div>
         </div>
       )}
 
-      {/* Two-Column Section: Collabo Squads Snapshot + Live Marketplace Jobs */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Left Column: Collabo Squads */}
-        <div className="bg-white rounded-3xl p-6 sm:p-7 border border-slate-200/90 shadow-sm space-y-5">
-          <div className="flex items-center justify-between">
+      {/* Marketplace Jobs & Right Column Shortcuts */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Main Column: Live Marketplace Jobs */}
+        <div className="lg:col-span-2 bg-white rounded-2xl p-5 sm:p-6 border border-zinc-200/80 shadow-xs space-y-4">
+          <div className="flex items-center justify-between pb-3 border-b border-zinc-100">
             <div>
-              <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-md bg-amber-100 text-amber-800 tracking-wider">
-                Signature Feature
-              </span>
-              <h3 className="text-lg font-black text-[#0A1020] tracking-tight mt-1">
-                Collabo Squads
+              <h3 className="text-sm font-bold text-zinc-900 tracking-tight">
+                Marketplace Job Briefs
               </h3>
+              <p className="text-xs text-zinc-500 font-normal">
+                Recent service requests posted by clients
+              </p>
             </div>
             <Link
-              href="/dashboard/squads"
-              className="text-xs font-bold text-[#0C513F] hover:underline flex items-center gap-1"
+              href="/dashboard/jobs"
+              className="text-xs font-semibold text-[#0C513F] hover:underline flex items-center gap-1 group"
             >
-              <span>Explore Squads</span>
-              <ArrowUpRight className="w-3.5 h-3.5" />
+              <span>View all ({recentJobs?.length || 0})</span>
+              <ArrowUpRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
             </Link>
           </div>
 
-          {squads && squads.length > 0 ? (
-            <div className="space-y-3">
-              {squads.map((squad: any) => (
-                <div
-                  key={squad.id}
-                  className="p-4 rounded-2xl border border-slate-200/80 hover:border-slate-300 hover:shadow-xs transition-all space-y-3"
+          {recentJobs && recentJobs.length > 0 ? (
+            <div className="space-y-2.5">
+              {recentJobs.slice(0, 4).map((job: any) => (
+                <Link
+                  key={job.id}
+                  href="/dashboard/jobs"
+                  className="block p-3.5 rounded-xl border border-zinc-200/70 hover:border-zinc-300 hover:bg-zinc-50/50 transition-all space-y-2 group"
                 >
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <div className="font-extrabold text-xs sm:text-sm text-[#0A1020]">
-                        {squad.name}
-                      </div>
-                      <div className="text-[11px] text-slate-500 font-medium">
-                        {squad.tradeSpecialty} • {squad.hubCity} • {squad.memberCount} members
-                      </div>
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="space-y-0.5">
+                      <span className="text-[10px] font-medium px-2 py-0.5 rounded bg-zinc-100 text-zinc-600">
+                        {job.category}
+                      </span>
+                      <h4 className="font-semibold text-xs sm:text-sm text-zinc-900 group-hover:text-[#0C513F] transition-colors line-clamp-1">
+                        {job.title}
+                      </h4>
                     </div>
-                    <span className="text-[10px] font-extrabold px-2.5 py-1 rounded-full bg-emerald-100 text-[#0C513F]">
-                      Verified
+                    <span className="text-xs font-bold text-zinc-900 whitespace-nowrap shrink-0 px-2 py-0.5 rounded bg-zinc-50 border border-zinc-200">
+                      {formatMinorToNaira(job.budgetMaxMinor || 10000000)}
                     </span>
                   </div>
 
-                  <div className="flex flex-wrap items-center gap-1.5 pt-1">
-                    {squad.tags?.map((tag: string, i: number) => (
-                      <span
-                        key={i}
-                        className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 border border-slate-200"
-                      >
-                        {tag}
-                      </span>
-                    ))}
+                  <p className="text-xs text-zinc-500 font-normal line-clamp-2">
+                    {job.description}
+                  </p>
+
+                  <div className="flex items-center justify-between pt-1 text-[11px] text-zinc-400 font-normal border-t border-zinc-100">
+                    <span className="flex items-center gap-1">
+                      <MapPin className="w-3 h-3 text-zinc-400" />
+                      {job.city || 'Kano'}, Nigeria
+                    </span>
+                    <span className="font-medium text-[#0C513F]">
+                      {job.proposalsCount || 0} proposals
+                    </span>
                   </div>
-                </div>
+                </Link>
               ))}
             </div>
           ) : (
-            <div className="py-8 text-center space-y-3 border border-dashed border-slate-200 rounded-2xl">
-              <Users className="w-8 h-8 text-slate-300 mx-auto" />
-              <p className="text-xs text-slate-500 max-w-xs mx-auto">
-                No active collabo squads yet. Form a cross-discipline trade squad to bid on larger projects.
-              </p>
+            <div className="py-8 text-center space-y-2 border border-dashed border-zinc-200 rounded-xl">
+              <Search className="w-6 h-6 text-zinc-300 mx-auto" />
+              <p className="text-xs text-zinc-500">No job briefs available at the moment.</p>
               <Link
-                href="/dashboard/squads"
-                className="inline-block text-xs font-bold text-[#0C513F] hover:underline"
+                href="/requests/new"
+                className="inline-block text-xs font-semibold text-[#0C513F] hover:underline"
               >
-                + Form or Join Squad
+                + Post a Request
               </Link>
             </div>
           )}
         </div>
 
-        {/* Right Column: Live Job Postings from Market */}
-        <div className="bg-white rounded-3xl p-6 sm:p-7 border border-slate-200/90 shadow-sm space-y-5">
-          <div className="flex items-center justify-between">
-            <div>
-              <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-md bg-blue-100 text-blue-800 tracking-wider">
-                Live Trade Briefs
-              </span>
-              <h3 className="text-lg font-black text-[#0A1020] tracking-tight mt-1">
-                Marketplace Feed
-              </h3>
+        {/* Side Column: AI Card & Shortcuts */}
+        <div className="space-y-4">
+          {/* AI Search Card */}
+          <div className="bg-gradient-to-br from-emerald-50/60 to-white rounded-2xl p-5 border border-emerald-200/70 shadow-xs space-y-3">
+            <div className="flex items-center gap-2">
+              <div className="w-7 h-7 rounded-lg bg-[#0C513F] text-white flex items-center justify-center">
+                <Sparkles className="w-4 h-4" />
+              </div>
+              <span className="text-xs font-bold text-zinc-900">AI Service Matcher</span>
             </div>
+            <p className="text-xs text-zinc-600 leading-relaxed font-normal">
+              Describe your project, upload a photo of the defect, or talk to AI to match verified artisans instantly.
+            </p>
             <Link
-              href="/dashboard/jobs"
-              className="text-xs font-bold text-[#0C513F] hover:underline flex items-center gap-1"
+              href="/ai"
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#0C513F] hover:underline"
             >
-              <span>View All Briefs</span>
-              <ArrowUpRight className="w-3.5 h-3.5" />
+              <span>Launch AI Search</span>
+              <ChevronRight className="w-3.5 h-3.5" />
             </Link>
           </div>
 
-          {recentJobs && recentJobs.length > 0 ? (
-            <div className="space-y-3">
-              {recentJobs.map((job: any) => (
-                <div
-                  key={job.id}
-                  className="p-4 rounded-2xl border border-slate-200/80 hover:border-slate-300 hover:shadow-xs transition-all space-y-2.5"
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-md bg-slate-100 text-slate-700">
-                        {job.category}
-                      </span>
-                      <h4 className="font-extrabold text-xs sm:text-sm text-[#0A1020] mt-1 line-clamp-1">
-                        {job.title}
-                      </h4>
-                    </div>
-                    <span className="text-xs font-black text-emerald-700 whitespace-nowrap shrink-0">
-                      {formatMinorToNaira(job.budgetMaxMinor || 10000000)}
-                    </span>
+          {/* Quick Shortcuts */}
+          <div className="bg-white rounded-2xl p-5 border border-zinc-200/80 shadow-xs space-y-3">
+            <h3 className="text-xs font-bold text-zinc-900 tracking-tight">
+              Quick Shortcuts
+            </h3>
+            <div className="space-y-1.5">
+              <Link
+                href="/discover"
+                className="flex items-center justify-between p-2.5 rounded-xl hover:bg-zinc-50 border border-transparent hover:border-zinc-200/80 transition-all group"
+              >
+                <div className="flex items-center gap-2.5">
+                  <div className="w-7 h-7 rounded-lg bg-zinc-100 text-zinc-600 flex items-center justify-center shrink-0">
+                    <Search className="w-3.5 h-3.5" />
                   </div>
-
-                  <p className="text-[11px] text-slate-600 font-medium line-clamp-2">
-                    {job.description}
-                  </p>
-
-                  <div className="flex items-center justify-between pt-1 text-[10px] text-slate-400 font-medium border-t border-slate-100">
-                    <span>{job.city}, Nigeria</span>
-                    <span className="font-bold text-[#0C513F]">{job.proposalsCount || 0} proposals</span>
+                  <div>
+                    <div className="text-xs font-semibold text-zinc-800 group-hover:text-[#0C513F]">
+                      Browse Artisans
+                    </div>
+                    <div className="text-[10px] text-zinc-400">
+                      Plumbers, electricians &amp; carpenters
+                    </div>
                   </div>
                 </div>
-              ))}
-            </div>
-          ) : (
-            <div className="py-8 text-center space-y-3 border border-dashed border-slate-200 rounded-2xl">
-              <Search className="w-8 h-8 text-slate-300 mx-auto" />
-              <p className="text-xs text-slate-500 max-w-xs mx-auto">
-                No active marketplace job briefs posted in your area yet.
-              </p>
+                <ChevronRight className="w-3.5 h-3.5 text-zinc-400 group-hover:translate-x-0.5 transition-transform" />
+              </Link>
+
               <Link
-                href="/requests/new"
-                className="inline-block text-xs font-bold text-[#0C513F] hover:underline"
+                href="/dashboard/wallet"
+                className="flex items-center justify-between p-2.5 rounded-xl hover:bg-zinc-50 border border-transparent hover:border-zinc-200/80 transition-all group"
               >
-                + Broadcast First Project Brief
+                <div className="flex items-center gap-2.5">
+                  <div className="w-7 h-7 rounded-lg bg-emerald-50 text-[#0C513F] flex items-center justify-center shrink-0">
+                    <Wallet className="w-3.5 h-3.5" />
+                  </div>
+                  <div>
+                    <div className="text-xs font-semibold text-zinc-800 group-hover:text-[#0C513F]">
+                      Escrow Vault
+                    </div>
+                    <div className="text-[10px] text-zinc-400">
+                      Balance: {formatMinorToNaira(wallet.balanceMinor)}
+                    </div>
+                  </div>
+                </div>
+                <ChevronRight className="w-3.5 h-3.5 text-zinc-400 group-hover:translate-x-0.5 transition-transform" />
+              </Link>
+
+              <Link
+                href="/dashboard/support"
+                className="flex items-center justify-between p-2.5 rounded-xl hover:bg-zinc-50 border border-transparent hover:border-zinc-200/80 transition-all group"
+              >
+                <div className="flex items-center gap-2.5">
+                  <div className="w-7 h-7 rounded-lg bg-zinc-100 text-zinc-600 flex items-center justify-center shrink-0">
+                    <ShieldCheck className="w-3.5 h-3.5" />
+                  </div>
+                  <div>
+                    <div className="text-xs font-semibold text-zinc-800 group-hover:text-[#0C513F]">
+                      Resolution &amp; Charter
+                    </div>
+                    <div className="text-[10px] text-zinc-400">
+                      Escrow dispute policy &amp; FAQs
+                    </div>
+                  </div>
+                </div>
+                <ChevronRight className="w-3.5 h-3.5 text-zinc-400 group-hover:translate-x-0.5 transition-transform" />
               </Link>
             </div>
-          )}
+          </div>
         </div>
       </div>
     </div>

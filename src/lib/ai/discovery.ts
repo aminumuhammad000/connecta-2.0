@@ -429,7 +429,7 @@ export function matchProviders(
       if (matchedSkills.length > 0) {
         matchReason = `Specializes in ${matchedSkills.slice(0, 2).join(' & ')} with ${provider.completedJobsCount} verified jobs in ${provider.city}.`
       } else if (provCategorySlug === targetCategorySlug) {
-        matchReason = `Top-rated verified ${provider.category} expert in ${provider.city} (${provider.averageRating.toFixed(1)} ★ rating).`
+        matchReason = `Top-rated verified ${provider.category} expert in ${provider.city} (${provider.averageRating.toFixed(1)}/5 rating).`
       } else {
         matchReason = `Verified ${provider.category} specialist ready to assist in ${provider.city}.`
       }
