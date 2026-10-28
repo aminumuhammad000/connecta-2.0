@@ -28,6 +28,8 @@ import {
   releaseEscrowPayout,
 } from './escrow'
 
+const DIVIDER = '━━━━━━━━━━━━━━━━━━━━'
+
 export const KANO_NEIGHBORHOODS = [
   'Nassarawa (GRA / Bompai)',
   'Tarauni (Gyadi-Gyadi)',
@@ -40,12 +42,32 @@ export const KANO_NEIGHBORHOODS = [
 ]
 
 export const SERVICE_CATEGORIES = [
-  { id: 'cat_solar', title: '☀️ Solar & Inverter', desc: 'Batir, Panel, Inverter & Caji' },
-  { id: 'cat_generator', title: '⚡ Gyaran Generator', desc: 'Mikano, Lister, injin Fetur & Dizal' },
-  { id: 'cat_ac', title: '❄️ AC & Firiji', desc: 'Chaja Gas, Komfreso, Gyaran sanyi' },
-  { id: 'cat_electrical', title: '🔌 Waya & Lantarki', desc: 'DB Board, Short circuit, Waya sabuwa' },
-  { id: 'cat_plumbing', title: '💧 Famfo & Ruwa', desc: 'Borehole, Tanka, Toshewa & Ɗigogi' },
+  { id: 'cat_solar', title: 'Solar da Inverter', desc: 'Batir, Panel, Inverter & Caji', en: 'Solar & Inverter' },
+  { id: 'cat_generator', title: 'Gyaran Generator', desc: 'Mikano, Lister, Injin Fetur & Dizal', en: 'Generator Repair' },
+  { id: 'cat_ac', title: 'AC da Firiji', desc: 'Chaja Gas, Komfreso, Gyaran Sanyi', en: 'AC & Refrigeration' },
+  { id: 'cat_electrical', title: 'Waya da Lantarki', desc: 'DB Board, Short Circuit, Waya Sabuwa', en: 'Electrical Wiring' },
+  { id: 'cat_plumbing', title: 'Famfo da Ruwa', desc: 'Borehole, Tanka, Zubar Ruwa & Toshewa', en: 'Plumbing & Water' },
 ]
+
+function detectCategoryFromKeywords(text: string) {
+  const t = (text || '').toLowerCase()
+  if (t.includes('famfo') || t.includes('ruwa') || t.includes('tanka') || t.includes('borehole') || t.includes('plumber') || t.includes('plumbing') || t.includes('tsaya') || t.includes('zuba') || t.includes('toshe')) {
+    return SERVICE_CATEGORIES.find((c) => c.id === 'cat_plumbing')
+  }
+  if (t.includes('generator') || t.includes('inji') || t.includes('injin') || t.includes('fetur') || t.includes('dizal') || t.includes('mikano') || t.includes('lister') || t.includes('tiger')) {
+    return SERVICE_CATEGORIES.find((c) => c.id === 'cat_generator')
+  }
+  if (t.includes('solar') || t.includes('inverter') || t.includes('batir') || t.includes('panel') || t.includes('caji') || t.includes('inbata')) {
+    return SERVICE_CATEGORIES.find((c) => c.id === 'cat_solar')
+  }
+  if (t.includes('ac') || t.includes('firiji') || t.includes('fridge') || t.includes('sanyi') || t.includes('gas') || t.includes('compressor')) {
+    return SERVICE_CATEGORIES.find((c) => c.id === 'cat_ac')
+  }
+  if (t.includes('waya') || t.includes('lantarki') || t.includes('wuta') || t.includes('circuit') || t.includes('fanka') || t.includes('socket') || t.includes('switch') || t.includes('db board')) {
+    return SERVICE_CATEGORIES.find((c) => c.id === 'cat_electrical')
+  }
+  return null
+}
 
 export async function handleIncomingWhatsAppMessage(message: any, contact: any) {
   const rawFrom = message.from // e.g. "2349020222290"
@@ -76,6 +98,17 @@ export async function handleIncomingWhatsAppMessage(message: any, contact: any) 
       buttonId = message.interactive.list_reply?.id || ''
       incomingText = message.interactive.list_reply?.title || ''
     }
+  } else if (message.type === 'audio' || message.type === 'voice') {
+    // Recognize Voice Note
+    const voiceNotice =
+      `*CONNECTA KANO*\n` +
+      `Muryar Aiki / Voice Request\n` +
+      `${DIVIDER}\n` +
+      `Mun karɓi saƙon muryarku.\n\n` +
+      `Don tabbatar da an tura muku ma'aikacin da ya dace ba tare da bata lokaci ba, don Allah rubuta yankinku a Kano da matsalar a taƙaice:\n` +
+      `(Misali: "Famfo a Tarauni" ko "Generator a Sabon Gari")`
+
+    return sendTextMessage(rawFrom, voiceNotice)
   }
 
   // 1. TWO-WAY ARTISAN DISPATCH ACTIONS (Accept, En Route, Arrived, Done, Decline)
@@ -96,7 +129,11 @@ export async function handleIncomingWhatsAppMessage(message: any, contact: any) 
     const bookingNumber = parts.slice(2).join('_')
     return sendTextMessage(
       rawFrom,
-      `⭐ Mun gode ƙwarai da bamu maki (${stars} Stars) akan aikin mai lamba *#${bookingNumber}*!\n\nMuna fatan sake yi muku hidima a Connecta Kano 🇳🇬.`
+      `*CONNECTA KANO*\n` +
+      `Mun Gode da Bamu Maki\n` +
+      `${DIVIDER}\n` +
+      `Mun karɓi makinku (${stars} Stars) akan aikin mai lamba #${bookingNumber}.\n\n` +
+      `Muna fatan sake yi muku hidima a Connecta Kano.`
     )
   }
 
@@ -105,12 +142,13 @@ export async function handleIncomingWhatsAppMessage(message: any, contact: any) 
 
   // Retrieve persistent session from database
   let session = getWhatsAppSession(cleanFrom)
+
   if (!session) {
     session = {
       phone: cleanFrom,
       name: userName,
-      language: 'ha',
-      step: 'GREETING',
+      language: undefined as any,
+      step: 'CHOOSE_LANGUAGE',
       lastActive: new Date().toISOString(),
     }
     saveWhatsAppSession(session)
@@ -118,14 +156,77 @@ export async function handleIncomingWhatsAppMessage(message: any, contact: any) 
 
   const lower = incomingText.toLowerCase()
 
-  // Language selection / detection
-  if (buttonId === 'lang_en' || lower === 'english' || lower === 'en') {
-    session.language = 'en'
-  } else if (buttonId === 'lang_ha' || lower.includes('hausa') || lower.startsWith('sannu') || lower.includes('ina son')) {
+  // Language switch commands
+  if (lower === 'harshe' || lower === 'language' || lower === 'lang' || buttonId === 'btn_change_lang') {
+    session.language = undefined as any
+    session.step = 'CHOOSE_LANGUAGE'
+    saveWhatsAppSession(session)
+  }
+
+  if (buttonId === 'lang_ha') {
     session.language = 'ha'
+    session.step = 'CATEGORY'
+    saveWhatsAppSession(session)
+  } else if (buttonId === 'lang_en') {
+    session.language = 'en'
+    session.step = 'CATEGORY'
+    saveWhatsAppSession(session)
+  }
+
+  // Observation #1: First-time user language selection
+  if (!session.language) {
+    return sendInteractiveButtons(
+      rawFrom,
+      `Barka da zuwa Connecta Kano.\nZaɓi yaren da kuke son amfani da shi:\n\nWelcome to Connecta Kano.\nPlease select your preferred language:`,
+      [
+        { id: 'lang_ha', title: '🇳🇬 Hausa' },
+        { id: 'lang_en', title: '🇬🇧 English' },
+      ],
+      'CONNECTA KANO',
+      'Connecta Kano • Amana da Ƙwarewa'
+    )
   }
 
   const isHausa = session.language !== 'en'
+
+  // Smart Keyword Auto-Routing (e.g. user writes "famfo na ya tsaya")
+  const detectedCategory = detectCategoryFromKeywords(incomingText)
+  if (detectedCategory && (session.step === 'GREETING' || session.step === 'CATEGORY' || session.step === 'NEIGHBORHOOD')) {
+    session.selectedCategory = isHausa ? detectedCategory.title : detectedCategory.en
+    session.description = incomingText
+    session.step = 'NEIGHBORHOOD'
+    session.lastActive = new Date().toISOString()
+    saveWhatsAppSession(session)
+
+    const neighborhoodPrompt = isHausa
+      ? `*CONNECTA KANO*\n` +
+        `${session.selectedCategory}\n` +
+        `${DIVIDER}\n` +
+        `Mun fahimci buƙatarku ta ${session.selectedCategory} ("${incomingText}").\n\n` +
+        `Domin turo muku da ƙwararren ma'aikaci mafi kusa, a wane yanki kuke a Kano?`
+      : `*CONNECTA KANO*\n` +
+        `${session.selectedCategory}\n` +
+        `${DIVIDER}\n` +
+        `Understood request for ${session.selectedCategory} ("${incomingText}").\n\n` +
+        `To match you with the closest certified technician, which Kano neighborhood are you in?`
+
+    return sendInteractiveList(
+      rawFrom,
+      neighborhoodPrompt,
+      isHausa ? 'Zaɓi Yanki' : 'Select Area',
+      [
+        {
+          title: isHausa ? 'Yankunan Birnin Kano' : 'Kano Neighborhoods',
+          rows: KANO_NEIGHBORHOODS.map((area, idx) => ({
+            id: `area_${idx}`,
+            title: area.split(' ')[0],
+            description: area,
+          })),
+        },
+      ],
+      isHausa ? 'WURIN DA KUKE A KANO' : 'LOCATION IN KANO'
+    )
+  }
 
   // RESET / RESTART / MENU / GREETING
   if (
@@ -143,8 +244,16 @@ export async function handleIncomingWhatsAppMessage(message: any, contact: any) 
     saveWhatsAppSession(session)
 
     const greetingBody = isHausa
-      ? `Sannu da zuwa *Connecta Kano* 🇳🇬\n\nMuna haɗa ku da ƙwararrun ma'aikatan gyara a Kano cikin amana da cikakken tsaro (*Escrow*).\n\n*Wane irin gyara kuke buƙata yau?*`
-      : `Sannu da zuwa, *${userName}*! Welcome to *Connecta Kano* 🇳🇬\n\nWe connect you with vetted, background-checked repair specialists across Kano with guaranteed Escrow protection.\n\n*What service do you need help with today?*`
+      ? `*CONNECTA KANO*\n` +
+        `Sabis na Gyara da Amana\n` +
+        `${DIVIDER}\n` +
+        `Muna haɗa ku da ƙwararrun ma'aikatan gyara a Kano cikin amana tare da cikakken tsaron kuɗi (Escrow).\n\n` +
+        `Wane irin aikin gyara kuke buƙata yau?`
+      : `*CONNECTA KANO*\n` +
+        `Professional Home Repairs\n` +
+        `${DIVIDER}\n` +
+        `We connect you with vetted, background-checked repair specialists across Kano with guaranteed Escrow protection.\n\n` +
+        `What service do you need help with today?`
 
     return sendInteractiveList(
       rawFrom,
@@ -155,12 +264,12 @@ export async function handleIncomingWhatsAppMessage(message: any, contact: any) 
           title: isHausa ? 'Shahararrun Sabis a Kano' : 'Popular Services in Kano',
           rows: SERVICE_CATEGORIES.map((c) => ({
             id: c.id,
-            title: c.title,
+            title: isHausa ? c.title : c.en,
             description: c.desc,
           })),
         },
       ],
-      '🛠️ Connecta Kano — Sabis na Gyara'
+      isHausa ? 'SABIS NA GYARA' : 'REPAIR SERVICES'
     )
   }
 
@@ -169,15 +278,24 @@ export async function handleIncomingWhatsAppMessage(message: any, contact: any) 
     const matchedCategory = SERVICE_CATEGORIES.find((c) => c.id === buttonId) || {
       id: 'cat_custom',
       title: incomingText || session.selectedCategory || 'Gyara',
+      en: 'Repair',
     }
 
-    session.selectedCategory = matchedCategory.title
+    session.selectedCategory = isHausa ? matchedCategory.title : matchedCategory.en
     session.step = 'NEIGHBORHOOD'
     saveWhatsAppSession(session)
 
     const neighborhoodPrompt = isHausa
-      ? `Madalla! Kun zaɓi *${session.selectedCategory}*.\n\nDomin turo muku da ƙwararren ma'aikaci mafi kusa, *a wane yanki kuke a Kano?*`
-      : `Great! You selected *${session.selectedCategory}*.\n\nTo match you with the closest certified technician, *which Kano neighborhood are you located in?*`
+      ? `*CONNECTA KANO*\n` +
+        `${session.selectedCategory}\n` +
+        `${DIVIDER}\n` +
+        `Madalla. Kun zaɓi ${session.selectedCategory}.\n\n` +
+        `Domin turo muku da ƙwararren ma'aikaci mafi kusa, a wane yanki kuke a Kano?`
+      : `*CONNECTA KANO*\n` +
+        `${session.selectedCategory}\n` +
+        `${DIVIDER}\n` +
+        `Great. You selected ${session.selectedCategory}.\n\n` +
+        `To dispatch the closest certified technician, which Kano neighborhood are you in?`
 
     return sendInteractiveList(
       rawFrom,
@@ -193,7 +311,7 @@ export async function handleIncomingWhatsAppMessage(message: any, contact: any) 
           })),
         },
       ],
-      '📍 Wurin da Kuke a Kano'
+      isHausa ? 'WURIN DA KUKE A KANO' : 'LOCATION IN KANO'
     )
   }
 
@@ -203,24 +321,36 @@ export async function handleIncomingWhatsAppMessage(message: any, contact: any) 
     session.step = 'DESCRIPTION'
     saveWhatsAppSession(session)
 
-    const descPrompt = isHausa
-      ? `Mun gane! Yankin da kuke: *${session.neighborhood}* 📍\n\nDon Allah rubuta gajeren bayani game da matsalar (misali: sunan kamfanin inverter/generator, ko abin da ya lalace):`
-      : `Got it! Location set to *${session.neighborhood}* 📍\n\nPlease briefly describe the issue (e.g. brand, error code, symptoms, or what needs replacement):`
+    if (session.description && session.description !== 'Gyara') {
+      // Proceed straight to creation
+    } else {
+      const descPrompt = isHausa
+        ? `*CONNECTA KANO*\n` +
+          `Bayanin Matsala\n` +
+          `${DIVIDER}\n` +
+          `Yankin da kuke: ${session.neighborhood}\n\n` +
+          `Don Allah rubuta ko faɗi a muryar murya (Voice Note) takaitaccen bayanin abin da ya lalace:`
+        : `*CONNECTA KANO*\n` +
+          `Issue Description\n` +
+          `${DIVIDER}\n` +
+          `Location set to: ${session.neighborhood}\n\n` +
+          `Please reply with a brief text or voice note describing the fault:`
 
-    return sendTextMessage(rawFrom, descPrompt)
+      return sendTextMessage(rawFrom, descPrompt)
+    }
   }
 
   // STEP: ISSUE DESCRIPTION -> ORDER CREATION, ESCROW & ARTISAN DISPATCH
   if (session.step === 'DESCRIPTION') {
-    session.description = incomingText
+    const finalDescription = incomingText || session.description || 'Bincike da Gyara'
+    session.description = finalDescription
 
-    // Create persistent order & booking in database with matching artisan
     const { serviceRequest, booking, artisan } = createWhatsAppOrder({
       phone: cleanFrom,
       name: userName,
-      category: session.selectedCategory || 'Gyara',
-      neighborhood: session.neighborhood || 'Kano',
-      description: incomingText,
+      category: session.selectedCategory || 'Famfo da Ruwa',
+      neighborhood: session.neighborhood || 'Tarauni',
+      description: finalDescription,
     })
 
     const bookingRef = booking.bookingNumber
@@ -233,24 +363,34 @@ export async function handleIncomingWhatsAppMessage(message: any, contact: any) 
     })
 
     const summary = isHausa
-      ? `✅ *An Karɓi Buƙatarku!* (Lamba: *#${bookingRef}*)\n\n` +
-        `🛠️ *Gyara:* ${session.selectedCategory}\n` +
-        `📍 *Wuri:* ${session.neighborhood}, Kano\n` +
-        `👤 *Ma'aikaci:* *${artisan.fullName}* (${artisan.rating || '4.95'}★)\n\n` +
-        `🛡️ *Kuɗin Dubawa (Callout):* *₦5,000* (A Tsare a Connecta)\n\n` +
-        `Domin tura ma'aikaci nan take, amince da ajiye kuɗin a tsare:\n👉 ${escrowUrl}\n\n` +
-        `_Kuɗin ku na nan a kulle. Ba za a biya ma'aikaci ba har sai kun duba aikin kuma kun gamsu._`
-      : `✅ *Request Received & Verified!* (Ref: *${bookingRef}*)\n\n` +
-        `🛠️ *Service:* ${session.selectedCategory}\n` +
-        `📍 *Location:* ${session.neighborhood}, Kano\n` +
-        `👤 *Matched Specialist:* *${artisan.fullName}* (${artisan.rating || '4.95'}★)\n\n` +
-        `🛡️ *Diagnostic & Callout Fee:* *₦5,000* (Guaranteed in Connecta Escrow)\n\n` +
-        `To lock your appointment and dispatch the specialist right now, approve payment securely via Connecta Escrow:\n👉 ${escrowUrl}\n\n` +
-        `_Your funds remain locked and are only released to the artisan after you test and confirm the job is done._`
+      ? `*CONNECTA KANO*\n` +
+        `An Karɓi Buƙatarku\n` +
+        `${DIVIDER}\n` +
+        `• Lambar Aiki: #${bookingRef}\n` +
+        `• Sabis: ${session.selectedCategory}\n` +
+        `• Wuri: ${session.neighborhood}, Kano\n` +
+        `• Ma'aikaci: ${artisan.fullName} (${artisan.rating || '4.9'}★)\n\n` +
+        `• Kuɗin Dubawa: ₦5,000\n` +
+        `${DIVIDER}\n` +
+        `Kariyar Escrow: Kuɗin ku na nan a kulle a banki. Ma'aikaci ba zai karɓi ko sisi ba sai ya gama aiki kuma kun gamsu 100%.\n\n` +
+        `Domin tura ma'aikaci yanzu, danna domin ajiye kuɗi a tsare:\n` +
+        `👉 ${escrowUrl}`
+      : `*CONNECTA KANO*\n` +
+        `Request Received\n` +
+        `${DIVIDER}\n` +
+        `• Booking Ref: #${bookingRef}\n` +
+        `• Service: ${session.selectedCategory}\n` +
+        `• Location: ${session.neighborhood}, Kano\n` +
+        `• Technician: ${artisan.fullName} (${artisan.rating || '4.9'}★)\n\n` +
+        `• Diagnostic Deposit: ₦5,000\n` +
+        `${DIVIDER}\n` +
+        `Escrow Protection: Your deposit remains locked in the vault. The technician is only paid after service is completed and you are 100% satisfied.\n\n` +
+        `Approve deposit to dispatch technician immediately:\n` +
+        `👉 ${escrowUrl}`
 
     await sendTextMessage(rawFrom, summary)
 
-    // REAL-TIME TWO-WAY ARTISAN DISPATCH LOOP
+    // Simultaneously dispatch job alert to artisan
     try {
       await dispatchJobToArtisan({
         booking,
@@ -261,24 +401,9 @@ export async function handleIncomingWhatsAppMessage(message: any, contact: any) 
       console.error('[Error dispatching job to artisan]:', dispErr.message)
     }
 
-    return sendInteractiveButtons(rawFrom, isHausa ? 'Kuna buƙatar wani abu kuma?' : 'Would you like anything else?', [
-      { id: 'btn_call_support', title: isHausa ? '📞 Tuntubi Support' : '📞 Speak with Support' },
-      { id: 'btn_new_request', title: isHausa ? '🔄 Sabon Nemi' : '🔄 New Request' },
-    ])
-  }
-
-  // BUTTON CLICKS POST-MATCHING
-  if (buttonId === 'btn_new_request') {
-    session.step = 'GREETING'
+    session.step = 'WAITING_DISPATCH'
     saveWhatsAppSession(session)
-    return handleIncomingWhatsAppMessage({ type: 'text', text: { body: 'restart' }, from: rawFrom, id: messageId }, contact)
-  }
-
-  if (buttonId === 'btn_call_support') {
-    const supportMsg = isHausa
-      ? `Teburin tallafin Connecta a Kano yana buɗe Litinin - Asabar 8AM - 8PM.\nWaya ko WhatsApp: +234 806 237 2418\nEmail: support@myconnecta.ng`
-      : `Our Kano support desk is available Mon - Sat 8AM - 8PM.\nCall or WhatsApp: +234 806 237 2418\nEmail: support@myconnecta.ng`
-    return sendTextMessage(rawFrom, supportMsg)
+    return
   }
 
   // DEFAULT FALLBACK
