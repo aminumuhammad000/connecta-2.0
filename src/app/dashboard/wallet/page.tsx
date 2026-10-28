@@ -268,17 +268,20 @@ export default function DashboardWalletPage() {
   return (
     <div className="space-y-6">
       {/* Page Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-2 border-b border-zinc-200/60">
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-zinc-900 tracking-tight">
-            Escrow Vault &amp; Wallet
+          <span className="text-[11px] font-mono text-zinc-400 uppercase tracking-wider">
+            Finance &amp; Settlement
+          </span>
+          <h1 className="text-2xl font-bold tracking-tight text-zinc-900 mt-1">
+            Escrow Vault &amp; Balances
           </h1>
-          <p className="text-xs sm:text-sm text-zinc-500 font-normal">
-            Manage your milestone escrow balances, bank payouts, and transaction history.
+          <p className="text-xs text-zinc-500 mt-0.5 font-normal">
+            Milestone escrow locks, automated settlement ledger, and Flutterwave payout rails.
           </p>
         </div>
 
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-2">
           <button
             type="button"
             onClick={() => {
@@ -286,10 +289,10 @@ export default function DashboardWalletPage() {
               setIsEscrowDeposit(false)
               setIsDepositModalOpen(true)
             }}
-            className="inline-flex items-center gap-1.5 rounded-xl bg-[#0C513F] hover:bg-[#083b2e] text-white px-4 py-2.5 text-xs font-semibold shadow-xs transition-all active:scale-98"
+            className="inline-flex items-center gap-1.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-white px-3.5 py-2 text-xs font-medium transition-colors shadow-xs cursor-pointer"
           >
-            <ArrowDownLeft className="w-4 h-4" />
-            <span>Deposit</span>
+            <ArrowDownLeft className="w-3.5 h-3.5" />
+            <span>Deposit Funds</span>
           </button>
 
           <button
@@ -298,9 +301,9 @@ export default function DashboardWalletPage() {
               setAmountInput('25000')
               setIsWithdrawModalOpen(true)
             }}
-            className="inline-flex items-center gap-1.5 rounded-xl bg-white hover:bg-zinc-50 text-zinc-800 border border-zinc-200 px-4 py-2.5 text-xs font-semibold shadow-xs transition-all active:scale-98"
+            className="inline-flex items-center gap-1.5 rounded-xl bg-white hover:bg-zinc-50 text-zinc-700 border border-zinc-200 px-3.5 py-2 text-xs font-medium transition-colors cursor-pointer"
           >
-            <ArrowUpRight className="w-4 h-4" />
+            <ArrowUpRight className="w-3.5 h-3.5" />
             <span>Withdraw</span>
           </button>
         </div>
@@ -321,51 +324,40 @@ export default function DashboardWalletPage() {
         </div>
       )}
 
-      {/* 2 Clean Focused Balance Cards */}
+      {/* Modern Minimalist Balance Strip */}
       {isLoading ? (
         <div className="py-12 flex flex-col items-center justify-center gap-2">
-          <Loader2 className="w-6 h-6 text-[#0C513F] animate-spin" />
+          <Loader2 className="w-5 h-5 text-zinc-600 animate-spin" />
           <span className="text-xs font-medium text-zinc-400">Loading wallet balances...</span>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {/* Card 1: Available Balance */}
-          <div className="bg-white rounded-2xl p-5 border border-zinc-200/80 shadow-xs space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-medium text-zinc-500">
-                Available Balance
-              </span>
-              <div className="w-8 h-8 rounded-lg bg-zinc-50 border border-zinc-100 text-zinc-600 flex items-center justify-center">
-                <Wallet className="w-4 h-4 text-[#0C513F]" />
+        <div className="bg-white rounded-2xl border border-zinc-200/80 p-5 shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
+          <div className="grid grid-cols-1 sm:grid-cols-2 divide-y sm:divide-y-0 sm:divide-x divide-zinc-100">
+            <div className="p-4 space-y-1.5">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-medium text-zinc-400">Available Balance</span>
+                <Wallet className="w-4 h-4 text-zinc-400" />
               </div>
-            </div>
-            <div>
-              <div className="text-2xl sm:text-3xl font-bold text-zinc-900 tracking-tight">
+              <div className="text-2xl sm:text-3xl font-bold tracking-tight text-zinc-900">
                 {formatMinorToNaira(availableBalanceMinor)}
               </div>
-              <div className="text-[11px] font-normal text-zinc-400 mt-0.5">
-                Available for instant withdrawal to bank or milestone funding
-              </div>
+              <p className="text-[11px] text-zinc-400 font-normal">
+                Disbursable to your linked Nigerian bank account anytime
+              </p>
             </div>
-          </div>
 
-          {/* Card 2: Protected Escrow Vault */}
-          <div className="bg-white rounded-2xl p-5 border border-zinc-200/80 shadow-xs space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-medium text-zinc-500">
-                Protected in Escrow
-              </span>
-              <div className="w-8 h-8 rounded-lg bg-emerald-50 border border-emerald-100 text-[#0C513F] flex items-center justify-center">
-                <ShieldCheck className="w-4 h-4 text-[#0C513F]" />
+            <div className="p-4 space-y-1.5">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-medium text-zinc-400">Protected in Escrow Vault</span>
+                <ShieldCheck className="w-4 h-4 text-emerald-600" />
               </div>
-            </div>
-            <div>
-              <div className="text-2xl sm:text-3xl font-bold text-[#0C513F] tracking-tight">
+              <div className="text-2xl sm:text-3xl font-bold tracking-tight text-zinc-900">
                 {formatMinorToNaira(escrowBalanceMinor)}
               </div>
-              <div className="text-[11px] font-normal text-zinc-400 mt-0.5">
-                Held securely in vault until you inspect and approve milestones
-              </div>
+              <p className="text-[11px] text-emerald-700 font-medium flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                Guarded under Connecta CBN-compliant escrow charter
+              </p>
             </div>
           </div>
         </div>

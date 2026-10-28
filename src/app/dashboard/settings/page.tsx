@@ -129,11 +129,14 @@ export default function DashboardSettingsPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-xl sm:text-2xl font-bold text-zinc-900 tracking-tight">
-          Account &amp; Payout Settings
+      <div className="pb-2 border-b border-zinc-200/60">
+        <span className="text-[11px] font-mono text-zinc-400 uppercase tracking-wider">
+          Account &amp; Settlement
+        </span>
+        <h1 className="text-2xl font-bold tracking-tight text-zinc-900 mt-1">
+          Settings &amp; Payout Account
         </h1>
-        <p className="text-xs sm:text-sm text-zinc-500 font-normal">
+        <p className="text-xs text-zinc-500 mt-0.5 font-normal">
           Manage your trade identity, contact channels, and Nigerian bank account for escrow settlements.
         </p>
       </div>

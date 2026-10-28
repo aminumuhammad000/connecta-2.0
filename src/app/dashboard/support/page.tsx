@@ -92,26 +92,26 @@ export default function DashboardSupportPage() {
   return (
     <div className="space-y-6">
       {/* Page Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-2 border-b border-zinc-200/60">
         <div>
-          <span className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider">
+          <span className="text-[11px] font-mono text-zinc-400 uppercase tracking-wider">
             Escrow Protection &amp; FAQs
           </span>
           <h1 className="text-2xl font-bold tracking-tight text-zinc-900 mt-1">
             Support &amp; Escrow Charter
           </h1>
-          <p className="text-sm text-zinc-500 mt-0.5">
-            Understand milestone release conditions, escrow safeguards, and arbitration rules.
+          <p className="text-xs text-zinc-500 mt-0.5 font-normal">
+            Milestone release conditions, dispute resolution protocols, and arbitration rules.
           </p>
         </div>
 
         <button
           type="button"
           onClick={() => setIsModalOpen(true)}
-          className="inline-flex items-center gap-2 rounded-xl bg-zinc-900 hover:bg-[#0C513F] text-white px-4 py-2 text-xs font-semibold shadow-xs transition-colors shrink-0 cursor-pointer"
+          className="inline-flex items-center gap-1.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-white px-3.5 py-2 text-xs font-medium transition-colors shadow-xs shrink-0 cursor-pointer"
         >
           <Plus className="w-3.5 h-3.5" />
-          <span>Open Arbitration Inquiry</span>
+          <span>Open Inquiry</span>
         </button>
       </div>
 
