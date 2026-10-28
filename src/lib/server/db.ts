@@ -41,6 +41,9 @@ export interface ServerUserProfile {
   companyWebsite?: string
   clientIndustry?: string
   clientGoal?: string
+  bankName?: string
+  accountNumber?: string
+  accountName?: string
   welcomeSparks?: number
   createdAt: string
   updatedAt: string

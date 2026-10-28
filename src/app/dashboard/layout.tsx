@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname, useRouter } from 'next/navigation'
@@ -16,6 +16,11 @@ import {
   PlusCircle,
   LogOut,
   Sparkles,
+  Settings,
+  Bell,
+  Command,
+  ArrowRight,
+  CheckCircle2,
 } from 'lucide-react'
 
 interface DashboardLayoutProps {
@@ -34,13 +39,11 @@ interface ServerUserData {
   currency: string
   avatarUrl?: string | null
   headline?: string
-  trade?: string
-  bio?: string
-  skills?: string[]
   companyName?: string
 }
 
 interface ServerWalletData {
+  id: string
   balanceMinor: number
   escrowBalanceMinor: number
   sparksBalance: number
@@ -51,52 +54,83 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const pathname = usePathname()
   const router = useRouter()
 
-  // State
   const [user, setUser] = useState<ServerUserData | null>(null)
   const [wallet, setWallet] = useState<ServerWalletData | null>(null)
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isLoadingUser, setIsLoadingUser] = useState(true)
-  const [openJobsCount, setOpenJobsCount] = useState(0)
-  const [activeProjectsCount, setActiveProjectsCount] = useState(0)
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
-  const fetchDashboardData = async () => {
+  // Command Palette & Notifications State
+  const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false)
+  const [commandQuery, setCommandQuery] = useState('')
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false)
+  const notificationsRef = useRef<HTMLDivElement>(null)
+
+  // In-flight contract counts
+  const [activeProjectsCount, setActiveProjectsCount] = useState(0)
+  const [openJobsCount, setOpenJobsCount] = useState(0)
+
+  // Close notifications on outside click
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (notificationsRef.current && !notificationsRef.current.contains(e.target as Node)) {
+        setIsNotificationsOpen(false)
+      }
+    }
+    if (isNotificationsOpen) {
+      document.addEventListener('mousedown', handleClickOutside)
+    }
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [isNotificationsOpen])
+
+  // Global Command Palette Shortcut (⌘K / Ctrl+K)
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault()
+        setIsCommandPaletteOpen((prev) => !prev)
+      }
+      if (e.key === 'Escape') {
+        setIsCommandPaletteOpen(false)
+        setIsNotificationsOpen(false)
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [])
+
+  // Sync state from server on mount
+  const syncServerData = async () => {
     try {
       const res = await fetch('/api/dashboard/overview')
       if (res.ok) {
         const body = await res.json()
         if (body.data) {
-          const u = body.data.user
-          setUser(u)
-          setWallet(body.data.wallet)
-
-          if (body.data.recentJobs) {
-            setOpenJobsCount(body.data.recentJobs.length)
-          }
-          if (body.data.activeBooking) {
-            setActiveProjectsCount(1)
-          } else {
-            setActiveProjectsCount(0)
-          }
+          setUser(body.data.user || null)
+          setWallet(body.data.wallet || null)
+          setActiveProjectsCount(body.data.activeMilestonesCount || 0)
+          setOpenJobsCount(body.data.openJobsCount || 0)
         }
       }
     } catch (err) {
-      console.error('Failed to fetch dashboard layout data:', err)
+      console.error('Failed to sync overview data:', err)
     } finally {
       setIsLoadingUser(false)
     }
   }
 
   useEffect(() => {
-    fetchDashboardData()
-  }, [])
+    syncServerData()
+  }, [pathname])
 
-  const handleLogout = () => {
-    document.cookie = 'connecta_session=; path=/; max-age=0'
-    document.cookie = 'connecta_role=; path=/; max-age=0'
-    router.push('/login')
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' })
+      router.push('/login')
+    } catch {
+      router.push('/login')
+    }
   }
 
-  // Format currency
   const formatNaira = (minor: number) => {
     const val = minor / 100
     if (val >= 1000) {
@@ -149,10 +183,57 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       badgeColor: 'bg-emerald-50 text-emerald-700 border-emerald-200/60',
     },
     {
+      label: 'Settings & Payouts',
+      path: '/dashboard/settings',
+      icon: Settings,
+      badge: null,
+    },
+    {
       label: 'Help & FAQs',
       path: '/dashboard/support',
       icon: HelpCircle,
       badge: null,
+    },
+  ]
+
+  // Command palette quick actions
+  const commandPaletteItems = [
+    { label: 'Overview', description: 'Main dashboard metrics and recent contracts', path: '/dashboard', icon: LayoutDashboard },
+    { label: 'Projects & Contracts', description: 'Review deliverables and release milestone payments', path: '/dashboard/projects', icon: Briefcase },
+    { label: 'Marketplace Job Briefs', description: 'Browse verified client briefs and submit proposals', path: '/dashboard/jobs', icon: Search },
+    { label: 'Escrow Wallet', description: 'Manage protected escrow vault and withdrawals', path: '/dashboard/wallet', icon: Wallet },
+    { label: 'AI Service Search', description: 'Ask the AI diagnostic chat to locate vetted trades', path: '/ai', icon: Sparkles },
+    { label: 'Account & Payout Settings', description: 'Set Nigerian bank account for automated payouts', path: '/dashboard/settings', icon: Settings },
+    { label: 'Support & Escrow Charter', description: 'Review dispute resolution protocols and FAQs', path: '/dashboard/support', icon: HelpCircle },
+    { label: 'Post New Job Request', description: 'Broadcast a verified trade brief to local artisans', path: '/requests/new', icon: PlusCircle },
+  ]
+
+  const filteredCommands = commandPaletteItems.filter((item) =>
+    item.label.toLowerCase().includes(commandQuery.toLowerCase()) ||
+    item.description.toLowerCase().includes(commandQuery.toLowerCase())
+  )
+
+  const notifications = [
+    {
+      id: '1',
+      title: 'Milestone Disbursed',
+      desc: '₦180,000 for Inverter Mounting settled to provider',
+      time: '12m ago',
+      unread: true,
+    },
+    {
+      id: '2',
+      title: 'New Proposal Received',
+      desc: 'Tunde Electrical quoted on Lekki Phase 1 Solar Project',
+      time: '1h ago',
+      unread: true,
+    },
+    {
+      id: '3',
+      title: 'Escrow Vault Funded',
+      desc: '₦450,000 locked safely for Commercial Conduit Rewiring',
+      time: '3h ago',
+      unread: false,
     },
   ]
 
@@ -195,20 +276,21 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             </Link>
           </div>
 
-          {/* Center Quick AI Search Trigger */}
-          <Link
-            href="/ai"
-            className="hidden md:flex items-center gap-2.5 px-3.5 py-2 rounded-xl bg-zinc-50 hover:bg-zinc-100/80 border border-zinc-200/80 text-xs text-zinc-500 hover:text-zinc-800 transition-all w-72 lg:w-96 group shadow-2xs"
+          {/* Center Quick Command Search Trigger */}
+          <button
+            type="button"
+            onClick={() => setIsCommandPaletteOpen(true)}
+            className="hidden md:flex items-center gap-2.5 px-3.5 py-2 rounded-xl bg-zinc-50 hover:bg-zinc-100/80 border border-zinc-200/80 text-xs text-zinc-500 hover:text-zinc-800 transition-all w-72 lg:w-96 group shadow-2xs cursor-pointer text-left"
           >
-            <Sparkles className="w-3.5 h-3.5 text-[#0C513F] group-hover:scale-110 transition-transform" />
-            <span className="flex-1 text-left font-medium">Ask AI to find trades or describe work...</span>
-            <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-white border border-zinc-200 text-zinc-400">
-              AI
+            <Search className="w-3.5 h-3.5 text-zinc-400 group-hover:text-zinc-600 transition-colors" />
+            <span className="flex-1 font-medium">Search contracts, jobs, or jump to...</span>
+            <span className="inline-flex items-center gap-0.5 text-[10px] font-semibold px-1.5 py-0.5 rounded bg-white border border-zinc-200 text-zinc-400">
+              <Command className="w-2.5 h-2.5" /> K
             </span>
-          </Link>
+          </button>
 
           {/* Quick Header Actions */}
-          <div className="flex items-center gap-2.5 sm:gap-3">
+          <div className="flex items-center gap-2 sm:gap-2.5">
             {/* Escrow Balance Pill */}
             <Link
               href="/dashboard/wallet"
@@ -220,32 +302,91 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               </span>
             </Link>
 
+            {/* Notifications Popover Trigger */}
+            <div className="relative" ref={notificationsRef}>
+              <button
+                type="button"
+                onClick={() => setIsNotificationsOpen((prev) => !prev)}
+                className="relative p-2 rounded-xl text-zinc-500 hover:text-zinc-800 hover:bg-zinc-100 transition-colors cursor-pointer"
+                aria-label="View notifications"
+              >
+                <Bell className="w-4 h-4" />
+                <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-[#0C513F] ring-2 ring-white" />
+              </button>
+
+              {/* Minimal Notifications Drawer */}
+              {isNotificationsOpen && (
+                <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-white rounded-2xl shadow-xl border border-zinc-200/80 p-4 space-y-3 z-50 animate-in fade-in zoom-in-95 duration-150">
+                  <div className="flex items-center justify-between pb-2 border-b border-zinc-100">
+                    <span className="text-xs font-bold text-zinc-900">Escrow &amp; Contract Activity</span>
+                    <span className="text-[10px] text-zinc-400 font-medium">All updates saved</span>
+                  </div>
+
+                  <div className="space-y-2">
+                    {notifications.map((n) => (
+                      <div
+                        key={n.id}
+                        className={`p-2.5 rounded-xl text-xs transition-colors ${
+                          n.unread ? 'bg-zinc-50/90 border border-zinc-200/60' : 'bg-white'
+                        }`}
+                      >
+                        <div className="flex items-center justify-between">
+                          <span className="font-semibold text-zinc-900">{n.title}</span>
+                          <span className="text-[10px] text-zinc-400">{n.time}</span>
+                        </div>
+                        <p className="text-zinc-600 text-[11px] mt-0.5">{n.desc}</p>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="pt-2 border-t border-zinc-100 flex items-center justify-between text-xs">
+                    <Link
+                      href="/dashboard/wallet"
+                      onClick={() => setIsNotificationsOpen(false)}
+                      className="text-[#0C513F] font-semibold hover:underline"
+                    >
+                      View Escrow Ledger
+                    </Link>
+                    <button
+                      type="button"
+                      onClick={() => setIsNotificationsOpen(false)}
+                      className="text-zinc-400 hover:text-zinc-600 text-[11px]"
+                    >
+                      Dismiss
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+
             {/* Action CTA Button */}
             <Link
               href="/requests/new"
-              className="inline-flex items-center gap-1.5 rounded-xl bg-[#0C513F] hover:bg-[#083b2e] text-white px-3.5 sm:px-4 py-2 text-xs font-semibold shadow-xs hover:shadow transition-all active:scale-98"
+              className="inline-flex items-center gap-1.5 rounded-xl bg-[#0C513F] hover:bg-[#083b2e] text-white px-3 sm:px-3.5 py-1.5 sm:py-2 text-xs font-semibold shadow-xs transition-all active:scale-98"
             >
               <PlusCircle className="w-3.5 h-3.5" />
               <span className="hidden xs:inline">Post Request</span>
             </Link>
 
             {/* User Profile Avatar with Initials */}
-            <div className="flex items-center gap-2 pl-2 border-l border-zinc-200">
-              {user?.avatarUrl ? (
-                <div className="relative w-8 h-8 rounded-full overflow-hidden border border-zinc-200 shadow-2xs">
+            <div className="flex items-center gap-1.5 pl-2 border-l border-zinc-200">
+              <Link
+                href="/dashboard/settings"
+                title="Account Settings"
+                className="relative w-8 h-8 rounded-full overflow-hidden border border-zinc-200 shadow-2xs flex items-center justify-center bg-zinc-900 text-white font-bold text-xs hover:opacity-90 transition-opacity"
+              >
+                {user?.avatarUrl ? (
                   <Image src={user.avatarUrl} alt={userDisplayName} fill className="object-cover" />
-                </div>
-              ) : (
-                <div className="w-8 h-8 rounded-full bg-zinc-900 text-white font-bold text-xs flex items-center justify-center shadow-2xs">
-                  {userInitials}
-                </div>
-              )}
+                ) : (
+                  userInitials
+                )}
+              </Link>
 
               <button
                 type="button"
                 onClick={handleLogout}
                 title="Sign out of Connecta"
-                className="p-1.5 rounded-lg text-zinc-400 hover:text-rose-600 hover:bg-rose-50 transition-colors"
+                className="p-1.5 rounded-lg text-zinc-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
               >
                 <LogOut className="w-4 h-4" />
               </button>
@@ -259,7 +400,10 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         {/* Desktop Sidebar Navigation */}
         <aside className="hidden lg:flex flex-col w-60 shrink-0 space-y-4">
           {/* User Account Snippet */}
-          <div className="bg-white rounded-2xl p-4 border border-zinc-200/80 shadow-xs space-y-2">
+          <Link
+            href="/dashboard/settings"
+            className="bg-white rounded-2xl p-4 border border-zinc-200/80 shadow-[0_1px_2px_rgba(0,0,0,0.03)] space-y-2 hover:border-zinc-300 transition-colors block"
+          >
             <div className="flex items-center gap-3">
               <div className="relative w-10 h-10 rounded-xl overflow-hidden bg-zinc-100 border border-zinc-200/80 shrink-0 flex items-center justify-center">
                 {user?.avatarUrl ? (
@@ -279,10 +423,10 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                 </div>
               </div>
             </div>
-          </div>
+          </Link>
 
           {/* Navigation Links */}
-          <nav className="bg-white rounded-2xl p-2 border border-zinc-200/80 shadow-xs space-y-0.5">
+          <nav className="bg-white rounded-2xl p-2 border border-zinc-200/80 shadow-[0_1px_2px_rgba(0,0,0,0.03)] space-y-0.5">
             {navItems.map((item) => {
               const isActive = pathname === item.path
               const Icon = item.icon
@@ -290,7 +434,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                 <Link
                   key={item.path}
                   href={item.path}
-                  className={`flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-medium transition-all ${
+                  className={`flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-medium transition-colors ${
                     isActive
                       ? 'bg-[#0C513F] text-white shadow-2xs font-semibold'
                       : 'text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100/80'
@@ -353,7 +497,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                       key={item.path}
                       href={item.path}
                       onClick={() => setIsMobileMenuOpen(false)}
-                      className={`flex items-center justify-between px-3.5 py-3 rounded-xl text-xs font-medium transition-all ${
+                      className={`flex items-center justify-between px-3.5 py-3 rounded-xl text-xs font-medium transition-colors ${
                         isActive
                           ? 'bg-[#0C513F] text-white shadow-2xs font-semibold'
                           : 'text-zinc-700 hover:bg-zinc-100'
@@ -385,6 +529,70 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         {/* Dynamic Route Content */}
         <main className="flex-1 min-w-0">{children}</main>
       </div>
+
+      {/* Global Command Palette Modal (⌘K) */}
+      {isCommandPaletteOpen && (
+        <div className="fixed inset-0 z-50 bg-black/30 backdrop-blur-xs flex items-start justify-center p-4 pt-20">
+          <div className="bg-white rounded-2xl max-w-xl w-full p-4 shadow-2xl border border-zinc-200/80 space-y-3 animate-in zoom-in-95 duration-150">
+            <div className="relative">
+              <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" />
+              <input
+                type="text"
+                autoFocus
+                placeholder="Search screens, actions, contracts... (Esc to close)"
+                value={commandQuery}
+                onChange={(e) => setCommandQuery(e.target.value)}
+                className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-zinc-50/80 border border-zinc-200 text-xs font-medium text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:border-[#0C513F] focus:bg-white transition-colors"
+              />
+            </div>
+
+            <div className="space-y-1 max-h-72 overflow-y-auto">
+              {filteredCommands.length > 0 ? (
+                filteredCommands.map((cmd) => {
+                  const Icon = cmd.icon
+                  return (
+                    <button
+                      key={cmd.path}
+                      type="button"
+                      onClick={() => {
+                        setIsCommandPaletteOpen(false)
+                        setCommandQuery('')
+                        router.push(cmd.path)
+                      }}
+                      className="w-full text-left p-2.5 rounded-xl hover:bg-zinc-100 flex items-center justify-between gap-3 transition-colors cursor-pointer group"
+                    >
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <div className="w-7 h-7 rounded-lg bg-zinc-100 group-hover:bg-[#0C513F] group-hover:text-white text-zinc-600 flex items-center justify-center shrink-0 transition-colors">
+                          <Icon className="w-3.5 h-3.5" />
+                        </div>
+                        <div className="min-w-0">
+                          <div className="text-xs font-semibold text-zinc-900 group-hover:text-[#0C513F] transition-colors truncate">
+                            {cmd.label}
+                          </div>
+                          <div className="text-[11px] text-zinc-400 truncate font-normal">
+                            {cmd.description}
+                          </div>
+                        </div>
+                      </div>
+
+                      <ArrowRight className="w-3.5 h-3.5 text-zinc-300 group-hover:text-zinc-600 transition-colors shrink-0" />
+                    </button>
+                  )
+                })
+              ) : (
+                <div className="py-6 text-center text-xs text-zinc-400">
+                  No matching screens or actions found.
+                </div>
+              )}
+            </div>
+
+            <div className="pt-2 border-t border-zinc-100 flex items-center justify-between text-[11px] text-zinc-400 px-1">
+              <span>Navigate with cursor or keys</span>
+              <span>Press Esc to exit</span>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
