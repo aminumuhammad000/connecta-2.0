@@ -78,7 +78,7 @@ export default function DashboardSupportPage() {
         setIsModalOpen(false)
         setDisputeTitle('')
         setDisputeReason('')
-        setNotice('Arbitration inquiry submitted to Connecta Escrow Mediation Desk.')
+        setNotice('Arbitration inquiry submitted to Connecta Mediation Desk.')
         await fetchDisputes()
         setTimeout(() => setNotice(null), 4000)
       }
@@ -95,10 +95,10 @@ export default function DashboardSupportPage() {
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-2 border-b border-zinc-200/60">
         <div>
           <span className="text-[11px] font-mono text-zinc-400 uppercase tracking-wider">
-            Escrow Protection &amp; FAQs
+            Platform Protection &amp; FAQs
           </span>
           <h1 className="text-2xl font-bold tracking-tight text-zinc-900 mt-1">
-            Support &amp; Escrow Charter
+            Support &amp; Platform Charter
           </h1>
           <p className="text-xs text-zinc-500 mt-0.5 font-normal">
             Milestone release conditions, dispute resolution protocols, and arbitration rules.
@@ -129,7 +129,7 @@ export default function DashboardSupportPage() {
             Active Arbitration &amp; Dispute Tickets
           </h3>
           <p className="text-xs text-zinc-500 font-normal">
-            Real-time audit trail of formal claims safeguarded by Connecta Escrow Desk.
+            Real-time audit trail of formal claims safeguarded by Connecta Mediation Desk.
           </p>
         </div>
 
@@ -168,7 +168,7 @@ export default function DashboardSupportPage() {
             <div>
               <div className="font-semibold text-xs text-zinc-900">All Clear — Zero Active Disputes</div>
               <div className="text-xs text-zinc-500 font-normal">
-                Your escrow milestone payments and trade interactions are in complete compliance.
+                Your milestone payments and trade interactions are in complete compliance.
               </div>
             </div>
           </div>
@@ -185,7 +185,7 @@ export default function DashboardSupportPage() {
                 Frequently Asked Questions
               </h2>
               <p className="text-xs text-zinc-500 font-normal mt-1">
-                Select a topic below to review verified escrow rules and safeguards.
+                Select a topic below to review verified charter rules and safeguards.
               </p>
             </div>
 

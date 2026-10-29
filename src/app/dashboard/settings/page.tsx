@@ -137,7 +137,7 @@ export default function DashboardSettingsPage() {
           Settings &amp; Payout Account
         </h1>
         <p className="text-xs text-zinc-500 mt-0.5 font-normal">
-          Manage your trade identity, contact channels, and Nigerian bank account for escrow settlements.
+          Manage your trade identity, contact channels, and Nigerian bank account for milestone settlements.
         </p>
       </div>
 

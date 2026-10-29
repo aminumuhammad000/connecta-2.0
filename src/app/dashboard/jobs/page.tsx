@@ -130,7 +130,7 @@ export default function DashboardProfessionalsPage() {
 
       if (res.ok) {
         setHireSuccessNotice(
-          `Escrow milestone agreement initiated with ${activeHiringProvider.fullName}! Protected funds: ₦${Number(escrowAmountNaira).toLocaleString('en-NG')}.`
+          `Milestone agreement initiated with ${activeHiringProvider.fullName}! Protected funds: ₦${Number(escrowAmountNaira).toLocaleString('en-NG')}.`
         )
         setActiveHiringProvider(null)
         setProjectTitle('')
@@ -155,7 +155,7 @@ export default function DashboardProfessionalsPage() {
           Find Service Professionals
         </h1>
         <p className="text-xs text-zinc-500 mt-0.5 font-normal">
-          Hire vetted electricians, plumbers, solar engineers, and technicians with CBN escrow-backed payment protection.
+          Hire vetted electricians, plumbers, solar engineers, and technicians with guaranteed payment protection.
         </p>
       </div>
 
@@ -357,14 +357,14 @@ export default function DashboardProfessionalsPage() {
         </div>
       )}
 
-      {/* Direct Engagement & Escrow Deposit Modal */}
+      {/* Direct Engagement & Milestone Deposit Modal */}
       {activeHiringProvider && (
         <div className="fixed inset-0 z-50 bg-black/30 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl max-w-lg w-full p-6 space-y-5 shadow-xl border border-zinc-200/80">
             <div className="flex items-start justify-between gap-4 pb-3 border-b border-zinc-100">
               <div>
                 <span className="text-[11px] font-medium px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-800 border border-emerald-200/60">
-                  Direct Escrow Contract
+                  Direct Milestone Contract
                 </span>
                 <h3 className="text-base font-semibold text-zinc-900 mt-1.5">
                   Hire &amp; Protect Milestone Funds with {activeHiringProvider.fullName}
@@ -405,7 +405,7 @@ export default function DashboardProfessionalsPage() {
               </div>
 
               <div className="space-y-1.5">
-                <label className="font-medium text-zinc-700">Escrow Milestone Amount (NGN ₦)</label>
+                <label className="font-medium text-zinc-700">Milestone Contract Amount (NGN ₦)</label>
                 <input
                   type="number"
                   value={escrowAmountNaira}
@@ -418,7 +418,7 @@ export default function DashboardProfessionalsPage() {
               <div className="p-3.5 rounded-xl bg-zinc-50 border border-zinc-200/80 text-zinc-600 text-xs flex items-start gap-2.5">
                 <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
                 <div className="space-y-0.5">
-                  <div className="font-medium text-zinc-900">Protected in Connecta Escrow Vault</div>
+                  <div className="font-medium text-zinc-900">Protected in Connecta Vault</div>
                   <div>
                     Your funds are held securely until you personally inspect and approve the completed job. The specialist will not receive payment until you authorize milestone release.
                   </div>
@@ -439,7 +439,7 @@ export default function DashboardProfessionalsPage() {
                   className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#0C513F] hover:bg-[#083b2e] text-white text-xs font-semibold shadow-xs transition-colors cursor-pointer disabled:opacity-60"
                 >
                   {isSubmittingHire ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <ShieldCheck className="w-3.5 h-3.5" />}
-                  <span>{isSubmittingHire ? 'Securing Agreement...' : 'Confirm & Lock Escrow'}</span>
+                  <span>{isSubmittingHire ? 'Securing Agreement...' : 'Confirm & Lock Funds'}</span>
                 </button>
               </div>
             </form>

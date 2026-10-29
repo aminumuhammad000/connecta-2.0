@@ -125,7 +125,7 @@ export default function DashboardOverviewPage() {
             Good day, {user.firstName || user.fullName}
           </h1>
           <p className="text-xs text-zinc-500 mt-0.5 font-normal">
-            Your active milestone contracts, verified artisan proposals, and protected escrow balance.
+            Your active milestone contracts, verified artisan proposals, and protected vault balance.
           </p>
         </div>
 
@@ -151,7 +151,7 @@ export default function DashboardOverviewPage() {
       <div className="bg-white rounded-2xl border border-zinc-200/80 p-5 shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
         <div className="grid grid-cols-2 md:grid-cols-4 divide-y md:divide-y-0 md:divide-x divide-zinc-100">
           <div className="p-3 sm:p-4 space-y-1">
-            <span className="text-[11px] font-medium text-zinc-400 block">Protected in Escrow</span>
+            <span className="text-[11px] font-medium text-zinc-400 block">Protected in Vault</span>
             <div className="text-xl sm:text-2xl font-bold tracking-tight text-zinc-900">
               {wallet ? formatNaira(wallet.escrowBalanceMinor) : '₦0'}
             </div>
@@ -196,7 +196,7 @@ export default function DashboardOverviewPage() {
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-sm font-bold text-zinc-900">In-Flight Contract</h2>
-            <p className="text-xs text-zinc-500">Milestone deliverables guarded by Connecta escrow.</p>
+            <p className="text-xs text-zinc-500">Milestone deliverables guarded by Connecta security.</p>
           </div>
           <Link
             href="/dashboard/projects"
@@ -222,7 +222,7 @@ export default function DashboardOverviewPage() {
               </div>
 
               <div className="text-left sm:text-right">
-                <span className="text-[11px] text-zinc-400 font-medium block">Total Escrow Value</span>
+                <span className="text-[11px] text-zinc-400 font-medium block">Total Contract Value</span>
                 <span className="text-base font-bold text-zinc-900">
                   {formatMinorToNaira(activeBooking.totalAmountMinor)}
                 </span>
@@ -291,7 +291,7 @@ export default function DashboardOverviewPage() {
         ) : (
           <div className="p-8 text-center bg-white border border-zinc-200/80 rounded-2xl space-y-2">
             <div className="text-xs font-semibold text-zinc-900">Zero In-Flight Contracts</div>
-            <p className="text-xs text-zinc-400">Hire a verified specialist to initiate an escrow agreement.</p>
+            <p className="text-xs text-zinc-400">Hire a verified specialist to initiate a protected agreement.</p>
           </div>
         )}
       </div>
@@ -301,7 +301,7 @@ export default function DashboardOverviewPage() {
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-sm font-bold text-zinc-900">Featured Service Professionals</h2>
-            <p className="text-xs text-zinc-500">Vetted electricians, plumbers, and engineers ready for milestone escrow contracts.</p>
+            <p className="text-xs text-zinc-500">Vetted electricians, plumbers, and engineers ready for milestone contracts.</p>
           </div>
           <Link
             href="/dashboard/jobs"

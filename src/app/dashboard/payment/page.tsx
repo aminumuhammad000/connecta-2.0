@@ -110,7 +110,7 @@ export default function DashboardPaymentPage() {
       if (txRef && status === 'successful') {
         window.history.replaceState({}, '', window.location.pathname)
         setIsSubmitting(true)
-        setStatusNotice('Verifying payment and securing funds in escrow...')
+        setStatusNotice('Verifying payment and securing funds safely...')
 
         fetch('/api/payments/flutterwave/verify', {
           method: 'POST',
@@ -185,7 +185,7 @@ export default function DashboardPaymentPage() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             amountMinor: numeric * 100,
-            title: isEscrowDeposit ? 'Escrow Milestone Deposit' : 'Connecta Wallet Deposit',
+            title: isEscrowDeposit ? 'Milestone Contract Deposit' : 'Connecta Wallet Deposit',
             isEscrow: isEscrowDeposit,
           }),
         })
@@ -205,7 +205,7 @@ export default function DashboardPaymentPage() {
         body: JSON.stringify({
           amountMinor: numeric * 100,
           isEscrow: isEscrowDeposit,
-          notes: isEscrowDeposit ? 'Escrow vault milestone lock' : 'Wallet balance credit',
+          notes: isEscrowDeposit ? 'Protected vault milestone lock' : 'Wallet balance credit',
         }),
       })
 
@@ -274,10 +274,10 @@ export default function DashboardPaymentPage() {
             Finance &amp; Settlement
           </span>
           <h1 className="text-2xl font-bold tracking-tight text-zinc-900 mt-1">
-            Payment &amp; Escrow
+            Payment &amp; Settlement
           </h1>
           <p className="text-xs text-zinc-500 mt-0.5 font-normal">
-            Milestone escrow locks, automated settlement ledger, and Flutterwave payout rails.
+            Milestone payment locks, automated settlement ledger, and Flutterwave payout rails.
           </p>
         </div>
 
@@ -348,7 +348,7 @@ export default function DashboardPaymentPage() {
 
             <div className="p-4 space-y-1.5">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-medium text-zinc-400">Protected in Escrow Vault</span>
+                <span className="text-xs font-medium text-zinc-400">Protected Vault Balance</span>
                 <ShieldCheck className="w-4 h-4 text-emerald-600" />
               </div>
               <div className="text-2xl sm:text-3xl font-bold tracking-tight text-zinc-900">
@@ -356,7 +356,7 @@ export default function DashboardPaymentPage() {
               </div>
               <p className="text-[11px] text-emerald-700 font-medium flex items-center gap-1">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                Guarded under Connecta CBN-compliant escrow charter
+                Guarded under Connecta CBN-compliant security charter
               </p>
             </div>
           </div>
@@ -371,7 +371,7 @@ export default function DashboardPaymentPage() {
               Transaction History
             </h3>
             <p className="text-xs text-zinc-500 font-normal">
-              Record of deposits, escrow holds, and released payouts
+              Record of deposits, secured holds, and released payouts
             </p>
           </div>
           <button
@@ -446,7 +446,7 @@ export default function DashboardPaymentPage() {
             <div className="flex items-center justify-between pb-3 border-b border-zinc-100">
               <div>
                 <h3 className="text-base font-bold text-zinc-900">Deposit Funds</h3>
-                <p className="text-xs text-zinc-500">Fund your wallet or escrow milestone</p>
+                <p className="text-xs text-zinc-500">Fund your wallet or milestone contract</p>
               </div>
               <button
                 type="button"
@@ -512,13 +512,13 @@ export default function DashboardPaymentPage() {
               <div className="flex items-center gap-2 pt-1">
                 <input
                   type="checkbox"
-                  id="escrowBox"
+                  id="vaultBox"
                   checked={isEscrowDeposit}
                   onChange={(e) => setIsEscrowDeposit(e.target.checked)}
                   className="rounded w-4 h-4 text-[#0C513F] accent-[#0C513F]"
                 />
-                <label htmlFor="escrowBox" className="text-xs text-zinc-700 cursor-pointer select-none">
-                  Lock directly into Escrow for an upcoming milestone
+                <label htmlFor="vaultBox" className="text-xs text-zinc-700 cursor-pointer select-none">
+                  Lock directly into Protected Vault for an upcoming milestone
                 </label>
               </div>
 

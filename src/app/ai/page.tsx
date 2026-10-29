@@ -38,6 +38,7 @@ import {
 } from 'lucide-react'
 import { Coordinates, calculateDistanceKm, formatDistance, NIGERIAN_CITY_COORDINATES } from '@/lib/geo'
 import { formatMinorToNaira } from '@/lib/dashboard/data'
+import DashboardLayout from '@/app/dashboard/layout'
 
 interface AttachedFileItem {
   id: string
@@ -131,7 +132,7 @@ export default function AiSearchChatPage() {
   const [selectedCity, setSelectedCity] = useState('Kano')
   const [userCoords, setUserCoords] = useState<Coordinates | null>(null)
   const [isLocating, setIsLocating] = useState(false)
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true)
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const [isSearching, setIsSearching] = useState(false)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [activeImageModal, setActiveImageModal] = useState<string | null>(null)
@@ -443,29 +444,25 @@ export default function AiSearchChatPage() {
   }
 
   return (
-    <div className="flex h-screen w-full bg-[#F9FAFB] text-zinc-900 font-sans overflow-hidden">
-      {/* Left Minimalist Sidebar */}
+    <DashboardLayout>
+      <div className="flex h-full w-full bg-[#F9FAFB] text-zinc-900 font-sans overflow-hidden relative">
+        {/* Left Minimalist Inquiries Panel */}
       <aside
-        className={`fixed lg:static top-0 bottom-0 left-0 z-50 flex flex-col w-64 bg-white border-r border-zinc-200/80 transition-transform duration-200 ease-in-out shrink-0 ${
+        className={`fixed lg:static top-0 bottom-0 left-0 z-40 flex flex-col w-64 bg-white border-r border-zinc-200/80 transition-all duration-200 ease-in-out shrink-0 ${
           isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:hidden'
         }`}
       >
-        {/* Sidebar Header */}
-        <div className="p-4 flex items-center justify-between border-b border-zinc-100">
-          <Link href="/" className="flex items-center gap-2.5">
-            <div className="w-7 h-7 rounded-lg bg-[#0C513F] text-white flex items-center justify-center shrink-0">
-              <Sparkles className="w-4 h-4" />
-            </div>
-            <div className="flex items-baseline gap-1">
-              <span className="font-bold text-sm tracking-tight text-zinc-900">connecta</span>
-              <span className="text-[10px] px-1.5 py-0.2 rounded bg-zinc-100 text-zinc-600 font-medium">AI</span>
-            </div>
-          </Link>
+        {/* Panel Header */}
+        <div className="p-3.5 flex items-center justify-between border-b border-zinc-100">
+          <div className="flex items-center gap-2">
+            <Sparkles className="w-4 h-4 text-[#0C513F]" />
+            <span className="font-semibold text-xs text-zinc-900">Trades &amp; Inquiries</span>
+          </div>
 
           <button
             onClick={() => setIsSidebarOpen(false)}
-            className="p-1 rounded-lg text-zinc-400 hover:text-zinc-700 hover:bg-zinc-100 transition-colors lg:hidden"
-            title="Close sidebar"
+            className="p-1 rounded-lg text-zinc-400 hover:text-zinc-700 hover:bg-zinc-100 transition-colors"
+            title="Close panel"
           >
             <PanelLeftClose className="w-4 h-4" />
           </button>
@@ -563,24 +560,6 @@ export default function AiSearchChatPage() {
             </div>
           )}
         </div>
-
-        {/* Sidebar Footer Navigation */}
-        <div className="p-3 border-t border-zinc-100 space-y-0.5">
-          <Link
-            href="/dashboard"
-            className="flex items-center gap-2 px-2.5 py-2 rounded-lg text-zinc-600 hover:text-zinc-900 hover:bg-zinc-50 text-xs font-medium transition-colors"
-          >
-            <ShieldCheck className="w-4 h-4 text-[#0C513F]" />
-            <span>Escrow Dashboard</span>
-          </Link>
-          <Link
-            href="/discover"
-            className="flex items-center gap-2 px-2.5 py-2 rounded-lg text-zinc-600 hover:text-zinc-900 hover:bg-zinc-50 text-xs font-medium transition-colors"
-          >
-            <Search className="w-4 h-4 text-zinc-500" />
-            <span>Artisan Directory</span>
-          </Link>
-        </div>
       </aside>
 
       {/* Mobile Drawer Backdrop */}
@@ -677,7 +656,7 @@ export default function AiSearchChatPage() {
                   How can Connecta help you today?
                 </h1>
                 <p className="text-xs sm:text-sm text-zinc-500 font-normal leading-relaxed">
-                  Describe what needs repair, upload a photo of the defect, or get cost estimates. We match vetted artisans in <strong className="font-semibold text-zinc-900">{selectedCity}</strong> backed by escrow.
+                  Describe what needs repair, upload a photo of the defect, or get cost estimates. We match vetted artisans in <strong className="font-semibold text-zinc-900">{selectedCity}</strong> backed by guaranteed payment protection.
                 </p>
               </div>
 
@@ -779,7 +758,7 @@ export default function AiSearchChatPage() {
                         <div className="flex items-center justify-between pt-2 border-t border-zinc-100 text-[10px] text-zinc-400">
                           <span className="flex items-center gap-1 font-medium text-[#0C513F]">
                             <ShieldCheck className="w-3.5 h-3.5" />
-                            100% Escrow Protected
+                            100% Payment Protected
                           </span>
                           <button
                             type="button"
@@ -1087,7 +1066,7 @@ export default function AiSearchChatPage() {
 
             {/* Disclaimer */}
             <div className="text-center text-[10px] text-zinc-400 font-normal">
-              Protected by Connecta Milestone Escrow. Funds are released only after inspection.
+              Protected by Connecta Milestone Vault. Funds are released only after inspection.
             </div>
           </div>
         </div>
@@ -1116,5 +1095,6 @@ export default function AiSearchChatPage() {
         </div>
       )}
     </div>
+    </DashboardLayout>
   )
 }

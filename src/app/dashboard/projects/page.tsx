@@ -75,7 +75,7 @@ export default function DashboardProjectsPage() {
 
       if (res.ok) {
         setReleasedNotice(
-          `Milestone approved. ${formatMinorToNaira(milestone.amountMinor)} released from Escrow Vault to ${booking.providerName}.`
+          `Milestone approved. ${formatMinorToNaira(milestone.amountMinor)} released from Vault to ${booking.providerName}.`
         )
         setConfirmingMilestone(null)
         await fetchProjects()
@@ -104,7 +104,7 @@ export default function DashboardProjectsPage() {
           Projects &amp; Contracts
         </h1>
         <p className="text-xs text-zinc-500 mt-0.5 font-normal">
-          Track active milestone contracts, review deliverables, and approve escrow releases.
+          Track active milestone contracts, review deliverables, and approve payment releases.
         </p>
       </div>
 
@@ -170,7 +170,7 @@ export default function DashboardProjectsPage() {
 
                   <div className="text-left sm:text-right shrink-0">
                     <span className="text-[11px] font-normal text-zinc-400 block">
-                      Escrow Vault Amount
+                      Protected Vault Amount
                     </span>
                     <span className="text-base sm:text-lg font-bold text-zinc-900">
                       {formatMinorToNaira(booking.totalAmountMinor)}
@@ -251,7 +251,7 @@ export default function DashboardProjectsPage() {
                               type="button"
                               onClick={() => setViewingReceipt({ booking, milestone: m })}
                               className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-zinc-100 hover:bg-zinc-200/80 text-zinc-700 text-xs font-medium transition-colors cursor-pointer"
-                              title="View Escrow Receipt"
+                              title="View Settlement Receipt"
                             >
                               <FileText className="w-3 h-3 text-zinc-500" />
                               <span>Receipt</span>
@@ -279,7 +279,7 @@ export default function DashboardProjectsPage() {
                   <span>Target Date: {booking.appointmentDate}</span>
                   <div className="flex items-center gap-1 text-[#0C513F] font-medium">
                     <ShieldCheck className="w-3.5 h-3.5" />
-                    <span>Protected in Escrow</span>
+                    <span>Protected in Vault</span>
                   </div>
                 </div>
               </div>
@@ -314,7 +314,7 @@ export default function DashboardProjectsPage() {
             <div className="flex items-start justify-between gap-3 pb-3 border-b border-zinc-100">
               <div>
                 <span className="text-[11px] font-semibold px-2 py-0.5 rounded bg-emerald-50 text-emerald-800 border border-emerald-200/60">
-                  Escrow Safeguard Authorization
+                  Safeguard Authorization
                 </span>
                 <h3 className="text-base font-bold text-zinc-900 mt-1.5">
                   Authorize Milestone Release
@@ -398,7 +398,7 @@ export default function DashboardProjectsPage() {
                   C
                 </div>
                 <div>
-                  <h3 className="text-sm font-bold text-zinc-900">Escrow Settlement Receipt</h3>
+                  <h3 className="text-sm font-bold text-zinc-900">Settlement Receipt</h3>
                   <p className="text-[11px] text-zinc-400">Connecta Official Audit Record</p>
                 </div>
               </div>
@@ -445,11 +445,11 @@ export default function DashboardProjectsPage() {
                   <span className="font-medium text-zinc-900">{viewingReceipt.milestone.title}</span>
                 </div>
                 <div className="flex justify-between text-zinc-600">
-                  <span>Gross Escrow Disbursed:</span>
+                  <span>Gross Amount Disbursed:</span>
                   <span className="font-medium text-zinc-900">{formatMinorToNaira(viewingReceipt.milestone.amountMinor)}</span>
                 </div>
                 <div className="flex justify-between text-zinc-600">
-                  <span>Connecta Escrow Fee:</span>
+                  <span>Connecta Platform Fee:</span>
                   <span className="font-medium text-zinc-900">₦0 (Covered by Client Tier)</span>
                 </div>
                 <div className="pt-2 border-t border-zinc-200 flex justify-between font-bold text-sm text-zinc-900">
@@ -460,7 +460,7 @@ export default function DashboardProjectsPage() {
             </div>
 
             <div className="flex items-center justify-between pt-2">
-              <span className="text-[11px] text-zinc-400">Official Escrow Ledger • Lagos, Nigeria</span>
+              <span className="text-[11px] text-zinc-400">Official Settlement Ledger • Lagos, Nigeria</span>
               <div className="flex items-center gap-2">
                 <button
                   type="button"

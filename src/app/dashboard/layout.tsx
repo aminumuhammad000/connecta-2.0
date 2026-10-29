@@ -190,7 +190,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     { label: 'Payment', description: 'Protected vault balance, deposits, and settlement payouts', path: '/dashboard/payment', icon: Wallet },
     { label: 'AI Diagnostic Assistant', description: 'Describe technical issues to match vetted artisans', path: '/ai', icon: Sparkles },
     { label: 'Account & Payout Settings', description: 'Manage profile and Flutterwave settlement account', path: '/dashboard/settings', icon: Settings },
-    { label: 'Support & FAQs', description: 'Escrow charter safeguards and dispute resolution', path: '/dashboard/support', icon: HelpCircle },
+    { label: 'Support & FAQs', description: 'Charter safeguards and dispute resolution', path: '/dashboard/support', icon: HelpCircle },
   ]
 
   const filteredCommands = commandPaletteItems.filter((item) =>
@@ -214,12 +214,16 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     {
       id: '3',
       title: 'Vault Protected',
-      desc: '₦450,000 funded in Escrow for Commercial Rewiring',
+      desc: '₦450,000 secured for Commercial Rewiring',
       time: '3h ago',
     },
   ]
 
-  const currentSection = navItems.find((item) => item.path === pathname)?.label || 'Overview'
+  const currentSection =
+    navItems.find((item) => item.path === pathname || (item.path !== '/dashboard' && pathname.startsWith(item.path)))?.label ||
+    'Overview'
+
+  const isAiPage = pathname === '/ai' || pathname.startsWith('/ai')
 
   return (
     <div className="min-h-screen bg-[#FBFBFB] text-zinc-900 flex font-sans antialiased selection:bg-[#0C513F] selection:text-white">
@@ -241,7 +245,6 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             </div>
             <div className="flex items-center gap-1.5">
               <span className="font-bold text-base tracking-tight text-zinc-900">connecta</span>
-              <span className="text-[10px] font-medium text-zinc-400">escrow</span>
             </div>
           </Link>
 
@@ -294,7 +297,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           </nav>
         </div>
 
-        {/* User Profile & Escrow Status */}
+        {/* User Profile & Vault Status */}
         <div className="space-y-3 pt-4 border-t border-zinc-100">
           <Link
             href="/dashboard/payment"
@@ -457,7 +460,13 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         )}
 
         {/* Main Viewport */}
-        <main className="flex-1 p-5 sm:p-8 lg:p-10 max-w-6xl w-full mx-auto">{children}</main>
+        {isAiPage ? (
+          <main className="flex-1 flex flex-col min-h-0 h-[calc(100vh-3.5rem)] overflow-hidden">
+            {children}
+          </main>
+        ) : (
+          <main className="flex-1 p-5 sm:p-8 lg:p-10 max-w-6xl w-full mx-auto">{children}</main>
+        )}
       </div>
 
       {/* Global Command Palette Modal (⌘K) */}
