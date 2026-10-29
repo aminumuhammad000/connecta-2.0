@@ -778,8 +778,8 @@ export default function AiSearchChatPage() {
                         </div>
                       )}
 
-                      {/* AI Structured Analysis Badges */}
-                      {!isUser && msg.analysis && (
+                      {/* AI Structured Analysis Badges (Only on genuine service diagnoses) */}
+                      {!isUser && msg.analysis && msg.providers && msg.providers.length > 0 && (
                         <div className="flex flex-wrap items-center gap-1.5 pt-1">
                           {msg.analysis.category && (
                             <span className="text-[10px] font-medium px-2 py-0.5 rounded bg-zinc-100 text-zinc-700">
@@ -926,9 +926,9 @@ export default function AiSearchChatPage() {
                   <div className="w-7 h-7 rounded-lg bg-[#0C513F] text-white flex items-center justify-center shrink-0">
                     <Sparkles className="w-3.5 h-3.5" />
                   </div>
-                  <div className="bg-white border border-zinc-200/80 rounded-2xl rounded-tl-sm p-3.5 text-xs text-zinc-500 flex items-center gap-2 shadow-2xs">
+                  <div className="bg-white border border-zinc-200/80 rounded-2xl rounded-tl-sm px-4 py-3 text-xs text-zinc-500 flex items-center gap-2.5 shadow-2xs">
                     <Loader2 className="w-3.5 h-3.5 animate-spin text-[#0C513F]" />
-                    <span>Searching verified artisans and diagnosing in {selectedCity}...</span>
+                    <span className="text-zinc-600 font-medium">Assistant is typing...</span>
                   </div>
                 </div>
               )}

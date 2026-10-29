@@ -87,7 +87,7 @@ const SEED_PROVIDERS: PublicProvider[] = [
     phone: '+2348031234567',
     whatsapp: '+2348031234567',
     joinedDate: '2025-01-15T08:00:00.000Z',
-    badges: ['Guild Certified', 'Identity Verified', '100% Escrow Safeguard', 'Kano Tech Lead'],
+    badges: ['Guild Certified', 'Identity Verified', 'Vault Safeguard', 'Kano Tech Lead'],
     reviews: [
       {
         id: 'rev-101',
@@ -101,7 +101,7 @@ const SEED_PROVIDERS: PublicProvider[] = [
         id: 'rev-102',
         authorName: 'Hauwa Garba',
         rating: 5,
-        comment: 'Clean screen refurbishing without losing TrueTone. Escrow payment was smooth and transparent.',
+        comment: 'Clean screen refurbishing without losing TrueTone. Milestone payment was smooth and transparent.',
         date: '2026-08-30',
         projectTitle: 'Samsung S23 Ultra Display Replacement',
       },
@@ -132,7 +132,7 @@ const SEED_PROVIDERS: PublicProvider[] = [
     phone: '+2348029876543',
     whatsapp: '+2348029876543',
     joinedDate: '2025-02-10T10:00:00.000Z',
-    badges: ['NIN Verified', 'Master Trade Guild', 'Escrow Insured', 'Water Engineering Fellow'],
+    badges: ['NIN Verified', 'Master Trade Guild', 'Vault Protected', 'Water Engineering Fellow'],
     reviews: [
       {
         id: 'rev-103',
@@ -169,7 +169,7 @@ const SEED_PROVIDERS: PublicProvider[] = [
     phone: '+2348123450987',
     whatsapp: '+2348123450987',
     joinedDate: '2025-01-20T11:00:00.000Z',
-    badges: ['COREN Endorsed', 'Identity Verified', '100% Escrow Guaranteed', 'Top Solar Specialist 2026'],
+    badges: ['COREN Endorsed', 'Identity Verified', 'Payment Protected', 'Top Solar Specialist 2026'],
     reviews: [
       {
         id: 'rev-104',
@@ -206,7 +206,7 @@ const SEED_PROVIDERS: PublicProvider[] = [
     phone: '+2348076543210',
     whatsapp: '+2348076543210',
     joinedDate: '2025-03-01T09:00:00.000Z',
-    badges: ['Guild Master', 'Identity Audited', 'Escrow Safeguarded'],
+    badges: ['Guild Master', 'Identity Audited', 'Vault Protected'],
     reviews: [
       {
         id: 'rev-105',
@@ -243,7 +243,7 @@ const SEED_PROVIDERS: PublicProvider[] = [
     phone: '+2348098761234',
     whatsapp: '+2348098761234',
     joinedDate: '2025-02-18T14:00:00.000Z',
-    badges: ['HVAC Association Certified', 'Identity Verified', '100% Escrow Backed'],
+    badges: ['HVAC Association Certified', 'Identity Verified', 'Payment Protected'],
     reviews: [
       {
         id: 'rev-106',
@@ -280,7 +280,7 @@ const SEED_PROVIDERS: PublicProvider[] = [
     phone: '+2348055566778',
     whatsapp: '+2348055566778',
     joinedDate: '2025-01-28T16:00:00.000Z',
-    badges: ['Guild Verified', 'Identity Audited', 'Escrow Insured'],
+    badges: ['Guild Verified', 'Identity Audited', 'Vault Protected'],
     reviews: [
       {
         id: 'rev-107',
@@ -317,7 +317,7 @@ const SEED_PROVIDERS: PublicProvider[] = [
     phone: '+2348039876541',
     whatsapp: '+2348039876541',
     joinedDate: '2025-01-12T09:00:00.000Z',
-    badges: ['Guild Certified', 'Identity Verified', '100% Escrow Safeguard', 'Kano Power Guild'],
+    badges: ['Guild Certified', 'Identity Verified', 'Vault Safeguard', 'Kano Power Guild'],
     reviews: [
       {
         id: 'rev-108',
@@ -354,7 +354,7 @@ const SEED_PROVIDERS: PublicProvider[] = [
     phone: '+2348021122334',
     whatsapp: '+2348021122334',
     joinedDate: '2025-02-05T11:00:00.000Z',
-    badges: ['Master Guild Painter', 'Identity Audited', '100% Escrow Protected'],
+    badges: ['Master Guild Painter', 'Identity Audited', 'Vault Protected'],
     reviews: [
       {
         id: 'rev-109',
@@ -391,7 +391,7 @@ const SEED_PROVIDERS: PublicProvider[] = [
     phone: '+2348067788990',
     whatsapp: '+2348067788990',
     joinedDate: '2025-01-25T14:00:00.000Z',
-    badges: ['Guild Verified', 'Identity Audited', 'Escrow Insured'],
+    badges: ['Guild Verified', 'Identity Audited', 'Vault Protected'],
     reviews: [
       {
         id: 'rev-110',
@@ -495,7 +495,7 @@ export function getAllPublicProviders(filters?: {
             fullName: u.fullName || `${u.firstName || 'Verified'} ${u.lastName || 'Specialist'}`.trim(),
             businessName,
             headline: u.headline || `${category} Specialist in ${city}`,
-            bio: u.bio || `Certified and vetted artisan delivering verified services across ${city} backed by Connecta 100% Escrow Safeguards.`,
+            bio: u.bio || `Certified and vetted artisan delivering verified services across ${city} backed by Connecta Vault Safeguards.`,
             category,
             categorySlug,
             skills,
@@ -515,13 +515,13 @@ export function getAllPublicProviders(filters?: {
             phone: u.phone,
             whatsapp: u.whatsapp || u.phone,
             joinedDate: u.createdAt || new Date().toISOString(),
-            badges: ['Identity Verified', 'NIN Audited', '100% Escrow Protected', 'Guild Member'],
+            badges: ['Identity Verified', 'NIN Audited', 'Vault Protected', 'Guild Member'],
             reviews: [
               {
                 id: `rev-${u.id.slice(0, 6)}`,
                 authorName: 'Verified Client',
                 rating: 5,
-                comment: 'Exceptional craftsmanship and punctual communication. Job was delivered on time and approved via escrow release.',
+                comment: 'Exceptional craftsmanship and punctual communication. Job was delivered on time and approved via milestone release.',
                 date: '2026-10-20',
                 projectTitle: `${category} Service Milestone`,
               },
@@ -574,7 +574,7 @@ export function getAllPublicProviders(filters?: {
               phone: p.phone,
               whatsapp: p.whatsapp || p.phone,
               joinedDate: p.createdAt || new Date().toISOString(),
-              badges: ['Identity Verified', 'Escrow Safeguarded', 'Trade Guild Member'],
+              badges: ['Identity Verified', 'Vault Protected', 'Trade Guild Member'],
               reviews: [
                 {
                   id: `rev-${p.id.slice(0, 6)}`,

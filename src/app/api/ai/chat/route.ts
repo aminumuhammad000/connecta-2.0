@@ -7,6 +7,61 @@ import { calculateDistanceKm, formatDistance, NIGERIAN_CITY_COORDINATES } from '
 
 export const maxDuration = 30
 
+/**
+ * Intelligent intent discriminator:
+ * Differentiates casual greetings / chit-chat from concrete service & diagnosis requests.
+ */
+function detectIsServiceRequest(text: string, hasAttachments: boolean): boolean {
+  if (hasAttachments) return true
+
+  const clean = text.trim().toLowerCase()
+  if (!clean) return false
+
+  // Pure conversational / greeting phrases
+  const greetingsOnly = [
+    'hi', 'hey', 'hello', 'yo', 'sup', 'howdy',
+    'good morning', 'good afternoon', 'good evening', 'good day',
+    'how are you', 'how far', 'how are you doing', 'what\'s up', 'whats up',
+    'sannu', 'salama', 'salam alaikum', 'assalamu alaikum', 'ina kwana',
+    'who are you', 'what are you', 'what can you do', 'what do you do',
+    'help', 'help me', 'thanks', 'thank you', 'ok', 'okay', 'great', 'cool',
+    'bye', 'goodbye', 'see you', 'test', 'testing'
+  ]
+
+  // If text is a greeting without technical trade terms
+  if (greetingsOnly.includes(clean)) {
+    return false
+  }
+
+  // Explicit trade terms
+  const tradeTerms = [
+    'electric', 'solar', 'inverter', 'battery', 'charge controller', 'earthing',
+    'plumb', 'pipe', 'leak', 'drain', 'borehole', 'pump', 'tank', 'tap', 'water heater',
+    'ac', 'cooling', 'air conditioner', 'chiller', 'gas refill', 'compressor',
+    'mechanic', 'car', 'engine', 'brake', 'transmission', 'diagnostic', 'auto',
+    'generator', 'diesel', 'petrol', 'mikano', 'perkins', 'ats', 'changeover',
+    'carpenter', 'wood', 'furniture', 'roof', 'door', 'cabinet', 'cupboard',
+    'paint', 'screed', 'pop', 'wall',
+    'mason', 'tiler', 'tiling', 'bricklayer', 'concrete',
+    'phone', 'screen', 'laptop', 'tablet', 'soldering'
+  ]
+
+  const hasTradeTerm = tradeTerms.some((term) => clean.includes(term))
+  if (hasTradeTerm) return true
+
+  // Explicit problem/request verbs
+  const requestSignals = [
+    'need a', 'need an', 'looking for a', 'looking for an', 'find a', 'find an',
+    'hire a', 'hire an', 'recommend a', 'recommend an',
+    'fix my', 'repair my', 'install my', 'replace my',
+    'broken', 'spoilt', 'damaged', 'faulty', 'leaking',
+    'smoking', 'sparking', 'not working', 'won\'t turn on', 'tripping',
+    'how much to fix', 'how much to install', 'cost of', 'price of', 'estimate for'
+  ]
+
+  return requestSignals.some((sig) => clean.includes(sig))
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
@@ -54,28 +109,109 @@ export async function POST(request: NextRequest) {
     }
 
     if (!text.trim() && processedAttachments.length === 0) {
-      return errorResponse('Please provide text or an image to search for a service.', 400)
+      return errorResponse('Please provide text or an image to start a conversation.', 400)
     }
 
-    // 1. Analyze request with multimodal understanding
     const cityContext = city && city !== 'All Locations' ? city : 'Kano'
+    const isServiceRequest = detectIsServiceRequest(text, processedAttachments.length > 0)
+    const apiKey = process.env.OPENAI_API_KEY
+    const isLlmAvailable = !!(apiKey && !apiKey.startsWith('placeholder'))
+
+    // Prepare recent conversation history for LLM (last 6 messages)
+    const chatHistoryForLlm = messages.slice(-6).map((m: any) => ({
+      role: m.role === 'assistant' ? 'assistant' : 'user',
+      content: m.content || '',
+    }))
+
+    // =========================================================================
+    // BRANCH A: CASUAL / CONVERSATIONAL INQUIRY (No worker cards dumped)
+    // =========================================================================
+    if (!isServiceRequest) {
+      let assistantContent = ''
+
+      if (isLlmAvailable) {
+        try {
+          const conversationalSystemPrompt = `You are Connecta's AI Technical Assistant in Nigeria.
+Connecta connects Nigerian clients and businesses with vetted artisans and engineers (electricians, plumbers, solar & inverter technicians, AC specialists, auto mechanics, carpenters, painters, etc.) protected by Connecta Vault Payment Protection.
+
+Context:
+- The user is speaking with you conversationally (e.g. greeting, asking who you are, or general conversation).
+- User location: ${cityContext}, Nigeria.
+
+Guidelines:
+1. Greet the user warmly, naturally, and concisely in standard Nigerian English.
+2. Answer what they said directly. If they greeted you, greet them back and ask how you can help with technical fault diagnosis, cost estimates, or matching vetted artisans in ${cityContext}.
+3. DO NOT pretend they asked for a specific trade or diagnosis.
+4. DO NOT dump or invent artisan worker lists.
+5. STRICT RULE: DO NOT use any emojis anywhere in your response. Keep the tone minimalist, refined, professional, and clean.`
+
+          const llmResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${apiKey}`,
+            },
+            body: JSON.stringify({
+              model: 'gpt-4o-mini',
+              messages: [
+                { role: 'system', content: conversationalSystemPrompt },
+                ...chatHistoryForLlm,
+              ],
+              temperature: 0.7,
+              max_tokens: 350,
+            }),
+          })
+
+          if (llmResponse.ok) {
+            const llmData = await llmResponse.json()
+            assistantContent = llmData.choices?.[0]?.message?.content || ''
+          }
+        } catch (llmErr) {
+          console.warn('[AI Chat API] LLM conversational generation error:', llmErr)
+        }
+      }
+
+      if (!assistantContent) {
+        assistantContent = `Hello! I am your Connecta Assistant. How can I help you today in ${cityContext}? You can describe a repair or installation issue (such as electrical, plumbing, solar inverter, or AC faults), request cost estimates, or find vetted local specialists.`
+      }
+
+      const followUpSuggestions = [
+        `Find certified electricians in ${cityContext}`,
+        `Find emergency plumbers in ${cityContext}`,
+        `Diagnose a solar inverter fault`,
+        `How does Connecta Vault work?`,
+      ]
+
+      return successResponse({
+        reply: {
+          role: 'assistant',
+          content: assistantContent,
+          providers: [], // No worker cards on a conversational greeting
+          followUpSuggestions,
+        },
+      })
+    }
+
+    // =========================================================================
+    // BRANCH B: GENUINE SERVICE / TECHNICAL REQUEST (Diagnostic & Targeted Matching)
+    // =========================================================================
+
+    // 1. Analyze request with multimodal understanding
     const analysis = await analyzeServiceRequest({
       text,
       attachments: processedAttachments,
       cityContext,
     })
 
-    // 2. Fetch all public providers
+    // 2. Fetch public providers and match
     const allProviders = getAllPublicProviders({ verifiedOnly })
-
-    // 3. Match providers
     const matched = matchProviders(analysis, {
       cityFilter: cityContext,
       verifiedOnly,
       providersList: allProviders,
     })
 
-    // 4. Calculate exact geographic distance to user
+    // 3. Calculate exact geographic distance to user
     const refCoords =
       userLocation?.lat && userLocation?.lng
         ? { lat: userLocation.lat, lng: userLocation.lng }
@@ -102,32 +238,40 @@ export async function POST(request: NextRequest) {
       }
     })
 
+    // Filter to relevant matches with genuine score
+    const relevantProviders = providersWithDistance.filter((p) => p.matchScore >= 30)
+
     // Sort: verified first, then closest distance, then match score
-    providersWithDistance.sort((a, b) => {
+    relevantProviders.sort((a, b) => {
       if (a.distanceKm !== undefined && b.distanceKm !== undefined) {
-        // Prioritize providers within 15km
         const distDiff = a.distanceKm - b.distanceKm
         if (Math.abs(distDiff) > 8) return distDiff
       }
       return b.matchScore - a.matchScore
     })
 
-    // 5. Generate authentic conversational reply via LLM with Nigerian trades context and matched artisans
-    const apiKey = process.env.OPENAI_API_KEY
+    // Limit to top 2 or 3 curated specialists to keep the UI clean and minimalist
+    const topProviders = relevantProviders.slice(0, 3)
+
+    // 4. Generate authentic conversational reply via LLM
     let assistantContent = ''
     const hasImages = processedAttachments.some((a) => a.isImage)
     const categoryName = analysis.category || 'Local Service'
-    const topProvidersCount = providersWithDistance.length
     const cityName = analysis.location || cityContext
 
-    if (apiKey && !apiKey.startsWith('placeholder')) {
+    if (isLlmAvailable) {
       try {
-        const topProvidersSummary = providersWithDistance.slice(0, 3).map((p, idx) => 
-          `${idx + 1}. ${p.fullName} (${p.businessName}) - Category: ${p.category}, Rating: ${p.averageRating} out of 5 (${p.completedJobsCount} jobs completed)${p.distanceFormatted ? `, ~${p.distanceFormatted} away` : ''}. Specializes in: ${p.skills.slice(0, 3).join(', ')}`
-        ).join('\n')
+        const topProvidersSummary = topProviders.length > 0
+          ? topProviders
+              .map(
+                (p, idx) =>
+                  `${idx + 1}. ${p.fullName} (${p.businessName}) - Category: ${p.category}, Rating: ${p.averageRating} out of 5 (${p.completedJobsCount} jobs completed)${p.distanceFormatted ? `, ~${p.distanceFormatted} away` : ''}. Specializes in: ${p.skills.slice(0, 3).join(', ')}`
+              )
+              .join('\n')
+          : 'No direct artisan profiles matched immediately in database.'
 
-        const conversationalSystemPrompt = `You are Connecta's AI Technical & Trades Advisor in Nigeria.
-Connecta is a platform connecting Nigerian households and businesses with vetted artisans (plumbers, electricians, solar & inverter technicians, AC specialists, carpenters, mechanics, etc.) backed by a 100% Milestone Escrow Guarantee (clients only release funds after physical inspection).
+        const technicalSystemPrompt = `You are Connecta's AI Technical & Trades Advisor in Nigeria.
+Connecta connects Nigerian households and businesses with vetted artisans (plumbers, electricians, solar & inverter technicians, AC specialists, carpenters, mechanics, etc.) backed by Connecta Vault Payment Protection (clients only release funds after physical inspection).
 
 User context:
 - City/Location: ${cityName}
@@ -137,22 +281,16 @@ User context:
 ${analysis.budget ? `- Stated budget: ${analysis.budget}` : ''}
 
 Top vetted local artisans in ${cityName} from Connecta database:
-${topProvidersSummary || 'No specific local artisans available immediately in database for this exact query.'}
+${topProvidersSummary}
 
 Guidelines for your response:
-1. Speak in a helpful, knowledgeable, warm, and professional tone suitable for Nigerian homeowners and businesses (fluent standard English).
-2. Directly address the user's specific question or issue: explain the likely technical cause in clear, practical terms (e.g. why a water pump screeches, why an inverter trips, why an AC leaks water, etc.).
-3. Recommend the top matched verified artisan(s) from the list above by name, rating, and proximity to assist them.
-4. Briefly reassure them that bookings and payments are secured in Connecta Milestone Escrow (funds are never released until the client inspects and approves the finished job).
-5. Suggest a helpful next step or question if more details are needed to narrow down quotes.
-6. Format your response cleanly using Markdown (bold highlights, clear concise paragraphs).
-7. STRICT RULE: DO NOT use any emojis anywhere in your response. Keep the tone refined, minimalist, and clean.`
-
-        // Include recent conversation history (last 5 messages)
-        const chatHistoryForLlm = messages.slice(-5).map((m: any) => ({
-          role: m.role === 'assistant' ? 'assistant' : 'user',
-          content: m.content || '',
-        }))
+1. Speak in a helpful, knowledgeable, warm, and professional tone in standard Nigerian English.
+2. Directly address the user's specific problem: explain the likely technical cause in practical, clear terms.
+3. If matched artisans are available above, recommend the top specialist by name, rating, and proximity.
+4. Mention that client payments are protected in Connecta Vault (funds are released only after personal inspection).
+5. Suggest a helpful next step or clarifying question to help narrow down quotes.
+6. Format cleanly using Markdown with bold highlights and clear paragraphs.
+7. STRICT RULE: DO NOT use any emojis anywhere in your response. Keep the tone minimalist, refined, and clean.`
 
         const llmResponse = await fetch('https://api.openai.com/v1/chat/completions', {
           method: 'POST',
@@ -163,11 +301,11 @@ Guidelines for your response:
           body: JSON.stringify({
             model: 'gpt-4o-mini',
             messages: [
-              { role: 'system', content: conversationalSystemPrompt },
+              { role: 'system', content: technicalSystemPrompt },
               ...chatHistoryForLlm,
             ],
-            temperature: 0.7,
-            max_tokens: 650,
+            temperature: 0.6,
+            max_tokens: 600,
           }),
         })
 
@@ -176,46 +314,35 @@ Guidelines for your response:
           assistantContent = llmData.choices?.[0]?.message?.content || ''
         }
       } catch (llmErr) {
-        console.warn('[AI Chat API] LLM conversational generation error, falling back to template:', llmErr)
+        console.warn('[AI Chat API] LLM technical generation error:', llmErr)
       }
     }
 
-    // Deterministic fallback if LLM is offline or unconfigured
+    // Deterministic fallback if LLM is offline
     if (!assistantContent) {
       let greeting = `I've analyzed your request for **${categoryName}** in **${cityName}**.`
       if (hasImages) {
-        greeting = `I've inspected the photo you shared and identified this as a **${categoryName}** task in **${cityName}**.`
-      }
-
-      let urgencyText = ''
-      if (analysis.urgency === 'emergency') {
-        urgencyText = `\n\n**Priority: Immediate Attention**. Nearby emergency-ready technicians have been prioritized.`
+        greeting = `I've inspected the photo you shared and identified this as a **${categoryName}** issue in **${cityName}**.`
       }
 
       let providerSummary = ''
-      if (topProvidersCount > 0) {
-        const topPro = providersWithDistance[0]
+      if (topProviders.length > 0) {
+        const topPro = topProviders[0]
         const distanceNote = topPro.distanceFormatted ? ` (~${topPro.distanceFormatted} away)` : ''
-        providerSummary = `\n\nFound **${topProvidersCount} vetted local specialist${topProvidersCount > 1 ? 's' : ''}** near you. Top recommendation: **${topPro.fullName}** from **${topPro.businessName}**${distanceNote}, rated **${topPro.averageRating}/5** with ${topPro.completedJobsCount} verified jobs.`
+        providerSummary = `\n\nFound **${topProviders.length} vetted local specialist${topProviders.length > 1 ? 's' : ''}** near you. Top recommendation: **${topPro.fullName}** from **${topPro.businessName}**${distanceNote}, rated **${topPro.averageRating}/5**.`
       } else {
-        providerSummary = `\n\nNo direct category match found immediately in your specific area. You can post a **Service Request** to receive bids from artisans across ${cityName}.`
+        providerSummary = `\n\nNo direct category match found immediately in your specific area. You can post a service request or browse the directory.`
       }
 
-      let nextSteps = `\n\n**Connecta Escrow Guarantee**: All contracts are 100% protected in milestone escrow. Funds are released solely after you inspect and approve completed work.`
+      const vaultAssurance = `\n\n**Connecta Vault Protection**: Funds are locked safely and released solely after you inspect and approve the completed job.`
 
-      if (analysis.followUpQuestion) {
-        nextSteps += `\n\n*Question to narrow down quotes:* ${analysis.followUpQuestion}`
-      }
-
-      assistantContent = `${greeting}${urgencyText}${providerSummary}${nextSteps}`
+      assistantContent = `${greeting}${providerSummary}${vaultAssurance}`
     }
 
-    // 6. Suggest follow-up prompt chips
     const followUpSuggestions = [
       `Request a free quote for ${categoryName}`,
       `Find emergency ${categoryName.toLowerCase()} in ${cityName}`,
       `What is the standard price in ${cityName}?`,
-      `Show me only verified master pros`,
     ]
 
     return successResponse({
@@ -223,7 +350,7 @@ Guidelines for your response:
         role: 'assistant',
         content: assistantContent,
         analysis,
-        providers: providersWithDistance.slice(0, 6),
+        providers: topProviders,
         followUpSuggestions,
       },
     })
