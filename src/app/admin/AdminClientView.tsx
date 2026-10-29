@@ -39,6 +39,9 @@ import {
   ChevronDown,
   User,
   BadgeCheck,
+  Phone,
+  Edit3,
+  Save,
 } from 'lucide-react'
 import AdminEmailHub, { EmailDispatchItem } from './AdminEmailHub'
 
@@ -159,6 +162,35 @@ interface DisputeItem {
   notes: string
 }
 
+export interface AdminProfileData {
+  id: string
+  fullName: string
+  firstName?: string
+  lastName?: string
+  email: string
+  phone: string
+  whatsapp?: string
+  role: string
+  country: string
+  city: string
+  currency?: string
+  avatarUrl?: string | null
+  headline?: string
+  bio?: string
+  skills?: string[]
+  companyName?: string
+  welcomeSparks?: number
+  accountStatus?: string
+  createdAt?: string
+  updatedAt?: string
+  wallet?: {
+    balanceMinor: number
+    escrowBalanceMinor: number
+    sparksBalance: number
+    currency: string
+  } | null
+}
+
 type TabType =
   | 'overview'
   | 'users'
@@ -174,6 +206,7 @@ export default function AdminClientView({
   initialData,
 }: {
   initialData: {
+    adminProfile?: AdminProfileData | null
     metrics: AdminMetrics
     users: UserItem[]
     serviceRequests: ServiceRequestItem[]
@@ -225,6 +258,97 @@ export default function AdminClientView({
   const [profileMenuOpen, setProfileMenuOpen] = useState(false)
   const [showAdminProfileModal, setShowAdminProfileModal] = useState(false)
   const profileDropdownRef = useRef<HTMLDivElement>(null)
+
+  // Real Admin Profile from Server Database
+  const [adminProfile, setAdminProfile] = useState<AdminProfileData | null>(
+    initialData.adminProfile || null
+  )
+
+  const currentAdmin: AdminProfileData = adminProfile || initialData.adminProfile || {
+    id: 'adm-001',
+    fullName: 'Malam Aminu Danbatta',
+    email: 'admin@connecta.ng',
+    phone: '+2348030000001',
+    whatsapp: '+2348030000001',
+    role: 'admin',
+    country: 'Nigeria',
+    city: 'Kano',
+    currency: 'NGN',
+    avatarUrl: '/brand/svg/connecta-icon.svg',
+    headline: 'Lead Platform Administrator & Escrow Supervisor',
+    bio: 'Official administrator account for Connecta platform governance, trade artisan verification, and escrow administration.',
+    companyName: 'Connecta Platform Administration',
+    skills: ['Platform Administration', 'Escrow Oversight', 'Dispute Resolution'],
+    welcomeSparks: 500,
+    accountStatus: 'active',
+    createdAt: '2026-01-01T00:00:00.000Z',
+  }
+
+  // Admin Profile Edit State
+  const [isEditingAdminProfile, setIsEditingAdminProfile] = useState(false)
+  const [editAdminForm, setEditAdminForm] = useState({
+    fullName: currentAdmin.fullName,
+    phone: currentAdmin.phone,
+    whatsapp: currentAdmin.whatsapp || currentAdmin.phone,
+    headline: currentAdmin.headline || '',
+    bio: currentAdmin.bio || '',
+    city: currentAdmin.city,
+    country: currentAdmin.country,
+  })
+  const [isSavingAdminProfile, setIsSavingAdminProfile] = useState(false)
+  const [adminProfileSuccessNotice, setAdminProfileSuccessNotice] = useState<string | null>(null)
+
+  const getInitials = (name: string) => {
+    if (!name) return 'AD'
+    const parts = name.trim().split(/\s+/)
+    if (parts.length >= 2) return `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase()
+    return name.slice(0, 2).toUpperCase()
+  }
+
+  const handleOpenProfileModal = () => {
+    setProfileMenuOpen(false)
+    setEditAdminForm({
+      fullName: currentAdmin.fullName,
+      phone: currentAdmin.phone,
+      whatsapp: currentAdmin.whatsapp || currentAdmin.phone,
+      headline: currentAdmin.headline || '',
+      bio: currentAdmin.bio || '',
+      city: currentAdmin.city,
+      country: currentAdmin.country,
+    })
+    setIsEditingAdminProfile(false)
+    setAdminProfileSuccessNotice(null)
+    setShowAdminProfileModal(true)
+  }
+
+  const handleSaveAdminProfile = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsSavingAdminProfile(true)
+    try {
+      const res = await fetch('/api/admin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'update_admin_profile',
+          payload: editAdminForm,
+        }),
+      })
+      const json = await res.json()
+      if (json.success && json.profile) {
+        setAdminProfile((prev) => ({
+          ...(prev || currentAdmin),
+          ...json.profile,
+        }))
+        setAdminProfileSuccessNotice('Profile details saved to server database!')
+        setIsEditingAdminProfile(false)
+        setTimeout(() => setAdminProfileSuccessNotice(null), 3000)
+      }
+    } catch (err) {
+      console.error('Failed to update admin profile', err)
+    } finally {
+      setIsSavingAdminProfile(false)
+    }
+  }
 
   // Inactivity tracking (2 hours / 7200 seconds of zero interaction)
   const INACTIVITY_LIMIT_SECONDS = 7200 // 2 hours
@@ -311,6 +435,9 @@ export default function AdminClientView({
       const res = await fetch('/api/admin')
       const json = await res.json()
       if (json.success && json.data) {
+        if (json.data.adminProfile) {
+          setAdminProfile(json.data.adminProfile)
+        }
         setMetrics(json.data.metrics)
         setUsers(json.data.users)
         setServiceRequests(json.data.serviceRequests)
@@ -547,11 +674,22 @@ export default function AdminClientView({
                 aria-expanded={profileMenuOpen}
                 aria-haspopup="true"
               >
-                <div className="w-7 h-7 rounded-full bg-[#0C513F] text-white flex items-center justify-center text-xs font-bold shadow-xs">
-                  AD
+                <div className="w-7 h-7 rounded-full bg-[#0C513F] text-white flex items-center justify-center text-xs font-bold shadow-xs overflow-hidden relative">
+                  {currentAdmin.avatarUrl ? (
+                    <Image
+                      src={currentAdmin.avatarUrl}
+                      alt={currentAdmin.fullName}
+                      fill
+                      className="object-cover"
+                    />
+                  ) : (
+                    getInitials(currentAdmin.fullName)
+                  )}
                 </div>
                 <div className="hidden sm:flex flex-col text-left">
-                  <span className="text-xs font-bold text-slate-900 leading-tight">Admin</span>
+                  <span className="text-xs font-bold text-slate-900 leading-tight">
+                    {currentAdmin.fullName.split(' ')[0] || 'Admin'}
+                  </span>
                 </div>
                 <ChevronDown
                   className={`w-3.5 h-3.5 text-slate-500 transition-transform duration-200 ${
@@ -562,12 +700,12 @@ export default function AdminClientView({
 
               {/* Profile Dropdown Menu */}
               {profileMenuOpen && (
-                <div className="absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-xl border border-slate-200/90 py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
+                <div className="absolute right-0 mt-2 w-60 bg-white rounded-2xl shadow-xl border border-slate-200/90 py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
                   <div className="px-4 py-2.5 border-b border-slate-100">
-                    <p className="text-xs font-bold text-slate-900">Malam Aminu Danbatta</p>
-                    <p className="text-[11px] font-medium text-slate-500 truncate">admin@connecta.ng</p>
+                    <p className="text-xs font-bold text-slate-900 truncate">{currentAdmin.fullName}</p>
+                    <p className="text-[11px] font-medium text-slate-500 truncate">{currentAdmin.email}</p>
                     <span className="inline-block mt-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">
-                      Super Administrator
+                      {currentAdmin.role === 'admin' ? 'Super Administrator' : currentAdmin.role}
                     </span>
                   </div>
 
@@ -584,10 +722,7 @@ export default function AdminClientView({
                   <div className="py-1">
                     <button
                       type="button"
-                      onClick={() => {
-                        setProfileMenuOpen(false)
-                        setShowAdminProfileModal(true)
-                      }}
+                      onClick={handleOpenProfileModal}
                       className="w-full px-4 py-2 text-left text-xs font-bold text-slate-700 hover:bg-slate-50 hover:text-emerald-700 flex items-center gap-2.5 transition-colors cursor-pointer"
                     >
                       <User className="w-4 h-4 text-slate-400" />
@@ -2028,98 +2163,255 @@ export default function AdminClientView({
       )}
 
       {/* ===================================================================== */}
-      {/* MODAL: ADMIN PROFILE                                                  */}
+      {/* MODAL: ADMIN PROFILE (REAL SERVER DATABASE DATA)                      */}
       {/* ===================================================================== */}
       {showAdminProfileModal && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl w-full max-w-lg p-6 sm:p-8 space-y-6 border-2 border-slate-900/10 shadow-2xl relative animate-in fade-in zoom-in-95 duration-150">
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-white rounded-3xl w-full max-w-lg p-6 sm:p-8 space-y-6 border-2 border-slate-900/10 shadow-2xl relative animate-in fade-in zoom-in-95 duration-150 my-8">
             <button
               type="button"
-              onClick={() => setShowAdminProfileModal(false)}
+              onClick={() => {
+                setShowAdminProfileModal(false)
+                setIsEditingAdminProfile(false)
+              }}
               className="absolute top-5 right-5 p-2 rounded-full hover:bg-slate-100 text-slate-400 hover:text-slate-700 cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>
 
-            <div className="flex items-center gap-4">
-              <div className="w-16 h-16 rounded-full bg-[#0C513F] text-white flex items-center justify-center text-xl font-bold ring-4 ring-emerald-500/20 shadow-md">
-                AD
+            {adminProfileSuccessNotice && (
+              <div className="p-3 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-2xl text-xs flex items-center gap-2 animate-in fade-in duration-200">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                <span className="font-medium">{adminProfileSuccessNotice}</span>
               </div>
-              <div>
-                <div className="flex items-center gap-2">
-                  <h3 className="text-lg sm:text-xl font-bold text-slate-900">Malam Aminu Danbatta</h3>
-                  <BadgeCheck className="w-5 h-5 text-[#10B981]" />
+            )}
+
+            {!isEditingAdminProfile ? (
+              <>
+                <div className="flex items-center gap-4">
+                  <div className="w-16 h-16 rounded-full bg-[#0C513F] text-white flex items-center justify-center text-xl font-bold ring-4 ring-emerald-500/20 shadow-md overflow-hidden relative shrink-0">
+                    {currentAdmin.avatarUrl ? (
+                      <Image
+                        src={currentAdmin.avatarUrl}
+                        alt={currentAdmin.fullName}
+                        fill
+                        className="object-cover p-1"
+                      />
+                    ) : (
+                      getInitials(currentAdmin.fullName)
+                    )}
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h3 className="text-lg sm:text-xl font-bold text-slate-900">{currentAdmin.fullName}</h3>
+                      <BadgeCheck className="w-5 h-5 text-[#10B981]" />
+                    </div>
+                    <p className="text-xs font-semibold text-emerald-700">
+                      {currentAdmin.headline || 'Lead Platform Administrator & Escrow Supervisor'}
+                    </p>
+                    <p className="text-xs text-slate-500 mt-0.5">{currentAdmin.email}</p>
+                  </div>
                 </div>
-                <p className="text-xs font-semibold text-emerald-700">Super Administrator • Platform Lead</p>
-                <p className="text-xs text-slate-500 mt-0.5">admin@connecta.ng</p>
-              </div>
-            </div>
 
-            <div className="grid grid-cols-2 gap-3 bg-slate-50 p-4 rounded-2xl border border-slate-200/80 text-xs">
-              <div>
-                <span className="text-slate-500 block">Primary Operations Hub</span>
-                <span className="font-bold text-slate-900 flex items-center gap-1 mt-0.5">
-                  <MapPin className="w-3.5 h-3.5 text-emerald-600" />
-                  Kano, Nigeria
-                </span>
-              </div>
-              <div>
-                <span className="text-slate-500 block">Security Clearance</span>
-                <span className="font-bold text-emerald-700 flex items-center gap-1 mt-0.5">
-                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-                  Level 4 Root Authority
-                </span>
-              </div>
-              <div>
-                <span className="text-slate-500 block">Assigned Scope</span>
-                <span className="font-bold text-slate-900 mt-0.5 block">Full Marketplace & Escrow</span>
-              </div>
-              <div>
-                <span className="text-slate-500 block">Status</span>
-                <span className="font-bold text-emerald-600 mt-0.5 flex items-center gap-1">
-                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                  Active Session
-                </span>
-              </div>
-            </div>
+                <div className="grid grid-cols-2 gap-3 bg-slate-50 p-4 rounded-2xl border border-slate-200/80 text-xs">
+                  <div>
+                    <span className="text-slate-500 block">Operations Hub</span>
+                    <span className="font-bold text-slate-900 flex items-center gap-1 mt-0.5">
+                      <MapPin className="w-3.5 h-3.5 text-emerald-600" />
+                      {currentAdmin.city}, {currentAdmin.country}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-slate-500 block">Official Phone</span>
+                    <span className="font-bold text-slate-900 flex items-center gap-1 mt-0.5">
+                      <Phone className="w-3.5 h-3.5 text-emerald-600" />
+                      {currentAdmin.phone}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-slate-500 block">Security Clearance</span>
+                    <span className="font-bold text-emerald-700 flex items-center gap-1 mt-0.5">
+                      <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                      Level 4 Root Authority
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-slate-500 block">Organization</span>
+                    <span className="font-bold text-slate-900 mt-0.5 block truncate">
+                      {currentAdmin.companyName || 'Connecta Kano Administration'}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-slate-500 block">Sparks Balance</span>
+                    <span className="font-bold text-emerald-700 mt-0.5 flex items-center gap-1">
+                      <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+                      {currentAdmin.wallet?.sparksBalance ?? currentAdmin.welcomeSparks ?? 500} Sparks
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-slate-500 block">Account Status</span>
+                    <span className="font-bold text-emerald-600 mt-0.5 flex items-center gap-1 capitalize">
+                      <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                      {currentAdmin.accountStatus || 'active'}
+                    </span>
+                  </div>
+                </div>
 
-            <div className="space-y-2">
-              <h4 className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Platform Responsibilities</h4>
-              <ul className="space-y-1.5 text-xs text-slate-700">
-                <li className="flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                  <span>Artisan Verification & Trade Guild Certification approval</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                  <span>Milestone Escrow Vault inspection and emergency dispute release</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                  <span>Multi-channel email dispatching to plumbers, electricians, clients, and users</span>
-                </li>
-              </ul>
-            </div>
+                {currentAdmin.bio && (
+                  <div className="space-y-1">
+                    <h4 className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Bio & Administrative Scope</h4>
+                    <p className="text-xs text-slate-700 leading-relaxed bg-slate-50 p-3 rounded-2xl border border-slate-200/80">
+                      {currentAdmin.bio}
+                    </p>
+                  </div>
+                )}
 
-            <div className="flex gap-3 pt-2">
-              <button
-                type="button"
-                onClick={() => {
-                  setShowAdminProfileModal(false)
-                  setActiveTab('settings')
-                }}
-                className="flex-1 py-2.5 rounded-full border border-slate-300 text-slate-700 text-xs font-bold hover:bg-slate-50 transition-colors cursor-pointer"
-              >
-                Go to Settings
-              </button>
-              <button
-                type="button"
-                onClick={() => setShowAdminProfileModal(false)}
-                className="flex-1 py-2.5 rounded-full bg-[#0A1020] hover:bg-slate-800 text-white text-xs font-bold transition-colors cursor-pointer"
-              >
-                Done
-              </button>
-            </div>
+                <div className="space-y-2">
+                  <h4 className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Platform Responsibilities</h4>
+                  <ul className="space-y-1.5 text-xs text-slate-700">
+                    {(currentAdmin.skills && currentAdmin.skills.length > 0
+                      ? currentAdmin.skills
+                      : ['Platform Administration', 'Escrow Oversight', 'Dispute Resolution']
+                    ).map((skill, idx) => (
+                      <li key={idx} className="flex items-center gap-2">
+                        <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                        <span>{skill}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                <div className="flex gap-3 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEditAdminForm({
+                        fullName: currentAdmin.fullName,
+                        phone: currentAdmin.phone,
+                        whatsapp: currentAdmin.whatsapp || currentAdmin.phone,
+                        headline: currentAdmin.headline || '',
+                        bio: currentAdmin.bio || '',
+                        city: currentAdmin.city,
+                        country: currentAdmin.country,
+                      })
+                      setIsEditingAdminProfile(true)
+                    }}
+                    className="flex-1 py-2.5 rounded-full border border-slate-300 text-slate-700 text-xs font-bold hover:bg-slate-50 flex items-center justify-center gap-2 transition-colors cursor-pointer"
+                  >
+                    <Edit3 className="w-3.5 h-3.5" />
+                    <span>Edit Profile</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowAdminProfileModal(false)}
+                    className="flex-1 py-2.5 rounded-full bg-[#0A1020] hover:bg-slate-800 text-white text-xs font-bold transition-colors cursor-pointer"
+                  >
+                    Done
+                  </button>
+                </div>
+              </>
+            ) : (
+              <form onSubmit={handleSaveAdminProfile} className="space-y-4">
+                <div className="border-b border-slate-100 pb-3">
+                  <h3 className="text-base font-bold text-slate-900">Edit Administrator Profile</h3>
+                  <p className="text-xs text-slate-500 mt-0.5">Update administrator details in the server database</p>
+                </div>
+
+                <div className="space-y-3 text-xs">
+                  <div>
+                    <label className="font-semibold text-slate-700 block mb-1">Full Name</label>
+                    <input
+                      type="text"
+                      required
+                      value={editAdminForm.fullName}
+                      onChange={(e) => setEditAdminForm({ ...editAdminForm, fullName: e.target.value })}
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-900"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="font-semibold text-slate-700 block mb-1">Headline / Title</label>
+                    <input
+                      type="text"
+                      value={editAdminForm.headline}
+                      onChange={(e) => setEditAdminForm({ ...editAdminForm, headline: e.target.value })}
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-900"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="font-semibold text-slate-700 block mb-1">Phone Number</label>
+                      <input
+                        type="text"
+                        required
+                        value={editAdminForm.phone}
+                        onChange={(e) => setEditAdminForm({ ...editAdminForm, phone: e.target.value })}
+                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-900"
+                      />
+                    </div>
+                    <div>
+                      <label className="font-semibold text-slate-700 block mb-1">WhatsApp Number</label>
+                      <input
+                        type="text"
+                        value={editAdminForm.whatsapp}
+                        onChange={(e) => setEditAdminForm({ ...editAdminForm, whatsapp: e.target.value })}
+                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-900"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="font-semibold text-slate-700 block mb-1">City</label>
+                      <input
+                        type="text"
+                        value={editAdminForm.city}
+                        onChange={(e) => setEditAdminForm({ ...editAdminForm, city: e.target.value })}
+                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-900"
+                      />
+                    </div>
+                    <div>
+                      <label className="font-semibold text-slate-700 block mb-1">Country</label>
+                      <input
+                        type="text"
+                        value={editAdminForm.country}
+                        onChange={(e) => setEditAdminForm({ ...editAdminForm, country: e.target.value })}
+                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-900"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="font-semibold text-slate-700 block mb-1">Bio / Administrative Overview</label>
+                    <textarea
+                      rows={3}
+                      value={editAdminForm.bio}
+                      onChange={(e) => setEditAdminForm({ ...editAdminForm, bio: e.target.value })}
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-900 resize-none"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex gap-3 pt-3">
+                  <button
+                    type="button"
+                    onClick={() => setIsEditingAdminProfile(false)}
+                    className="flex-1 py-2.5 rounded-full border border-slate-300 text-slate-700 text-xs font-bold hover:bg-slate-50 transition-colors cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isSavingAdminProfile}
+                    className="flex-1 py-2.5 rounded-full bg-[#0C513F] hover:bg-emerald-700 disabled:opacity-50 text-white text-xs font-bold flex items-center justify-center gap-2 transition-colors cursor-pointer"
+                  >
+                    <Save className="w-3.5 h-3.5" />
+                    <span>{isSavingAdminProfile ? 'Saving...' : 'Save to Database'}</span>
+                  </button>
+                </div>
+              </form>
+            )}
           </div>
         </div>
       )}

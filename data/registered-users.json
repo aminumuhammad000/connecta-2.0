@@ -1090,5 +1090,44 @@
     "currency": "NGN",
     "createdAt": "2026-10-29T13:47:37.230Z",
     "welcomeSparks": 0
+  },
+  {
+    "id": "2bc0a906-f669-402d-92d4-374bd4ffc94f",
+    "fullName": "Sani Umar",
+    "firstName": "Sani",
+    "lastName": "Umar",
+    "email": "test.client.1793282217759@connecta.ng",
+    "phone": "+2348031112233",
+    "role": "provider",
+    "country": "Nigeria",
+    "city": "Kano",
+    "currency": "NGN",
+    "createdAt": "2026-10-29T13:56:57.759Z",
+    "welcomeSparks": 25,
+    "headline": "Commercial Inverter & Solar Power Technician",
+    "primaryCategory": "Solar & Electrical Power",
+    "skills": [
+      "Solar Sizing",
+      "Hybrid Inverters",
+      "Circuit Tracing"
+    ],
+    "hourlyRateMinor": 1500000,
+    "workshopAddress": "Shop 2, Kofar Ruwa Market, Kano"
+  },
+  {
+    "id": "37b59fe7-86d7-48c8-bf17-d42e6a9526e1",
+    "fullName": "Registered Client",
+    "firstName": "Registered",
+    "lastName": "Client",
+    "email": "existing-1793282217774@connecta.ng",
+    "phone": "+2348000000000",
+    "password": "HashedPassword@2026",
+    "role": "customer",
+    "activeRole": "customer",
+    "country": "Nigeria",
+    "city": "Kano",
+    "currency": "NGN",
+    "createdAt": "2026-10-29T13:56:57.774Z",
+    "welcomeSparks": 0
   }
 ]

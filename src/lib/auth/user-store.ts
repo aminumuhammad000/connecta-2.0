@@ -14,7 +14,7 @@ export interface StoredUser {
   country: string
   city: string
   currency: string
-  avatarUrl?: string
+  avatarUrl?: string | null
   businessName?: string
   headline?: string
   bio?: string

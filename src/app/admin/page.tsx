@@ -400,7 +400,38 @@ export default function AdminPage() {
           },
         ]
 
+  const adminEmail = (process.env.ADMIN_EMAIL || 'admin@connecta.ng').toLowerCase().trim()
+  const dbAdmin = db.profiles.find((p) => p.email?.toLowerCase() === adminEmail) || db.profiles.find((p) => p.role === 'admin') || null
+  const adminWallet = dbAdmin ? db.wallets.find((w) => w.userId === dbAdmin.id) || null : null
+
+  const adminProfile = dbAdmin
+    ? {
+        id: dbAdmin.id,
+        fullName: dbAdmin.fullName,
+        firstName: dbAdmin.firstName,
+        lastName: dbAdmin.lastName,
+        email: dbAdmin.email,
+        phone: dbAdmin.phone,
+        whatsapp: dbAdmin.whatsapp,
+        role: dbAdmin.role,
+        country: dbAdmin.country,
+        city: dbAdmin.city,
+        currency: dbAdmin.currency,
+        avatarUrl: dbAdmin.avatarUrl,
+        headline: dbAdmin.headline,
+        bio: dbAdmin.bio,
+        skills: dbAdmin.skills,
+        companyName: dbAdmin.companyName,
+        welcomeSparks: dbAdmin.welcomeSparks,
+        accountStatus: dbAdmin.accountStatus,
+        createdAt: dbAdmin.createdAt,
+        updatedAt: dbAdmin.updatedAt,
+        wallet: adminWallet,
+      }
+    : null
+
   const initialData = {
+    adminProfile,
     metrics,
     users: allUsers,
     serviceRequests,

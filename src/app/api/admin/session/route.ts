@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { readDatabase } from '@/lib/server/db'
 import {
   verifyAdminToken,
   signAdminToken,
@@ -32,13 +33,33 @@ export async function GET(request: NextRequest) {
   const remainingInactivityMs = Math.max(0, ADMIN_INACTIVITY_LIMIT_MS - inactiveDuration)
   const remainingSeconds = Math.floor(remainingInactivityMs / 1000)
 
+  let profile = null
+  try {
+    const db = readDatabase()
+    profile = db.profiles.find((p) => p.email?.toLowerCase() === verification.payload?.email.toLowerCase()) || null
+  } catch {
+    // fallback
+  }
+
   return NextResponse.json({
     authenticated: true,
     user: {
-      id: verification.payload.adminId,
-      email: verification.payload.email,
-      name: verification.payload.name,
-      role: verification.payload.role,
+      id: profile?.id || verification.payload.adminId,
+      email: profile?.email || verification.payload.email,
+      name: profile?.fullName || verification.payload.name,
+      role: profile?.role || verification.payload.role,
+      phone: profile?.phone || '+2348030000001',
+      whatsapp: profile?.whatsapp || profile?.phone,
+      city: profile?.city || 'Kano',
+      country: profile?.country || 'Nigeria',
+      headline: profile?.headline,
+      bio: profile?.bio,
+      companyName: profile?.companyName,
+      skills: profile?.skills,
+      welcomeSparks: profile?.welcomeSparks,
+      accountStatus: profile?.accountStatus || 'active',
+      createdAt: profile?.createdAt,
+      avatarUrl: profile?.avatarUrl,
     },
     session: {
       lastActiveAt: verification.payload.lastActiveAt,

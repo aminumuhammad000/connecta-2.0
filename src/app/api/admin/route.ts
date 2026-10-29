@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { readDatabase, writeDatabase } from '@/lib/server/db'
-import { getAllUsers } from '@/lib/auth/user-store'
+import { getAllUsers, saveUser } from '@/lib/auth/user-store'
 import { getAllPublicProviders } from '@/lib/server/providers'
 import { verifyAdminToken, ADMIN_COOKIE_NAME } from '@/lib/auth/admin-auth'
 
@@ -420,9 +420,19 @@ export async function GET(request: NextRequest) {
             },
           ]
 
+    const adminEmail = (auth.payload?.email || process.env.ADMIN_EMAIL || 'admin@connecta.ng').toLowerCase().trim()
+    const adminProfile = db.profiles.find((p) => p.email?.toLowerCase() === adminEmail) || db.profiles.find((p) => p.role === 'admin') || null
+    const adminWallet = adminProfile ? db.wallets.find((w) => w.userId === adminProfile.id) || null : null
+
     return NextResponse.json({
       success: true,
       data: {
+        adminProfile: adminProfile
+          ? {
+              ...adminProfile,
+              wallet: adminWallet,
+            }
+          : null,
         metrics,
         users: allUsers,
         serviceRequests,
@@ -520,6 +530,38 @@ export async function POST(request: NextRequest) {
         writeDatabase(db)
       }
       return NextResponse.json({ success: true, message: `Dispute ${disputeId} marked as resolved` })
+    }
+
+    if (action === 'update_admin_profile') {
+      const { fullName, phone, whatsapp, headline, bio, city, country, skills, companyName } = payload || {}
+      const adminEmail = (auth.payload?.email || process.env.ADMIN_EMAIL || 'admin@connecta.ng').toLowerCase().trim()
+      const profile = db.profiles.find((p) => p.email?.toLowerCase() === adminEmail) || db.profiles.find((p) => p.role === 'admin')
+      if (profile) {
+        if (fullName) {
+          profile.fullName = fullName
+          const parts = fullName.trim().split(/\s+/)
+          profile.firstName = parts[0] || profile.firstName
+          profile.lastName = parts.slice(1).join(' ') || profile.lastName
+        }
+        if (phone) profile.phone = phone
+        if (whatsapp) profile.whatsapp = whatsapp
+        if (headline) profile.headline = headline
+        if (bio) profile.bio = bio
+        if (city) profile.city = city
+        if (country) profile.country = country
+        if (skills && Array.isArray(skills)) profile.skills = skills
+        if (companyName) profile.companyName = companyName
+        profile.updatedAt = new Date().toISOString()
+        writeDatabase(db)
+        saveUser({
+          ...profile,
+          avatarUrl: profile.avatarUrl || undefined,
+          role: profile.role || 'admin',
+          welcomeSparks: profile.welcomeSparks || 500,
+        })
+        return NextResponse.json({ success: true, message: 'Admin profile updated successfully', profile })
+      }
+      return NextResponse.json({ success: false, message: 'Admin profile not found' }, { status: 404 })
     }
 
     return NextResponse.json({ success: false, message: `Unknown action: ${action}` }, { status: 400 })
