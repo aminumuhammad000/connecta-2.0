@@ -199,6 +199,8 @@ export interface ServerWhatsAppSession {
   language?: 'ha' | 'en'
   step: 'GREETING' | 'CATEGORY' | 'NEIGHBORHOOD' | 'SLOT' | 'DESCRIPTION' | 'MATCHED' | 'CHOOSE_LANGUAGE' | 'WAITING_DISPATCH'
   selectedCategory?: string
+  subTrade?: string
+  equipment?: string
   neighborhood?: string
   slot?: string
   description?: string
@@ -722,36 +724,95 @@ export function getOrCreateWhatsAppCustomer(phone: string, name = 'WhatsApp Cust
   return user
 }
 
-export function findMatchingArtisans(category: string, neighborhood?: string): ServerUserProfile[] {
+export function findMatchingArtisans(
+  category: string,
+  neighborhood?: string,
+  subTrade?: string,
+  equipment?: string
+): ServerUserProfile[] {
   const db = readDatabase()
   const providers = db.profiles.filter((p) => p.role === 'provider' && (p.city || '').toLowerCase() === 'kano')
 
   const lowerCat = (category || '').toLowerCase()
-  const matchedTrade = providers.filter((p) => {
-    const trade = (p.trade || p.category || p.primaryCategory || '').toLowerCase()
-    const headline = (p.headline || '').toLowerCase()
-    const skills = (p.skills || []).join(' ').toLowerCase()
-    return (
-      (lowerCat.includes('solar') && (trade.includes('solar') || headline.includes('solar') || skills.includes('solar'))) ||
-      ((lowerCat.includes('gen') || lowerCat.includes('generator')) && (trade.includes('gen') || headline.includes('gen') || skills.includes('gen'))) ||
-      ((lowerCat.includes('ac') || lowerCat.includes('cooling')) && (trade.includes('ac') || headline.includes('cooling') || headline.includes('hvac') || skills.includes('ac'))) ||
-      ((lowerCat.includes('elec') || lowerCat.includes('wiring')) && (trade.includes('elec') || headline.includes('electric') || skills.includes('wiring'))) ||
-      ((lowerCat.includes('plumb') || lowerCat.includes('water')) && (trade.includes('plumb') || headline.includes('plumb') || headline.includes('water') || skills.includes('pump')))
-    )
+  const lowerSub = (subTrade || '').toLowerCase()
+  const lowerEquip = (equipment || '').toLowerCase()
+  const lowerHood = (neighborhood || '').toLowerCase()
+
+  // Normalize canonical category across Hausa and English
+  let canonicalCat = ''
+  if (lowerCat.includes('solar') || lowerCat.includes('batir') || lowerCat.includes('inverter') || lowerCat.includes('inbata')) canonicalCat = 'solar'
+  else if (lowerCat.includes('gen') || lowerCat.includes('inji') || lowerCat.includes('fetur') || lowerCat.includes('dizal') || lowerCat.includes('mikano')) canonicalCat = 'generator'
+  else if (lowerCat.includes('ac') || lowerCat.includes('firiji') || lowerCat.includes('fridge') || lowerCat.includes('cooling') || lowerCat.includes('sanyi')) canonicalCat = 'ac'
+  else if (lowerCat.includes('elec') || lowerCat.includes('waya') || lowerCat.includes('lantarki') || lowerCat.includes('wuta')) canonicalCat = 'electrical'
+  else if (lowerCat.includes('plumb') || lowerCat.includes('famfo') || lowerCat.includes('ruwa') || lowerCat.includes('borehole') || lowerCat.includes('tanka')) canonicalCat = 'plumbing'
+
+  // Score each artisan using the multi-factor matching formula
+  const scored = providers.map((artisan) => {
+    const trade = (artisan.trade || artisan.category || artisan.primaryCategory || '').toLowerCase()
+    const headline = (artisan.headline || '').toLowerCase()
+    const bio = (artisan.bio || '').toLowerCase()
+    const skills = (artisan.skills || []).map((s) => s.toLowerCase()).join(' ')
+    const artisanHood = (artisan.neighborhood || artisan.workshopAddress || '').toLowerCase()
+    const artisanAllText = `${trade} ${headline} ${bio} ${skills}`
+
+    // 1. Trade & Sub-trade Affinity (35%)
+    let tradeAffinity = 0.0
+    let isCategoryMatch = false
+
+    if (canonicalCat === 'solar' && (trade.includes('solar') || trade.includes('inverter') || headline.includes('solar') || headline.includes('inverter'))) isCategoryMatch = true
+    else if (canonicalCat === 'generator' && (trade.includes('gen') || trade.includes('diesel') || trade.includes('lister') || headline.includes('gen'))) isCategoryMatch = true
+    else if (canonicalCat === 'ac' && (trade.includes('ac') || trade.includes('cooling') || trade.includes('refriger') || headline.includes('cooling'))) isCategoryMatch = true
+    else if (canonicalCat === 'electrical' && (trade.includes('electr') || trade.includes('wiring') || headline.includes('electric') || headline.includes('wiring'))) isCategoryMatch = true
+    else if (canonicalCat === 'plumbing' && (trade.includes('plumb') || trade.includes('water') || trade.includes('pipe') || trade.includes('famfo') || headline.includes('plumb'))) isCategoryMatch = true
+
+    if (isCategoryMatch) {
+      tradeAffinity = 0.70
+      // Boost if artisan specialized in the exact sub-trade or equipment
+      if (lowerSub && (skills.includes(lowerSub) || headline.includes(lowerSub) || bio.includes(lowerSub))) {
+        tradeAffinity += 0.20
+      }
+      if (lowerEquip && (skills.includes(lowerEquip) || headline.includes(lowerEquip) || bio.includes(lowerEquip))) {
+        tradeAffinity += 0.10
+      }
+    } else {
+      tradeAffinity = 0.05 // Strict non-match penalty
+    }
+
+    // 2. Proximity & Kano Neighborhood Clustering (30%)
+    let proximity = 0.30
+    if (lowerHood && artisanHood) {
+      const hoodClean = lowerHood.split(' ')[0]
+      if (artisanHood.includes(hoodClean)) {
+        proximity = 1.0 // Exact neighborhood match
+      } else if (
+        (lowerHood.includes('nassarawa') && artisanHood.includes('fagge')) ||
+        (lowerHood.includes('tarauni') && artisanHood.includes('municipal')) ||
+        (lowerHood.includes('dala') && artisanHood.includes('gwale'))
+      ) {
+        proximity = 0.75 // Neighboring cluster
+      } else {
+        proximity = 0.50 // Metropolitan Kano
+      }
+    }
+
+    // 3. Availability & Active Status (20%)
+    const availability = artisan.accountStatus === 'active' ? 1.0 : 0.4
+
+    // 4. Reputation & Escrow Track Record (15%)
+    const ratingScore = Math.min((artisan.rating || 4.8) / 5.0, 1.0)
+
+    const finalScore =
+      tradeAffinity * 0.35 +
+      proximity * 0.30 +
+      availability * 0.20 +
+      ratingScore * 0.15
+
+    return { artisan, score: finalScore }
   })
 
-  const candidates = matchedTrade.length > 0 ? matchedTrade : providers
-
-  // If neighborhood given, rank matching neighborhood first
-  if (neighborhood) {
-    const lowerHood = neighborhood.toLowerCase()
-    const inHood = candidates.filter((p) =>
-      (p.neighborhood || p.workshopAddress || '').toLowerCase().includes(lowerHood)
-    )
-    if (inHood.length > 0) return inHood
-  }
-
-  return candidates
+  // Sort by highest weighted match score
+  scored.sort((a, b) => b.score - a.score)
+  return scored.map((s) => s.artisan)
 }
 
 export function createWhatsAppOrder(params: {
@@ -761,9 +822,16 @@ export function createWhatsAppOrder(params: {
   neighborhood: string
   description: string
   slot?: string
+  subTrade?: string
+  equipment?: string
 }): { serviceRequest: ServerServiceRequest; booking: ServerBookingContract; artisan: ServerUserProfile } {
   const customer = getOrCreateWhatsAppCustomer(params.phone, params.name)
-  const matchedArtisans = findMatchingArtisans(params.category, params.neighborhood)
+  const matchedArtisans = findMatchingArtisans(
+    params.category,
+    params.neighborhood,
+    params.subTrade,
+    params.equipment
+  )
   const artisan = matchedArtisans[0] || customer
 
   const trackingNum = Math.floor(1000 + Math.random() * 9000)
