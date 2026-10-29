@@ -4,11 +4,12 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "node scripts/seed-admin.mjs && next build",
     "start": "next start",
     "lint": "eslint",
     "test": "node --test tests/*.test.mjs",
-    "seed": "node scripts/seed-database.mjs"
+    "seed": "node scripts/seed-admin.mjs && node scripts/seed-database.mjs",
+    "seed:admin": "node scripts/seed-admin.mjs"
   },
   "dependencies": {
     "@clerk/nextjs": "^7.9.20",

@@ -10,7 +10,7 @@ export interface StoredUser {
   phone: string
   whatsapp?: string
   password?: string
-  role: 'provider' | 'customer'
+  role: 'provider' | 'customer' | 'admin'
   country: string
   city: string
   currency: string
@@ -93,6 +93,31 @@ export function getAllUsers(): StoredUser[] {
     } catch {
       // Fallback
     }
+  }
+
+  const adminEmail = (process.env.ADMIN_EMAIL || 'admin@connecta.ng').toLowerCase().trim()
+  if (!users.some((u) => u.email?.toLowerCase() === adminEmail)) {
+    users.unshift({
+      id: 'adm-001',
+      fullName: 'Malam Aminu Danbatta',
+      firstName: 'Malam Aminu',
+      lastName: 'Danbatta',
+      email: adminEmail,
+      phone: '+2348030000001',
+      whatsapp: '+2348030000001',
+      password: process.env.ADMIN_PASSWORD || 'Connecta@Admin2026!',
+      role: 'admin',
+      country: 'Nigeria',
+      city: 'Kano',
+      currency: 'NGN',
+      avatarUrl: '/brand/svg/connecta-icon.svg',
+      businessName: 'Connecta Kano Administration',
+      headline: 'Lead Platform Administrator & Escrow Supervisor',
+      bio: 'Official administrator account for Connecta platform governance, trade artisan verification, and escrow administration.',
+      companyName: 'Connecta Platform Administration',
+      createdAt: '2026-01-01T00:00:00.000Z',
+      welcomeSparks: 500,
+    })
   }
 
   globalThis.__connecta_users_cache = users

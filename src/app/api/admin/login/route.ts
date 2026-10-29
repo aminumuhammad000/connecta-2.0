@@ -8,7 +8,7 @@ import {
   ADMIN_INACTIVITY_LIMIT_MS,
 } from '@/lib/auth/admin-auth'
 import { findUserByEmail as findInDatabase } from '@/lib/server/db'
-import { findUserByEmail as findInStore } from '@/lib/auth/user-store'
+import { findUserByEmail as findInStore, saveUser } from '@/lib/auth/user-store'
 import { createClient } from '@/lib/supabase/server'
 
 export async function POST(request: NextRequest) {
@@ -40,6 +40,33 @@ export async function POST(request: NextRequest) {
       } catch {
         // Local stores remain the account lookup fallback when Supabase is unavailable.
       }
+    }
+
+    const expectedAdminEmail = (process.env.ADMIN_EMAIL || 'admin@connecta.ng').trim().toLowerCase()
+
+    // Ensure configured administrator account is seeded in user-store
+    if (!hasConnectaAccount && adminEmail === expectedAdminEmail) {
+      saveUser({
+        id: 'adm-001',
+        fullName: 'Malam Aminu Danbatta',
+        firstName: 'Malam Aminu',
+        lastName: 'Danbatta',
+        email: adminEmail,
+        phone: '+2348030000001',
+        whatsapp: '+2348030000001',
+        password: process.env.ADMIN_PASSWORD || 'Connecta@Admin2026!',
+        role: 'admin',
+        country: 'Nigeria',
+        city: 'Kano',
+        currency: 'NGN',
+        avatarUrl: '/brand/svg/connecta-icon.svg',
+        businessName: 'Connecta Kano Administration',
+        headline: 'Lead Platform Administrator & Escrow Supervisor',
+        bio: 'Official administrator account for Connecta platform governance, trade artisan verification, and escrow administration.',
+        createdAt: '2026-01-01T00:00:00.000Z',
+        welcomeSparks: 500,
+      })
+      hasConnectaAccount = true
     }
 
     if (!hasConnectaAccount) {

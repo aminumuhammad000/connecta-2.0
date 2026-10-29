@@ -47,5 +47,7 @@ next-env.d.ts
 
 # local runtime server database files
 data/*.json
+!data/registered-users.json
+!data/connecta-db.json
 
 connecta old/

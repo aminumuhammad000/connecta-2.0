@@ -16,8 +16,8 @@ export interface ServerUserProfile {
   phone: string
   whatsapp?: string
   password?: string
-  role: 'customer' | 'provider'
-  activeRole: 'customer' | 'provider'
+  role: 'customer' | 'provider' | 'admin'
+  activeRole: 'customer' | 'provider' | 'admin'
   accountStatus: 'active' | 'suspended'
   country: string
   city: string
@@ -288,7 +288,7 @@ export function readDatabase(): ServerDatabaseSchema {
 
         for (const u of usersList) {
           if (!db.profiles.some((p) => p.id === u.id || p.email.toLowerCase() === u.email.toLowerCase())) {
-            const role = (u.role === 'provider' ? 'provider' : 'customer') as 'customer' | 'provider'
+            const role = (u.role === 'admin' ? 'admin' : u.role === 'provider' ? 'provider' : 'customer') as 'customer' | 'provider' | 'admin'
             const newProfile: ServerUserProfile = {
               id: u.id,
               fullName: u.fullName || `${u.firstName || ''} ${u.lastName || ''}`.trim() || 'Connecta User',
@@ -305,7 +305,7 @@ export function readDatabase(): ServerDatabaseSchema {
               city: u.city || 'Kano',
               currency: u.currency || 'NGN',
               avatarUrl: u.avatarUrl || null,
-              headline: u.headline || (role === 'provider' ? 'Certified Specialist' : 'Hiring Client'),
+              headline: u.headline || (role === 'admin' ? 'Platform Administrator' : role === 'provider' ? 'Certified Specialist' : 'Hiring Client'),
               bio: u.bio || '',
               skills: u.skills || [],
               hourlyRateMinor: u.hourlyRateMinor || 0,
@@ -344,6 +344,34 @@ export function readDatabase(): ServerDatabaseSchema {
       }
     } catch (err) {
       console.error('Error importing registered users:', err)
+    }
+
+    const adminEmail = (process.env.ADMIN_EMAIL || 'admin@connecta.ng').toLowerCase().trim()
+    if (!db.profiles.some((p) => p.email?.toLowerCase() === adminEmail)) {
+      db.profiles.unshift({
+        id: 'adm-001',
+        fullName: 'Malam Aminu Danbatta',
+        firstName: 'Malam Aminu',
+        lastName: 'Danbatta',
+        email: adminEmail,
+        phone: '+2348030000001',
+        whatsapp: '+2348030000001',
+        password: process.env.ADMIN_PASSWORD || 'Connecta@Admin2026!',
+        role: 'admin',
+        activeRole: 'admin',
+        accountStatus: 'active',
+        country: 'Nigeria',
+        city: 'Kano',
+        currency: 'NGN',
+        avatarUrl: '/brand/svg/connecta-icon.svg',
+        headline: 'Lead Platform Administrator & Escrow Supervisor',
+        bio: 'Official administrator account for Connecta platform governance, trade artisan verification, and escrow administration.',
+        skills: ['Platform Administration', 'Escrow Oversight', 'Dispute Resolution'],
+        companyName: 'Connecta Platform Administration',
+        welcomeSparks: 500,
+        createdAt: '2026-01-01T00:00:00.000Z',
+        updatedAt: '2026-01-01T00:00:00.000Z',
+      })
     }
 
     globalThis.__connecta_memory_db = db
@@ -504,9 +532,10 @@ export function addServiceRequest(req: ServerServiceRequest): ServerServiceReque
   return req
 }
 
-export function getUserBookings(userId: string, role?: 'customer' | 'provider'): ServerBookingContract[] {
+export function getUserBookings(userId: string, role?: 'customer' | 'provider' | 'admin'): ServerBookingContract[] {
   const db = readDatabase()
   return db.bookings.filter((b) => {
+    if (role === 'admin') return true
     if (role === 'provider') return b.providerId === userId
     if (role === 'customer') return b.customerId === userId
     return b.customerId === userId || b.providerId === userId

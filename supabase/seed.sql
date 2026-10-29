@@ -377,6 +377,8 @@ ON CONFLICT (id) DO UPDATE SET
 
 -- 4.2 User Profiles (Clients & Providers)
 INSERT INTO public.profiles (id, full_name, first_name, last_name, email, phone, whatsapp, roles, city, country, avatar_url) VALUES
+-- Platform Administrator
+('a1010000-0000-0000-0000-000000000000', 'Malam Aminu Danbatta', 'Malam Aminu', 'Danbatta', 'admin@connecta.ng', '+2348030000001', '+2348030000001', ARRAY['admin'::user_role], 'Kano', 'Nigeria', '/brand/svg/connecta-icon.svg'),
 -- Verified Providers
 ('a1010000-0000-0000-0000-000000000001', 'Ibrahim Aliyu', 'Ibrahim', 'Aliyu', 'ibrahim.aliyu@connecta.ng', '+2348031234001', '+2348031234001', ARRAY['provider'::user_role], 'Kano', 'Nigeria', '/images/services/nigerian_electrician_ibrahim.jpg?v=2'),
 ('a1010000-0000-0000-0000-000000000002', 'Jonah Blessing', 'Jonah', 'Blessing', 'jonah.blessing@connecta.ng', '+2348031234002', '+2348031234002', ARRAY['provider'::user_role], 'Port Harcourt', 'Nigeria', '/images/services/nigerian_plumber_jonah.jpg?v=2'),
