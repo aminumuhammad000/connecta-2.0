@@ -264,7 +264,7 @@ export default function AdminEmailHub({
         {/* Left Column: Audience & Composer */}
         <div className={showEmailPreview ? 'lg:col-span-7 space-y-6' : 'lg:col-span-12 space-y-6'}>
           {/* Step 1: Target Audience Selection */}
-          <div className="bg-white rounded-3xl p-6 border-2 border-slate-900/10 shadow-sm space-y-4">
+          <div className="bg-white rounded-3xl p-6 border border-slate-200/90 shadow-none space-y-4">
             <div className="flex items-center justify-between">
               <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">
                 1. Select Target Audience
@@ -472,7 +472,7 @@ export default function AdminEmailHub({
           </div>
 
           {/* Step 2: Templates & Message Composition */}
-          <div className="bg-white rounded-3xl p-6 border-2 border-slate-900/10 shadow-sm space-y-5">
+          <div className="bg-white rounded-3xl p-6 border border-slate-200/90 shadow-none space-y-5">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-slate-100">
               <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">
                 2. Compose Message
@@ -579,7 +579,7 @@ export default function AdminEmailHub({
                 type="button"
                 onClick={handleSendEmail}
                 disabled={isSendingEmail}
-                className="px-6 py-3 rounded-full bg-[#0C513F] hover:bg-[#093e30] text-white text-xs sm:text-sm font-semibold transition-all shadow-md hover:shadow-lg disabled:opacity-50 cursor-pointer flex items-center gap-2"
+                className="px-6 py-3 rounded-full bg-[#0C513F] hover:bg-[#093e30] text-white text-xs sm:text-sm font-semibold transition-all shadow-xs hover:shadow-sm disabled:opacity-50 cursor-pointer flex items-center gap-2"
               >
                 {isSendingEmail ? (
                   <>
@@ -599,7 +599,7 @@ export default function AdminEmailHub({
 
         {/* Right Column: Live Interactive Preview */}
         {showEmailPreview && (
-          <div className="lg:col-span-5 bg-white rounded-3xl p-5 border-2 border-slate-900/10 shadow-sm space-y-4 sticky top-20 animate-in fade-in zoom-in-95 duration-150">
+          <div className="lg:col-span-5 bg-white rounded-3xl p-5 border border-slate-200/90 shadow-none space-y-4 sticky top-20 animate-in fade-in zoom-in-95 duration-150">
             <div className="flex items-center justify-between pb-2 border-b border-slate-100">
               <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">
                 Live Recipient Email Preview
@@ -684,7 +684,7 @@ export default function AdminEmailHub({
       </div>
 
       {/* Step 3: Past Dispatched Emails Log Table */}
-      <div className="bg-white rounded-3xl border-2 border-slate-900/10 shadow-sm p-6 space-y-4">
+      <div className="bg-white rounded-3xl border border-slate-200/90 shadow-none p-6 space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <div>
             <h3 className="text-lg font-semibold text-slate-900">
@@ -764,7 +764,7 @@ export default function AdminEmailHub({
       {/* Modal: View Sent Email Content */}
       {selectedSentEmail && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl w-full max-w-lg p-6 sm:p-7 space-y-4 border-2 border-slate-900/10 shadow-2xl animate-in fade-in zoom-in-95 duration-150">
+          <div className="bg-white rounded-3xl w-full max-w-lg p-6 sm:p-7 space-y-4 border border-slate-200/90 shadow-lg animate-in fade-in zoom-in-95 duration-150">
             <div className="flex items-start justify-between pb-3 border-b border-slate-100">
               <div>
                 <span className="text-[10px] font-semibold uppercase tracking-wider whitespace-nowrap text-slate-400">

@@ -625,7 +625,7 @@ export default function AdminClientView({
     <div className="min-h-screen bg-[#F5F7FC] text-[#0A1020] flex flex-col font-sans selection:bg-[#10B981]/20">
       {/* Unified Professional Floating Header - Exact Match to Landing Page Design */}
       <div className="sticky top-0 left-0 right-0 z-50 pt-2 sm:pt-4 px-2.5 sm:px-6">
-        <header className="max-w-7xl mx-auto flex items-center justify-between gap-4 transition-all duration-300 rounded-full px-4 sm:px-6 py-2.5 bg-white/95 backdrop-blur-xl border border-slate-200/90 shadow-[0_10px_30px_rgb(0,0,0,0.06)]">
+        <header className="max-w-7xl mx-auto flex items-center justify-between gap-4 transition-all duration-300 rounded-full px-4 sm:px-6 py-2.5 bg-white/95 backdrop-blur-xl border border-slate-200/90 shadow-xs">
           {/* Left: Brand Logo Only */}
           <Link href="/" className="flex items-center gap-2 sm:gap-2.5 group shrink-0">
             <div className="w-8 h-8 rounded-full bg-[#0C513F] flex items-center justify-center p-1.5 shadow-2xs transition-transform group-hover:scale-105 shrink-0">
@@ -778,7 +778,7 @@ export default function AdminClientView({
             mobileMenuOpen ? 'block' : 'hidden'
           } lg:block w-full lg:w-64 shrink-0 space-y-2 relative z-20`}
         >
-          <div className="bg-white rounded-3xl p-3 border-2 border-slate-900/10 shadow-sm space-y-1">
+          <div className="bg-white rounded-3xl p-3 border border-slate-200/90 shadow-none space-y-1">
             <button
               type="button"
               onClick={() => { setActiveTab('overview'); setMobileMenuOpen(false); }}
@@ -987,7 +987,7 @@ export default function AdminClientView({
               {/* 4 Primary Hero KPI Cards */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
                 {/* Total Users */}
-                <div className="bg-gradient-to-br from-[#1E3A8A] to-[#3B82F6] rounded-3xl p-6 text-white shadow-md relative overflow-hidden group">
+                <div className="bg-gradient-to-br from-[#1E3A8A] to-[#3B82F6] rounded-3xl p-6 text-white shadow-none relative overflow-hidden group">
                   <div className="relative z-10 space-y-2">
                     <p className="text-[11px] font-semibold text-blue-100 uppercase tracking-wider whitespace-nowrap">
                       Total Platform Users
@@ -1005,7 +1005,7 @@ export default function AdminClientView({
                 </div>
 
                 {/* Service Requests */}
-                <div className="bg-gradient-to-br from-[#B45309] to-[#F59E0B] rounded-3xl p-6 text-white shadow-md relative overflow-hidden group">
+                <div className="bg-gradient-to-br from-[#B45309] to-[#F59E0B] rounded-3xl p-6 text-white shadow-none relative overflow-hidden group">
                   <div className="relative z-10 space-y-2">
                     <p className="text-[11px] font-semibold text-amber-100 uppercase tracking-wider whitespace-nowrap">
                       Service Requests
@@ -1022,7 +1022,7 @@ export default function AdminClientView({
                 </div>
 
                 {/* Escrow Locked */}
-                <div className="bg-gradient-to-br from-[#0C513F] to-[#10B981] rounded-3xl p-6 text-white shadow-md relative overflow-hidden group">
+                <div className="bg-gradient-to-br from-[#0C513F] to-[#10B981] rounded-3xl p-6 text-white shadow-none relative overflow-hidden group">
                   <div className="relative z-10 space-y-2">
                     <p className="text-[11px] font-semibold text-emerald-100 uppercase tracking-wider whitespace-nowrap">
                       Locked in Escrow Vault
@@ -1038,7 +1038,7 @@ export default function AdminClientView({
                 </div>
 
                 {/* Platform Revenue (5% Fee) */}
-                <div className="bg-gradient-to-br from-[#0A1020] to-[#1E293B] rounded-3xl p-6 text-white shadow-md relative overflow-hidden group">
+                <div className="bg-gradient-to-br from-[#0A1020] to-[#1E293B] rounded-3xl p-6 text-white shadow-none relative overflow-hidden group">
                   <div className="relative z-10 space-y-2">
                     <p className="text-[11px] font-semibold text-slate-300 uppercase tracking-wider whitespace-nowrap">
                       Connecta Revenue (5%)
@@ -1057,7 +1057,7 @@ export default function AdminClientView({
               {/* 2-Column Overview Tables: Recent Jobs & Pending Verifications */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Pending Verification Alerts */}
-                <div className="bg-white rounded-3xl p-6 border-2 border-slate-900/10 shadow-sm space-y-4">
+                <div className="bg-white rounded-3xl p-6 border border-slate-200/90 shadow-none space-y-4">
                   <div className="flex items-center justify-between pb-3 border-b border-slate-100">
                     <div className="flex items-center gap-2">
                       <ShieldCheck className="w-5 h-5 text-emerald-600" />
@@ -1107,7 +1107,7 @@ export default function AdminClientView({
                 </div>
 
                 {/* Recent Service Requests in Kano */}
-                <div className="bg-white rounded-3xl p-6 border-2 border-slate-900/10 shadow-sm space-y-4">
+                <div className="bg-white rounded-3xl p-6 border border-slate-200/90 shadow-none space-y-4">
                   <div className="flex items-center justify-between pb-3 border-b border-slate-100">
                     <div className="flex items-center gap-2">
                       <Briefcase className="w-5 h-5 text-amber-600" />
@@ -1211,7 +1211,7 @@ export default function AdminClientView({
               </div>
 
               {/* Search Bar */}
-              <div className="p-2 rounded-2xl bg-white border-2 border-slate-900/10 shadow-xs flex items-center gap-2">
+              <div className="p-2 rounded-2xl bg-white border border-slate-200/90 shadow-none flex items-center gap-2">
                 <Search className="w-4 h-4 text-slate-400 ml-2" />
                 <input
                   type="text"
@@ -1232,7 +1232,7 @@ export default function AdminClientView({
               </div>
 
               {/* Users Table */}
-              <div className="bg-white rounded-3xl border-2 border-slate-900/10 shadow-sm overflow-hidden">
+              <div className="bg-white rounded-3xl border border-slate-200/90 shadow-none overflow-hidden">
                 <div className="overflow-x-auto">
                   <table className="w-full text-left text-xs">
                     <thead className="bg-slate-50/90 border-b border-slate-200 text-slate-500 uppercase tracking-wider font-semibold text-[11px] whitespace-nowrap">
@@ -1365,7 +1365,7 @@ export default function AdminClientView({
               </div>
 
               {/* Job Search */}
-              <div className="p-2 rounded-2xl bg-white border-2 border-slate-900/10 shadow-xs flex items-center gap-2">
+              <div className="p-2 rounded-2xl bg-white border border-slate-200/90 shadow-none flex items-center gap-2">
                 <Search className="w-4 h-4 text-slate-400 ml-2" />
                 <input
                   type="text"
@@ -1381,7 +1381,7 @@ export default function AdminClientView({
                 {filteredJobs.map((j) => (
                   <div
                     key={j.id}
-                    className="bg-white rounded-3xl p-5 border-2 border-slate-900/10 shadow-sm space-y-3 flex flex-col justify-between"
+                    className="bg-white rounded-3xl p-5 border border-slate-200/90 shadow-none space-y-3 flex flex-col justify-between"
                   >
                     <div className="space-y-2">
                       <div className="flex items-center justify-between gap-2">
@@ -1490,7 +1490,7 @@ export default function AdminClientView({
                 {filteredBookings.map((b) => (
                   <div
                     key={b.id}
-                    className="bg-white rounded-3xl p-6 border-2 border-slate-900/10 shadow-sm space-y-4"
+                    className="bg-white rounded-3xl p-6 border border-slate-200/90 shadow-none space-y-4"
                   >
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
                       <div>
@@ -1613,7 +1613,7 @@ export default function AdminClientView({
                 </p>
               </div>
 
-              <div className="bg-white rounded-3xl border-2 border-slate-900/10 shadow-sm divide-y divide-slate-100 overflow-hidden">
+              <div className="bg-white rounded-3xl border border-slate-200/90 shadow-none divide-y divide-slate-100 overflow-hidden">
                 {verificationCases.map((c) => (
                   <div
                     key={c.id}
@@ -1703,7 +1703,7 @@ export default function AdminClientView({
 
               {/* Financial KPI stats */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div className="bg-white rounded-3xl p-5 border-2 border-slate-900/10 shadow-xs">
+                <div className="bg-white rounded-3xl p-5 border border-slate-200/90 shadow-none">
                   <span className="text-[11px] font-semibold uppercase text-slate-500 whitespace-nowrap">
                     Active Locked Escrow
                   </span>
@@ -1715,7 +1715,7 @@ export default function AdminClientView({
                   </span>
                 </div>
 
-                <div className="bg-white rounded-3xl p-5 border-2 border-slate-900/10 shadow-xs">
+                <div className="bg-white rounded-3xl p-5 border border-slate-200/90 shadow-none">
                   <span className="text-[11px] font-semibold uppercase text-slate-500 whitespace-nowrap">
                     Total Released to Artisans
                   </span>
@@ -1727,7 +1727,7 @@ export default function AdminClientView({
                   </span>
                 </div>
 
-                <div className="bg-white rounded-3xl p-5 border-2 border-slate-900/10 shadow-xs">
+                <div className="bg-white rounded-3xl p-5 border border-slate-200/90 shadow-none">
                   <span className="text-[11px] font-semibold uppercase text-slate-500 whitespace-nowrap">
                     Platform Revenue (5%)
                   </span>
@@ -1741,7 +1741,7 @@ export default function AdminClientView({
               </div>
 
               {/* Ledger Summary */}
-              <div className="bg-white rounded-3xl p-6 border-2 border-slate-900/10 shadow-sm space-y-4">
+              <div className="bg-white rounded-3xl p-6 border border-slate-200/90 shadow-none space-y-4">
                 <h3 className="font-bold text-slate-900 text-sm">
                   Recent Milestone Transactions
                 </h3>
@@ -1785,7 +1785,7 @@ export default function AdminClientView({
                 {disputes.map((d) => (
                   <div
                     key={d.id}
-                    className="bg-white rounded-3xl p-6 border-2 border-slate-900/10 shadow-sm space-y-3"
+                    className="bg-white rounded-3xl p-6 border border-slate-200/90 shadow-none space-y-3"
                   >
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b border-slate-100">
                       <div>
@@ -1836,7 +1836,7 @@ export default function AdminClientView({
           {/* TAB: SETTINGS */}
           {/* ================================================================= */}
           {activeTab === 'settings' && (
-            <div className="bg-white rounded-3xl p-6 sm:p-8 border-2 border-slate-900/10 shadow-sm space-y-6">
+            <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-none space-y-6">
               <div>
                 <h2 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
                   Platform Parameters
@@ -1911,7 +1911,7 @@ export default function AdminClientView({
       {/* ===================================================================== */}
       {selectedUser && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl w-full max-w-lg p-6 sm:p-8 space-y-5 border-2 border-slate-900/10 shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+          <div className="bg-white rounded-3xl w-full max-w-lg p-6 sm:p-8 space-y-5 border border-slate-200/90 shadow-lg animate-in fade-in zoom-in-95 duration-200">
             <div className="flex items-start justify-between pb-3 border-b border-slate-100">
               <div>
                 <span className="text-[10px] font-semibold uppercase tracking-wider whitespace-nowrap text-slate-400">
@@ -1998,7 +1998,7 @@ export default function AdminClientView({
       {/* ===================================================================== */}
       {selectedCase && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl w-full max-w-md p-6 sm:p-7 space-y-4 border-2 border-slate-900/10 shadow-2xl">
+          <div className="bg-white rounded-3xl w-full max-w-md p-6 sm:p-7 space-y-4 border border-slate-200/90 shadow-lg">
             <div className="flex items-start justify-between pb-2 border-b border-slate-100">
               <div>
                 <span className="text-[10px] font-semibold uppercase tracking-wider whitespace-nowrap text-rose-500">
@@ -2053,7 +2053,7 @@ export default function AdminClientView({
       {/* ===================================================================== */}
       {actionBooking && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl w-full max-w-sm p-6 text-center space-y-4 border-2 border-slate-900/10 shadow-2xl">
+          <div className="bg-white rounded-3xl w-full max-w-sm p-6 text-center space-y-4 border border-slate-200/90 shadow-lg">
             <div
               className={`w-12 h-12 rounded-full mx-auto flex items-center justify-center ${
                 actionBooking.type === 'release'
@@ -2108,7 +2108,7 @@ export default function AdminClientView({
       {/* ===================================================================== */}
       {selectedDispute && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl w-full max-w-md p-6 sm:p-7 space-y-4 border-2 border-slate-900/10 shadow-2xl">
+          <div className="bg-white rounded-3xl w-full max-w-md p-6 sm:p-7 space-y-4 border border-slate-200/90 shadow-lg">
             <div>
               <span className="text-[10px] font-semibold uppercase tracking-wider whitespace-nowrap text-amber-600">
                 Resolution Terms
@@ -2156,7 +2156,7 @@ export default function AdminClientView({
       {/* ===================================================================== */}
       {showAdminProfileModal && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-white rounded-3xl w-full max-w-lg p-6 sm:p-8 space-y-6 border-2 border-slate-900/10 shadow-2xl relative animate-in fade-in zoom-in-95 duration-150 my-8">
+          <div className="bg-white rounded-3xl w-full max-w-lg p-6 sm:p-8 space-y-6 border border-slate-200/90 shadow-lg relative animate-in fade-in zoom-in-95 duration-150 my-8">
             <button
               type="button"
               onClick={() => {
@@ -2178,7 +2178,7 @@ export default function AdminClientView({
             {!isEditingAdminProfile ? (
               <>
                 <div className="flex items-center gap-4">
-                  <div className="w-16 h-16 rounded-full bg-[#0C513F] text-white flex items-center justify-center text-xl font-bold ring-4 ring-emerald-500/20 shadow-md overflow-hidden relative shrink-0">
+                  <div className="w-16 h-16 rounded-full bg-[#0C513F] text-white flex items-center justify-center text-xl font-bold ring-4 ring-emerald-500/20 shadow-none overflow-hidden relative shrink-0">
                     {currentAdmin.avatarUrl ? (
                       <Image
                         src={currentAdmin.avatarUrl}
@@ -2410,7 +2410,7 @@ export default function AdminClientView({
       {/* ===================================================================== */}
       {showLogoutModal && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl w-full max-w-sm p-6 text-center space-y-4 border-2 border-slate-900/10 shadow-2xl animate-in fade-in zoom-in-95 duration-150">
+          <div className="bg-white rounded-3xl w-full max-w-sm p-6 text-center space-y-4 border border-slate-200/90 shadow-lg animate-in fade-in zoom-in-95 duration-150">
             <div className="w-12 h-12 rounded-full bg-rose-100 text-rose-600 mx-auto flex items-center justify-center">
               <LogOut className="w-6 h-6" />
             </div>
@@ -2451,7 +2451,7 @@ export default function AdminClientView({
       {/* ===================================================================== */}
       {inactivityModalOpen && (
         <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="bg-[#0A1020] border border-amber-500/40 rounded-3xl w-full max-w-md p-6 sm:p-8 text-center space-y-4 shadow-2xl text-white">
+          <div className="bg-[#0A1020] border border-amber-500/40 rounded-3xl w-full max-w-md p-6 sm:p-8 text-center space-y-4 shadow-lg text-white">
             <div className="w-14 h-14 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-400 mx-auto flex items-center justify-center">
               <Clock className="w-7 h-7" />
             </div>
