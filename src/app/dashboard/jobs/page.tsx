@@ -147,26 +147,16 @@ export default function DashboardProfessionalsPage() {
   return (
     <div className="space-y-6 animate-in fade-in duration-150">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-2 border-b border-zinc-200/60">
-        <div>
-          <span className="text-[11px] font-mono text-zinc-400 uppercase tracking-wider">
-            Verified Tradespeople &amp; Contractors
-          </span>
-          <h1 className="text-2xl font-bold tracking-tight text-zinc-900 mt-1">
-            Find Service Professionals
-          </h1>
-          <p className="text-xs text-zinc-500 mt-0.5 font-normal">
-            Hire vetted electricians, plumbers, solar engineers, and technicians with CBN escrow-backed payment protection.
-          </p>
-        </div>
-
-        <Link
-          href="/requests/new"
-          className="inline-flex items-center gap-1.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-white px-3.5 py-2 text-xs font-medium transition-colors shadow-xs shrink-0"
-        >
-          <Plus className="w-3.5 h-3.5" />
-          <span>Post Custom Brief</span>
-        </Link>
+      <div className="pb-2 border-b border-zinc-200/60">
+        <span className="text-[11px] font-mono text-zinc-400 uppercase tracking-wider">
+          Verified Tradespeople &amp; Contractors
+        </span>
+        <h1 className="text-2xl font-bold tracking-tight text-zinc-900 mt-1">
+          Find Service Professionals
+        </h1>
+        <p className="text-xs text-zinc-500 mt-0.5 font-normal">
+          Hire vetted electricians, plumbers, solar engineers, and technicians with CBN escrow-backed payment protection.
+        </p>
       </div>
 
       {/* Success Alert */}

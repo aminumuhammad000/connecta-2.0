@@ -197,7 +197,6 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     { label: 'AI Diagnostic Assistant', description: 'Describe technical issues to match vetted artisans', path: '/ai', icon: Sparkles },
     { label: 'Account & Payout Settings', description: 'Manage profile and Flutterwave settlement account', path: '/dashboard/settings', icon: Settings },
     { label: 'Support & FAQs', description: 'Escrow charter safeguards and dispute resolution', path: '/dashboard/support', icon: HelpCircle },
-    { label: 'Post New Request', description: 'Broadcast a verified project brief to artisans', path: '/requests/new', icon: Plus },
   ]
 
   const filteredCommands = commandPaletteItems.filter((item) =>
@@ -397,15 +396,6 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                 </div>
               )}
             </div>
-
-            {/* Post Request Action */}
-            <Link
-              href="/requests/new"
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-white text-xs font-medium transition-colors cursor-pointer shadow-xs"
-            >
-              <Plus className="w-3.5 h-3.5" />
-              <span>Post Brief</span>
-            </Link>
           </div>
         </header>
 

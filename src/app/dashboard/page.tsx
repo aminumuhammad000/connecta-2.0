@@ -131,11 +131,11 @@ export default function DashboardOverviewPage() {
 
         <div className="flex items-center gap-2">
           <Link
-            href="/requests/new"
+            href="/dashboard/jobs"
             className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-white text-xs font-medium transition-colors shadow-xs"
           >
-            <Plus className="w-3.5 h-3.5" />
-            <span>New Project Brief</span>
+            <Search className="w-3.5 h-3.5" />
+            <span>Find Professionals</span>
           </Link>
           <Link
             href="/dashboard/wallet"
@@ -291,7 +291,7 @@ export default function DashboardOverviewPage() {
         ) : (
           <div className="p-8 text-center bg-white border border-zinc-200/80 rounded-2xl space-y-2">
             <div className="text-xs font-semibold text-zinc-900">Zero In-Flight Contracts</div>
-            <p className="text-xs text-zinc-400">Post a project brief or accept an artisan quote to start an escrow agreement.</p>
+            <p className="text-xs text-zinc-400">Hire a verified specialist to initiate an escrow agreement.</p>
           </div>
         )}
       </div>
