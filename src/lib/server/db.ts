@@ -47,6 +47,14 @@ export interface ServerUserProfile {
   clientIndustry?: string
   clientGoal?: string
   welcomeSparks?: number
+  language?: 'ha' | 'en'
+  propertyType?: 'residential' | 'commercial'
+  trustTier?: 'tier1' | 'tier2' | 'certified_master'
+  verificationStatus?: 'unverified' | 'verified_tier1' | 'verified_tier2' | 'certified_master'
+  onboardingCompleted?: boolean
+  workshopGeoCoordinates?: { lat: number; lng: number }
+  guildAssociation?: string
+  guarantorContact?: string
   createdAt: string
   updatedAt: string
 }
@@ -110,6 +118,9 @@ export interface ServerBookingContract {
   providerAvatar?: string
   title: string
   category: string
+  equipment?: string
+  mediaUrl?: string
+  visualAttachment?: any
   location: string
   totalAmountMinor: number
   currency: string
@@ -824,6 +835,7 @@ export function createWhatsAppOrder(params: {
   slot?: string
   subTrade?: string
   equipment?: string
+  visualAttachment?: any
 }): { serviceRequest: ServerServiceRequest; booking: ServerBookingContract; artisan: ServerUserProfile } {
   const customer = getOrCreateWhatsAppCustomer(params.phone, params.name)
   const matchedArtisans = findMatchingArtisans(
@@ -874,6 +886,9 @@ export function createWhatsAppOrder(params: {
     providerAvatar: artisan.avatarUrl || undefined,
     title: `${params.category} Diagnostic & Repair`,
     category: params.category,
+    equipment: params.equipment || params.visualAttachment?.equipmentIdentified,
+    mediaUrl: params.visualAttachment?.mediaUrl,
+    visualAttachment: params.visualAttachment,
     location: `${params.neighborhood}, Kano`,
     totalAmountMinor: 500000, // ₦5,000 diagnostic callout fee in escrow
     currency: 'NGN',
