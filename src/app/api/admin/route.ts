@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { readDatabase, writeDatabase } from '@/lib/server/db'
 import { getAllUsers } from '@/lib/auth/user-store'
 import { getAllPublicProviders } from '@/lib/server/providers'
+import { verifyAdminToken, ADMIN_COOKIE_NAME } from '@/lib/auth/admin-auth'
 
 // Default seed cases for verification queue
 const INITIAL_VERIFICATION_CASES = [
@@ -244,8 +245,21 @@ const SEED_DISPUTES = [
   },
 ]
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const token = request.cookies.get(ADMIN_COOKIE_NAME)?.value
+    const auth = await verifyAdminToken(token)
+    if (!auth.valid) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Unauthorized: Admin authentication required or session timed out after 2 hours',
+          reason: auth.reason,
+        },
+        { status: 401 }
+      )
+    }
+
     const db = readDatabase()
 
     // 1. Compile all users
@@ -429,6 +443,19 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
+    const token = request.cookies.get(ADMIN_COOKIE_NAME)?.value
+    const auth = await verifyAdminToken(token)
+    if (!auth.valid) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Unauthorized: Admin authentication required or session timed out after 2 hours',
+          reason: auth.reason,
+        },
+        { status: 401 }
+      )
+    }
+
     const body = await request.json()
     const { action, payload } = body
 

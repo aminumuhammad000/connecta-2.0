@@ -226,6 +226,73 @@ export default function AdminClientView({
   const [showAdminProfileModal, setShowAdminProfileModal] = useState(false)
   const profileDropdownRef = useRef<HTMLDivElement>(null)
 
+  // 2-Hour Inactivity tracking (7200 seconds)
+  const INACTIVITY_LIMIT_SECONDS = 7200 // 2 hours
+  const [remainingSeconds, setRemainingSeconds] = useState<number>(INACTIVITY_LIMIT_SECONDS)
+  const [inactivityModalOpen, setInactivityModalOpen] = useState(false)
+  const [isLoggingOut, setIsLoggingOut] = useState(false)
+  const lastActiveTimestampRef = useRef<number>(Date.now())
+  const lastHeartbeatTimestampRef = useRef<number>(Date.now())
+
+  // Format remaining seconds into HH:MM:SS or Xh Ym
+  const formatRemainingTime = (secs: number) => {
+    const hours = Math.floor(secs / 3600)
+    const minutes = Math.floor((secs % 3600) / 60)
+    const seconds = secs % 60
+    if (hours > 0) {
+      return `${hours}h ${minutes}m`
+    }
+    return `${minutes}m ${seconds}s`
+  }
+
+  // Handle User Activity & Inactivity Timers
+  useEffect(() => {
+    // Record user activity
+    const recordActivity = () => {
+      lastActiveTimestampRef.current = Date.now()
+      // Send heartbeat to server every 5 minutes if active
+      if (Date.now() - lastHeartbeatTimestampRef.current > 5 * 60 * 1000) {
+        lastHeartbeatTimestampRef.current = Date.now()
+        fetch('/api/admin/session', { method: 'POST' }).catch(() => {})
+      }
+    }
+
+    const activityEvents = ['mousedown', 'mousemove', 'keydown', 'scroll', 'touchstart']
+    activityEvents.forEach((ev) => window.addEventListener(ev, recordActivity, { passive: true }))
+
+    // Inactivity interval check every second
+    const interval = setInterval(() => {
+      const elapsedMs = Date.now() - lastActiveTimestampRef.current
+      const remaining = Math.max(0, INACTIVITY_LIMIT_SECONDS - Math.floor(elapsedMs / 1000))
+      setRemainingSeconds(remaining)
+
+      if (remaining <= 0) {
+        clearInterval(interval)
+        setInactivityModalOpen(true)
+        fetch('/api/admin/logout', { method: 'POST' }).finally(() => {
+          setTimeout(() => {
+            window.location.href = '/admin/login?reason=inactivity'
+          }, 2500)
+        })
+      }
+    }, 1000)
+
+    return () => {
+      activityEvents.forEach((ev) => window.removeEventListener(ev, recordActivity))
+      clearInterval(interval)
+    }
+  }, [])
+
+  const handleAdminLogout = async () => {
+    setIsLoggingOut(true)
+    try {
+      await fetch('/api/admin/logout', { method: 'POST' })
+    } catch (e) {
+      // ignore
+    }
+    window.location.href = '/admin/login'
+  }
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (profileDropdownRef.current && !profileDropdownRef.current.contains(event.target as Node)) {
@@ -456,7 +523,20 @@ export default function AdminClientView({
           </Link>
 
           {/* Right: Profile Trigger & Dropdown Menu */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5 sm:gap-3">
+            {/* Session Inactivity Timer Badge */}
+            <div
+              className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-100 border border-slate-200/80 text-[11px] font-medium text-slate-600 select-none"
+              title="Your session automatically expires after 2 hours of inactivity"
+            >
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              <Clock className="w-3.5 h-3.5 text-slate-500" />
+              <span>Timeout:</span>
+              <span className="font-mono font-bold text-slate-800">
+                {formatRemainingTime(remainingSeconds)}
+              </span>
+            </div>
+
             {/* Mobile menu toggle for sidebar tabs */}
             <button
               type="button"
@@ -497,6 +577,16 @@ export default function AdminClientView({
                     <p className="text-[11px] font-medium text-slate-500 truncate">admin@connecta.ng</p>
                     <span className="inline-block mt-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">
                       Super Administrator
+                    </span>
+                  </div>
+
+                  <div className="px-4 py-2 bg-slate-50 border-b border-slate-100 flex items-center justify-between text-[11px]">
+                    <span className="text-slate-500 flex items-center gap-1">
+                      <Clock className="w-3 h-3 text-emerald-600" />
+                      <span>Inactivity Limit:</span>
+                    </span>
+                    <span className="font-mono font-bold text-slate-800">
+                      {formatRemainingTime(remainingSeconds)}
                     </span>
                   </div>
 
@@ -2048,29 +2138,67 @@ export default function AdminClientView({
       {/* ===================================================================== */}
       {showLogoutModal && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl w-full max-w-sm p-6 text-center space-y-4 border-2 border-slate-900/10 shadow-2xl">
+          <div className="bg-white rounded-3xl w-full max-w-sm p-6 text-center space-y-4 border-2 border-slate-900/10 shadow-2xl animate-in fade-in zoom-in-95 duration-150">
             <div className="w-12 h-12 rounded-full bg-rose-100 text-rose-600 mx-auto flex items-center justify-center">
               <LogOut className="w-6 h-6" />
             </div>
             <div>
               <h3 className="text-base sm:text-lg font-bold text-slate-900">Sign Out of Admin Portal</h3>
               <p className="text-xs text-slate-500 mt-1">
-                Are you sure you want to exit the Connecta Admin Command Center?
+                Are you sure you want to exit the Connecta Admin Command Center? Your encrypted session token will be cleared.
               </p>
             </div>
             <div className="flex gap-2.5 pt-2">
               <button
                 type="button"
                 onClick={() => setShowLogoutModal(false)}
-                className="flex-1 py-2.5 rounded-full border border-slate-200 text-slate-700 text-xs font-bold"
+                disabled={isLoggingOut}
+                className="flex-1 py-2.5 rounded-full border border-slate-200 text-slate-700 text-xs font-bold hover:bg-slate-50 transition-colors cursor-pointer disabled:opacity-50"
               >
                 Cancel
               </button>
-              <Link
-                href="/login"
-                className="flex-1 py-2.5 rounded-full bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold inline-flex items-center justify-center"
+              <button
+                type="button"
+                onClick={handleAdminLogout}
+                disabled={isLoggingOut}
+                className="flex-1 py-2.5 rounded-full bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold inline-flex items-center justify-center gap-1.5 transition-colors cursor-pointer disabled:opacity-50"
               >
-                Sign Out
+                {isLoggingOut ? (
+                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                ) : (
+                  <span>Sign Out</span>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ===================================================================== */}
+      {/* MODAL: INACTIVITY AUTO-LOCK (2 HOURS) */}
+      {/* ===================================================================== */}
+      {inactivityModalOpen && (
+        <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="bg-[#0A1020] border border-amber-500/40 rounded-3xl w-full max-w-md p-6 sm:p-8 text-center space-y-4 shadow-2xl text-white">
+            <div className="w-14 h-14 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-400 mx-auto flex items-center justify-center">
+              <Clock className="w-7 h-7" />
+            </div>
+            <div>
+              <span className="inline-block px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 text-[10px] font-bold uppercase tracking-wider mb-2">
+                Security Auto-Lock
+              </span>
+              <h3 className="text-xl font-black text-white">Session Timed Out</h3>
+              <p className="text-xs text-slate-400 mt-2 leading-relaxed">
+                You have been inactive for <span className="text-white font-bold">2 hours</span>. For the safety of user escrows and platform administration, your session has been securely locked.
+              </p>
+            </div>
+            <div className="pt-2">
+              <Link
+                href="/admin/login?reason=inactivity"
+                className="w-full py-3 px-4 rounded-full bg-[#0C513F] hover:bg-emerald-700 text-white font-bold text-xs flex items-center justify-center gap-2 transition-colors"
+              >
+                <span>Re-Authenticate to Resume</span>
+                <ChevronRight className="w-4 h-4" />
               </Link>
             </div>
           </div>
