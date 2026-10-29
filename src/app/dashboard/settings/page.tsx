@@ -154,7 +154,7 @@ export default function DashboardSettingsPage() {
           <div className="text-base font-medium text-ink truncate">{fullName || 'Your name'}</div>
           <div className="text-[13px] text-muted truncate">{headline || email}</div>
         </div>
-        <Badge tone="success" dot className="hidden sm:inline-flex">
+        <Badge tone="success" dot className="max-sm:hidden">
           Verified
         </Badge>
       </Card>

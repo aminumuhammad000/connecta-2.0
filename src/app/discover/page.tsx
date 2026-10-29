@@ -1,15 +1,11 @@
 import React, { Suspense } from 'react'
-import Link from 'next/link'
-import Image from 'next/image'
 import type { Metadata } from 'next'
-import {
-  getAllPublicProviders,
-  PublicProvider,
-} from '@/lib/server/providers'
+import { getAllPublicProviders } from '@/lib/server/providers'
 import DiscoverClientView from './DiscoverClientView'
+import { PageLoader } from '@/components/brand/ConnectaLoader'
 
 export const metadata: Metadata = {
-  title: 'Discover Verified Local Service Professionals in Kano & Nigeria | Connecta',
+  title: 'Discover Verified Local Service Professionals in Kano & Nigeria',
   description:
     'Find and hire vetted local service professionals in Kano, Nigeria — including plumbers, electricians, AC technicians, carpenters, generator specialists, and skilled tradespeople with 100% milestone escrow protection.',
   keywords: [
@@ -87,7 +83,7 @@ export default function DiscoverPage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <Suspense fallback={<div className="min-h-screen bg-[#F5F7FC] flex items-center justify-center font-bold text-slate-500">Loading directory...</div>}>
+      <Suspense fallback={<PageLoader label="Finding professionals near you" />}>
         <DiscoverClientView initialProviders={initialProviders} />
       </Suspense>
     </>

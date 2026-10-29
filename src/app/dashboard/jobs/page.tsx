@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback } from 'react'
 import Image from 'next/image'
 import { Search, MapPin, ShieldCheck, BadgeCheck, ChevronDown, ArrowRight } from 'lucide-react'
 import { formatMinorToNaira } from '@/lib/dashboard/data'
+import { SERVICE_CATEGORIES, findCategory, guessCategory } from '@/lib/categories'
 import { ConnectaLoader } from '@/components/brand/ConnectaLoader'
 import { IllustrationSearch } from '@/components/brand/illustrations'
 import {
@@ -71,6 +72,7 @@ export default function DashboardProfessionalsPage() {
   const [amountNaira, setAmountNaira] = useState('150000')
   const [isSubmittingHire, setIsSubmittingHire] = useState(false)
   const [hireNotice, setHireNotice] = useState<string | null>(null)
+  const [hireError, setHireError] = useState<string | null>(null)
 
   const fetchProviders = useCallback(async () => {
     setIsLoading(true)
@@ -108,6 +110,7 @@ export default function DashboardProfessionalsPage() {
 
   const openHire = (pro: PublicProvider) => {
     setHiring(pro)
+    setHireError(null)
     setProjectTitle(`${pro.category} job`)
     setProjectScope('')
   }
@@ -115,6 +118,11 @@ export default function DashboardProfessionalsPage() {
   const handleHireSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!hiring) return
+    setHireError(null)
+    if (projectScope.trim().length < 20) {
+      setHireError('Describe the job in a little more detail, at least 20 characters.')
+      return
+    }
     setIsSubmittingHire(true)
     try {
       const res = await fetch('/api/requests', {
@@ -122,23 +130,26 @@ export default function DashboardProfessionalsPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           title: projectTitle || `${hiring.category} Service Order`,
-          categoryId: hiring.category,
-          description: `${projectScope} (Assigned to specialist: ${hiring.fullName})`,
+          categoryId: (findCategory(hiring.categorySlug) || findCategory(hiring.category) || guessCategory(hiring.category) || SERVICE_CATEGORIES[0]).id,
+          description: `${projectScope}\n\nRequested professional: ${hiring.fullName}`,
           urgency: 'scheduled',
-          serviceMode: 'at_location',
+          serviceMode: 'onsite',
           budgetMinMinor: Number(amountNaira) * 100,
           budgetMaxMinor: Number(amountNaira) * 100,
         }),
       })
-      if (res.ok) {
-        setHireNotice(
-          `Request sent to ${hiring.fullName}. ₦${Number(amountNaira).toLocaleString('en-NG')} will be protected once they accept.`
-        )
-        setHiring(null)
-        setTimeout(() => setHireNotice(null), 6000)
+      if (!res.ok) {
+        const body = await res.json().catch(() => null)
+        setHireError(body?.error?.message || 'We could not send that request.')
+        return
       }
-    } catch (err) {
-      console.error('Hire error:', err)
+      setHireNotice(
+        `Request sent to ${hiring.fullName}. ₦${Number(amountNaira).toLocaleString('en-NG')} will be protected once they accept.`
+      )
+      setHiring(null)
+      setTimeout(() => setHireNotice(null), 6000)
+    } catch {
+      setHireError('We could not reach the server. Please try again.')
     } finally {
       setIsSubmittingHire(false)
     }
@@ -320,6 +331,7 @@ export default function DashboardProfessionalsPage() {
       >
         {hiring && (
           <form onSubmit={handleHireSubmit} className="space-y-5">
+            {hireError && <Notice tone="danger">{hireError}</Notice>}
             <Field label="Job title" htmlFor="hire-title">
               <input
                 id="hire-title"

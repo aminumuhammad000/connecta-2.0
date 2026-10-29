@@ -8,15 +8,12 @@ import {
   Paperclip,
   Mic,
   MicOff,
-  Image as ImageIcon,
   FileText,
   X,
   AlertCircle,
   MapPin,
   ChevronDown,
   Navigation,
-  ArrowRight,
-  CornerDownLeft,
 } from 'lucide-react'
 import { StructuredRequestAnalysis, MatchedProviderResult } from '@/lib/ai/discovery'
 import { Coordinates } from '@/lib/geo'
@@ -412,18 +409,7 @@ export default function AiServiceDiscoveryInput({
   }
 
   return (
-    <div className="w-full max-w-4xl mx-auto space-y-4">
-      {/* Primary Headline & Supporting Copy */}
-      <div className="text-center space-y-2">
-        <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-[#0A1020] tracking-tight leading-tight">
-          Describe What You Need. Get Matched.
-        </h1>
-        <p className="text-xs sm:text-sm md:text-base text-slate-600 font-medium max-w-2xl mx-auto">
-          Tell us what you need done. Find the right professionals to get it done.
-        </p>
-      </div>
-
-      {/* Main Request Input Capsule */}
+    <div className="w-full max-w-3xl mx-auto">
       <div
         onDragOver={(e) => {
           e.preventDefault()
@@ -435,15 +421,14 @@ export default function AiServiceDiscoveryInput({
           setDragOver(false)
           if (e.dataTransfer.files) handleAddFiles(e.dataTransfer.files)
         }}
-        className={`bg-white transition-all duration-200 shadow-xl hover:shadow-2xl border-2 rounded-3xl p-3 sm:p-4 relative ${
+        className={`bg-surface rounded-2xl border p-3 sm:p-4 text-left shadow-[0_12px_32px_-16px_rgba(17,24,39,0.18)] transition-[border-color,box-shadow] duration-200 ${
           dragOver
-            ? 'border-[#10B981] bg-emerald-50/40 ring-4 ring-[#10B981]/20'
+            ? 'border-success ring-4 ring-success/15'
             : isRecording
-            ? 'border-rose-400 ring-4 ring-rose-400/20 shadow-rose-100'
-            : 'border-slate-900/10 focus-within:border-[#10B981] focus-within:ring-4 focus-within:ring-[#10B981]/15'
+            ? 'border-danger ring-4 ring-danger/10'
+            : 'border-line-strong focus-within:border-azure focus-within:ring-4 focus-within:ring-azure/10'
         }`}
       >
-        {/* Hidden File Input */}
         <input
           ref={fileInputRef}
           type="file"
@@ -454,224 +439,171 @@ export default function AiServiceDiscoveryInput({
             e.target.value = ''
           }}
           className="hidden"
-          aria-label="Upload service request attachments"
+          aria-label="Upload photos or documents"
         />
 
-        {/* Text Area & Voice Recording Wave Bar */}
-        <div className="relative">
-          {isRecording ? (
-            <div className="min-h-[56px] flex items-center justify-between px-3 py-2 rounded-2xl bg-rose-50 border border-rose-200 text-rose-900 animate-pulse">
-              <div className="flex items-center gap-3">
-                <span className="w-3.5 h-3.5 rounded-full bg-rose-600 animate-ping" />
-                <div>
-                  <p className="text-xs sm:text-sm font-bold">
-                    Listening to your request... ({recordingSeconds}s)
-                  </p>
-                  <p className="text-[11px] text-rose-700">
-                    Speak clearly in English, Pidgin, or Hausa
-                  </p>
-                </div>
+        {isRecording ? (
+          <div className="min-h-[56px] flex items-center justify-between gap-3 px-2">
+            <div className="flex items-center gap-3">
+              <span className="w-2.5 h-2.5 rounded-full bg-danger animate-pulse" />
+              <div>
+                <p className="text-sm font-medium text-ink">
+                  Listening <span className="text-muted tabular-nums">{recordingSeconds}s</span>
+                </p>
+                <p className="text-xs text-muted">English, Pidgin or Hausa</p>
               </div>
-              <button
-                type="button"
-                onClick={stopRecording}
-                className="px-3.5 py-1.5 rounded-full bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold transition-all shadow-sm flex items-center gap-1.5 cursor-pointer"
-              >
-                <MicOff className="w-3.5 h-3.5" />
-                <span>Done</span>
-              </button>
             </div>
-          ) : (
+            <button
+              type="button"
+              onClick={stopRecording}
+              className="h-8 px-3 rounded-lg bg-ink text-white text-[13px] font-medium inline-flex items-center gap-1.5 cursor-pointer"
+            >
+              <MicOff className="w-3.5 h-3.5" />
+              Done
+            </button>
+          </div>
+        ) : (
+          <div className="flex items-start gap-2.5 px-1">
+            <Search className="w-5 h-5 text-subtle mt-[11px] shrink-0" />
             <textarea
               ref={textareaRef}
-              rows={2}
+              rows={1}
               value={text}
               onChange={(e) => setText(e.target.value)}
               onKeyDown={handleKeyDown}
               disabled={isSearching}
-              placeholder="Describe what you need (e.g. 'I need an electrician to install solar panels in my home' or 'My laptop will not turn on. I need someone to diagnose and repair it')..."
-              className="w-full bg-transparent text-xs sm:text-sm md:text-[15px] font-semibold text-[#0A1020] placeholder:text-slate-400 focus:outline-none resize-none leading-relaxed"
+              placeholder="What needs fixing?"
+              aria-label="Describe what you need"
+              className="w-full bg-transparent text-[15px] text-ink placeholder:text-subtle focus:outline-none resize-none leading-relaxed py-2.5"
             />
-          )}
+          </div>
+        )}
 
-          {isTranscribing && (
-            <div className="flex items-center gap-2 text-xs font-bold text-emerald-800 bg-emerald-50 px-3 py-1.5 rounded-xl border border-emerald-200 mt-1">
-              <Spinner className="w-3.5 h-3.5 text-emerald-600" />
-              <span>Transcribing your speech with AI...</span>
-            </div>
-          )}
-        </div>
+        {isTranscribing && (
+          <div className="mt-1 mx-1 flex items-center gap-2 text-[13px] text-muted">
+            <Spinner className="w-4 h-4" colored />
+            Turning your voice into text…
+          </div>
+        )}
 
-        {/* Attached Files Preview Bar */}
         {attachments.length > 0 && (
-          <div className="flex flex-wrap items-center gap-2 pt-2.5 pb-1 border-t border-slate-100 mt-2">
+          <div className="flex flex-wrap items-center gap-1.5 mt-2 pt-2.5 border-t border-line">
             {attachments.map((item) => (
-              <div
-                key={item.id}
-                className="flex items-center gap-2 pl-2 pr-1.5 py-1 rounded-xl bg-slate-50 border border-slate-200 text-slate-700 text-xs font-semibold shadow-2xs group"
-              >
+              <div key={item.id} className="cn-pop flex items-center gap-1.5 h-8 pl-1 pr-1.5 rounded-lg bg-sunken text-xs text-ink-2">
                 {item.isImage && item.previewUrl ? (
-                  <div className="relative w-6 h-6 rounded-md overflow-hidden bg-slate-200 shrink-0 border border-slate-300">
-                    <Image
-                      src={item.previewUrl}
-                      alt={item.file.name}
-                      fill
-                      className="object-cover"
-                    />
+                  <div className="relative w-6 h-6 rounded-md overflow-hidden">
+                    <Image src={item.previewUrl} alt={item.file.name} fill className="object-cover" />
                   </div>
                 ) : (
-                  <FileText className="w-4 h-4 text-emerald-700 shrink-0" />
+                  <FileText className="w-4 h-4 text-muted ml-1" />
                 )}
-                <span className="max-w-[130px] sm:max-w-[180px] truncate">
-                  {item.file.name}
-                </span>
-                <span className="text-[10px] text-slate-400">({item.sizeFormatted})</span>
+                <span className="max-w-[140px] truncate">{item.file.name}</span>
+                <span className="text-subtle">{item.sizeFormatted}</span>
                 <button
                   type="button"
                   onClick={() => handleRemoveAttachment(item.id)}
-                  className="w-5 h-5 rounded-full hover:bg-slate-200 text-slate-400 hover:text-slate-700 flex items-center justify-center transition-colors cursor-pointer"
-                  title="Remove attachment"
+                  aria-label={`Remove ${item.file.name}`}
+                  className="text-subtle hover:text-danger cursor-pointer"
                 >
-                  <X className="w-3 h-3" />
+                  <X className="w-3.5 h-3.5" />
                 </button>
               </div>
             ))}
           </div>
         )}
 
-        {/* Error Alert Box */}
         {errorMessage && (
-          <div className="flex items-start gap-2 p-2.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-xs mt-2.5">
-            <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-            <div className="flex-1 font-medium">{errorMessage}</div>
-            <button
-              type="button"
-              onClick={() => setErrorMessage(null)}
-              className="text-amber-700 hover:text-amber-950 text-xs font-bold cursor-pointer"
-            >
-              ✕
+          <div className="cn-pop mt-2 flex items-start gap-2 rounded-xl bg-warn-50 text-warn-ink px-3 py-2.5 text-[13px]">
+            <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+            <span className="flex-1">{errorMessage}</span>
+            <button type="button" onClick={() => setErrorMessage(null)} aria-label="Dismiss" className="opacity-60 hover:opacity-100 cursor-pointer">
+              <X className="w-3.5 h-3.5" />
             </button>
           </div>
         )}
 
-        {/* Action Controls Toolbar: Attachments, Voice, Location, Submit */}
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 pt-3 border-t border-slate-100 mt-2.5">
-          {/* Left: Multimodal Input Controls */}
-          <div className="flex flex-wrap items-center gap-1.5">
-            {/* File Attachment Button */}
+        <div className="mt-2.5 pt-2.5 border-t border-line flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+          <div className="flex flex-wrap items-center gap-1">
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
               disabled={isSearching}
-              className="h-9 px-3 rounded-full bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 hover:text-slate-900 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
-              title="Attach photo (JPEG/PNG/WebP) or document (PDF/TXT) up to 10MB"
+              title="Add a photo or document (up to 10MB)"
+              className="h-9 px-2.5 rounded-lg text-[13px] text-ink-2 hover:bg-sunken hover:text-ink inline-flex items-center gap-1.5 transition-colors cursor-pointer disabled:opacity-50"
             >
-              <Paperclip className="w-3.5 h-3.5 text-slate-500" />
-              <span>Attach File</span>
+              <Paperclip className="w-4 h-4 text-muted" />
+              <span className="hidden sm:inline">Photo</span>
             </button>
-
-            {/* Voice Input Button */}
             <button
               type="button"
               onClick={isRecording ? stopRecording : startRecording}
               disabled={isSearching || isTranscribing}
-              className={`h-9 px-3 rounded-full border text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50 ${
-                isRecording
-                  ? 'bg-rose-500 text-white border-rose-600 animate-pulse'
-                  : 'bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-700 hover:text-slate-900'
+              title="Speak your request"
+              className={`h-9 px-2.5 rounded-lg text-[13px] inline-flex items-center gap-1.5 transition-colors cursor-pointer disabled:opacity-50 ${
+                isRecording ? 'bg-danger-50 text-danger-ink' : 'text-ink-2 hover:bg-sunken hover:text-ink'
               }`}
-              title="Click to speak your request (English, Hausa, Pidgin)"
             >
-              {isRecording ? (
-                <>
-                  <MicOff className="w-3.5 h-3.5 text-white" />
-                  <span>Recording...</span>
-                </>
-              ) : (
-                <>
-                  <Mic className="w-3.5 h-3.5 text-emerald-600" />
-                  <span>Voice</span>
-                </>
-              )}
+              {isRecording ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4 text-muted" />}
+              <span className="hidden sm:inline">{isRecording ? 'Stop' : 'Voice'}</span>
             </button>
-
-            {/* Location Selector */}
-            <div className="relative flex items-center">
-              <MapPin className="absolute left-2.5 w-3.5 h-3.5 text-[#10B981] pointer-events-none shrink-0" />
+            <span className="w-px h-5 bg-line mx-1" />
+            <div className="relative">
+              <MapPin className="w-3.5 h-3.5 text-subtle absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
               <select
                 value={selectedCity}
                 onChange={(e) => onChangeCity(e.target.value)}
                 disabled={isSearching}
-                className="pl-7 pr-6 py-2 rounded-full border border-slate-200 text-xs font-bold text-slate-700 bg-slate-50 hover:bg-slate-100 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#10B981]/30 cursor-pointer appearance-none transition-colors"
-                aria-label="Filter city"
+                aria-label="City"
+                className="appearance-none h-9 pl-7 pr-7 rounded-lg text-[13px] text-ink-2 hover:bg-sunken bg-transparent focus:outline-none focus:ring-2 focus:ring-azure/20 cursor-pointer"
               >
                 {CITIES.map((c) => (
                   <option key={c} value={c}>
-                    {c}
+                    {c === 'All Locations' ? 'All cities' : c}
                   </option>
                 ))}
               </select>
-              <ChevronDown className="absolute right-2 w-3 h-3 text-slate-400 pointer-events-none shrink-0" />
+              <ChevronDown className="w-3.5 h-3.5 text-subtle absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" />
             </div>
-
-            {/* Near Me GPS Button */}
             <button
               type="button"
               onClick={onRequestLocation}
               disabled={isLocating || isSearching}
-              className={`h-9 px-2.5 rounded-full border text-xs font-bold transition-all flex items-center gap-1 shrink-0 cursor-pointer ${
-                userLocation
-                  ? 'bg-blue-50 text-blue-700 border-blue-200'
-                  : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200'
+              title={userLocation ? 'Showing the nearest professionals first' : 'Find professionals near me'}
+              className={`h-9 px-2.5 rounded-lg text-[13px] inline-flex items-center gap-1.5 transition-colors cursor-pointer ${
+                userLocation ? 'bg-success-50 text-success-ink' : 'text-ink-2 hover:bg-sunken hover:text-ink'
               }`}
-              title={
-                userLocation
-                  ? 'GPS active (showing nearest to you)'
-                  : 'Detect my location to find nearest artisans'
-              }
             >
-              <Navigation
-                className={`w-3 h-3 ${
-                  isLocating
-                    ? 'animate-spin text-blue-600'
-                    : userLocation
-                    ? 'text-blue-600 fill-blue-600'
-                    : 'text-slate-500'
-                }`}
-              />
-              <span className="hidden sm:inline">Near Me</span>
+              {isLocating ? <Spinner className="w-4 h-4" colored /> : <Navigation className="w-3.5 h-3.5" />}
+              {userLocation ? 'Near you' : 'Near me'}
             </button>
           </div>
 
-          {/* Right: Primary Submit Action Button */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5">
             {(text || attachments.length > 0 || isAiActive) && (
               <button
                 type="button"
                 onClick={handleResetSearch}
                 disabled={isSearching}
-                className="h-9 px-3 rounded-full text-xs font-bold text-slate-500 hover:text-rose-600 transition-colors cursor-pointer"
+                className="h-9 px-3 rounded-lg text-[13px] text-muted hover:text-ink hover:bg-sunken transition-colors cursor-pointer"
               >
                 Clear
               </button>
             )}
-
             <button
               type="button"
               onClick={() => handleSubmit()}
               disabled={isSearching || (!text.trim() && attachments.length === 0)}
-              className="w-full sm:w-auto h-10 px-5 sm:px-6 rounded-full bg-[#0A1020] hover:bg-[#10B981] disabled:bg-slate-200 text-white disabled:text-slate-400 text-xs sm:text-sm font-extrabold shadow-md transition-all hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2 cursor-pointer disabled:cursor-not-allowed"
+              className="flex-1 sm:flex-none h-10 px-5 rounded-[10px] bg-azure hover:bg-azure-600 disabled:bg-sunken disabled:text-subtle text-white text-sm font-medium inline-flex items-center justify-center gap-2 transition-colors active:scale-[0.98] cursor-pointer disabled:cursor-not-allowed"
             >
               {isSearching ? (
                 <>
-                  <Spinner className="w-4 h-4 text-white" />
-                  <span>Matching Pros...</span>
+                  <Spinner className="w-4 h-4" />
+                  Finding matches
                 </>
               ) : (
                 <>
-                  <Sparkles className="w-4 h-4 text-[#10B981] group-hover:text-white" />
-                  <span>Get Matched</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
+                  <Sparkles className="w-4 h-4" />
+                  Find my match
                 </>
               )}
             </button>
@@ -679,19 +611,16 @@ export default function AiServiceDiscoveryInput({
         </div>
       </div>
 
-      {/* Suggested Example Prompts Pill Carousel */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-1 text-left scrollbar-none">
-        <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider shrink-0">
-          Try asking:
-        </span>
-        {EXAMPLE_PROMPTS.map((prompt, idx) => (
+      <div className="mt-4 flex items-center gap-2 overflow-x-auto pb-1 [scrollbar-width:none]">
+        <span className="text-xs text-subtle shrink-0">Try</span>
+        {EXAMPLE_PROMPTS.map((prompt) => (
           <button
-            key={idx}
+            key={prompt}
             type="button"
             onClick={() => handleUsePrompt(prompt)}
-            className="text-xs font-semibold text-slate-600 hover:text-[#0C513F] bg-white hover:bg-emerald-50/70 border border-slate-200/80 hover:border-emerald-300 px-3 py-1 rounded-full whitespace-nowrap shadow-2xs transition-all cursor-pointer shrink-0"
+            className="h-8 px-3 rounded-full border border-line bg-surface text-xs text-ink-2 hover:border-warn hover:bg-warn-50 hover:text-warn-ink whitespace-nowrap shrink-0 transition-colors cursor-pointer"
           >
-            &ldquo;{prompt.length > 46 ? prompt.slice(0, 46) + '...' : prompt}&rdquo;
+            {prompt.length > 42 ? `${prompt.slice(0, 42)}…` : prompt}
           </button>
         ))}
       </div>

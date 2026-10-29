@@ -1,380 +1,364 @@
 'use client'
 
-import React, { useState, useEffect, Suspense } from 'react'
-import Link from 'next/link'
+import React, { Suspense, useEffect, useMemo, useState } from 'react'
 import Image from 'next/image'
+import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import {
-  Wrench,
-  Zap,
-  Smartphone,
-  Laptop,
+  BadgeCheck,
   Car,
   Hammer,
-  Clock,
+  Laptop,
   MapPin,
-  CheckCircle2,
-  UploadCloud,
-  ArrowRight,
-  ShieldAlert,
-  UserCheck,
+  Paintbrush,
+  ShieldCheck,
+  Smartphone,
+  Wind,
+  Wrench,
   X,
+  Zap,
 } from 'lucide-react'
+import { PublicShell } from '@/components/site/PublicShell'
+import { IllustrationProjects } from '@/components/brand/illustrations'
+import { Avatar, Button, Card, Field, Notice, Skeleton, Stars, inputClass, textareaClass } from '@/components/dashboard/ui'
+import { SERVICE_CATEGORIES, findCategory, guessCategory } from '@/lib/categories'
 
-const CATEGORIES = [
-  { id: 'c1010000-0000-0000-0000-000000000001', name: 'Plumbing & Leaks', icon: Wrench, slug: 'plumbing' },
-  { id: 'c1010000-0000-0000-0000-000000000002', name: 'Electrical & Inverter', icon: Zap, slug: 'electrical' },
-  { id: 'c1010000-0000-0000-0000-000000000003', name: 'Phone Screen & Battery', icon: Smartphone, slug: 'phone-repair' },
-  { id: 'c1010000-0000-0000-0000-000000000004', name: 'Computer Hardware/OS', icon: Laptop, slug: 'computer-repair' },
-  { id: 'c1010000-0000-0000-0000-000000000006', name: 'Auto Mechanic & Brakes', icon: Car, slug: 'auto-mechanic' },
-  { id: 'c1010000-0000-0000-0000-000000000005', name: 'Carpentry & Woodwork', icon: Hammer, slug: 'carpentry' },
-]
+type Urgency = 'emergency' | 'today' | 'scheduled' | 'flexible'
 
-const PROVIDERS_MAP: Record<string, { name: string; trade: string; avatar: string; location: string; defaultCat: string }> = {
-  p1: {
-    name: 'Ibrahim Aliyu',
-    trade: 'Master Electrician & Solar Installer',
-    avatar: '/images/services/nigerian_electrician_ibrahim.jpg',
-    location: 'Kano / Lagos',
-    defaultCat: 'c1010000-0000-0000-0000-000000000002',
-  },
-  p2: {
-    name: 'Jonah Blessing',
-    trade: 'Certified Plumber & Pipe Maintenance Lead',
-    avatar: '/images/services/nigerian_plumber_jonah.jpg',
-    location: 'Port Harcourt / Lagos',
-    defaultCat: 'c1010000-0000-0000-0000-000000000001',
-  },
-  p3: {
-    name: 'Kabiru Sani',
-    trade: 'Master Carpenter & Architectural Joiner',
-    avatar: '/images/services/nigerian_carpenter_kabiru.jpg',
-    location: 'Abuja / Kano',
-    defaultCat: 'c1010000-0000-0000-0000-000000000005',
-  },
-  p4: {
-    name: 'Salamah Othman',
-    trade: 'Device Diagnostics & Electronics Technician',
-    avatar: '/images/services/nigerian_specialist_salamah.jpg',
-    location: 'Lagos, Nigeria',
-    defaultCat: 'c1010000-0000-0000-0000-000000000003',
-  },
+interface RequestProvider {
+  id: string
+  fullName: string
+  businessName: string
+  category: string
+  categorySlug: string
+  city: string
+  averageRating: number
+  reviewCount: number
+  avatarUrl?: string | null
+  verificationStatus: 'verified' | 'unverified'
 }
 
-function NewServiceRequestContent() {
-  const searchParams = useSearchParams()
-  const qParam = searchParams.get('q') || ''
-  const catParam = searchParams.get('category') || ''
-  const providerIdParam = searchParams.get('providerId') || ''
+const ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
+  plumbing: Wrench,
+  electrical: Zap,
+  'ac-cooling': Wind,
+  'auto-mechanic': Car,
+  carpentry: Hammer,
+  painting: Paintbrush,
+  'phone-repair': Smartphone,
+  'computer-repair': Laptop,
+}
 
-  const [selectedCat, setSelectedCat] = useState(CATEGORIES[0].id)
-  const [title, setTitle] = useState(qParam)
-  const [description, setDescription] = useState('')
-  const [urgency, setUrgency] = useState<'emergency' | 'today' | 'scheduled' | 'flexible'>('today')
-  const [providerId, setProviderId] = useState(providerIdParam)
-  const [isSubmitted, setIsSubmitted] = useState(false)
+const URGENCY: Array<{ id: Urgency; label: string; sub: string }> = [
+  { id: 'emergency', label: 'Emergency', sub: 'Right now' },
+  { id: 'today', label: 'Today', sub: 'Within hours' },
+  { id: 'scheduled', label: 'This week', sub: 'Pick a time' },
+  { id: 'flexible', label: 'Flexible', sub: 'No rush' },
+]
 
-  // Initialize and react to query parameters
+const MIN_DETAILS = 20
+
+function NewRequestForm() {
+  const params = useSearchParams()
+  const q = params.get('q') || ''
+  const providerIdParam = params.get('providerId') || ''
+
+  const initialCategory = useMemo(
+    () => findCategory(params.get('category')) || guessCategory(q) || SERVICE_CATEGORIES[0],
+    [params, q]
+  )
+
+  const [categoryId, setCategoryId] = useState(initialCategory.id)
+  const [title, setTitle] = useState(q.replace(/\.$/, ''))
+  const [details, setDetails] = useState('')
+  const [urgency, setUrgency] = useState<Urgency>('today')
+  const [provider, setProvider] = useState<RequestProvider | null>(null)
+  const [isLoadingProvider, setIsLoadingProvider] = useState(Boolean(providerIdParam))
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [submitted, setSubmitted] = useState(false)
+
   useEffect(() => {
-    if (qParam && !title) {
-      setTitle(qParam)
+    if (!providerIdParam) return
+    let cancelled = false
+    fetch(`/api/providers/${encodeURIComponent(providerIdParam)}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((body) => {
+        if (cancelled || !body?.data) return
+        const p: RequestProvider = body.data
+        setProvider(p)
+        if (!params.get('category')) {
+          const cat = findCategory(p.categorySlug)
+          if (cat) setCategoryId(cat.id)
+        }
+      })
+      .catch(() => {})
+      .finally(() => !cancelled && setIsLoadingProvider(false))
+    return () => {
+      cancelled = true
     }
+  }, [providerIdParam, params])
 
-    // Auto-match category from category slug
-    if (catParam) {
-      const matched = CATEGORIES.find(
-        (c) => c.slug.toLowerCase() === catParam.toLowerCase() || c.id === catParam
-      )
-      if (matched) {
-        setSelectedCat(matched.id)
-      }
-    }
-
-    // Auto-match provider and set relevant default category
-    if (providerIdParam && PROVIDERS_MAP[providerIdParam]) {
-      setProviderId(providerIdParam)
-      const prov = PROVIDERS_MAP[providerIdParam]
-      if (prov.defaultCat) {
-        setSelectedCat(prov.defaultCat)
-      }
-    }
-
-    // Infer category from qParam if available and category wasn't explicit
-    if (qParam && !catParam) {
-      const qLower = qParam.toLowerCase()
-      if (qLower.includes('plumb') || qLower.includes('pipe') || qLower.includes('leak') || qLower.includes('borehole')) {
-        setSelectedCat('c1010000-0000-0000-0000-000000000001')
-      } else if (qLower.includes('electric') || qLower.includes('solar') || qLower.includes('inverter') || qLower.includes('wire') || qLower.includes('wiring')) {
-        setSelectedCat('c1010000-0000-0000-0000-000000000002')
-      } else if (qLower.includes('phone') || qLower.includes('screen') || qLower.includes('gadget') || qLower.includes('tablet')) {
-        setSelectedCat('c1010000-0000-0000-0000-000000000003')
-      } else if (qLower.includes('computer') || qLower.includes('laptop') || qLower.includes('software') || qLower.includes('react') || qLower.includes('dev') || qLower.includes('web') || qLower.includes('ui/ux') || qLower.includes('design')) {
-        setSelectedCat('c1010000-0000-0000-0000-000000000004')
-      } else if (qLower.includes('auto') || qLower.includes('mechanic') || qLower.includes('car') || qLower.includes('brake')) {
-        setSelectedCat('c1010000-0000-0000-0000-000000000006')
-      } else if (qLower.includes('carpenter') || qLower.includes('wood') || qLower.includes('furniture')) {
-        setSelectedCat('c1010000-0000-0000-0000-000000000005')
-      }
-    }
-  }, [qParam, catParam, providerIdParam])
-
-  const selectedProvider = providerId ? PROVIDERS_MAP[providerId] : null
+  const firstName = provider?.fullName.split(' ').find((w) => !/^(engr|dr|mr|mrs|malam|alh|chief)\.?$/i.test(w)) || provider?.fullName
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setError(null)
+    if (title.trim().length < 5) {
+      setError('Give the job a short title, at least 5 characters.')
+      return
+    }
+    if (details.trim().length < MIN_DETAILS) {
+      setError(`Tell us a little more about the job, at least ${MIN_DETAILS} characters.`)
+      return
+    }
+
+    setIsSubmitting(true)
     try {
-      await fetch('/api/requests', {
+      const res = await fetch('/api/requests', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          categoryId: selectedCat,
-          title,
-          description,
+          categoryId,
+          title: title.trim(),
+          description: provider ? `${details.trim()}\n\nRequested professional: ${provider.fullName}` : details.trim(),
           urgency,
-          providerId: providerId || undefined,
           serviceMode: 'onsite',
         }),
       })
-    } catch {
-      // In offline/simulated mode continue
+      const body = await res.json()
+      if (!res.ok) throw new Error(body.error?.message || 'We could not send your request.')
+      setSubmitted(true)
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'We could not send your request.')
+    } finally {
+      setIsSubmitting(false)
     }
-    setIsSubmitted(true)
+  }
+
+  if (submitted) {
+    const steps = [
+      { dot: 'bg-azure', text: provider ? `${firstName} reviews your request.` : 'Verified professionals near you review it.' },
+      { dot: 'bg-warn', text: 'You get a quote with clear stages and prices.' },
+      { dot: 'bg-success', text: 'Your money stays protected until you approve the work.' },
+    ]
+    return (
+      <Card className="max-w-xl mx-auto p-8 sm:p-10 text-center cn-rise">
+        <div className="flex justify-center">
+          <IllustrationProjects />
+        </div>
+        <h1 className="mt-4 text-[26px] font-medium tracking-[-0.02em]">Request sent</h1>
+        <p className="mt-2 text-[15px] text-muted">
+          {provider ? `${provider.fullName} has your job details.` : 'Your job is now visible to verified professionals.'}
+        </p>
+        <ol className="mt-8 space-y-3.5 text-left max-w-sm mx-auto">
+          {steps.map((s, i) => (
+            <li key={s.text} className="flex items-start gap-3 cn-rise" style={{ ['--d' as string]: `${200 + i * 90}ms` }}>
+              <span className={`mt-0.5 w-5 h-5 rounded-full ${s.dot} text-white text-[11px] font-medium flex items-center justify-center shrink-0`}>
+                {i + 1}
+              </span>
+              <span className="text-sm text-ink-2">{s.text}</span>
+            </li>
+          ))}
+        </ol>
+        <div className="mt-9 flex flex-col sm:flex-row gap-2 justify-center">
+          <Button href="/dashboard">Go to dashboard</Button>
+          <Button variant="secondary" href="/discover">
+            Browse professionals
+          </Button>
+        </div>
+      </Card>
+    )
   }
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] flex flex-col">
-      <header className="border-b border-slate-200 bg-white py-4 px-6 sticky top-0 z-30">
-        <div className="max-w-4xl mx-auto flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="w-8 h-8 rounded-full bg-[#0C513F] flex items-center justify-center p-1.5 shadow-xs transition-transform group-hover:scale-105 shrink-0">
-              <div className="relative w-4.5 h-4.5">
-                <Image
-                  src="/brand/connecta-header-icon.svg"
-                  alt="Connecta Icon"
-                  fill
-                  className="object-contain"
-                  priority
-                />
-              </div>
-            </div>
-            <span className="font-extrabold text-base sm:text-lg tracking-tight text-[#0A1020]">
-              connecta
-            </span>
-          </Link>
-          <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-700 bg-slate-100 px-3 py-1.5 rounded-full border border-slate-200">
-            <MapPin className="w-3.5 h-3.5 text-[#10B981]" />
-            <span>Nigeria &amp; Pan-Africa</span>
-          </div>
-        </div>
-      </header>
+    <div className="max-w-2xl mx-auto">
+      <div className="cn-rise">
+        <p className="text-[13px] text-muted mb-1.5">New request</p>
+        <h1 className="text-[28px] sm:text-[32px] leading-tight font-medium tracking-[-0.02em]">
+          {provider ? `Request ${firstName}` : 'What do you need done?'}
+        </h1>
+        <p className="text-[15px] text-muted mt-2">
+          {provider
+            ? 'Describe the job and they will send you a quote.'
+            : 'Describe the job and verified professionals near you will send quotes.'}
+        </p>
+      </div>
 
-      <main className="flex-1 max-w-3xl w-full mx-auto px-4 py-10">
-        {isSubmitted ? (
-          <div className="bg-white rounded-3xl p-8 sm:p-12 border border-slate-200 shadow-sm text-center space-y-6">
-            <div className="w-16 h-16 rounded-2xl bg-emerald-50 text-[#10B981] flex items-center justify-center mx-auto">
-              <CheckCircle2 className="w-8 h-8" />
-            </div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-slate-900">
-              {selectedProvider
-                ? `Direct Request Sent to ${selectedProvider.name}!`
-                : 'Service Request Broadcasted!'}
-            </h1>
-            <p className="text-sm text-slate-600 max-w-md mx-auto leading-relaxed">
-              {selectedProvider
-                ? `${selectedProvider.name} has received your direct job brief and will review your specifications to provide a milestone quote.`
-                : 'Your project brief has been dispatched to fit-ranked verified providers matching your trade and location.'}
-            </p>
-            <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 text-left text-xs text-slate-600 space-y-1.5 max-w-sm mx-auto">
-              <div className="font-semibold text-slate-800">What Happens Next:</div>
-              <div>• {selectedProvider ? 'The specialist reviews your brief and issues a milestone estimate.' : 'Specialists review your requirements and submit verified quotes.'}</div>
-              <div>• 100% milestone funds remain in escrow and are released only when you approve completed work.</div>
-            </div>
-            <Link
-              href="/"
-              className="inline-flex items-center justify-center rounded-xl bg-[#0C513F] hover:bg-[#083b2e] px-6 py-3 text-sm font-semibold text-white transition-colors"
-            >
-              Back to Marketplace
-            </Link>
+      {isLoadingProvider && (
+        <Card className="mt-7 p-4 flex items-center gap-3.5">
+          <Skeleton className="w-12 h-12 rounded-full" />
+          <div className="flex-1 space-y-2">
+            <Skeleton className="h-3.5 w-40" />
+            <Skeleton className="h-3 w-56" />
           </div>
-        ) : (
-          <div className="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 sm:p-10 space-y-8">
-            {/* Direct Provider Selected Banner */}
-            {selectedProvider && (
-              <div className="p-4 rounded-2xl bg-[#0A2614] text-white flex items-center justify-between gap-4 border border-emerald-500/20 shadow-md">
-                <div className="flex items-center gap-3.5 min-w-0">
-                  <div className="relative w-12 h-12 rounded-xl overflow-hidden shrink-0 border border-white/20">
-                    <Image
-                      src={selectedProvider.avatar}
-                      alt={selectedProvider.name}
-                      fill
-                      className="object-cover"
-                    />
-                  </div>
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-1.5">
-                      <span className="text-xs font-bold uppercase tracking-wider text-emerald-400">
-                        Direct Booking
-                      </span>
-                      <UserCheck className="w-3.5 h-3.5 text-emerald-400" />
-                    </div>
-                    <div className="font-extrabold text-sm sm:text-base text-white truncate">
-                      {selectedProvider.name}
-                    </div>
-                    <div className="text-xs text-emerald-100/80 truncate">
-                      {selectedProvider.trade} • {selectedProvider.location}
-                    </div>
-                  </div>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setProviderId('')}
-                  className="text-xs font-semibold text-white/70 hover:text-white bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-full shrink-0 transition-colors flex items-center gap-1"
-                  title="Switch to open broadcast"
-                >
-                  <X className="w-3 h-3" />
-                  <span>Broadcast Instead</span>
-                </button>
+        </Card>
+      )}
+
+      {provider && (
+        <Card className="mt-7 p-4 flex items-center gap-3.5 cn-pop">
+          <div className="relative shrink-0">
+            {provider.avatarUrl ? (
+              <div className="relative w-12 h-12 rounded-full overflow-hidden bg-sunken">
+                <Image src={provider.avatarUrl} alt={provider.fullName} fill sizes="48px" className="object-cover" />
               </div>
+            ) : (
+              <Avatar name={provider.fullName} size={48} />
             )}
-
-            <div>
-              <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-                {selectedProvider
-                  ? `Request a Quote from ${selectedProvider.name}`
-                  : 'Describe What You Need & Get Matched'}
-              </h1>
-              <p className="text-sm text-slate-600 mt-1 font-medium">
-                {selectedProvider
-                  ? 'Submit your project details directly. Backed by Connecta milestone escrow protection.'
-                  : 'Tell Connecta what your project needs. Verified African professionals will review and submit transparent quotes.'}
-              </p>
-            </div>
-
-            <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Category Selection */}
-              <div>
-                <label className="block text-xs font-extrabold text-slate-700 uppercase tracking-wider mb-2.5">
-                  1. Select Trade / Category
-                </label>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                  {CATEGORIES.map((cat) => {
-                    const Icon = cat.icon
-                    const isSelected = selectedCat === cat.id
-                    return (
-                      <button
-                        key={cat.id}
-                        type="button"
-                        onClick={() => setSelectedCat(cat.id)}
-                        className={`p-3.5 rounded-xl border text-left flex flex-col gap-2 transition-all cursor-pointer ${
-                          isSelected
-                            ? 'border-[#0C513F] bg-emerald-50/80 text-[#0C513F] font-bold shadow-xs'
-                            : 'border-slate-200 hover:border-slate-300 text-slate-700 bg-white'
-                        }`}
-                      >
-                        <Icon className="w-5 h-5 shrink-0" />
-                        <span className="text-xs">{cat.name}</span>
-                      </button>
-                    )
-                  })}
-                </div>
-              </div>
-
-              {/* Title & Description */}
-              <div>
-                <label className="block text-xs font-extrabold text-slate-700 uppercase tracking-wider mb-1.5">
-                  2. Brief Summary of the Work
-                </label>
-                <input
-                  type="text"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  placeholder="e.g. Solar inverter battery installation, Leaking pipe repair, UI/UX redesign..."
-                  className="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-[#0C513F] focus:ring-2 focus:ring-[#0C513F]/15 font-medium text-slate-900"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-extrabold text-slate-700 uppercase tracking-wider mb-1.5">
-                  3. Full Project Requirements
-                </label>
-                <textarea
-                  rows={4}
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Explain deliverables, timeline, appliance brand/model, existing setup, or project specifications..."
-                  className="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-[#0C513F] focus:ring-2 focus:ring-[#0C513F]/15 font-medium text-slate-900 leading-relaxed"
-                  required
-                />
-              </div>
-
-              {/* Urgency */}
-              <div>
-                <label className="block text-xs font-extrabold text-slate-700 uppercase tracking-wider mb-2">
-                  4. Urgency
-                </label>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-xs font-medium">
-                  {[
-                    { id: 'emergency', label: 'Emergency (ASAP)' },
-                    { id: 'today', label: 'Today' },
-                    { id: 'scheduled', label: 'Scheduled Date' },
-                    { id: 'flexible', label: 'Flexible' },
-                  ].map((u) => (
-                    <button
-                      key={u.id}
-                      type="button"
-                      onClick={() => setUrgency(u.id as any)}
-                      className={`p-3 rounded-xl border text-center transition-all cursor-pointer ${
-                        urgency === u.id
-                          ? 'border-[#0C513F] bg-emerald-50 text-[#0C513F] font-black shadow-xs'
-                          : 'border-slate-200 hover:border-slate-300 text-slate-700 bg-white'
-                      }`}
-                    >
-                      {u.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Photo Upload */}
-              <div>
-                <label className="block text-xs font-extrabold text-slate-700 uppercase tracking-wider mb-2">
-                  5. Attach Diagnostic Photos / Project Files (Optional)
-                </label>
-                <div className="border-2 border-dashed border-slate-200 hover:border-[#0C513F] rounded-2xl p-6 text-center cursor-pointer transition-colors bg-slate-50/50">
-                  <UploadCloud className="w-8 h-8 text-slate-400 mx-auto mb-2" />
-                  <div className="text-xs font-bold text-slate-700">
-                    Upload photos or project brief files
-                  </div>
-                  <div className="text-[11px] text-slate-500 mt-1">
-                    Providing clear details produces faster and more accurate proposals.
-                  </div>
-                </div>
-              </div>
-
-              <button
-                type="submit"
-                className="w-full py-4 rounded-full bg-[#0C513F] text-white font-extrabold text-sm hover:bg-[#083b2e] transition-all flex items-center justify-center gap-2 shadow-md hover:scale-[1.01] active:scale-[0.99] cursor-pointer"
-              >
-                <span>
-                  {selectedProvider
-                    ? `Submit Direct Request to ${selectedProvider.name}`
-                    : 'Broadcast Request to Verified Specialists'}
-                </span>
-                <ArrowRight className="w-4 h-4" />
-              </button>
-            </form>
+            {provider.verificationStatus === 'verified' && (
+              <BadgeCheck className="absolute -bottom-0.5 -right-0.5 w-[18px] h-[18px] text-azure fill-white" />
+            )}
           </div>
+          <div className="min-w-0 flex-1">
+            <Link href={`/discover/${provider.id}`} className="block text-[15px] font-medium text-ink truncate hover:text-azure-600">
+              {provider.fullName}
+            </Link>
+            <div className="flex items-center gap-2 text-[13px] text-muted mt-0.5 min-w-0">
+              <span className="truncate">{provider.category}</span>
+              <span className="text-subtle">·</span>
+              <span className="inline-flex items-center gap-1 shrink-0">
+                <MapPin className="w-3.5 h-3.5" />
+                {provider.city}
+              </span>
+            </div>
+          </div>
+          <div className="hidden sm:block shrink-0">
+            <Stars rating={provider.averageRating} />
+          </div>
+          <button
+            type="button"
+            onClick={() => setProvider(null)}
+            title="Send to all matching professionals instead"
+            aria-label="Remove this professional"
+            className="w-8 h-8 rounded-lg text-subtle hover:text-ink hover:bg-sunken flex items-center justify-center shrink-0 cursor-pointer"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </Card>
+      )}
+
+      <form onSubmit={handleSubmit} className="mt-7 space-y-5" noValidate>
+        <Card className="p-6 sm:p-7 space-y-6 cn-rise" style={{ ['--d' as string]: '80ms' }}>
+          <div>
+            <div className="text-[13px] font-medium text-ink-2 mb-2.5">Trade</div>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2" role="radiogroup" aria-label="Trade">
+              {SERVICE_CATEGORIES.map((cat) => {
+                const Icon = ICONS[cat.slug] || Wrench
+                const active = categoryId === cat.id
+                return (
+                  <button
+                    key={cat.id}
+                    type="button"
+                    role="radio"
+                    aria-checked={active}
+                    onClick={() => setCategoryId(cat.id)}
+                    className={`h-11 px-3 rounded-[10px] border flex items-center gap-2 text-left text-[13px] transition-all duration-200 cursor-pointer ${
+                      active
+                        ? 'border-azure bg-azure-50 text-azure-600 font-medium ring-4 ring-azure/10'
+                        : 'border-line text-ink-2 hover:border-line-strong hover:text-ink'
+                    }`}
+                  >
+                    <Icon className={`w-4 h-4 shrink-0 ${active ? 'text-azure' : 'text-subtle'}`} />
+                    <span className="truncate">{cat.short}</span>
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+
+          <Field label="Job title" htmlFor="rq-title">
+            <input
+              id="rq-title"
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="e.g. Kitchen sink is leaking"
+              maxLength={120}
+              className={inputClass}
+              required
+            />
+          </Field>
+
+          <Field
+            label="Details"
+            htmlFor="rq-details"
+            hint={
+              <span className="flex justify-between gap-3">
+                <span>What&apos;s wrong, where it is, and anything they should bring.</span>
+                <span className={`tabular-nums shrink-0 ${details.trim().length >= MIN_DETAILS ? 'text-success-ink' : ''}`}>
+                  {Math.min(details.trim().length, MIN_DETAILS)}/{MIN_DETAILS}
+                </span>
+              </span>
+            }
+          >
+            <textarea
+              id="rq-details"
+              rows={4}
+              value={details}
+              onChange={(e) => setDetails(e.target.value)}
+              placeholder="The pipe under the kitchen sink drips constantly. House is in Nassarawa GRA, Kano."
+              maxLength={2000}
+              className={textareaClass}
+              required
+            />
+          </Field>
+
+          <div>
+            <div className="text-[13px] font-medium text-ink-2 mb-2.5">When do you need it?</div>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2" role="radiogroup" aria-label="Urgency">
+              {URGENCY.map((u) => {
+                const active = urgency === u.id
+                const tone =
+                  u.id === 'emergency'
+                    ? 'border-warn bg-warn-50 ring-4 ring-warn/15 [&>span:first-child]:text-warn-ink'
+                    : 'border-azure bg-azure-50 ring-4 ring-azure/10 [&>span:first-child]:text-azure-600'
+                return (
+                  <button
+                    key={u.id}
+                    type="button"
+                    role="radio"
+                    aria-checked={active}
+                    onClick={() => setUrgency(u.id)}
+                    className={`h-14 px-3 rounded-[10px] border text-left transition-all duration-200 cursor-pointer ${
+                      active ? tone : 'border-line hover:border-line-strong'
+                    }`}
+                  >
+                    <span className="block text-[13px] font-medium text-ink">{u.label}</span>
+                    <span className="block text-xs text-muted">{u.sub}</span>
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+        </Card>
+
+        {error && (
+          <Notice tone="danger" onClose={() => setError(null)}>
+            {error}
+          </Notice>
         )}
-      </main>
+
+        <div className="flex flex-col-reverse sm:flex-row sm:items-center justify-between gap-4 cn-rise" style={{ ['--d' as string]: '160ms' }}>
+          <p className="flex items-center gap-2 text-[13px] text-muted">
+            <ShieldCheck className="w-4 h-4 text-success shrink-0" />
+            You only pay when you approve the work.
+          </p>
+          <Button type="submit" loading={isSubmitting} className="!h-12 !px-6 !text-[15px]">
+            {isSubmitting ? 'Sending request' : provider ? `Send to ${firstName}` : 'Send request'}
+          </Button>
+        </div>
+      </form>
     </div>
   )
 }
 
 export default function NewServiceRequestPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-[#F8FAFC]" />}>
-      <NewServiceRequestContent />
-    </Suspense>
+    <PublicShell backHref="/discover" backLabel="Back to professionals" width="max-w-4xl">
+      <Suspense fallback={null}>
+        <NewRequestForm />
+      </Suspense>
+    </PublicShell>
   )
 }

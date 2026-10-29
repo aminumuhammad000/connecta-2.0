@@ -2,8 +2,8 @@ import { z } from 'zod'
 
 // Service Request
 export const createServiceRequestSchema = z.object({
-  categoryId: z.string().uuid(),
-  serviceId: z.string().uuid().optional(),
+  categoryId: z.guid(),
+  serviceId: z.guid().optional(),
   title: z.string().min(5, 'Title must be at least 5 characters').max(120),
   description: z.string().min(20, 'Please provide more details on the issue').max(2000),
   urgency: z.enum(['emergency', 'today', 'scheduled', 'flexible']).default('flexible'),
@@ -11,7 +11,7 @@ export const createServiceRequestSchema = z.object({
   preferredDate: z.string().datetime().optional(),
   budgetMinMinor: z.number().int().nonnegative().optional(),
   budgetMaxMinor: z.number().int().nonnegative().optional(),
-  addressId: z.string().uuid().optional(),
+  addressId: z.guid().optional(),
   attachments: z.array(z.string().url()).optional(),
 })
 
@@ -23,7 +23,7 @@ export const quoteLineItemSchema = z.object({
 })
 
 export const createQuoteSchema = z.object({
-  requestId: z.string().uuid(),
+  requestId: z.guid(),
   lineItems: z.array(quoteLineItemSchema).min(1, 'Quote must include at least one item'),
   laborMinor: z.number().int().nonnegative().default(0),
   materialsMinor: z.number().int().nonnegative().default(0),
@@ -36,7 +36,7 @@ export const createQuoteSchema = z.object({
 
 // Booking State Transition
 export const bookingStatusUpdateSchema = z.object({
-  bookingId: z.string().uuid(),
+  bookingId: z.guid(),
   newStatus: z.enum([
     'confirmed',
     'provider_en_route',
@@ -56,13 +56,13 @@ export const providerOnboardingSchema = z.object({
   businessName: z.string().min(2).max(100).optional(),
   headline: z.string().min(5).max(150),
   bio: z.string().min(30).max(1500),
-  primaryCategoryId: z.string().uuid(),
+  primaryCategoryId: z.guid(),
   experienceYears: z.number().int().min(0).max(60).default(1),
   serviceCity: z.string().default('Kano'),
   serviceRadiusKm: z.number().positive().default(25),
   services: z.array(
     z.object({
-      categoryId: z.string().uuid(),
+      categoryId: z.guid(),
       title: z.string().min(3).max(100),
       description: z.string().min(10).max(500),
       pricingModel: z.enum(['fixed', 'hourly', 'inspection', 'starting_from', 'quote_required']),
@@ -73,7 +73,7 @@ export const providerOnboardingSchema = z.object({
 
 // Customer Review
 export const createReviewSchema = z.object({
-  bookingId: z.string().uuid(),
+  bookingId: z.guid(),
   rating: z.number().int().min(1).max(5),
   comment: z.string().min(5).max(1000).optional(),
 })

@@ -31,7 +31,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const nairaRate = Math.round(provider.hourlyRateMinor / 100).toLocaleString()
 
   return {
-    title: `${provider.fullName} (${provider.businessName}) - Verified ${provider.category} Specialist in ${provider.city} | Connecta`,
+    title: `${provider.fullName} (${provider.businessName}) - Verified ${provider.category} Specialist in ${provider.city}`,
     description: `${provider.headline}. Hourly rate: ₦${nairaRate}/hr. Rated ${provider.averageRating}/5 based on ${provider.reviewCount} verified client reviews in ${provider.city}, Nigeria. 100% Escrow Safeguarded.`,
     keywords: [
       provider.fullName,
