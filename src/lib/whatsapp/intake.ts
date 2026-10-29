@@ -28,7 +28,7 @@ import {
   releaseEscrowPayout,
 } from './escrow'
 
-const DIVIDER = '━━━━━━━━━━━━━━━━━━━━'
+const DIVIDER = '────────────────────────'
 
 export const KANO_NEIGHBORHOODS = [
   'Nassarawa (GRA / Bompai)',
@@ -47,6 +47,12 @@ export const SERVICE_CATEGORIES = [
   { id: 'cat_ac', title: 'AC da Firiji', desc: 'Chaja Gas, Komfreso, Gyaran Sanyi', en: 'AC & Refrigeration' },
   { id: 'cat_electrical', title: 'Waya da Lantarki', desc: 'DB Board, Short Circuit, Waya Sabuwa', en: 'Electrical Wiring' },
   { id: 'cat_plumbing', title: 'Famfo da Ruwa', desc: 'Borehole, Tanka, Zubar Ruwa & Toshewa', en: 'Plumbing & Water' },
+]
+
+export const ARRIVAL_SLOTS = [
+  { id: 'slot_urgent', titleHa: '⚡ Yanzu-Yanzu', titleEn: '⚡ Immediate', descHa: 'Yanzu-Yanzu · Cikin Minti 45', descEn: 'Immediate · Within 45 mins' },
+  { id: 'slot_afternoon', titleHa: '⛅ Yau da Yamma', titleEn: '⛅ Today 4:30 PM', descHa: 'Yau da Yamma · Bayan La\'asar (4:30 PM)', descEn: 'Today Afternoon · 4:30 PM' },
+  { id: 'slot_tomorrow', titleHa: '☀️ Gobe da Safe', titleEn: '☀️ Tomorrow 10 AM', descHa: 'Gobe da Safe · 10:00 AM', descEn: 'Tomorrow Morning · 10:00 AM' },
 ]
 
 function detectCategoryFromKeywords(text: string) {
@@ -175,9 +181,17 @@ export async function handleIncomingWhatsAppMessage(message: any, contact: any) 
 
   // Observation #1: First-time user language selection
   if (!session.language) {
+    const langPrompt =
+      `🌐 *HARSHE / LANGUAGE*\n` +
+      `Zaɓi Yarenku / Select Language\n` +
+      `${DIVIDER}\n` +
+      `○ 1 · 🇳🇬 Hausa (Kano)\n` +
+      `○ 2 · 🇬🇧 English\n\n` +
+      `Barka da zuwa Connecta Kano. Zaɓi yaren da kuke son amfani da shi:`
+
     return sendInteractiveButtons(
       rawFrom,
-      `Barka da zuwa Connecta Kano.\nZaɓi yaren da kuke son amfani da shi:\n\nWelcome to Connecta Kano.\nPlease select your preferred language:`,
+      langPrompt,
       [
         { id: 'lang_ha', title: '🇳🇬 Hausa' },
         { id: 'lang_en', title: '🇬🇧 English' },
@@ -191,24 +205,27 @@ export async function handleIncomingWhatsAppMessage(message: any, contact: any) 
 
   // Smart Keyword Auto-Routing (e.g. user writes "famfo na ya tsaya")
   const detectedCategory = detectCategoryFromKeywords(incomingText)
-  if (detectedCategory && (session.step === 'GREETING' || session.step === 'CATEGORY' || session.step === 'NEIGHBORHOOD')) {
+  if (detectedCategory && (session.step === 'GREETING' || session.step === 'CATEGORY' || session.step === 'NEIGHBORHOOD' || session.step === 'CHOOSE_LANGUAGE')) {
     session.selectedCategory = isHausa ? detectedCategory.title : detectedCategory.en
     session.description = incomingText
     session.step = 'NEIGHBORHOOD'
     session.lastActive = new Date().toISOString()
     saveWhatsAppSession(session)
 
+    // Echo confirmation receipt
+    await sendTextMessage(rawFrom, isHausa ? `✔ *An Gane · ${session.selectedCategory}*` : `✔ *Identified · ${session.selectedCategory}*`)
+
     const neighborhoodPrompt = isHausa
-      ? `*CONNECTA KANO*\n` +
-        `${session.selectedCategory}\n` +
+      ? `A wane yanki kuke a Kano?\n\n` +
+        `📍 *Wurin Aiki a Kano*\n` +
+        `Birnin Kano da Kewaye\n` +
         `${DIVIDER}\n` +
-        `Mun fahimci buƙatarku ta ${session.selectedCategory} ("${incomingText}").\n\n` +
-        `Domin turo muku da ƙwararren ma'aikaci mafi kusa, a wane yanki kuke a Kano?`
-      : `*CONNECTA KANO*\n` +
-        `${session.selectedCategory}\n` +
+        KANO_NEIGHBORHOODS.map((a, i) => `○ ${i + 1} · ${a}`).join('\n')
+      : `Which Kano neighborhood are you in?\n\n` +
+        `📍 *Location in Kano*\n` +
+        `Kano Metropolitan Areas\n` +
         `${DIVIDER}\n` +
-        `Understood request for ${session.selectedCategory} ("${incomingText}").\n\n` +
-        `To match you with the closest certified technician, which Kano neighborhood are you in?`
+        KANO_NEIGHBORHOODS.map((a, i) => `○ ${i + 1} · ${a}`).join('\n')
 
     return sendInteractiveList(
       rawFrom,
@@ -244,16 +261,16 @@ export async function handleIncomingWhatsAppMessage(message: any, contact: any) 
     saveWhatsAppSession(session)
 
     const greetingBody = isHausa
-      ? `*CONNECTA KANO*\n` +
-        `Sabis na Gyara da Amana\n` +
+      ? `Madalla — zaɓi irin aikin da kuke buƙata:\n\n` +
+        `🛠️ *Sabis ɗin Gyara*\n` +
+        `Kano Certified Artisans\n` +
         `${DIVIDER}\n` +
-        `Muna haɗa ku da ƙwararrun ma'aikatan gyara a Kano cikin amana tare da cikakken tsaron kuɗi (Escrow).\n\n` +
-        `Wane irin aikin gyara kuke buƙata yau?`
-      : `*CONNECTA KANO*\n` +
-        `Professional Home Repairs\n` +
+        SERVICE_CATEGORIES.map((c, i) => `○ ${i + 1} · ${c.title}`).join('\n')
+      : `Sure — please pick the service you need:\n\n` +
+        `🛠️ *Repair Services*\n` +
+        `Kano Certified Artisans\n` +
         `${DIVIDER}\n` +
-        `We connect you with vetted, background-checked repair specialists across Kano with guaranteed Escrow protection.\n\n` +
-        `What service do you need help with today?`
+        SERVICE_CATEGORIES.map((c, i) => `○ ${i + 1} · ${c.en}`).join('\n')
 
     return sendInteractiveList(
       rawFrom,
@@ -285,17 +302,20 @@ export async function handleIncomingWhatsAppMessage(message: any, contact: any) 
     session.step = 'NEIGHBORHOOD'
     saveWhatsAppSession(session)
 
+    // Echo instant confirmation receipt
+    await sendTextMessage(rawFrom, isHausa ? `✔ *An Zaɓa · ${session.selectedCategory}*` : `✔ *Selected · ${session.selectedCategory}*`)
+
     const neighborhoodPrompt = isHausa
-      ? `*CONNECTA KANO*\n` +
-        `${session.selectedCategory}\n` +
+      ? `A wane yanki kuke a Kano?\n\n` +
+        `📍 *Wurin Aiki a Kano*\n` +
+        `Birnin Kano da Kewaye\n` +
         `${DIVIDER}\n` +
-        `Madalla. Kun zaɓi ${session.selectedCategory}.\n\n` +
-        `Domin turo muku da ƙwararren ma'aikaci mafi kusa, a wane yanki kuke a Kano?`
-      : `*CONNECTA KANO*\n` +
-        `${session.selectedCategory}\n` +
+        KANO_NEIGHBORHOODS.map((a, i) => `○ ${i + 1} · ${a}`).join('\n')
+      : `Which Kano neighborhood are you in?\n\n` +
+        `📍 *Location in Kano*\n` +
+        `Kano Metropolitan Areas\n` +
         `${DIVIDER}\n` +
-        `Great. You selected ${session.selectedCategory}.\n\n` +
-        `To dispatch the closest certified technician, which Kano neighborhood are you in?`
+        KANO_NEIGHBORHOODS.map((a, i) => `○ ${i + 1} · ${a}`).join('\n')
 
     return sendInteractiveList(
       rawFrom,
@@ -315,26 +335,61 @@ export async function handleIncomingWhatsAppMessage(message: any, contact: any) 
     )
   }
 
-  // STEP: NEIGHBORHOOD SELECTION
+  // STEP: NEIGHBORHOOD SELECTION -> SHOW ARRIVAL SLOTS
   if (session.step === 'NEIGHBORHOOD' || buttonId.startsWith('area_')) {
     session.neighborhood = incomingText
+    session.step = 'SLOT'
+    saveWhatsAppSession(session)
+
+    // Echo instant confirmation receipt
+    await sendTextMessage(rawFrom, isHausa ? `✔ *An Tabbatar · ${session.neighborhood}*` : `✔ *Confirmed · ${session.neighborhood}*`)
+
+    const slotPrompt = isHausa
+      ? `Yaushe kuke son ma'aikaci ya iso wurin?\n\n` +
+        `📅 *Lokacin Zuwa (Available Slots)*\n` +
+        `${session.neighborhood}, Kano · Yau da Gobe\n` +
+        `${DIVIDER}\n` +
+        ARRIVAL_SLOTS.map((s, i) => `○ ${i + 1} · ${s.descHa}`).join('\n')
+      : `When would you like the technician to arrive?\n\n` +
+        `📅 *Available Slots*\n` +
+        `${session.neighborhood}, Kano · Today & Tomorrow\n` +
+        `${DIVIDER}\n` +
+        ARRIVAL_SLOTS.map((s, i) => `○ ${i + 1} · ${s.descEn}`).join('\n')
+
+    return sendInteractiveButtons(
+      rawFrom,
+      slotPrompt,
+      ARRIVAL_SLOTS.map((s) => ({
+        id: s.id,
+        title: isHausa ? s.titleHa : s.titleEn,
+      })),
+      isHausa ? 'LOKACIN ZUWA' : 'ARRIVAL TIME',
+      'Connecta Kano Proximity'
+    )
+  }
+
+  // STEP: ARRIVAL SLOT SELECTION -> PROMPT DESCRIPTION
+  if (session.step === 'SLOT' || buttonId.startsWith('slot_')) {
+    const matchedSlot = ARRIVAL_SLOTS.find((s) => s.id === buttonId) || ARRIVAL_SLOTS[0]
+    session.slot = isHausa ? matchedSlot.descHa : matchedSlot.descEn
     session.step = 'DESCRIPTION'
     saveWhatsAppSession(session)
 
+    // Echo instant confirmation receipt
+    await sendTextMessage(rawFrom, isHausa ? `✔ *Lokacin Zuwa · ${matchedSlot.titleHa}*` : `✔ *Slot Confirmed · ${matchedSlot.titleEn}*`)
+
     if (session.description && session.description !== 'Gyara') {
-      // Proceed straight to creation
+      // Already has description from keyword routing, proceed straight to creation!
     } else {
       const descPrompt = isHausa
-        ? `*CONNECTA KANO*\n` +
-          `Bayanin Matsala\n` +
+        ? `📝 *Bayanin Matsala*\n` +
+          `Voice Note ko Rubutu\n` +
           `${DIVIDER}\n` +
-          `Yankin da kuke: ${session.neighborhood}\n\n` +
-          `Don Allah rubuta ko faɗi a muryar murya (Voice Note) takaitaccen bayanin abin da ya lalace:`
-        : `*CONNECTA KANO*\n` +
-          `Issue Description\n` +
+          `Aiko da saƙon murya (Voice Note) ko rubuta takaitaccen abin da ya sami ${session.selectedCategory} a ${session.neighborhood}:`
+        : `📝 *Issue Description*\n` +
+          `Voice Note or Text\n` +
           `${DIVIDER}\n` +
-          `Location set to: ${session.neighborhood}\n\n` +
-          `Please reply with a brief text or voice note describing the fault:`
+          `Please reply with a brief voice note or text describing the fault with your ${session.selectedCategory} in ${session.neighborhood}:`
 
       return sendTextMessage(rawFrom, descPrompt)
     }
@@ -351,6 +406,7 @@ export async function handleIncomingWhatsAppMessage(message: any, contact: any) 
       category: session.selectedCategory || 'Famfo da Ruwa',
       neighborhood: session.neighborhood || 'Tarauni',
       description: finalDescription,
+      slot: session.slot || 'Yanzu-Yanzu (Minti 45)',
     })
 
     const bookingRef = booking.bookingNumber
@@ -363,26 +419,28 @@ export async function handleIncomingWhatsAppMessage(message: any, contact: any) 
     })
 
     const summary = isHausa
-      ? `*CONNECTA KANO*\n` +
-        `An Karɓi Buƙatarku\n` +
+      ? `✔ *An Shirya Aiki · #${bookingRef}*\n\n` +
+        `🛡️ *CONNECTA ESCROW*\n` +
+        `Tabbatar da Ma'aikaci\n` +
         `${DIVIDER}\n` +
-        `• Lambar Aiki: #${bookingRef}\n` +
         `• Sabis: ${session.selectedCategory}\n` +
         `• Wuri: ${session.neighborhood}, Kano\n` +
-        `• Ma'aikaci: ${artisan.fullName} (${artisan.rating || '4.9'}★)\n\n` +
+        `• Lokaci: ${session.slot || 'Yanzu-Yanzu (Minti 45)'}\n` +
+        `• Ma'aikaci: ${artisan.fullName} (${artisan.rating || '4.9'}★)\n` +
         `• Kuɗin Dubawa: ₦5,000\n` +
         `${DIVIDER}\n` +
         `Kariyar Escrow: Kuɗin ku na nan a kulle a banki. Ma'aikaci ba zai karɓi ko sisi ba sai ya gama aiki kuma kun gamsu 100%.\n\n` +
-        `Domin tura ma'aikaci yanzu, danna domin ajiye kuɗi a tsare:\n` +
+        `Domin tura ma'aikaci yanzu, danna domin ajiye kuɗi a tsare ta Paystack / OPay:\n` +
         `👉 ${escrowUrl}`
-      : `*CONNECTA KANO*\n` +
-        `Request Received\n` +
+      : `✔ *Booking Created · #${bookingRef}*\n\n` +
+        `🛡️ *CONNECTA ESCROW*\n` +
+        `Technician Confirmation\n` +
         `${DIVIDER}\n` +
-        `• Booking Ref: #${bookingRef}\n` +
         `• Service: ${session.selectedCategory}\n` +
         `• Location: ${session.neighborhood}, Kano\n` +
-        `• Technician: ${artisan.fullName} (${artisan.rating || '4.9'}★)\n\n` +
-        `• Diagnostic Deposit: ₦5,000\n` +
+        `• Slot: ${session.slot || 'Immediate (45 mins)'}\n` +
+        `• Technician: ${artisan.fullName} (${artisan.rating || '4.9'}★)\n` +
+        `• Diagnostic Fee: ₦5,000\n` +
         `${DIVIDER}\n` +
         `Escrow Protection: Your deposit remains locked in the vault. The technician is only paid after service is completed and you are 100% satisfied.\n\n` +
         `Approve deposit to dispatch technician immediately:\n` +

@@ -197,9 +197,10 @@ export interface ServerWhatsAppSession {
   phone: string
   name: string
   language?: 'ha' | 'en'
-  step: 'GREETING' | 'CATEGORY' | 'NEIGHBORHOOD' | 'DESCRIPTION' | 'MATCHED'
+  step: 'GREETING' | 'CATEGORY' | 'NEIGHBORHOOD' | 'SLOT' | 'DESCRIPTION' | 'MATCHED' | 'CHOOSE_LANGUAGE' | 'WAITING_DISPATCH'
   selectedCategory?: string
   neighborhood?: string
+  slot?: string
   description?: string
   lastActive: string
   requestId?: string
@@ -759,6 +760,7 @@ export function createWhatsAppOrder(params: {
   category: string
   neighborhood: string
   description: string
+  slot?: string
 }): { serviceRequest: ServerServiceRequest; booking: ServerBookingContract; artisan: ServerUserProfile } {
   const customer = getOrCreateWhatsAppCustomer(params.phone, params.name)
   const matchedArtisans = findMatchingArtisans(params.category, params.neighborhood)
@@ -769,15 +771,17 @@ export function createWhatsAppOrder(params: {
   const requestId = `req_${Date.now()}`
   const bookingId = `book_${Date.now()}`
 
+  const slotLabel = params.slot || 'Immediate'
+
   const serviceRequest: ServerServiceRequest = {
     id: requestId,
     customerId: customer.id,
     customerName: customer.fullName,
-    title: `${params.category} Service in ${params.neighborhood}`,
+    title: `${params.category} Service in ${params.neighborhood} (${slotLabel})`,
     category: params.category,
     categorySlug: params.category.toLowerCase().replace(/[^a-z0-9]/g, '-'),
     description: params.description,
-    urgency: 'today',
+    urgency: slotLabel.toLowerCase().includes('yanzu') || slotLabel.toLowerCase().includes('immediate') ? 'emergency' : 'today',
     serviceMode: 'onsite',
     city: 'Kano',
     state: 'Kano State',
@@ -808,7 +812,7 @@ export function createWhatsAppOrder(params: {
     escrowStatus: 'locked',
     bookingStatus: 'pending',
     progressPercentage: 0,
-    appointmentDate: new Date().toISOString(),
+    appointmentDate: slotLabel,
     milestones: [
       { id: 'm1', title: 'Onsite Diagnostics & Fault Isolation', amountMinor: 500000, status: 'current' },
       { id: 'm2', title: 'Repair Completion & Verification', amountMinor: 0, status: 'pending' },
