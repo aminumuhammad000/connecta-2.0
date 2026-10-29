@@ -138,11 +138,11 @@ export default function DashboardOverviewPage() {
             <span>Find Professionals</span>
           </Link>
           <Link
-            href="/dashboard/wallet"
+            href="/dashboard/payment"
             className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white hover:bg-zinc-50 text-zinc-700 border border-zinc-200 text-xs font-medium transition-colors"
           >
             <Wallet className="w-3.5 h-3.5 text-zinc-500" />
-            <span>Manage Wallet</span>
+            <span>Payment</span>
           </Link>
         </div>
       </div>
@@ -166,7 +166,7 @@ export default function DashboardOverviewPage() {
             <div className="text-xl sm:text-2xl font-bold tracking-tight text-zinc-900">
               {wallet ? formatNaira(wallet.balanceMinor) : '₦0'}
             </div>
-            <Link href="/dashboard/wallet" className="text-[11px] text-zinc-500 hover:text-zinc-900 font-medium inline-block">
+            <Link href="/dashboard/payment" className="text-[11px] text-zinc-500 hover:text-zinc-900 font-medium inline-block">
               Withdraw or Top-up →
             </Link>
           </div>

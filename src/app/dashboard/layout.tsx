@@ -164,8 +164,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       badge: '10+',
     },
     {
-      label: 'Escrow Wallet',
-      path: '/dashboard/wallet',
+      label: 'Payment',
+      path: '/dashboard/payment',
       icon: Wallet,
       badge: null,
     },
@@ -181,19 +181,13 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       icon: Settings,
       badge: null,
     },
-    {
-      label: 'Support',
-      path: '/dashboard/support',
-      icon: HelpCircle,
-      badge: null,
-    },
   ]
 
   const commandPaletteItems = [
     { label: 'Overview', description: 'Dashboard metrics and active contracts', path: '/dashboard', icon: LayoutDashboard },
     { label: 'Projects & Contracts', description: 'Review deliverables and milestone payments', path: '/dashboard/projects', icon: Briefcase },
     { label: 'Find Service Professionals', description: 'Search vetted electricians, plumbers, and contractors', path: '/dashboard/jobs', icon: Search },
-    { label: 'Escrow Wallet', description: 'Protected vault balance, deposits, and withdrawals', path: '/dashboard/wallet', icon: Wallet },
+    { label: 'Payment', description: 'Protected vault balance, deposits, and settlement payouts', path: '/dashboard/payment', icon: Wallet },
     { label: 'AI Diagnostic Assistant', description: 'Describe technical issues to match vetted artisans', path: '/ai', icon: Sparkles },
     { label: 'Account & Payout Settings', description: 'Manage profile and Flutterwave settlement account', path: '/dashboard/settings', icon: Settings },
     { label: 'Support & FAQs', description: 'Escrow charter safeguards and dispute resolution', path: '/dashboard/support', icon: HelpCircle },
@@ -303,7 +297,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         {/* User Profile & Escrow Status */}
         <div className="space-y-3 pt-4 border-t border-zinc-100">
           <Link
-            href="/dashboard/wallet"
+            href="/dashboard/payment"
             className="flex items-center justify-between p-2.5 rounded-xl bg-zinc-50 hover:bg-zinc-100/80 transition-colors text-xs"
           >
             <div className="flex items-center gap-2">
@@ -333,14 +327,23 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               </div>
             </Link>
 
-            <button
-              type="button"
-              onClick={handleLogout}
-              title="Sign out"
-              className="p-1.5 text-zinc-400 hover:text-zinc-700 transition-colors cursor-pointer"
-            >
-              <LogOut className="w-3.5 h-3.5" />
-            </button>
+            <div className="flex items-center gap-1">
+              <Link
+                href="/dashboard/support"
+                title="Help & Dispute Support"
+                className="p-1.5 text-zinc-400 hover:text-zinc-700 hover:bg-zinc-100 rounded-lg transition-colors"
+              >
+                <HelpCircle className="w-3.5 h-3.5" />
+              </Link>
+              <button
+                type="button"
+                onClick={handleLogout}
+                title="Sign out"
+                className="p-1.5 text-zinc-400 hover:text-zinc-700 hover:bg-zinc-100 rounded-lg transition-colors cursor-pointer"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+              </button>
+            </div>
           </div>
         </div>
       </aside>
@@ -396,6 +399,15 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                 </div>
               )}
             </div>
+
+            {/* Help & Support Action */}
+            <Link
+              href="/dashboard/support"
+              title="Help & Support"
+              className="p-2 rounded-lg text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100 transition-colors"
+            >
+              <HelpCircle className="w-4 h-4" />
+            </Link>
           </div>
         </header>
 
