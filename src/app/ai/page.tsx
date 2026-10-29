@@ -589,9 +589,6 @@ export default function AiSearchChatPage() {
               <span className="font-semibold text-sm text-zinc-900">
                 Connecta Assistant
               </span>
-              <span className="hidden sm:inline-flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded-full bg-zinc-100 text-zinc-600">
-                Local Technical Intelligence
-              </span>
             </div>
           </div>
 
