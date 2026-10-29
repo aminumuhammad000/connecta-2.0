@@ -226,47 +226,42 @@ export default function AdminClientView({
   const [showAdminProfileModal, setShowAdminProfileModal] = useState(false)
   const profileDropdownRef = useRef<HTMLDivElement>(null)
 
-  // 2-Hour Inactivity tracking (7200 seconds)
+  // Inactivity tracking (2 hours / 7200 seconds of zero interaction)
   const INACTIVITY_LIMIT_SECONDS = 7200 // 2 hours
-  const [remainingSeconds, setRemainingSeconds] = useState<number>(INACTIVITY_LIMIT_SECONDS)
   const [inactivityModalOpen, setInactivityModalOpen] = useState(false)
   const [isLoggingOut, setIsLoggingOut] = useState(false)
   const lastActiveTimestampRef = useRef<number>(Date.now())
   const lastHeartbeatTimestampRef = useRef<number>(Date.now())
 
-  // Format remaining seconds into HH:MM:SS or Xh Ym
-  const formatRemainingTime = (secs: number) => {
-    const hours = Math.floor(secs / 3600)
-    const minutes = Math.floor((secs % 3600) / 60)
-    const seconds = secs % 60
-    if (hours > 0) {
-      return `${hours}h ${minutes}m`
-    }
-    return `${minutes}m ${seconds}s`
-  }
-
-  // Handle User Activity & Inactivity Timers
+  // Seamless Session Keep-Alive while user is actively using the dashboard
   useEffect(() => {
-    // Record user activity
+    // Record user activity and refresh session automatically
     const recordActivity = () => {
       lastActiveTimestampRef.current = Date.now()
-      // Send heartbeat to server every 5 minutes if active
-      if (Date.now() - lastHeartbeatTimestampRef.current > 5 * 60 * 1000) {
+      // Send heartbeat to renew session every 2 minutes while active
+      if (Date.now() - lastHeartbeatTimestampRef.current > 2 * 60 * 1000) {
         lastHeartbeatTimestampRef.current = Date.now()
         fetch('/api/admin/session', { method: 'POST' }).catch(() => {})
       }
     }
 
-    const activityEvents = ['mousedown', 'mousemove', 'keydown', 'scroll', 'touchstart']
+    const activityEvents = ['mousedown', 'mousemove', 'keydown', 'scroll', 'touchstart', 'click']
     activityEvents.forEach((ev) => window.addEventListener(ev, recordActivity, { passive: true }))
 
-    // Inactivity interval check every second
+    // Initial session touch on mount
+    fetch('/api/admin/session', { method: 'POST' }).catch(() => {})
+
+    // Check every minute: if active within the last 30 minutes, keep session alive
     const interval = setInterval(() => {
       const elapsedMs = Date.now() - lastActiveTimestampRef.current
-      const remaining = Math.max(0, INACTIVITY_LIMIT_SECONDS - Math.floor(elapsedMs / 1000))
-      setRemainingSeconds(remaining)
-
-      if (remaining <= 0) {
+      if (elapsedMs < 30 * 60 * 1000) {
+        // User was recently active: keep session renewed
+        if (Date.now() - lastHeartbeatTimestampRef.current > 2 * 60 * 1000) {
+          lastHeartbeatTimestampRef.current = Date.now()
+          fetch('/api/admin/session', { method: 'POST' }).catch(() => {})
+        }
+      } else if (elapsedMs >= INACTIVITY_LIMIT_SECONDS * 1000) {
+        // True continuous 2-hour absence without any interaction
         clearInterval(interval)
         setInactivityModalOpen(true)
         fetch('/api/admin/logout', { method: 'POST' }).finally(() => {
@@ -275,7 +270,7 @@ export default function AdminClientView({
           }, 2500)
         })
       }
-    }, 1000)
+    }, 60 * 1000)
 
     return () => {
       activityEvents.forEach((ev) => window.removeEventListener(ev, recordActivity))
@@ -524,17 +519,13 @@ export default function AdminClientView({
 
           {/* Right: Profile Trigger & Dropdown Menu */}
           <div className="flex items-center gap-2.5 sm:gap-3">
-            {/* Session Inactivity Timer Badge */}
+            {/* Active Session Status Badge */}
             <div
-              className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-100 border border-slate-200/80 text-[11px] font-medium text-slate-600 select-none"
-              title="Your session automatically expires after 2 hours of inactivity"
+              className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-200/80 text-[11px] font-medium text-emerald-800 select-none"
+              title="Administrator session is active"
             >
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              <Clock className="w-3.5 h-3.5 text-slate-500" />
-              <span>Timeout:</span>
-              <span className="font-mono font-bold text-slate-800">
-                {formatRemainingTime(remainingSeconds)}
-              </span>
+              <span className="font-semibold">Live Admin</span>
             </div>
 
             {/* Mobile menu toggle for sidebar tabs */}
@@ -581,12 +572,12 @@ export default function AdminClientView({
                   </div>
 
                   <div className="px-4 py-2 bg-slate-50 border-b border-slate-100 flex items-center justify-between text-[11px]">
-                    <span className="text-slate-500 flex items-center gap-1">
-                      <Clock className="w-3 h-3 text-emerald-600" />
-                      <span>Inactivity Limit:</span>
+                    <span className="text-slate-500 flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                      <span>Session</span>
                     </span>
-                    <span className="font-mono font-bold text-slate-800">
-                      {formatRemainingTime(remainingSeconds)}
+                    <span className="font-semibold text-emerald-700">
+                      Active
                     </span>
                   </div>
 

@@ -1012,5 +1012,83 @@
     "currency": "NGN",
     "createdAt": "2026-10-29T13:32:45.490Z",
     "welcomeSparks": 0
+  },
+  {
+    "id": "c792cda8-00e5-4aef-b8d4-9d6ec6b91d84",
+    "fullName": "Sani Umar",
+    "firstName": "Sani",
+    "lastName": "Umar",
+    "email": "test.client.1793281596792@connecta.ng",
+    "phone": "+2348031112233",
+    "role": "provider",
+    "country": "Nigeria",
+    "city": "Kano",
+    "currency": "NGN",
+    "createdAt": "2026-10-29T13:46:36.792Z",
+    "welcomeSparks": 25,
+    "headline": "Commercial Inverter & Solar Power Technician",
+    "primaryCategory": "Solar & Electrical Power",
+    "skills": [
+      "Solar Sizing",
+      "Hybrid Inverters",
+      "Circuit Tracing"
+    ],
+    "hourlyRateMinor": 1500000,
+    "workshopAddress": "Shop 2, Kofar Ruwa Market, Kano"
+  },
+  {
+    "id": "a5083af8-1d28-4bf3-b14c-05a12a5f1b42",
+    "fullName": "Registered Client",
+    "firstName": "Registered",
+    "lastName": "Client",
+    "email": "existing-1793281596810@connecta.ng",
+    "phone": "+2348000000000",
+    "password": "HashedPassword@2026",
+    "role": "customer",
+    "activeRole": "customer",
+    "country": "Nigeria",
+    "city": "Kano",
+    "currency": "NGN",
+    "createdAt": "2026-10-29T13:46:36.810Z",
+    "welcomeSparks": 0
+  },
+  {
+    "id": "4e597ec4-c486-46aa-8aae-ce8fb4d730af",
+    "fullName": "Sani Umar",
+    "firstName": "Sani",
+    "lastName": "Umar",
+    "email": "test.client.1793281657202@connecta.ng",
+    "phone": "+2348031112233",
+    "role": "provider",
+    "country": "Nigeria",
+    "city": "Kano",
+    "currency": "NGN",
+    "createdAt": "2026-10-29T13:47:37.202Z",
+    "welcomeSparks": 25,
+    "headline": "Commercial Inverter & Solar Power Technician",
+    "primaryCategory": "Solar & Electrical Power",
+    "skills": [
+      "Solar Sizing",
+      "Hybrid Inverters",
+      "Circuit Tracing"
+    ],
+    "hourlyRateMinor": 1500000,
+    "workshopAddress": "Shop 2, Kofar Ruwa Market, Kano"
+  },
+  {
+    "id": "624ccd84-e8df-43b3-9722-8fd22fa5a1be",
+    "fullName": "Registered Client",
+    "firstName": "Registered",
+    "lastName": "Client",
+    "email": "existing-1793281657230@connecta.ng",
+    "phone": "+2348000000000",
+    "password": "HashedPassword@2026",
+    "role": "customer",
+    "activeRole": "customer",
+    "country": "Nigeria",
+    "city": "Kano",
+    "currency": "NGN",
+    "createdAt": "2026-10-29T13:47:37.230Z",
+    "welcomeSparks": 0
   }
 ]
