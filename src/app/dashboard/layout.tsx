@@ -158,10 +158,10 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       badge: activeProjectsCount > 0 ? `${activeProjectsCount}` : null,
     },
     {
-      label: 'Jobs & Briefs',
+      label: 'Find Professionals',
       path: '/dashboard/jobs',
       icon: Search,
-      badge: openJobsCount > 0 ? `${openJobsCount}` : null,
+      badge: '10+',
     },
     {
       label: 'Escrow Wallet',
@@ -192,7 +192,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const commandPaletteItems = [
     { label: 'Overview', description: 'Dashboard metrics and active contracts', path: '/dashboard', icon: LayoutDashboard },
     { label: 'Projects & Contracts', description: 'Review deliverables and milestone payments', path: '/dashboard/projects', icon: Briefcase },
-    { label: 'Marketplace Jobs', description: 'Browse verified client briefs and submit proposals', path: '/dashboard/jobs', icon: Search },
+    { label: 'Find Service Professionals', description: 'Search vetted electricians, plumbers, and contractors', path: '/dashboard/jobs', icon: Search },
     { label: 'Escrow Wallet', description: 'Protected vault balance, deposits, and withdrawals', path: '/dashboard/wallet', icon: Wallet },
     { label: 'AI Diagnostic Assistant', description: 'Describe technical issues to match vetted artisans', path: '/ai', icon: Sparkles },
     { label: 'Account & Payout Settings', description: 'Manage profile and Flutterwave settlement account', path: '/dashboard/settings', icon: Settings },

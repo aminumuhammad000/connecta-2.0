@@ -180,12 +180,12 @@ export default function DashboardOverviewPage() {
           </div>
 
           <div className="p-3 sm:p-4 space-y-1">
-            <span className="text-[11px] font-medium text-zinc-400 block">Marketplace Briefs</span>
+            <span className="text-[11px] font-medium text-zinc-400 block">Verified Professionals</span>
             <div className="text-xl sm:text-2xl font-bold tracking-tight text-zinc-900">
-              {metrics.find((m) => m.label.toLowerCase().includes('live'))?.value || '14'}
+              10+ Trades
             </div>
             <Link href="/dashboard/jobs" className="text-[11px] text-zinc-500 hover:text-zinc-900 font-medium inline-block">
-              Browse Live Jobs →
+              Find Professionals →
             </Link>
           </div>
         </div>
@@ -296,46 +296,87 @@ export default function DashboardOverviewPage() {
         )}
       </div>
 
-      {/* Live Marketplace Briefs Stream */}
+      {/* Featured Verified Professionals Stream */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-sm font-bold text-zinc-900">Live Client Briefs</h2>
-            <p className="text-xs text-zinc-500">Recent opportunities submitted across Nigeria with locked budgets.</p>
+            <h2 className="text-sm font-bold text-zinc-900">Featured Service Professionals</h2>
+            <p className="text-xs text-zinc-500">Vetted electricians, plumbers, and engineers ready for milestone escrow contracts.</p>
           </div>
           <Link
             href="/dashboard/jobs"
             className="text-xs text-zinc-600 hover:text-zinc-950 font-medium inline-flex items-center gap-1"
           >
-            <span>View All Briefs</span>
+            <span>Browse All Professionals</span>
             <ArrowRight className="w-3 h-3" />
           </Link>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          {recentJobs.slice(0, 4).map((job) => (
+          {[
+            {
+              name: 'Engr. Babatunde Alabi',
+              trade: 'Electrical & Wiring',
+              headline: 'Licensed Industrial & Residential Electrical Contractor',
+              rating: '4.9',
+              reviews: 88,
+              city: 'Ikeja, Lagos',
+              rate: '₦12,000/hr',
+            },
+            {
+              name: 'Ibrahim Suleiman',
+              trade: 'Solar & Renewable Power',
+              headline: 'Certified Solar PV & Hybrid Inverter Installation Engineer',
+              rating: '5.0',
+              reviews: 64,
+              city: 'Garki, Abuja',
+              rate: '₦15,000/hr',
+            },
+            {
+              name: 'Emeka Okafor',
+              trade: 'Plumbing & Pipefitting',
+              headline: 'PPR Pipe & Borehole Submersible Pump Specialist',
+              rating: '4.8',
+              reviews: 52,
+              city: 'Port Harcourt',
+              rate: '₦10,000/hr',
+            },
+            {
+              name: 'Malam Sanusi Danbatta',
+              trade: 'Electronics & Micro-Soldering',
+              headline: 'Master Board Level Diagnostics & Component Repair Lab',
+              rating: '4.9',
+              reviews: 142,
+              city: 'Kano City',
+              rate: '₦8,500/hr',
+            },
+          ].map((pro, idx) => (
             <div
-              key={job.id}
+              key={idx}
               className="p-4 sm:p-5 rounded-2xl bg-white border border-zinc-200/80 hover:border-zinc-300 transition-colors flex flex-col justify-between space-y-3 shadow-[0_1px_2px_rgba(0,0,0,0.02)]"
             >
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between text-xs">
                   <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-zinc-100 text-zinc-700 font-medium">
-                    {job.category}
+                    {pro.trade}
                   </span>
-                  <span className="font-bold text-zinc-900">{formatMinorToNaira(job.budgetMaxMinor)}</span>
+                  <div className="flex items-center gap-1 font-bold text-zinc-900">
+                    <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
+                    <span>{pro.rating}</span>
+                    <span className="text-zinc-400 font-normal">({pro.reviews})</span>
+                  </div>
                 </div>
-                <h3 className="text-sm font-bold text-zinc-900 leading-snug">{job.title}</h3>
-                <p className="text-xs text-zinc-500 line-clamp-2 leading-relaxed">{job.description}</p>
+                <h3 className="text-sm font-bold text-zinc-900 leading-snug">{pro.name}</h3>
+                <p className="text-xs text-zinc-500 line-clamp-2 leading-relaxed">{pro.headline}</p>
               </div>
 
               <div className="pt-2 border-t border-zinc-100 flex items-center justify-between text-xs text-zinc-400">
-                <span>{job.city}, Nigeria</span>
+                <span className="text-zinc-500 font-medium">{pro.city} • {pro.rate}</span>
                 <Link
                   href="/dashboard/jobs"
                   className="text-zinc-900 font-medium hover:underline inline-flex items-center gap-1"
                 >
-                  <span>Submit Quote</span>
+                  <span>Hire Specialist</span>
                   <ArrowRight className="w-3 h-3" />
                 </Link>
               </div>
