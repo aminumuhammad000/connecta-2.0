@@ -1,4 +1,5 @@
 'use client'
+import { Spinner } from '@/components/brand/ConnectaLoader'
 
 import React, { useState, useMemo } from 'react'
 import Image from 'next/image'
@@ -14,7 +15,6 @@ import {
   CheckCircle2,
   X,
   Eye,
-  RefreshCw,
 } from 'lucide-react'
 
 export interface UserItem {
@@ -583,7 +583,7 @@ export default function AdminEmailHub({
               >
                 {isSendingEmail ? (
                   <>
-                    <RefreshCw className="w-4 h-4 animate-spin text-white" />
+                    <Spinner className="w-4 h-4 text-white" />
                     <span>Dispatching...</span>
                   </>
                 ) : (

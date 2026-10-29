@@ -25,7 +25,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.9,
     },
     {
-      url: `${baseUrl}/onboarding`,
+      url: `${baseUrl}/register`,
       lastModified: staticLastMod,
       changeFrequency: 'weekly',
       priority: 0.85,

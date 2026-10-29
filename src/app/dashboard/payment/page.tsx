@@ -2,21 +2,34 @@
 
 import React, { useState, useEffect } from 'react'
 import {
-  Wallet,
-  ShieldCheck,
   ArrowDownLeft,
   ArrowUpRight,
   CheckCircle2,
-  AlertCircle,
-  FileText,
   Lock,
   RefreshCw,
-  Loader2,
   CreditCard,
+  Wallet,
+  ShieldCheck,
   Check,
-  X,
+  ChevronDown,
 } from 'lucide-react'
 import { formatMinorToNaira } from '@/lib/dashboard/data'
+import { ConnectaLoader } from '@/components/brand/ConnectaLoader'
+import { IllustrationLedger } from '@/components/brand/illustrations'
+import {
+  AnimatedNumber,
+  Badge,
+  Button,
+  Card,
+  EmptyState,
+  Field,
+  Modal,
+  Notice,
+  PageHeader,
+  Skeleton,
+  inputClass,
+  stagger,
+} from '@/components/dashboard/ui'
 
 interface WalletTransaction {
   id: string
@@ -42,10 +55,30 @@ interface BankOption {
   name: string
 }
 
+const FALLBACK_BANKS: BankOption[] = [
+  { code: '044', name: 'Access Bank' },
+  { code: '058', name: 'Guaranty Trust Bank (GTBank)' },
+  { code: '057', name: 'Zenith Bank' },
+  { code: '033', name: 'United Bank for Africa (UBA)' },
+  { code: '999992', name: 'OPay Digital Services' },
+  { code: '090175', name: 'Moniepoint Microfinance Bank' },
+  { code: '090267', name: 'Kuda Microfinance Bank' },
+]
+
+const TX_META: Record<string, { icon: React.ComponentType<{ className?: string }>; tone: string }> = {
+  deposit: { icon: ArrowDownLeft, tone: 'bg-success-50 text-success-ink' },
+  withdrawal: { icon: ArrowUpRight, tone: 'bg-sunken text-ink-2' },
+  escrow_lock: { icon: Lock, tone: 'bg-azure-50 text-azure-600' },
+  escrow_release: { icon: CheckCircle2, tone: 'bg-success-50 text-success-ink' },
+}
+
+const naira = (n: number) => `₦${Math.round(n).toLocaleString('en-NG')}`
+
 export default function DashboardPaymentPage() {
   const [wallet, setWallet] = useState<WalletData | null>(null)
   const [ledger, setLedger] = useState<WalletTransaction[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [isRefreshing, setIsRefreshing] = useState(false)
   const [isDepositModalOpen, setIsDepositModalOpen] = useState(false)
   const [isWithdrawModalOpen, setIsWithdrawModalOpen] = useState(false)
   const [amountInput, setAmountInput] = useState('50000')
@@ -55,7 +88,6 @@ export default function DashboardPaymentPage() {
   const [statusNotice, setStatusNotice] = useState<string | null>(null)
   const [errorNotice, setErrorNotice] = useState<string | null>(null)
 
-  // Bank withdrawal state
   const [banks, setBanks] = useState<BankOption[]>([])
   const [selectedBankCode, setSelectedBankCode] = useState('044')
   const [accountNumber, setAccountNumber] = useState('')
@@ -79,69 +111,61 @@ export default function DashboardPaymentPage() {
     }
   }
 
-  // Load banks for withdrawal
   const fetchBanks = async () => {
     try {
       const res = await fetch('/api/payments/flutterwave/banks?country=NG')
       if (res.ok) {
         const body = await res.json()
-        if (body.data && Array.isArray(body.data)) {
-          setBanks(body.data)
-          if (body.data.length > 0 && !selectedBankCode) {
-            setSelectedBankCode(body.data[0].code)
-          }
-        }
+        if (body.data && Array.isArray(body.data)) setBanks(body.data)
       }
     } catch (err) {
       console.warn('Bank list fetch failed:', err)
     }
   }
 
-  // Verify URL callbacks from Flutterwave checkout
   useEffect(() => {
     fetchWalletData()
     fetchBanks()
 
-    if (typeof window !== 'undefined') {
-      const searchParams = new URLSearchParams(window.location.search)
-      const txRef = searchParams.get('tx_ref') || searchParams.get('txRef')
-      const status = searchParams.get('status')
+    const searchParams = new URLSearchParams(window.location.search)
+    const txRef = searchParams.get('tx_ref') || searchParams.get('txRef')
+    const status = searchParams.get('status')
 
-      if (txRef && status === 'successful') {
-        window.history.replaceState({}, '', window.location.pathname)
-        setIsSubmitting(true)
-        setStatusNotice('Verifying payment and securing funds safely...')
+    if (txRef && status === 'successful') {
+      window.history.replaceState({}, '', window.location.pathname)
+      setIsSubmitting(true)
+      setStatusNotice('Confirming your payment…')
 
-        fetch('/api/payments/flutterwave/verify', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ txRef }),
+      fetch('/api/payments/flutterwave/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ txRef }),
+      })
+        .then((r) => r.json())
+        .then((data) => {
+          if (data.success) {
+            setStatusNotice('Payment confirmed. Your balance has been updated.')
+            fetchWalletData()
+          } else {
+            setStatusNotice(null)
+            setErrorNotice(data.error?.message || 'We could not verify that payment.')
+          }
         })
-          .then((r) => r.json())
-          .then((data) => {
-            if (data.success) {
-              setStatusNotice('Transaction verified. Deposit confirmed via Flutterwave.')
-              fetchWalletData()
-            } else {
-              setErrorNotice(data.error?.message || 'Payment verification failed.')
-            }
-          })
-          .catch((err) => {
-            setErrorNotice('Failed to verify payment: ' + err.message)
-          })
-          .finally(() => {
-            setIsSubmitting(false)
-            setTimeout(() => setStatusNotice(null), 6000)
-          })
-      } else if (status === 'cancelled') {
-        window.history.replaceState({}, '', window.location.pathname)
-        setErrorNotice('Flutterwave checkout was cancelled.')
-        setTimeout(() => setErrorNotice(null), 5000)
-      }
+        .catch((err) => {
+          setStatusNotice(null)
+          setErrorNotice('We could not verify that payment: ' + err.message)
+        })
+        .finally(() => {
+          setIsSubmitting(false)
+          setTimeout(() => setStatusNotice(null), 6000)
+        })
+    } else if (status === 'cancelled') {
+      window.history.replaceState({}, '', window.location.pathname)
+      setErrorNotice('Checkout was cancelled. No money was taken.')
+      setTimeout(() => setErrorNotice(null), 5000)
     }
   }, [])
 
-  // Auto-resolve account when 10 digits entered
   useEffect(() => {
     const cleanNum = accountNumber.replace(/[^0-9]/g, '')
     if (cleanNum.length === 10 && selectedBankCode) {
@@ -152,29 +176,21 @@ export default function DashboardPaymentPage() {
         body: JSON.stringify({ accountNumber: cleanNum, bankCode: selectedBankCode }),
       })
         .then((r) => r.json())
-        .then((res) => {
-          if (res.success && res.data?.accountName) {
-            setAccountName(res.data.accountName)
-          } else {
-            setAccountName('Verified Connecta Account Holder')
-          }
-        })
-        .catch(() => {
-          setAccountName('Verified Connecta Account Holder')
-        })
-        .finally(() => {
-          setIsResolvingAccount(false)
-        })
+        .then((res) => setAccountName(res.success && res.data?.accountName ? res.data.accountName : 'Verified Connecta Account Holder'))
+        .catch(() => setAccountName('Verified Connecta Account Holder'))
+        .finally(() => setIsResolvingAccount(false))
     } else {
       setAccountName('')
     }
   }, [accountNumber, selectedBankCode])
 
+  const availableBalanceMinor = wallet?.balanceMinor || 0
+  const escrowBalanceMinor = wallet?.escrowBalanceMinor || 0
+
   const handleDeposit = async (e: React.FormEvent) => {
     e.preventDefault()
     const numeric = parseInt(amountInput.replace(/[^0-9]/g, '')) || 0
     if (numeric <= 0) return
-
     setIsSubmitting(true)
     setErrorNotice(null)
 
@@ -189,12 +205,8 @@ export default function DashboardPaymentPage() {
             isEscrow: isEscrowDeposit,
           }),
         })
-
         const body = await res.json()
-        if (!res.ok || !body.data?.link) {
-          throw new Error(body.error?.message || 'Failed to initialize payment gateway')
-        }
-
+        if (!res.ok || !body.data?.link) throw new Error(body.error?.message || 'Could not open the payment page')
         window.location.href = body.data.link
         return
       }
@@ -208,16 +220,15 @@ export default function DashboardPaymentPage() {
           notes: isEscrowDeposit ? 'Protected vault milestone lock' : 'Wallet balance credit',
         }),
       })
-
       const body = await res.json()
       if (!res.ok) throw new Error(body.error?.message || body.error || 'Deposit failed')
 
       setIsDepositModalOpen(false)
-      setStatusNotice(`Deposit of ${formatMinorToNaira(numeric * 100)} credited successfully.`)
+      setStatusNotice(`${formatMinorToNaira(numeric * 100)} added to your ${isEscrowDeposit ? 'vault' : 'balance'}.`)
       await fetchWalletData()
       setTimeout(() => setStatusNotice(null), 4000)
-    } catch (err: any) {
-      setErrorNotice(err.message || 'Deposit failed')
+    } catch (err: unknown) {
+      setErrorNotice(err instanceof Error ? err.message : 'Deposit failed')
     } finally {
       setIsSubmitting(false)
     }
@@ -227,17 +238,15 @@ export default function DashboardPaymentPage() {
     e.preventDefault()
     const numeric = parseInt(amountInput.replace(/[^0-9]/g, '')) || 0
     if (numeric <= 0) return
-
     if (numeric * 100 > availableBalanceMinor) {
-      setErrorNotice('Withdrawal amount exceeds your available balance.')
+      setErrorNotice('That is more than your available balance.')
       return
     }
-
     setIsSubmitting(true)
     setErrorNotice(null)
 
     try {
-      const selectedBank = banks.find((b) => b.code === selectedBankCode)
+      const selectedBank = (banks.length ? banks : FALLBACK_BANKS).find((b) => b.code === selectedBankCode)
       const res = await fetch('/api/dashboard/wallet/withdraw', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -247,412 +256,357 @@ export default function DashboardPaymentPage() {
           accountNumber: accountNumber || '••••••••',
         }),
       })
-
       const body = await res.json()
       if (!res.ok) throw new Error(body.error?.message || body.error || 'Withdrawal failed')
 
       setIsWithdrawModalOpen(false)
-      setStatusNotice(`Payout of ${formatMinorToNaira(numeric * 100)} dispatched successfully.`)
+      setStatusNotice(`${formatMinorToNaira(numeric * 100)} is on its way to your bank.`)
       await fetchWalletData()
       setTimeout(() => setStatusNotice(null), 4000)
-    } catch (err: any) {
-      setErrorNotice(err.message || 'Withdrawal failed')
+    } catch (err: unknown) {
+      setErrorNotice(err instanceof Error ? err.message : 'Withdrawal failed')
     } finally {
       setIsSubmitting(false)
     }
   }
 
-  const availableBalanceMinor = wallet?.balanceMinor || 0
-  const escrowBalanceMinor = wallet?.escrowBalanceMinor || 0
+  const refresh = async () => {
+    setIsRefreshing(true)
+    await fetchWalletData()
+    setIsRefreshing(false)
+  }
+
+  const visibleLedger = ledger.filter((tx) => tx.type !== 'sparks_grant')
+  const bankList = banks.length ? banks : FALLBACK_BANKS
 
   return (
-    <div className="space-y-6">
-      {/* Page Header */}
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-2 border-b border-zinc-200/60">
-        <div>
-          <span className="text-[11px] font-mono text-zinc-400 uppercase tracking-wider">
-            Finance &amp; Settlement
-          </span>
-          <h1 className="text-2xl font-bold tracking-tight text-zinc-900 mt-1">
-            Payment &amp; Settlement
-          </h1>
-          <p className="text-xs text-zinc-500 mt-0.5 font-normal">
-            Milestone payment locks, automated settlement ledger, and Flutterwave payout rails.
-          </p>
-        </div>
+    <div className="space-y-8">
+      <PageHeader
+        eyebrow="Payment"
+        title="Your money"
+        description="Add funds, protect them for a job, and withdraw to any Nigerian bank."
+        actions={
+          <>
+            <Button
+              variant="warm"
+              onClick={() => {
+                setAmountInput('25000')
+                setErrorNotice(null)
+                setIsWithdrawModalOpen(true)
+              }}
+            >
+              <ArrowUpRight className="w-4 h-4" />
+              Withdraw
+            </Button>
+            <Button
+              variant="success"
+              onClick={() => {
+                setAmountInput('50000')
+                setIsEscrowDeposit(false)
+                setErrorNotice(null)
+                setIsDepositModalOpen(true)
+              }}
+            >
+              <ArrowDownLeft className="w-4 h-4" />
+              Add funds
+            </Button>
+          </>
+        }
+      />
 
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={() => {
-              setAmountInput('50000')
-              setIsEscrowDeposit(false)
-              setIsDepositModalOpen(true)
-            }}
-            className="inline-flex items-center gap-1.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-white px-3.5 py-2 text-xs font-medium transition-colors shadow-xs cursor-pointer"
-          >
-            <ArrowDownLeft className="w-3.5 h-3.5" />
-            <span>Deposit Funds</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => {
-              setAmountInput('25000')
-              setIsWithdrawModalOpen(true)
-            }}
-            className="inline-flex items-center gap-1.5 rounded-xl bg-white hover:bg-zinc-50 text-zinc-700 border border-zinc-200 px-3.5 py-2 text-xs font-medium transition-colors cursor-pointer"
-          >
-            <ArrowUpRight className="w-3.5 h-3.5" />
-            <span>Withdraw</span>
-          </button>
-        </div>
-      </div>
-
-      {/* Notifications */}
       {statusNotice && (
-        <div className="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-medium flex items-center gap-2">
-          <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-          <span>{statusNotice}</span>
-        </div>
+        <Notice tone="success" onClose={() => setStatusNotice(null)}>
+          {statusNotice}
+        </Notice>
+      )}
+      {errorNotice && !isDepositModalOpen && !isWithdrawModalOpen && (
+        <Notice tone="danger" onClose={() => setErrorNotice(null)}>
+          {errorNotice}
+        </Notice>
       )}
 
-      {errorNotice && (
-        <div className="p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-medium flex items-center gap-2">
-          <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
-          <span>{errorNotice}</span>
-        </div>
-      )}
-
-      {/* Modern Minimalist Balance Strip */}
-      {isLoading ? (
-        <div className="py-12 flex flex-col items-center justify-center gap-2">
-          <Loader2 className="w-5 h-5 text-zinc-600 animate-spin" />
-          <span className="text-xs font-medium text-zinc-400">Loading wallet balances...</span>
-        </div>
-      ) : (
-        <div className="bg-white rounded-2xl border border-zinc-200/80 p-5 shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
-          <div className="grid grid-cols-1 sm:grid-cols-2 divide-y sm:divide-y-0 sm:divide-x divide-zinc-100">
-            <div className="p-4 space-y-1.5">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-medium text-zinc-400">Available Balance</span>
-                <Wallet className="w-4 h-4 text-zinc-400" />
-              </div>
-              <div className="text-2xl sm:text-3xl font-bold tracking-tight text-zinc-900">
-                {formatMinorToNaira(availableBalanceMinor)}
-              </div>
-              <p className="text-[11px] text-zinc-400 font-normal">
-                Disbursable to your linked Nigerian bank account anytime
-              </p>
-            </div>
-
-            <div className="p-4 space-y-1.5">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-medium text-zinc-400">Protected Vault Balance</span>
-                <ShieldCheck className="w-4 h-4 text-emerald-600" />
-              </div>
-              <div className="text-2xl sm:text-3xl font-bold tracking-tight text-zinc-900">
-                {formatMinorToNaira(escrowBalanceMinor)}
-              </div>
-              <p className="text-[11px] text-emerald-700 font-medium flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                Guarded under Connecta CBN-compliant security charter
-              </p>
-            </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <Card className="p-6 sm:p-7 cn-rise" style={stagger(1, 80)}>
+          <div className="flex items-center justify-between">
+            <span className="text-[13px] text-muted">Available balance</span>
+            <span className="w-8 h-8 rounded-lg bg-azure-50 text-azure flex items-center justify-center">
+              <Wallet className="w-4 h-4" />
+            </span>
           </div>
-        </div>
-      )}
+          <div className="mt-3 text-[34px] leading-none font-medium tracking-[-0.03em] text-ink">
+            {isLoading ? <Skeleton className="h-9 w-40" /> : <AnimatedNumber value={availableBalanceMinor / 100} format={naira} />}
+          </div>
+          <p className="text-[13px] text-muted mt-3">Ready to withdraw to your bank at any time.</p>
+        </Card>
 
-      {/* Transactions Ledger */}
-      <div className="bg-white rounded-2xl p-5 sm:p-6 border border-zinc-200/80 shadow-xs space-y-4">
-        <div className="flex items-center justify-between pb-3 border-b border-zinc-100">
+        <Card className="p-6 sm:p-7 cn-rise bg-[linear-gradient(160deg,#FFFFFF_40%,#ECFDF5)]" style={stagger(2, 80)}>
+          <div className="flex items-center justify-between">
+            <span className="text-[13px] text-muted flex items-center gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-success cn-live-dot" />
+              Protected in vault
+            </span>
+            <span className="w-8 h-8 rounded-lg bg-success-50 text-success-ink flex items-center justify-center">
+              <ShieldCheck className="w-4 h-4" />
+            </span>
+          </div>
+          <div className="mt-3 text-[34px] leading-none font-medium tracking-[-0.03em] text-success-ink">
+            {isLoading ? <Skeleton className="h-9 w-40" /> : <AnimatedNumber value={escrowBalanceMinor / 100} format={naira} />}
+          </div>
+          <p className="text-[13px] text-muted mt-3">Held for your jobs. Released only when you approve.</p>
+        </Card>
+      </div>
+
+      <Card className="cn-rise" style={stagger(3, 80)}>
+        <div className="flex items-center justify-between px-6 py-5 border-b border-line">
           <div>
-            <h3 className="text-sm font-bold text-zinc-900 tracking-tight">
-              Transaction History
-            </h3>
-            <p className="text-xs text-zinc-500 font-normal">
-              Record of deposits, secured holds, and released payouts
-            </p>
+            <h2 className="text-base font-medium text-ink">Activity</h2>
+            <p className="text-[13px] text-muted mt-0.5">Deposits, protected funds and payouts</p>
           </div>
           <button
-            onClick={fetchWalletData}
-            title="Refresh Ledger"
-            className="p-1.5 rounded-lg text-zinc-400 hover:text-zinc-800 hover:bg-zinc-100 transition-colors"
+            onClick={refresh}
+            title="Refresh"
+            aria-label="Refresh activity"
+            className="w-9 h-9 rounded-lg text-muted hover:text-ink hover:bg-sunken flex items-center justify-center transition-colors cursor-pointer"
           >
-            <RefreshCw className="w-4 h-4" />
+            <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
           </button>
         </div>
 
-        {ledger.filter((tx) => tx.type !== 'sparks_grant').length > 0 ? (
-          <div className="divide-y divide-zinc-100">
-            {ledger
-              .filter((tx) => tx.type !== 'sparks_grant')
-              .map((tx) => (
-                <div
+        {isLoading ? (
+          <div className="py-16 flex justify-center">
+            <ConnectaLoader size={36} label="Loading activity" />
+          </div>
+        ) : visibleLedger.length > 0 ? (
+          <ul className="divide-y divide-line">
+            {visibleLedger.map((tx, idx) => {
+              const meta = TX_META[tx.type] || TX_META.withdrawal
+              const Icon = meta.icon
+              const incoming = tx.type === 'deposit'
+              return (
+                <li
                   key={tx.id}
-                  className="py-3 flex items-center justify-between gap-3 text-xs"
+                  className="px-6 py-4 flex items-center justify-between gap-4 hover:bg-canvas/60 transition-colors cn-rise"
+                  style={stagger(Math.min(idx, 10), 40)}
                 >
-                  <div className="flex items-center gap-2.5 min-w-0">
-                    <div className="w-8 h-8 rounded-lg bg-zinc-100 text-zinc-600 flex items-center justify-center shrink-0">
-                      {tx.type === 'deposit' && <ArrowDownLeft className="w-4 h-4 text-[#0C513F]" />}
-                      {tx.type === 'withdrawal' && <ArrowUpRight className="w-4 h-4 text-zinc-700" />}
-                      {tx.type === 'escrow_lock' && <Lock className="w-4 h-4 text-zinc-700" />}
-                      {tx.type === 'escrow_release' && <CheckCircle2 className="w-4 h-4 text-emerald-600" />}
-                    </div>
-
-                    <div className="min-w-0">
-                      <div className="font-medium text-zinc-900 truncate">
-                        {tx.title}
-                      </div>
-                      <div className="text-[11px] text-zinc-400 font-mono">
-                        {tx.reference} • {new Date(tx.date).toLocaleDateString('en-NG')}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="text-right shrink-0">
-                    <div
-                      className={`font-semibold text-xs ${
-                        tx.type === 'deposit'
-                          ? 'text-[#0C513F]'
-                          : 'text-zinc-900'
-                      }`}
-                    >
-                      {tx.type === 'deposit'
-                        ? `+${formatMinorToNaira(tx.amountMinor)}`
-                        : formatMinorToNaira(tx.amountMinor)}
-                    </div>
-                    <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-zinc-100 text-zinc-600">
-                      {tx.status}
+                  <div className="flex items-center gap-3.5 min-w-0">
+                    <span className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 ${meta.tone}`}>
+                      <Icon className="w-4 h-4" />
                     </span>
+                    <div className="min-w-0">
+                      <div className="text-sm text-ink truncate">{tx.title}</div>
+                      <div className="text-xs text-muted mt-0.5 tabular-nums">
+                        {new Date(tx.date).toLocaleDateString('en-NG', { day: 'numeric', month: 'short', year: 'numeric' })} ·{' '}
+                        {tx.reference}
+                      </div>
+                    </div>
                   </div>
-                </div>
-              ))}
-          </div>
+                  <div className="text-right shrink-0">
+                    <div className={`text-sm font-medium tabular-nums ${incoming ? 'text-success-ink' : 'text-ink'}`}>
+                      {incoming ? '+' : ''}
+                      {formatMinorToNaira(tx.amountMinor)}
+                    </div>
+                    <Badge
+                      tone={tx.status === 'completed' ? 'neutral' : tx.status === 'failed' ? 'danger' : 'warn'}
+                      className="mt-1 capitalize"
+                    >
+                      {tx.status}
+                    </Badge>
+                  </div>
+                </li>
+              )
+            })}
+          </ul>
         ) : (
-          <div className="py-8 text-center space-y-2 border border-dashed border-zinc-200 rounded-xl">
-            <FileText className="w-6 h-6 text-zinc-300 mx-auto" />
-            <p className="text-xs text-zinc-500 max-w-xs mx-auto">
-              No transactions recorded yet.
-            </p>
-          </div>
+          <EmptyState
+            illustration={<IllustrationLedger />}
+            title="No activity yet"
+            description="Your deposits, protected funds and payouts will be listed here."
+            action={
+              <Button variant="secondary" onClick={() => setIsDepositModalOpen(true)}>
+                Add your first funds
+              </Button>
+            }
+          />
         )}
-      </div>
+      </Card>
 
-      {/* Deposit Modal */}
-      {isDepositModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-2xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-md w-full p-6 space-y-4 shadow-xl border border-zinc-200 animate-in zoom-in-95 duration-150">
-            <div className="flex items-center justify-between pb-3 border-b border-zinc-100">
-              <div>
-                <h3 className="text-base font-bold text-zinc-900">Deposit Funds</h3>
-                <p className="text-xs text-zinc-500">Fund your wallet or milestone contract</p>
-              </div>
-              <button
-                type="button"
-                onClick={() => setIsDepositModalOpen(false)}
-                className="p-1 rounded-lg text-zinc-400 hover:text-zinc-700 hover:bg-zinc-100"
-              >
-                <X className="w-4 h-4" />
-              </button>
+      <Modal
+        open={isDepositModalOpen}
+        onClose={() => setIsDepositModalOpen(false)}
+        title="Add funds"
+        description="Top up your balance or protect money for an upcoming job."
+      >
+        <form onSubmit={handleDeposit} className="space-y-5">
+          {errorNotice && <Notice tone="danger">{errorNotice}</Notice>}
+          <Field label="Amount" htmlFor="deposit-amount">
+            <div className="relative">
+              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted text-lg">₦</span>
+              <input
+                id="deposit-amount"
+                type="number"
+                min={1}
+                value={amountInput}
+                onChange={(e) => setAmountInput(e.target.value)}
+                className={`${inputClass} h-12 pl-9 text-xl font-medium tabular-nums`}
+                required
+              />
             </div>
+          </Field>
 
-            <form onSubmit={handleDeposit} className="space-y-4 text-xs">
-              <div className="space-y-1.5">
-                <label className="font-medium text-zinc-700">Amount (NGN ₦)</label>
-                <input
-                  type="number"
-                  value={amountInput}
-                  onChange={(e) => setAmountInput(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-200 font-bold text-base text-zinc-900 focus:outline-none focus:border-[#0C513F]"
-                  required
-                />
-              </div>
-
-              {/* Payment Gateway Option */}
-              <div className="space-y-1.5">
-                <label className="font-medium text-zinc-700">Payment Method</label>
-                <div className="grid grid-cols-2 gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setDepositGateway('flutterwave')}
-                    className={`p-3 rounded-xl border text-left transition-all ${
-                      depositGateway === 'flutterwave'
-                        ? 'border-[#0C513F] bg-emerald-50/40 text-zinc-900 ring-1 ring-[#0C513F]'
-                        : 'border-zinc-200 text-zinc-600 hover:bg-zinc-50'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <CreditCard className="w-4 h-4 text-[#0C513F]" />
-                      {depositGateway === 'flutterwave' && <Check className="w-3.5 h-3.5 text-[#0C513F]" />}
-                    </div>
-                    <span className="font-semibold text-xs mt-2 block">Flutterwave</span>
-                    <span className="text-[10px] text-zinc-400">Card, Transfer, USSD</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setDepositGateway('instant')}
-                    className={`p-3 rounded-xl border text-left transition-all ${
-                      depositGateway === 'instant'
-                        ? 'border-[#0C513F] bg-emerald-50/40 text-zinc-900 ring-1 ring-[#0C513F]'
-                        : 'border-zinc-200 text-zinc-600 hover:bg-zinc-50'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <Wallet className="w-4 h-4 text-zinc-600" />
-                      {depositGateway === 'instant' && <Check className="w-3.5 h-3.5 text-[#0C513F]" />}
-                    </div>
-                    <span className="font-semibold text-xs mt-2 block">Direct Test Credit</span>
-                    <span className="text-[10px] text-zinc-400">Instant Sandbox Credit</span>
-                  </button>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2 pt-1">
-                <input
-                  type="checkbox"
-                  id="vaultBox"
-                  checked={isEscrowDeposit}
-                  onChange={(e) => setIsEscrowDeposit(e.target.checked)}
-                  className="rounded w-4 h-4 text-[#0C513F] accent-[#0C513F]"
-                />
-                <label htmlFor="vaultBox" className="text-xs text-zinc-700 cursor-pointer select-none">
-                  Lock directly into Protected Vault for an upcoming milestone
-                </label>
-              </div>
-
-              <div className="flex items-center justify-end gap-2 pt-3 border-t border-zinc-100">
-                <button
-                  type="button"
-                  onClick={() => setIsDepositModalOpen(false)}
-                  className="px-3.5 py-2 rounded-xl text-zinc-600 font-medium hover:bg-zinc-100"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="px-4 py-2 rounded-xl bg-[#0C513F] hover:bg-[#083b2e] text-white font-semibold transition-all disabled:opacity-60"
-                >
-                  {isSubmitting
-                    ? 'Processing...'
-                    : depositGateway === 'flutterwave'
-                    ? 'Pay with Flutterwave'
-                    : 'Confirm Deposit'}
-                </button>
-              </div>
-            </form>
+          <div className="flex gap-1.5">
+            {['10000', '50000', '100000', '250000'].map((v) => (
+              <button
+                key={v}
+                type="button"
+                onClick={() => setAmountInput(v)}
+                className={`flex-1 h-8 rounded-lg text-xs border transition-colors cursor-pointer ${
+                  amountInput === v ? 'border-success bg-success-50 text-success-ink' : 'border-line text-ink-2 hover:border-line-strong'
+                }`}
+              >
+                ₦{Number(v).toLocaleString('en-NG')}
+              </button>
+            ))}
           </div>
-        </div>
-      )}
 
-      {/* Withdraw Modal */}
-      {isWithdrawModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-2xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-md w-full p-6 space-y-4 shadow-xl border border-zinc-200 animate-in zoom-in-95 duration-150">
-            <div className="flex items-center justify-between pb-3 border-b border-zinc-100">
-              <div>
-                <h3 className="text-base font-bold text-zinc-900">Withdraw to Bank</h3>
-                <p className="text-xs text-zinc-500">NIBSS instant settlement via Flutterwave</p>
-              </div>
-              <button
-                type="button"
-                onClick={() => setIsWithdrawModalOpen(false)}
-                className="p-1 rounded-lg text-zinc-400 hover:text-zinc-700 hover:bg-zinc-100"
-              >
-                <X className="w-4 h-4" />
-              </button>
+          <Field label="Pay with">
+            <div className="grid grid-cols-2 gap-2">
+              {(
+                [
+                  { id: 'flutterwave', icon: CreditCard, title: 'Flutterwave', sub: 'Card, transfer, USSD' },
+                  { id: 'instant', icon: Wallet, title: 'Test credit', sub: 'Sandbox only' },
+                ] as const
+              ).map((opt) => {
+                const active = depositGateway === opt.id
+                const Icon = opt.icon
+                return (
+                  <button
+                    key={opt.id}
+                    type="button"
+                    onClick={() => setDepositGateway(opt.id)}
+                    className={`relative p-3.5 rounded-xl border text-left transition-all duration-200 cursor-pointer ${
+                      active ? 'border-success ring-4 ring-success/15 bg-surface' : 'border-line hover:border-line-strong'
+                    }`}
+                  >
+                    <Icon className={`w-4 h-4 ${active ? 'text-success-ink' : 'text-muted'}`} />
+                    <div className="text-sm font-medium text-ink mt-2.5">{opt.title}</div>
+                    <div className="text-xs text-muted">{opt.sub}</div>
+                    {active && (
+                      <span className="absolute top-3 right-3 w-4 h-4 rounded-full bg-success-ink text-white flex items-center justify-center cn-pop">
+                        <Check className="w-2.5 h-2.5" strokeWidth={3} />
+                      </span>
+                    )}
+                  </button>
+                )
+              })}
             </div>
+          </Field>
 
-            <form onSubmit={handleWithdraw} className="space-y-4 text-xs">
-              <div className="space-y-1.5">
-                <label className="font-medium text-zinc-700">Withdrawal Amount (NGN ₦)</label>
-                <input
-                  type="number"
-                  value={amountInput}
-                  onChange={(e) => setAmountInput(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-200 font-bold text-base text-zinc-900 focus:outline-none focus:border-[#0C513F]"
-                  required
-                />
-                <span className="text-[11px] text-zinc-400 block">
-                  Available to withdraw: {formatMinorToNaira(availableBalanceMinor)}
+          <label className="flex items-start gap-3 p-3.5 rounded-xl bg-canvas border border-line cursor-pointer select-none">
+            <input
+              type="checkbox"
+              checked={isEscrowDeposit}
+              onChange={(e) => setIsEscrowDeposit(e.target.checked)}
+              className="mt-0.5 w-4 h-4 accent-[#047857] cursor-pointer"
+            />
+            <span>
+              <span className="block text-sm text-ink">Protect this for a job</span>
+              <span className="block text-xs text-muted mt-0.5">The money goes straight into your vault for an upcoming stage.</span>
+            </span>
+          </label>
+
+          <div className="flex items-center justify-end gap-2 pt-1">
+            <Button variant="ghost" onClick={() => setIsDepositModalOpen(false)}>
+              Cancel
+            </Button>
+            <Button type="submit" variant="success" loading={isSubmitting}>
+              {isSubmitting ? 'Processing' : depositGateway === 'flutterwave' ? 'Continue to payment' : 'Add funds'}
+            </Button>
+          </div>
+        </form>
+      </Modal>
+
+      <Modal
+        open={isWithdrawModalOpen}
+        onClose={() => setIsWithdrawModalOpen(false)}
+        title="Withdraw to bank"
+        description="Instant transfer to any Nigerian account."
+      >
+        <form onSubmit={handleWithdraw} className="space-y-5">
+          {errorNotice && <Notice tone="danger">{errorNotice}</Notice>}
+          <Field label="Amount" htmlFor="withdraw-amount" hint={`Available: ${formatMinorToNaira(availableBalanceMinor)}`}>
+            <div className="relative">
+              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted text-lg">₦</span>
+              <input
+                id="withdraw-amount"
+                type="number"
+                min={1}
+                value={amountInput}
+                onChange={(e) => setAmountInput(e.target.value)}
+                className={`${inputClass} h-12 pl-9 text-xl font-medium tabular-nums`}
+                required
+              />
+            </div>
+          </Field>
+
+          <Field label="Bank" htmlFor="withdraw-bank">
+            <div className="relative">
+              <select
+                id="withdraw-bank"
+                value={selectedBankCode}
+                onChange={(e) => setSelectedBankCode(e.target.value)}
+                className={`${inputClass} appearance-none pr-9 cursor-pointer`}
+              >
+                {bankList.map((b) => (
+                  <option key={b.code} value={b.code}>
+                    {b.name}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown className="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-subtle pointer-events-none" />
+            </div>
+          </Field>
+
+          <Field
+            label="Account number"
+            htmlFor="withdraw-account"
+            hint={
+              isResolvingAccount ? (
+                <span className="inline-flex items-center gap-2">
+                  <ConnectaLoader size={12} showTrack={false} />
+                  Checking account…
                 </span>
-              </div>
+              ) : accountName ? (
+                <span className="inline-flex items-center gap-1.5 text-success-ink cn-fade">
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                  {accountName}
+                </span>
+              ) : (
+                '10 digits'
+              )
+            }
+          >
+            <input
+              id="withdraw-account"
+              type="text"
+              inputMode="numeric"
+              maxLength={10}
+              placeholder="0123456789"
+              value={accountNumber}
+              onChange={(e) => setAccountNumber(e.target.value.replace(/[^0-9]/g, ''))}
+              className={`${inputClass} tracking-[0.12em] tabular-nums`}
+            />
+          </Field>
 
-              {/* Bank Selection */}
-              <div className="space-y-1.5">
-                <label className="font-medium text-zinc-700">Destination Bank</label>
-                <select
-                  value={selectedBankCode}
-                  onChange={(e) => setSelectedBankCode(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-200 font-medium text-zinc-800 bg-white focus:outline-none focus:border-[#0C513F]"
-                >
-                  {banks.length > 0 ? (
-                    banks.map((b) => (
-                      <option key={b.code} value={b.code}>
-                        {b.name}
-                      </option>
-                    ))
-                  ) : (
-                    <>
-                      <option value="044">Access Bank</option>
-                      <option value="058">Guaranty Trust Bank (GTBank)</option>
-                      <option value="057">Zenith Bank</option>
-                      <option value="033">United Bank for Africa (UBA)</option>
-                      <option value="999992">OPay Digital Services</option>
-                      <option value="090175">Moniepoint Microfinance Bank</option>
-                      <option value="090267">Kuda Microfinance Bank</option>
-                    </>
-                  )}
-                </select>
-              </div>
-
-              {/* Account Number & Resolver */}
-              <div className="space-y-1.5">
-                <label className="font-medium text-zinc-700">Account Number (10 Digits)</label>
-                <input
-                  type="text"
-                  maxLength={10}
-                  placeholder="0123456789"
-                  value={accountNumber}
-                  onChange={(e) => setAccountNumber(e.target.value.replace(/[^0-9]/g, ''))}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-200 font-mono text-sm text-zinc-900 focus:outline-none focus:border-[#0C513F]"
-                />
-                {isResolvingAccount && (
-                  <div className="flex items-center gap-1.5 text-[11px] text-zinc-400">
-                    <Loader2 className="w-3 h-3 animate-spin" />
-                    <span>Verifying NUBAN...</span>
-                  </div>
-                )}
-                {accountName && !isResolvingAccount && (
-                  <div className="p-2 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800 text-[11px] font-medium flex items-center gap-1.5">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                    <span>Account Name: {accountName}</span>
-                  </div>
-                )}
-              </div>
-
-              <div className="flex items-center justify-end gap-2 pt-3 border-t border-zinc-100">
-                <button
-                  type="button"
-                  onClick={() => setIsWithdrawModalOpen(false)}
-                  className="px-3.5 py-2 rounded-xl text-zinc-600 font-medium hover:bg-zinc-100"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={isSubmitting || availableBalanceMinor <= 0}
-                  className="px-4 py-2 rounded-xl bg-[#0C513F] hover:bg-[#083b2e] text-white font-semibold transition-all disabled:opacity-50"
-                >
-                  {isSubmitting ? 'Processing...' : 'Authorize Payout'}
-                </button>
-              </div>
-            </form>
+          <div className="flex items-center justify-end gap-2 pt-1">
+            <Button variant="ghost" onClick={() => setIsWithdrawModalOpen(false)}>
+              Cancel
+            </Button>
+            <Button type="submit" variant="warm" loading={isSubmitting} disabled={availableBalanceMinor <= 0}>
+              {isSubmitting ? 'Sending' : 'Withdraw'}
+            </Button>
           </div>
-        </div>
-      )}
+        </form>
+      </Modal>
     </div>
   )
 }

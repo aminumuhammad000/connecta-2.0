@@ -31,9 +31,11 @@ export async function verifyGoogleToken(idToken: string): Promise<GoogleTokenPay
     }
 
     // Verify audience matches our Client ID (if configured)
-    const aud = data.aud
-    if (GOOGLE_CLIENT_ID && aud !== GOOGLE_CLIENT_ID) {
-      console.warn(`[Google Auth Warning] Audience mismatch: got ${aud}, expected ${GOOGLE_CLIENT_ID}`)
+    if (data.aud !== GOOGLE_CLIENT_ID) {
+      throw new Error('This Google sign-in was not issued for Connecta')
+    }
+    if (!data.email) {
+      throw new Error('Google did not share an email address')
     }
 
     return {

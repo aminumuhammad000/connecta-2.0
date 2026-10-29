@@ -938,7 +938,7 @@ export default function HomePage() {
                 </Link>
 
                 <Link
-                  href="/onboarding?step=contact_info"
+                  href="/register"
                   className="hidden md:inline-flex items-center text-xs sm:text-sm font-extrabold text-white bg-[#0C513F] hover:bg-[#083b2e] px-3.5 sm:px-5 py-1.5 sm:py-2.5 rounded-full transition-all shadow-xs hover:shadow-md hover:scale-[1.02] active:scale-[0.98]"
                 >
                   Register
@@ -1040,7 +1040,7 @@ export default function HomePage() {
               ) : (
                 <>
                   <Link
-                    href="/onboarding?step=contact_info"
+                    href="/register"
                     onClick={() => setMobileNavOpen(false)}
                     className="w-full text-center py-3 rounded-full font-black text-white bg-[#0C513F] hover:bg-[#083b2e] text-xs sm:text-sm transition-all shadow-md active:scale-98"
                   >
@@ -1703,7 +1703,7 @@ export default function HomePage() {
                     </p>
                     <div className="pt-2">
                       <Link
-                        href="/onboarding?role=provider&step=sector"
+                        href="/register?role=provider"
                         className="inline-flex items-center gap-1.5 text-xs font-black bg-white text-[#0B132B] hover:bg-slate-100 px-4 py-2 rounded-full transition-transform hover:scale-105 shadow-sm"
                       >
                         <span>Get Verified Badge</span>
@@ -1735,7 +1735,7 @@ export default function HomePage() {
                     </p>
                     <div className="pt-2">
                       <Link
-                        href="/onboarding?step=contact_info"
+                        href="/register"
                         className="inline-flex items-center gap-1.5 text-xs font-black bg-white text-[#063B23] hover:bg-slate-100 px-4 py-2 rounded-full transition-transform hover:scale-105 shadow-sm"
                       >
                         <span>Join Protected Escrow</span>
@@ -2252,7 +2252,7 @@ export default function HomePage() {
                     <span>Verified Government Identity</span>
                   </div>
                   <Link
-                    href="/onboarding?role=provider&step=sector"
+                    href="/register?role=provider"
                     className="bg-white/20 hover:bg-white/30 px-3.5 py-1 rounded-full text-white inline-flex items-center gap-1.5 transition-colors cursor-pointer"
                   >
                     <span>Get Trust Badge</span>
@@ -2280,7 +2280,7 @@ export default function HomePage() {
                     <span>Protected Escrow Vaults</span>
                   </div>
                   <Link
-                    href="/onboarding?step=contact_info"
+                    href="/register"
                     className="bg-white/20 hover:bg-white/30 px-3.5 py-1 rounded-full text-white inline-flex items-center gap-1.5 transition-colors cursor-pointer"
                   >
                     <span>Escrow Protected Flow</span>
@@ -2529,7 +2529,7 @@ export default function HomePage() {
                     <CornerDownRight className="w-4 h-4 stroke-[2.5]" />
                   </Link>
                   <Link
-                    href="/onboarding?role=provider&step=sector"
+                    href="/register?role=provider"
                     className="w-full sm:w-auto inline-flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 border border-white/20 px-6 py-4 text-xs sm:text-sm font-bold text-white transition-colors"
                   >
                     Join as a Provider
@@ -2617,7 +2617,7 @@ export default function HomePage() {
                     <CornerDownRight className="w-3.5 h-3.5 text-[#10B981]" />
                   </Link>
                   <Link
-                    href="/onboarding?step=contact_info"
+                    href="/register"
                     className="p-3 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 text-white font-bold text-xs sm:text-sm flex items-center justify-between transition-all hover:scale-[1.02]"
                   >
                     <span>Get Started</span>
@@ -2720,7 +2720,7 @@ export default function HomePage() {
                     <CornerDownRight className="w-4 h-4 stroke-[2.5]" />
                   </Link>
                   <Link
-                    href="/onboarding?role=provider&step=sector"
+                    href="/register?role=provider"
                     className="bg-white/20 hover:bg-white/30 border border-[#062419]/25 text-[#062419] px-6 py-3.5 rounded-full text-xs sm:text-sm font-extrabold transition-all"
                   >
                     Join as Specialist

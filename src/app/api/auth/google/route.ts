@@ -1,9 +1,37 @@
 import { NextRequest } from 'next/server'
 import { randomUUID } from 'crypto'
 import { verifyGoogleToken } from '@/lib/auth/google'
-import { findUserByEmail, saveUser } from '@/lib/auth/user-store'
+import { findUserByEmail, saveUser, type StoredUser } from '@/lib/auth/user-store'
 import { createClient } from '@/lib/supabase/server'
 import { successResponse, errorResponse } from '@/lib/api/response'
+import { findUserById, getOrCreateWallet, upsertUser } from '@/lib/server/db'
+
+function syncToDashboardDb(u: StoredUser) {
+  if (!findUserById(u.id)) {
+    const role = u.role === 'provider' ? 'provider' : 'customer'
+    const now = new Date().toISOString()
+    upsertUser({
+      id: u.id,
+      fullName: u.fullName,
+      firstName: u.firstName || u.fullName.split(' ')[0] || 'Connecta',
+      lastName: u.lastName || 'Member',
+      email: u.email,
+      phone: u.phone || '',
+      whatsapp: u.whatsapp || u.phone || '',
+      role,
+      activeRole: role,
+      accountStatus: 'active',
+      country: u.country || 'Nigeria',
+      city: u.city || 'Lagos',
+      currency: u.currency || 'NGN',
+      avatarUrl: u.avatarUrl || null,
+      headline: u.headline,
+      createdAt: u.createdAt || now,
+      updatedAt: now,
+    })
+  }
+  getOrCreateWallet(u.id, u.role === 'provider' ? 10 : 25, u.currency || 'NGN')
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -19,10 +47,10 @@ export async function POST(request: NextRequest) {
     const userRole: 'provider' | 'customer' = role === 'provider' ? 'provider' : 'customer'
 
     // 1. Check if user already exists in persistent store
-    let user = findUserByEmail(cleanEmail)
+    const user = findUserByEmail(cleanEmail)
 
     if (user) {
-      // Existing user logging in
+      syncToDashboardDb(user)
       const response = successResponse(
         {
           id: user.id,
@@ -59,14 +87,14 @@ export async function POST(request: NextRequest) {
     const lastName = payload.family_name || payload.name.split(' ').slice(1).join(' ') || 'Member'
     const fullName = payload.name || `${firstName} ${lastName}`.trim()
 
-    const newUser = {
+    const newUser: StoredUser = {
       id: newUserId,
       fullName,
       firstName,
       lastName,
       email: cleanEmail,
-      phone: '+2348000000000',
-      whatsapp: '+2348000000000',
+      phone: '',
+      whatsapp: '',
       role: userRole,
       country: 'Nigeria',
       city: 'Lagos',
@@ -78,6 +106,7 @@ export async function POST(request: NextRequest) {
     }
 
     saveUser(newUser)
+    syncToDashboardDb(newUser)
 
     // Synchronize to Supabase if available
     try {

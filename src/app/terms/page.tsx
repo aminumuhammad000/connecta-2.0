@@ -57,7 +57,7 @@ export default function TermsOfServicePage() {
               Sign In
             </Link>
             <Link
-              href="/onboarding?step=contact_info"
+              href="/register"
               className="text-xs sm:text-sm font-extrabold px-3.5 sm:px-5 py-1.5 sm:py-2.5 rounded-full bg-[#053F28] hover:bg-[#032a1b] text-white shadow-xs hover:shadow-md transition-all hover:scale-105"
             >
               Register
@@ -402,7 +402,7 @@ export default function TermsOfServicePage() {
                 Privacy Policy
               </Link>
               <span>•</span>
-              <Link href="/onboarding" className="text-emerald-700 hover:text-emerald-800">
+              <Link href="/register" className="text-emerald-700 hover:text-emerald-800">
                 Join Connecta
               </Link>
             </div>

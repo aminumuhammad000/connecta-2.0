@@ -11,7 +11,6 @@ import {
   Image as ImageIcon,
   FileText,
   X,
-  Loader2,
   AlertCircle,
   MapPin,
   ChevronDown,
@@ -21,6 +20,7 @@ import {
 } from 'lucide-react'
 import { StructuredRequestAnalysis, MatchedProviderResult } from '@/lib/ai/discovery'
 import { Coordinates } from '@/lib/geo'
+import { Spinner } from '@/components/brand/ConnectaLoader'
 
 interface AttachedFileItem {
   id: string
@@ -496,7 +496,7 @@ export default function AiServiceDiscoveryInput({
 
           {isTranscribing && (
             <div className="flex items-center gap-2 text-xs font-bold text-emerald-800 bg-emerald-50 px-3 py-1.5 rounded-xl border border-emerald-200 mt-1">
-              <Loader2 className="w-3.5 h-3.5 animate-spin text-emerald-600" />
+              <Spinner className="w-3.5 h-3.5 text-emerald-600" />
               <span>Transcribing your speech with AI...</span>
             </div>
           )}
@@ -664,7 +664,7 @@ export default function AiServiceDiscoveryInput({
             >
               {isSearching ? (
                 <>
-                  <Loader2 className="w-4 h-4 animate-spin text-white" />
+                  <Spinner className="w-4 h-4 text-white" />
                   <span>Matching Pros...</span>
                 </>
               ) : (

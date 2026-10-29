@@ -42,9 +42,9 @@ import {
   Phone,
   MessageSquare,
   ScrollText,
-  Loader2,
   ChevronDown,
 } from 'lucide-react'
+import { Spinner } from '@/components/brand/ConnectaLoader'
 
 // =============================================================================
 // DATA: COUNTRIES, CURRENCIES, SECTORS & SKILLS (EXACT MATCH TO CONNECTA OLD)
@@ -1927,7 +1927,7 @@ function OnboardingContent() {
                     </span>
                   ) : isCheckingEmail ? (
                     <span className="text-xs font-medium text-slate-400 flex items-center gap-1">
-                      <Loader2 className="w-3 h-3 animate-spin" /> Checking...
+                      <Spinner className="w-3 h-3" /> Checking...
                     </span>
                   ) : emailStatus === 'valid' && !otpSent ? (
                     <span className="text-xs font-bold text-[#10B981] flex items-center gap-1">
@@ -2022,7 +2022,7 @@ function OnboardingContent() {
                       >
                         {isSendingOtp ? (
                           <>
-                            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                            <Spinner className="w-3.5 h-3.5" />
                             <span>Sending...</span>
                           </>
                         ) : otpSent ? (
@@ -2132,7 +2132,7 @@ function OnboardingContent() {
                       >
                         {isVerifyingOtp ? (
                           <>
-                            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                            <Spinner className="w-3.5 h-3.5" />
                             <span>Verifying...</span>
                           </>
                         ) : (
@@ -2224,7 +2224,7 @@ function OnboardingContent() {
                   >
                     {isSendingOtp ? (
                       <>
-                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <Spinner className="w-4 h-4" />
                         <span>Sending Verification Code...</span>
                       </>
                     ) : !isEmailVerified ? (
@@ -3549,7 +3549,7 @@ function OnboardingContent() {
                       }`}
                     >
                       {isCurrent ? (
-                        <Loader2 className="w-4 h-4 animate-spin text-[#4D78FF]" />
+                        <Spinner className="w-4 h-4 text-[#4D78FF]" />
                       ) : (
                         <IconComponent className="w-4 h-4" />
                       )}
@@ -3744,7 +3744,7 @@ function OnboardingContent() {
               >
                 {isSubmitting ? (
                   <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <Spinner className="w-4 h-4" />
                     <span>Activating Account...</span>
                   </>
                 ) : (

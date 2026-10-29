@@ -492,7 +492,7 @@ export default function DiscoverClientView({
                 </Link>
 
                 <Link
-                  href="/onboarding?step=contact_info"
+                  href="/register"
                   className="hidden md:inline-flex items-center text-xs sm:text-sm font-extrabold text-white bg-[#0C513F] hover:bg-[#083b2e] px-3.5 sm:px-5 py-1.5 sm:py-2.5 rounded-full transition-all shadow-xs hover:shadow-md hover:scale-[1.02] active:scale-[0.98]"
                 >
                   Register
@@ -583,7 +583,7 @@ export default function DiscoverClientView({
               ) : (
                 <>
                   <Link
-                    href="/onboarding?step=contact_info"
+                    href="/register"
                     onClick={() => setMobileNavOpen(false)}
                     className="w-full text-center py-3 rounded-full font-black text-white bg-[#0C513F] hover:bg-[#083b2e] text-xs sm:text-sm transition-all shadow-md active:scale-98"
                   >
@@ -1202,7 +1202,7 @@ export default function DiscoverClientView({
                     <CornerDownRight className="w-3.5 h-3.5 text-[#10B981]" />
                   </Link>
                   <Link
-                    href="/onboarding?step=contact_info"
+                    href="/register"
                     className="p-3 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 text-white font-bold text-xs sm:text-sm flex items-center justify-between transition-all hover:scale-[1.02]"
                   >
                     <span>Get Started</span>
@@ -1305,7 +1305,7 @@ export default function DiscoverClientView({
                     <CornerDownRight className="w-4 h-4 stroke-[2.5]" />
                   </Link>
                   <Link
-                    href="/onboarding?role=provider&step=sector"
+                    href="/register?role=provider"
                     className="bg-white/20 hover:bg-white/30 border border-[#062419]/25 text-[#062419] px-6 py-3.5 rounded-full text-xs sm:text-sm font-extrabold transition-all"
                   >
                     Join as Specialist

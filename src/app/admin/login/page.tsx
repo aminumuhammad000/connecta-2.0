@@ -10,6 +10,7 @@ import {
   EyeOff,
   AlertTriangle,
 } from 'lucide-react'
+import { Spinner } from '@/components/brand/ConnectaLoader'
 
 function AdminLoginForm() {
   const router = useRouter()
@@ -141,7 +142,7 @@ function AdminLoginForm() {
           >
             {loading ? (
               <>
-                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                <Spinner className="w-4 h-4 text-white" />
                 <span>Signing in...</span>
               </>
             ) : (
@@ -162,8 +163,7 @@ export default function AdminLoginPage() {
       <Suspense
         fallback={
           <div className="text-center py-12 text-slate-500 text-sm">
-            <div className="w-8 h-8 border-2 border-emerald-700/30 border-t-emerald-700 rounded-full animate-spin mx-auto mb-3" />
-            Loading...
+            <Spinner className="w-10 h-10 mx-auto" colored />
           </div>
         }
       >

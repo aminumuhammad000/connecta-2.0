@@ -1,4 +1,5 @@
 'use client'
+import { Spinner } from '@/components/brand/ConnectaLoader'
 
 import React, { useState, useMemo, useEffect } from 'react'
 import Link from 'next/link'
@@ -1400,9 +1401,10 @@ export default function ProfileClientView({
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="px-5 py-2.5 rounded-xl bg-[#0C513F] hover:bg-[#0A2614] text-white text-xs font-semibold shadow-xs transition-all disabled:opacity-50 cursor-pointer"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-azure hover:bg-azure-600 text-white text-xs font-semibold shadow-xs transition-all disabled:opacity-70 cursor-pointer"
                 >
-                  {isSubmitting ? 'Submitting...' : 'Post Review'}
+                  {isSubmitting && <Spinner className="w-3.5 h-3.5" />}
+                  {isSubmitting ? 'Posting review' : 'Post Review'}
                 </button>
               </div>
             </form>

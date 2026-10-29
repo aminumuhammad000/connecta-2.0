@@ -2,6 +2,9 @@ import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import SmoothScrollProvider from "@/components/SmoothScrollProvider";
+import Script from "next/script";
+import SplashScreen from "@/components/brand/SplashScreen";
+import { splashBootScript } from "@/components/brand/splash-boot";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -140,6 +143,7 @@ export default function RootLayout({
     <html
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased scroll-smooth`}
+      suppressHydrationWarning
     >
       <head>
         <script
@@ -148,6 +152,10 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-full flex flex-col bg-[#F5F7FC] text-[#0A1020]">
+        <Script id="cn-splash-boot" strategy="beforeInteractive">
+          {splashBootScript}
+        </Script>
+        <SplashScreen />
         <SmoothScrollProvider>
           {children}
         </SmoothScrollProvider>

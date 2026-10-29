@@ -4,23 +4,18 @@ import React, { useState, useRef, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import {
-  Sparkles,
-  Search,
   Paperclip,
   Mic,
   Image as ImageIcon,
   X,
-  Loader2,
   AlertCircle,
   MapPin,
   ChevronDown,
   Navigation,
   ArrowRight,
-  Send,
+  ArrowUp,
   Plus,
   ShieldCheck,
-  Star,
-  CheckCircle2,
   Wrench,
   Zap,
   Wind,
@@ -39,6 +34,9 @@ import {
 import { Coordinates, calculateDistanceKm, formatDistance, NIGERIAN_CITY_COORDINATES } from '@/lib/geo'
 import { formatMinorToNaira } from '@/lib/dashboard/data'
 import DashboardLayout from '@/app/dashboard/layout'
+import { ConnectaLoader, ConnectaMark } from '@/components/brand/ConnectaLoader'
+import { IllustrationAssistant } from '@/components/brand/illustrations'
+import { Avatar, Button, Stars } from '@/components/dashboard/ui'
 
 interface AttachedFileItem {
   id: string
@@ -123,6 +121,15 @@ const PROMPT_SUGGESTIONS = [
     query: 'My car has a check engine light on and makes a grinding sound when braking. Need a mobile auto mechanic in Kano.',
     category: 'Mechanic',
   },
+]
+
+const TRADE_SHORTCUTS = [
+  { icon: Zap, label: 'Electrical', query: 'Find certified electricians and solar installers in Kano' },
+  { icon: Wrench, label: 'Plumbing', query: 'Find verified emergency plumbers in Kano' },
+  { icon: Wind, label: 'AC & cooling', query: 'Find AC and refrigeration repair technicians in Kano' },
+  { icon: Car, label: 'Mechanic', query: 'Find mobile auto mechanics and car diagnostics in Kano' },
+  { icon: Hammer, label: 'Carpentry', query: 'Find professional carpenters and roofers in Kano' },
+  { icon: Paintbrush, label: 'Painting', query: 'Find wall screeders and house painters in Kano' },
 ]
 
 export default function AiSearchChatPage() {
@@ -445,653 +452,494 @@ export default function AiSearchChatPage() {
 
   return (
     <DashboardLayout>
-      <div className="flex h-full w-full bg-[#F9FAFB] text-zinc-900 font-sans overflow-hidden relative">
-        {/* Left Minimalist Inquiries Panel */}
-      <aside
-        className={`fixed lg:static top-0 bottom-0 left-0 z-40 flex flex-col w-64 bg-white border-r border-zinc-200/80 transition-all duration-200 ease-in-out shrink-0 ${
-          isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:hidden'
-        }`}
-      >
-        {/* Panel Header */}
-        <div className="p-3.5 flex items-center justify-between border-b border-zinc-100">
-          <div className="flex items-center gap-2">
-            <Sparkles className="w-4 h-4 text-[#0C513F]" />
-            <span className="font-semibold text-xs text-zinc-900">Trades &amp; Inquiries</span>
-          </div>
-
-          <button
-            onClick={() => setIsSidebarOpen(false)}
-            className="p-1 rounded-lg text-zinc-400 hover:text-zinc-700 hover:bg-zinc-100 transition-colors"
-            title="Close panel"
-          >
-            <PanelLeftClose className="w-4 h-4" />
-          </button>
-        </div>
-
-        {/* New Search Button */}
-        <div className="p-3">
-          <button
-            onClick={handleNewChat}
-            className="w-full flex items-center justify-between gap-2 px-3 py-2 rounded-xl bg-zinc-50 hover:bg-zinc-100 border border-zinc-200/80 text-zinc-800 text-xs font-medium transition-all"
-          >
-            <div className="flex items-center gap-2">
-              <Plus className="w-3.5 h-3.5 text-[#0C513F]" />
-              <span>New Conversation</span>
-            </div>
-            <span className="text-[10px] text-zinc-400 font-mono bg-white border border-zinc-200 px-1.5 py-0.5 rounded">⌘K</span>
-          </button>
-        </div>
-
-        {/* Quick Categories Navigation */}
-        <div className="px-3 py-2 space-y-1">
-          <div className="text-[10px] font-medium uppercase tracking-wider text-zinc-400 px-2 py-1">
-            Browse by Trade
-          </div>
-          <div className="grid grid-cols-2 gap-1 text-[11px] font-medium">
+      <div className="flex h-full w-full bg-canvas text-ink overflow-hidden relative">
+        <aside
+          className={`fixed lg:static top-0 bottom-0 left-0 z-40 flex flex-col w-[264px] bg-surface border-r border-line shrink-0 ${
+            isSidebarOpen ? 'translate-x-0 cn-slide-in lg:animate-none' : '-translate-x-full lg:hidden'
+          }`}
+        >
+          <div className="h-14 px-4 flex items-center justify-between border-b border-line">
+            <span className="text-sm font-medium text-ink">Conversations</span>
             <button
-              onClick={() => handleSubmitMessage('Find certified electricians and solar installers in Kano')}
-              className="flex items-center gap-2 px-2.5 py-2 rounded-lg hover:bg-zinc-50 border border-transparent hover:border-zinc-200 text-zinc-600 hover:text-zinc-900 text-left transition-colors"
+              onClick={() => setIsSidebarOpen(false)}
+              className="w-8 h-8 rounded-lg text-subtle hover:text-ink hover:bg-sunken flex items-center justify-center transition-colors cursor-pointer"
+              aria-label="Close panel"
             >
-              <Zap className="w-3.5 h-3.5 text-zinc-400 shrink-0" />
-              <span className="truncate">Electrical</span>
-            </button>
-            <button
-              onClick={() => handleSubmitMessage('Find verified emergency plumbers in Kano')}
-              className="flex items-center gap-2 px-2.5 py-2 rounded-lg hover:bg-zinc-50 border border-transparent hover:border-zinc-200 text-zinc-600 hover:text-zinc-900 text-left transition-colors"
-            >
-              <Wrench className="w-3.5 h-3.5 text-zinc-400 shrink-0" />
-              <span className="truncate">Plumbing</span>
-            </button>
-            <button
-              onClick={() => handleSubmitMessage('Find AC and refrigeration repair technicians in Kano')}
-              className="flex items-center gap-2 px-2.5 py-2 rounded-lg hover:bg-zinc-50 border border-transparent hover:border-zinc-200 text-zinc-600 hover:text-zinc-900 text-left transition-colors"
-            >
-              <Wind className="w-3.5 h-3.5 text-zinc-400 shrink-0" />
-              <span className="truncate">AC &amp; Cold</span>
-            </button>
-            <button
-              onClick={() => handleSubmitMessage('Find mobile auto mechanics and car diagnostics in Kano')}
-              className="flex items-center gap-2 px-2.5 py-2 rounded-lg hover:bg-zinc-50 border border-transparent hover:border-zinc-200 text-zinc-600 hover:text-zinc-900 text-left transition-colors"
-            >
-              <Car className="w-3.5 h-3.5 text-zinc-400 shrink-0" />
-              <span className="truncate">Mechanic</span>
-            </button>
-            <button
-              onClick={() => handleSubmitMessage('Find professional carpenters and roofers in Kano')}
-              className="flex items-center gap-2 px-2.5 py-2 rounded-lg hover:bg-zinc-50 border border-transparent hover:border-zinc-200 text-zinc-600 hover:text-zinc-900 text-left transition-colors"
-            >
-              <Hammer className="w-3.5 h-3.5 text-zinc-400 shrink-0" />
-              <span className="truncate">Carpentry</span>
-            </button>
-            <button
-              onClick={() => handleSubmitMessage('Find wall screeders and house painters in Kano')}
-              className="flex items-center gap-2 px-2.5 py-2 rounded-lg hover:bg-zinc-50 border border-transparent hover:border-zinc-200 text-zinc-600 hover:text-zinc-900 text-left transition-colors"
-            >
-              <Paintbrush className="w-3.5 h-3.5 text-zinc-400 shrink-0" />
-              <span className="truncate">Painting</span>
+              <PanelLeftClose className="w-4 h-4" />
             </button>
           </div>
-        </div>
 
-        {/* Recent Search Inquiries */}
-        <div className="flex-1 overflow-y-auto px-3 py-2 space-y-1">
-          <div className="text-[10px] font-medium uppercase tracking-wider text-zinc-400 px-2 py-1">
-            Recent Inquiries
-          </div>
-          {searchHistory.length > 0 ? (
-            <div className="space-y-0.5">
-              {searchHistory.map((item) => (
-                <button
-                  key={item.id}
-                  onClick={() => handleSubmitMessage(item.query)}
-                  className="w-full flex items-center justify-between gap-2 px-2.5 py-1.5 rounded-lg text-zinc-600 hover:text-zinc-900 hover:bg-zinc-50 text-xs text-left transition-colors"
-                >
-                  <div className="flex items-center gap-2 truncate">
-                    <MessageSquare className="w-3.5 h-3.5 text-zinc-400 shrink-0" />
-                    <span className="truncate font-normal">{item.query}</span>
-                  </div>
-                  <span className="text-[10px] text-zinc-400 shrink-0">{item.date}</span>
-                </button>
-              ))}
-            </div>
-          ) : (
-            <div className="px-3 py-6 text-center text-zinc-400 text-xs font-normal">
-              No recent searches yet.
-            </div>
-          )}
-        </div>
-      </aside>
-
-      {/* Mobile Drawer Backdrop */}
-      {isSidebarOpen && (
-        <div
-          onClick={() => setIsSidebarOpen(false)}
-          className="fixed inset-0 bg-black/20 backdrop-blur-2xs z-40 lg:hidden cursor-pointer"
-        />
-      )}
-
-      {/* Main Chat Interface */}
-      <main className="flex-1 flex flex-col h-full bg-[#F9FAFB] relative overflow-hidden">
-        {/* Top Header Bar */}
-        <header className="h-14 px-4 sm:px-6 border-b border-zinc-200/80 bg-white/95 backdrop-blur-md flex items-center justify-between gap-3 z-30 shrink-0">
-          <div className="flex items-center gap-3">
-            {!isSidebarOpen && (
-              <button
-                onClick={() => setIsSidebarOpen(true)}
-                className="p-1.5 rounded-lg text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100 transition-colors"
-                title="Open sidebar"
-              >
-                <PanelLeftOpen className="w-4 h-4" />
-              </button>
-            )}
-
-            <div className="flex items-center gap-2">
-              <span className="font-semibold text-sm text-zinc-900">
-                Connecta Assistant
-              </span>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2">
-            {/* Minimal City Selector (No Emojis) */}
-            <div className="relative">
-              <select
-                value={selectedCity}
-                onChange={(e) => setSelectedCity(e.target.value)}
-                className="appearance-none bg-zinc-50 hover:bg-zinc-100 border border-zinc-200 rounded-lg px-3 py-1.5 pr-7 text-xs font-medium text-zinc-800 focus:outline-none focus:border-[#0C513F] cursor-pointer"
-              >
-                {CITIES.map((c) => (
-                  <option key={c} value={c}>
-                    {c}
-                  </option>
-                ))}
-              </select>
-              <ChevronDown className="w-3.5 h-3.5 text-zinc-400 absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" />
-            </div>
-
-            {/* Locate Me Button */}
+          <div className="p-3">
             <button
-              onClick={handleRequestLocation}
-              disabled={isLocating}
-              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                userCoords
-                  ? 'bg-emerald-50 text-[#0C513F] border border-emerald-200'
-                  : 'bg-white text-zinc-700 hover:bg-zinc-50 border border-zinc-200'
-              }`}
-              title="Use current location"
+              onClick={handleNewChat}
+              className="w-full h-9 flex items-center gap-2 px-3 rounded-[10px] bg-ink text-white text-[13px] font-medium hover:bg-ink-2 transition-colors cursor-pointer"
             >
-              <Navigation className={`w-3.5 h-3.5 ${isLocating ? 'animate-spin' : ''}`} />
-              <span className="hidden md:inline">
-                {userCoords ? 'GPS Active' : 'Near Me'}
-              </span>
+              <Plus className="w-4 h-4" />
+              New conversation
             </button>
-
-            {/* Clear Button */}
-            {messages.length > 0 && (
-              <button
-                onClick={handleNewChat}
-                className="p-1.5 rounded-lg text-zinc-400 hover:text-zinc-700 hover:bg-zinc-100 transition-colors"
-                title="Start fresh conversation"
-              >
-                <RefreshCw className="w-4 h-4" />
-              </button>
-            )}
           </div>
-        </header>
 
-        {/* Message Stream */}
-        <div className="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
-          {messages.length === 0 ? (
-            /* Minimalist Empty State */
-            <div className="max-w-2xl mx-auto h-full flex flex-col items-center justify-center text-center py-10 space-y-6 animate-in fade-in duration-200">
-              <div className="w-10 h-10 rounded-xl bg-[#0C513F] text-white flex items-center justify-center shadow-xs">
-                <Sparkles className="w-5 h-5" />
-              </div>
-
-              <div className="space-y-1.5 max-w-md">
-                <h1 className="text-xl sm:text-2xl font-bold text-zinc-900 tracking-tight">
-                  How can Connecta help you today?
-                </h1>
-                <p className="text-xs sm:text-sm text-zinc-500 font-normal leading-relaxed">
-                  Describe what needs repair, upload a photo of the defect, or get cost estimates. We match vetted artisans in <strong className="font-semibold text-zinc-900">{selectedCity}</strong> backed by guaranteed payment protection.
-                </p>
-              </div>
-
-              {/* Minimal Suggestion Tiles */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 w-full text-left pt-2">
-                {PROMPT_SUGGESTIONS.map((item, idx) => {
-                  const Icon = item.icon
-                  return (
-                    <button
-                      key={idx}
-                      onClick={() => handleSubmitMessage(item.query)}
-                      className="p-3.5 rounded-xl bg-white hover:bg-zinc-50/80 border border-zinc-200/80 hover:border-zinc-300 transition-all text-left space-y-1.5 group cursor-pointer shadow-2xs"
-                    >
-                      <div className="flex items-center justify-between">
-                        <span className="text-[10px] font-semibold uppercase tracking-wider text-zinc-400">
-                          {item.category}
-                        </span>
-                        <Icon className="w-3.5 h-3.5 text-zinc-400 group-hover:text-[#0C513F] transition-colors" />
-                      </div>
-                      <div className="font-semibold text-xs text-zinc-900 group-hover:text-[#0C513F] transition-colors">
-                        {item.title}
-                      </div>
-                      <div className="text-[11px] text-zinc-500 line-clamp-1 font-normal">
-                        {item.query}
-                      </div>
-                    </button>
-                  )
-                })}
-              </div>
-            </div>
-          ) : (
-            /* Active Messages List */
-            <div className="max-w-3xl mx-auto space-y-5 pb-32">
-              {messages.map((msg) => {
-                const isUser = msg.role === 'user'
-
+          <div className="px-3 pt-2">
+            <div className="px-1 pb-2 text-xs text-subtle">Browse by trade</div>
+            <div className="grid grid-cols-2 gap-1.5">
+              {TRADE_SHORTCUTS.map((t) => {
+                const Icon = t.icon
                 return (
-                  <div
-                    key={msg.id}
-                    className={`flex items-start gap-3 ${
-                      isUser ? 'flex-row-reverse justify-start' : 'justify-start'
-                    } animate-in fade-in duration-200`}
+                  <button
+                    key={t.label}
+                    onClick={() => handleSubmitMessage(t.query)}
+                    className="flex items-center gap-2 h-9 px-2.5 rounded-[10px] border border-line text-[13px] text-ink-2 hover:border-line-strong hover:text-ink hover:bg-canvas text-left transition-colors cursor-pointer"
                   >
-                    {/* Minimal Avatar */}
-                    <div
-                      className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 text-xs font-semibold ${
-                        isUser
-                          ? 'bg-zinc-900 text-white'
-                          : 'bg-[#0C513F] text-white'
-                      }`}
+                    <Icon className="w-3.5 h-3.5 text-subtle shrink-0" />
+                    <span className="truncate">{t.label}</span>
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+
+          <div className="flex-1 overflow-y-auto px-3 pt-5 pb-3">
+            <div className="px-1 pb-2 text-xs text-subtle">Recent</div>
+            {searchHistory.length > 0 ? (
+              <ul className="space-y-0.5">
+                {searchHistory.map((item) => (
+                  <li key={item.id}>
+                    <button
+                      onClick={() => handleSubmitMessage(item.query)}
+                      className="w-full flex items-center justify-between gap-2 h-9 px-2.5 rounded-[10px] text-ink-2 hover:text-ink hover:bg-sunken text-[13px] text-left transition-colors cursor-pointer"
                     >
-                      {isUser ? <User className="w-3.5 h-3.5" /> : <Sparkles className="w-3.5 h-3.5" />}
-                    </div>
+                      <span className="flex items-center gap-2 min-w-0">
+                        <MessageSquare className="w-3.5 h-3.5 text-subtle shrink-0" />
+                        <span className="truncate">{item.query}</span>
+                      </span>
+                      <span className="text-[11px] text-subtle shrink-0">{item.date}</span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="px-1 py-4 text-[13px] text-subtle">Your past questions will appear here.</p>
+            )}
+          </div>
+        </aside>
 
-                    {/* Bubble Content */}
-                    <div
-                      className={`max-w-[85%] sm:max-w-[80%] rounded-2xl p-4 sm:p-5 space-y-3 ${
-                        isUser
-                          ? 'bg-zinc-900 text-white rounded-tr-sm'
-                          : 'bg-white text-zinc-800 rounded-tl-sm border border-zinc-200/80 shadow-2xs'
-                      }`}
-                    >
-                      {/* Attached Images in User Bubble */}
-                      {msg.attachments && msg.attachments.length > 0 && (
-                        <div className="flex flex-wrap gap-2 pt-1">
-                          {msg.attachments.map((att, i) => (
-                            <div key={i} className="relative rounded-lg overflow-hidden border border-zinc-700">
-                              {att.previewUrl ? (
-                                <button
-                                  type="button"
-                                  onClick={() => setActiveImageModal(att.previewUrl || null)}
-                                  className="relative w-32 h-24 block group cursor-zoom-in"
-                                >
-                                  <Image
-                                    src={att.previewUrl}
-                                    alt={att.name}
-                                    fill
-                                    className="object-cover group-hover:scale-105 transition-transform"
-                                  />
-                                </button>
-                              ) : (
-                                <div className="p-2.5 bg-zinc-800 text-xs text-zinc-200 flex items-center gap-2">
-                                  <ImageIcon className="w-4 h-4 text-zinc-400" />
-                                  <span>{att.name}</span>
-                                </div>
-                              )}
-                            </div>
-                          ))}
-                        </div>
-                      )}
+        {isSidebarOpen && (
+          <div onClick={() => setIsSidebarOpen(false)} className="fixed inset-0 bg-ink/30 backdrop-blur-[2px] z-30 lg:hidden cn-fade" />
+        )}
 
-                      {/* Main Message Text */}
-                      <div className="text-xs sm:text-sm leading-relaxed whitespace-pre-wrap font-normal">
-                        {msg.content}
-                      </div>
+        <main className="flex-1 flex flex-col h-full relative overflow-hidden">
+          <header className="h-14 px-4 sm:px-6 border-b border-line bg-surface/90 backdrop-blur-md flex items-center justify-between gap-3 z-20 shrink-0">
+            <div className="flex items-center gap-2.5 min-w-0">
+              {!isSidebarOpen && (
+                <button
+                  onClick={() => setIsSidebarOpen(true)}
+                  className="w-8 h-8 rounded-lg text-muted hover:text-ink hover:bg-sunken flex items-center justify-center transition-colors cursor-pointer"
+                  aria-label="Open conversations"
+                >
+                  <PanelLeftOpen className="w-4 h-4" />
+                </button>
+              )}
+              <span className="w-7 h-7 rounded-full bg-surface border border-line flex items-center justify-center">
+                <ConnectaMark size={14} />
+              </span>
+              <span className="text-sm font-medium text-ink truncate">Connecta assistant</span>
+            </div>
 
-                      {/* Assistant Actions Bar */}
-                      {!isUser && (
-                        <div className="flex items-center justify-between pt-2 border-t border-zinc-100 text-[10px] text-zinc-400">
-                          <span className="flex items-center gap-1 font-medium text-[#0C513F]">
-                            <ShieldCheck className="w-3.5 h-3.5" />
-                            100% Payment Protected
+            <div className="flex items-center gap-1.5">
+              <div className="relative">
+                <MapPin className="w-3.5 h-3.5 text-subtle absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                <select
+                  value={selectedCity}
+                  onChange={(e) => setSelectedCity(e.target.value)}
+                  aria-label="City"
+                  className="appearance-none h-8 pl-7 pr-7 rounded-lg bg-sunken hover:bg-[#EDF0F4] text-[13px] text-ink focus:outline-none focus:ring-2 focus:ring-azure/20 cursor-pointer transition-colors"
+                >
+                  {CITIES.map((c) => (
+                    <option key={c} value={c}>
+                      {c}
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown className="w-3.5 h-3.5 text-subtle absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" />
+              </div>
+
+              <button
+                onClick={handleRequestLocation}
+                disabled={isLocating}
+                className={`inline-flex items-center gap-1.5 h-8 px-2.5 rounded-lg text-[13px] transition-colors cursor-pointer ${
+                  userCoords ? 'bg-success-50 text-success-ink' : 'text-ink-2 hover:bg-sunken'
+                }`}
+                title="Use my location"
+              >
+                <Navigation className={`w-3.5 h-3.5 ${isLocating ? 'animate-pulse' : ''}`} />
+                <span className="hidden md:inline">{userCoords ? 'Located' : 'Near me'}</span>
+              </button>
+
+              {messages.length > 0 && (
+                <button
+                  onClick={handleNewChat}
+                  className="w-8 h-8 rounded-lg text-muted hover:text-ink hover:bg-sunken flex items-center justify-center transition-colors cursor-pointer"
+                  title="Start over"
+                  aria-label="Start a new conversation"
+                >
+                  <RefreshCw className="w-4 h-4" />
+                </button>
+              )}
+            </div>
+          </header>
+
+          <div className="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-8 py-8">
+            {messages.length === 0 ? (
+              <div className="max-w-2xl mx-auto min-h-full flex flex-col items-center justify-center text-center pb-40">
+                <div className="cn-rise">
+                  <IllustrationAssistant className="w-44 h-33" />
+                </div>
+                <h1 className="mt-4 text-[26px] sm:text-[30px] font-medium tracking-[-0.02em] text-ink cn-rise" style={{ ['--d' as string]: '80ms' }}>
+                  What needs fixing?
+                </h1>
+                <p className="mt-2 text-sm text-muted max-w-md leading-relaxed cn-rise" style={{ ['--d' as string]: '140ms' }}>
+                  Describe the problem or add a photo. We will explain what is likely wrong and match you with verified professionals in{' '}
+                  <span className="text-ink">{selectedCity}</span>.
+                </p>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 w-full text-left mt-8">
+                  {PROMPT_SUGGESTIONS.map((item, idx) => {
+                    const Icon = item.icon
+                    return (
+                      <button
+                        key={item.title}
+                        onClick={() => handleSubmitMessage(item.query)}
+                        className="group p-4 rounded-2xl bg-surface border border-line text-left cn-lift cn-rise cursor-pointer"
+                        style={{ ['--d' as string]: `${200 + idx * 60}ms` }}
+                      >
+                        <div className="flex items-center gap-2.5">
+                          <span className="w-8 h-8 rounded-lg bg-sunken text-ink-2 group-hover:bg-warn group-hover:text-ink flex items-center justify-center transition-colors">
+                            <Icon className="w-4 h-4" />
                           </span>
-                          <button
-                            type="button"
-                            onClick={() => handleCopyMessage(msg.id, msg.content)}
-                            className="inline-flex items-center gap-1 text-zinc-400 hover:text-zinc-700 transition-colors py-0.5 px-1.5 rounded hover:bg-zinc-100"
-                            title="Copy reply text"
-                          >
-                            {copiedId === msg.id ? (
-                              <>
-                                <Check className="w-3 h-3 text-[#0C513F]" />
-                                <span className="text-[#0C513F] font-medium">Copied</span>
-                              </>
-                            ) : (
-                              <>
-                                <Copy className="w-3 h-3" />
-                                <span>Copy</span>
-                              </>
-                            )}
-                          </button>
+                          <span className="text-xs text-muted">{item.category}</span>
                         </div>
+                        <div className="text-sm text-ink mt-3">{item.title}</div>
+                        <div className="text-[13px] text-muted mt-1 line-clamp-1">{item.query}</div>
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+            ) : (
+              <div className="max-w-3xl mx-auto space-y-6 pb-40">
+                {messages.map((msg) => {
+                  const isUser = msg.role === 'user'
+                  return (
+                    <div key={msg.id} className={`flex items-start gap-3 cn-rise ${isUser ? 'flex-row-reverse' : ''}`}>
+                      {isUser ? (
+                        <span className="w-7 h-7 rounded-full bg-sunken text-ink-2 flex items-center justify-center shrink-0">
+                          <User className="w-3.5 h-3.5" />
+                        </span>
+                      ) : (
+                        <span className="w-7 h-7 rounded-full bg-surface border border-line flex items-center justify-center shrink-0">
+                          <ConnectaMark size={14} />
+                        </span>
                       )}
 
-                      {/* AI Structured Analysis Badges (Only on genuine service diagnoses) */}
-                      {!isUser && msg.analysis && msg.providers && msg.providers.length > 0 && (
-                        <div className="flex flex-wrap items-center gap-1.5 pt-1">
-                          {msg.analysis.category && (
-                            <span className="text-[10px] font-medium px-2 py-0.5 rounded bg-zinc-100 text-zinc-700">
-                              {msg.analysis.category}
-                            </span>
-                          )}
-                          {msg.analysis.urgency && (
-                            <span className="text-[10px] font-medium px-2 py-0.5 rounded bg-zinc-100 text-zinc-700">
-                              Priority: {msg.analysis.urgency}
-                            </span>
-                          )}
-                          {msg.analysis.location && (
-                            <span className="text-[10px] font-medium px-2 py-0.5 rounded bg-zinc-100 text-zinc-700 flex items-center gap-1">
-                              <MapPin className="w-3 h-3 text-zinc-400" />
-                              {msg.analysis.location}
-                            </span>
-                          )}
-                        </div>
-                      )}
-
-                      {/* Recommended Nearest Providers Cards */}
-                      {!isUser && msg.providers && msg.providers.length > 0 && (
-                        <div className="pt-2 space-y-2.5">
-                          <div className="flex items-center justify-between text-xs font-semibold text-zinc-900">
-                            <span>Top Matched Artisans Near You</span>
-                            <span className="text-zinc-400 font-normal">
-                              {msg.providers.length} available
-                            </span>
-                          </div>
-
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                            {msg.providers.map((pro) => (
-                              <div
-                                key={pro.id}
-                                className="bg-zinc-50/60 hover:bg-white rounded-xl p-3 border border-zinc-200/80 hover:border-zinc-300 transition-all space-y-2.5"
-                              >
-                                <div className="flex items-start justify-between gap-2.5">
-                                  <div className="flex items-center gap-2 min-w-0">
-                                    <div className="w-8 h-8 rounded-lg bg-zinc-200 overflow-hidden relative shrink-0">
-                                      {pro.avatarUrl ? (
-                                        <Image
-                                          src={pro.avatarUrl}
-                                          alt={pro.fullName}
-                                          fill
-                                          className="object-cover"
-                                        />
-                                      ) : (
-                                        <div className="w-full h-full flex items-center justify-center font-bold text-xs text-[#0C513F] bg-emerald-50">
-                                          {pro.fullName.slice(0, 2).toUpperCase()}
-                                        </div>
-                                      )}
-                                    </div>
-                                    <div className="min-w-0">
-                                      <h4 className="font-semibold text-xs text-zinc-900 truncate">
-                                        {pro.fullName}
-                                      </h4>
-                                      <p className="text-[10px] text-zinc-500 truncate">
-                                        {pro.businessName}
-                                      </p>
-                                    </div>
+                      <div
+                        className={`max-w-[88%] sm:max-w-[80%] space-y-3 ${
+                          isUser
+                            ? 'bg-ink text-white rounded-2xl rounded-tr-md px-4 py-3'
+                            : 'bg-surface text-ink rounded-2xl rounded-tl-md border border-line px-5 py-4'
+                        }`}
+                      >
+                        {msg.attachments && msg.attachments.length > 0 && (
+                          <div className="flex flex-wrap gap-2">
+                            {msg.attachments.map((att, i) => (
+                              <div key={i} className="relative rounded-lg overflow-hidden">
+                                {att.previewUrl ? (
+                                  <button
+                                    type="button"
+                                    onClick={() => setActiveImageModal(att.previewUrl || null)}
+                                    className="relative w-32 h-24 block group cursor-zoom-in"
+                                  >
+                                    <Image src={att.previewUrl} alt={att.name} fill className="object-cover group-hover:scale-105 transition-transform duration-300" />
+                                  </button>
+                                ) : (
+                                  <div className="px-3 py-2 bg-white/10 text-xs flex items-center gap-2">
+                                    <ImageIcon className="w-4 h-4 opacity-70" />
+                                    <span>{att.name}</span>
                                   </div>
-
-                                  <div className="shrink-0 text-[10px] font-semibold text-zinc-700 bg-white border border-zinc-200 px-1.5 py-0.5 rounded">
-                                    {pro.averageRating.toFixed(1)}/5
-                                  </div>
-                                </div>
-
-                                <div className="flex items-center gap-2 text-[10px] text-zinc-500 font-normal">
-                                  <span>{pro.completedJobsCount} jobs completed</span>
-                                  {pro.distanceFormatted && (
-                                    <>
-                                      <span>•</span>
-                                      <span>~{pro.distanceFormatted} away</span>
-                                    </>
-                                  )}
-                                </div>
-
-                                <div className="pt-2 border-t border-zinc-200/60 flex items-center justify-between gap-2">
-                                  <div>
-                                    <div className="text-[10px] font-semibold text-zinc-900">
-                                      {formatMinorToNaira(pro.hourlyRateMinor)}/hr
-                                    </div>
-                                  </div>
-
-                                  <div className="flex items-center gap-1.5">
-                                    {pro.whatsapp && (
-                                      <a
-                                        href={`https://wa.me/${pro.whatsapp.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(
-                                          `Hello ${pro.fullName}, I saw your verified profile on Connecta for a ${pro.category} task in ${pro.city}. Are you available?`
-                                        )}`}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="p-1 rounded-lg bg-zinc-100 hover:bg-zinc-200 text-zinc-700 transition-colors"
-                                        title="WhatsApp"
-                                      >
-                                        <Phone className="w-3 h-3" />
-                                      </a>
-                                    )}
-                                    <Link
-                                      href={`/providers/${pro.id}`}
-                                      className="px-2 py-1 rounded-lg bg-white hover:bg-zinc-100 border border-zinc-200 text-zinc-700 text-[11px] font-medium transition-colors"
-                                    >
-                                      Profile
-                                    </Link>
-                                    <Link
-                                      href={`/requests/new?providerId=${pro.id}&category=${pro.categorySlug}&q=${encodeURIComponent(
-                                        msg.analysis?.normalizedSummary || pro.category
-                                      )}`}
-                                      className="px-2.5 py-1 rounded-lg bg-[#0C513F] hover:bg-[#083b2e] text-white text-[11px] font-medium transition-colors flex items-center gap-1"
-                                    >
-                                      <span>Request</span>
-                                      <ArrowRight className="w-3 h-3" />
-                                    </Link>
-                                  </div>
-                                </div>
+                                )}
                               </div>
                             ))}
                           </div>
-                        </div>
-                      )}
+                        )}
 
-                      {/* Follow-up Suggestions Chips */}
-                      {!isUser && msg.followUpSuggestions && msg.followUpSuggestions.length > 0 && (
-                        <div className="pt-1 flex flex-wrap gap-1.5">
-                          {msg.followUpSuggestions.map((sug, i) => (
+                        {msg.content && <div className="text-sm leading-relaxed whitespace-pre-wrap">{msg.content}</div>}
+
+                        {!isUser && msg.analysis && msg.providers && msg.providers.length > 0 && (
+                          <div className="flex flex-wrap items-center gap-1.5">
+                            {msg.analysis.category && (
+                              <span className="h-6 px-2 inline-flex items-center rounded-md bg-azure-50 text-azure-600 text-xs">{msg.analysis.category}</span>
+                            )}
+                            {msg.analysis.urgency && (
+                              <span className="h-6 px-2 inline-flex items-center rounded-md bg-warn-50 text-warn-ink text-xs capitalize">
+                                {msg.analysis.urgency}
+                              </span>
+                            )}
+                            {msg.analysis.location && (
+                              <span className="h-6 px-2 inline-flex items-center gap-1 rounded-md bg-sunken text-ink-2 text-xs">
+                                <MapPin className="w-3 h-3" />
+                                {msg.analysis.location}
+                              </span>
+                            )}
+                          </div>
+                        )}
+
+                        {!isUser && msg.providers && msg.providers.length > 0 && (
+                          <div className="pt-1 space-y-2.5">
+                            <div className="flex items-center justify-between text-[13px]">
+                              <span className="font-medium text-ink">Best matches near you</span>
+                              <span className="text-muted">{msg.providers.length} available</span>
+                            </div>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                              {msg.providers.map((pro, pIdx) => (
+                                <div
+                                  key={pro.id}
+                                  className="rounded-xl border border-line p-3.5 bg-canvas/50 hover:bg-surface hover:border-line-strong transition-colors cn-rise"
+                                  style={{ ['--d' as string]: `${pIdx * 60}ms` }}
+                                >
+                                  <div className="flex items-center gap-2.5">
+                                    {pro.avatarUrl ? (
+                                      <div className="relative w-9 h-9 rounded-full overflow-hidden shrink-0">
+                                        <Image src={pro.avatarUrl} alt={pro.fullName} fill className="object-cover" />
+                                      </div>
+                                    ) : (
+                                      <Avatar name={pro.fullName} size={36} />
+                                    )}
+                                    <div className="min-w-0 flex-1">
+                                      <div className="text-[13px] font-medium text-ink truncate">{pro.fullName}</div>
+                                      <div className="text-xs text-muted truncate">{pro.businessName}</div>
+                                    </div>
+                                    <Stars rating={pro.averageRating} />
+                                  </div>
+                                  <div className="text-xs text-muted mt-2.5">
+                                    {pro.completedJobsCount} jobs done
+                                    {pro.distanceFormatted && ` · ${pro.distanceFormatted} away`}
+                                  </div>
+                                  <div className="mt-3 pt-3 border-t border-line flex items-center justify-between gap-2">
+                                    <span className="text-[13px] text-ink tabular-nums">{formatMinorToNaira(pro.hourlyRateMinor)}/hr</span>
+                                    <div className="flex items-center gap-1">
+                                      {pro.whatsapp && (
+                                        <a
+                                          href={`https://wa.me/${pro.whatsapp.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(
+                                            `Hello ${pro.fullName}, I saw your verified profile on Connecta for a ${pro.category} task in ${pro.city}. Are you available?`
+                                          )}`}
+                                          target="_blank"
+                                          rel="noopener noreferrer"
+                                          className="w-7 h-7 rounded-lg text-muted hover:text-success-ink hover:bg-success-50 flex items-center justify-center transition-colors"
+                                          title="WhatsApp"
+                                          aria-label={`WhatsApp ${pro.fullName}`}
+                                        >
+                                          <Phone className="w-3.5 h-3.5" />
+                                        </a>
+                                      )}
+                                      <Link
+                                        href={`/providers/${pro.id}`}
+                                        className="h-7 px-2.5 inline-flex items-center rounded-lg text-xs text-ink-2 hover:bg-sunken transition-colors"
+                                      >
+                                        Profile
+                                      </Link>
+                                      <Link
+                                        href={`/requests/new?providerId=${pro.id}&category=${pro.categorySlug}&q=${encodeURIComponent(
+                                          msg.analysis?.normalizedSummary || pro.category
+                                        )}`}
+                                        className="h-7 px-2.5 inline-flex items-center gap-1 rounded-lg bg-azure hover:bg-azure-600 text-white text-xs font-medium transition-colors"
+                                      >
+                                        Request
+                                        <ArrowRight className="w-3 h-3" />
+                                      </Link>
+                                    </div>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {!isUser && msg.followUpSuggestions && msg.followUpSuggestions.length > 0 && (
+                          <div className="flex flex-wrap gap-1.5">
+                            {msg.followUpSuggestions.map((sug, i) => (
+                              <button
+                                key={i}
+                                onClick={() => handleSubmitMessage(sug)}
+                                className="h-7 px-3 rounded-full border border-line text-xs text-ink-2 hover:border-warn hover:bg-warn-50 hover:text-warn-ink transition-colors cursor-pointer"
+                              >
+                                {sug}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+
+                        {!isUser && (
+                          <div className="flex items-center justify-between pt-3 border-t border-line text-xs text-muted">
+                            <span className="inline-flex items-center gap-1.5">
+                              <ShieldCheck className="w-3.5 h-3.5 text-success" />
+                              Payment protected
+                            </span>
                             <button
-                              key={i}
-                              onClick={() => handleSubmitMessage(sug)}
-                              className="text-[11px] font-normal px-2.5 py-1 rounded-full bg-zinc-100 hover:bg-zinc-200 text-zinc-700 transition-colors text-left cursor-pointer"
+                              type="button"
+                              onClick={() => handleCopyMessage(msg.id, msg.content)}
+                              className="inline-flex items-center gap-1 h-6 px-1.5 rounded-md hover:bg-sunken hover:text-ink transition-colors cursor-pointer"
                             >
-                              {sug}
+                              {copiedId === msg.id ? (
+                                <>
+                                  <Check className="w-3 h-3 text-success" />
+                                  <span className="text-success-ink">Copied</span>
+                                </>
+                              ) : (
+                                <>
+                                  <Copy className="w-3 h-3" />
+                                  Copy
+                                </>
+                              )}
                             </button>
-                          ))}
-                        </div>
-                      )}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )
+                })}
+
+                {isSearching && (
+                  <div className="flex items-start gap-3 cn-rise">
+                    <span className="w-7 h-7 rounded-full bg-surface border border-line flex items-center justify-center shrink-0">
+                      <ConnectaMark size={14} />
+                    </span>
+                    <div className="bg-surface border border-line rounded-2xl rounded-tl-md px-4 py-3 flex items-center gap-2.5">
+                      <ConnectaLoader size={18} showTrack={false} />
+                      <span className="text-[13px] text-muted">Looking into it…</span>
                     </div>
                   </div>
-                )
-              })}
+                )}
 
-              {/* Searching Indicator */}
-              {isSearching && (
-                <div className="flex items-start gap-3 justify-start animate-in fade-in duration-200">
-                  <div className="w-7 h-7 rounded-lg bg-[#0C513F] text-white flex items-center justify-center shrink-0">
-                    <Sparkles className="w-3.5 h-3.5" />
-                  </div>
-                  <div className="bg-white border border-zinc-200/80 rounded-2xl rounded-tl-sm px-4 py-3 text-xs text-zinc-500 flex items-center gap-2.5 shadow-2xs">
-                    <Loader2 className="w-3.5 h-3.5 animate-spin text-[#0C513F]" />
-                    <span className="text-zinc-600 font-medium">Assistant is typing...</span>
-                  </div>
-                </div>
-              )}
-
-              <div ref={messagesEndRef} />
-            </div>
-          )}
-        </div>
-
-        {/* Minimal Bottom Floating Prompt Capsule */}
-        <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6 bg-gradient-to-t from-[#F9FAFB] via-[#F9FAFB]/95 to-transparent pointer-events-none z-40">
-          <div className="max-w-3xl mx-auto pointer-events-auto space-y-2">
-            {/* Error Message Toast */}
-            {errorMessage && (
-              <div className="p-2.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center justify-between gap-2">
-                <div className="flex items-center gap-2">
-                  <AlertCircle className="w-3.5 h-3.5 shrink-0 text-rose-600" />
-                  <span>{errorMessage}</span>
-                </div>
-                <button
-                  onClick={() => setErrorMessage(null)}
-                  className="p-1 hover:text-zinc-900"
-                >
-                  <X className="w-3 h-3" />
-                </button>
+                <div ref={messagesEndRef} />
               </div>
             )}
+          </div>
 
-            {/* Input Box */}
-            <div className="bg-white rounded-2xl border border-zinc-300 shadow-sm p-2 transition-all focus-within:border-[#0C513F] focus-within:ring-2 focus-within:ring-[#0C513F]/10">
-              {/* Attachment Preview Chips */}
-              {attachedFiles.length > 0 && (
-                <div className="flex flex-wrap items-center gap-1.5 p-1.5 pb-2 border-b border-zinc-100">
-                  {attachedFiles.map((file) => (
-                    <div
-                      key={file.id}
-                      className="flex items-center gap-1.5 px-2 py-0.5 rounded-lg bg-zinc-100 text-xs text-zinc-700"
-                    >
-                      {file.isImage && file.previewUrl ? (
-                        <div className="relative w-5 h-5 rounded overflow-hidden">
-                          <Image src={file.previewUrl} alt={file.name} fill className="object-cover" />
-                        </div>
-                      ) : (
-                        <ImageIcon className="w-3.5 h-3.5 text-zinc-500" />
-                      )}
-                      <span className="max-w-[120px] truncate text-[11px]">{file.name}</span>
-                      <button
-                        onClick={() => handleRemoveFile(file.id)}
-                        className="p-0.5 hover:text-rose-500"
-                      >
-                        <X className="w-3 h-3" />
-                      </button>
-                    </div>
-                  ))}
+          <div className="absolute bottom-0 left-0 right-0 px-4 sm:px-6 pb-4 sm:pb-6 pt-10 bg-gradient-to-t from-canvas via-canvas/95 to-transparent pointer-events-none z-10">
+            <div className="max-w-3xl mx-auto pointer-events-auto space-y-2">
+              {errorMessage && (
+                <div className="cn-pop flex items-center justify-between gap-2 rounded-xl bg-danger-50 text-danger-ink px-3.5 py-2.5 text-[13px]">
+                  <span className="flex items-center gap-2">
+                    <AlertCircle className="w-4 h-4 shrink-0" />
+                    {errorMessage}
+                  </span>
+                  <button onClick={() => setErrorMessage(null)} className="opacity-60 hover:opacity-100 cursor-pointer" aria-label="Dismiss">
+                    <X className="w-3.5 h-3.5" />
+                  </button>
                 </div>
               )}
 
-              {/* Voice Recording Active Overlay */}
-              {isRecording ? (
-                <div className="p-2.5 flex items-center justify-between gap-3 bg-zinc-50 rounded-xl text-zinc-800 text-xs">
-                  <div className="flex items-center gap-2">
-                    <div className="w-2.5 h-2.5 rounded-full bg-rose-500 animate-pulse" />
-                    <span className="font-medium">Recording voice note...</span>
-                    <span className="font-mono text-xs text-zinc-500">{recordingSeconds}s</span>
+              <div className="bg-surface rounded-2xl border border-line-strong shadow-[0_8px_24px_-12px_rgba(17,24,39,0.15)] p-2 transition-[border-color,box-shadow] duration-200 focus-within:border-warn focus-within:ring-4 focus-within:ring-warn/15">
+                {attachedFiles.length > 0 && (
+                  <div className="flex flex-wrap items-center gap-1.5 p-1.5 pb-2.5 mb-1 border-b border-line">
+                    {attachedFiles.map((file) => (
+                      <div key={file.id} className="cn-pop flex items-center gap-1.5 h-8 pl-1 pr-1.5 rounded-lg bg-sunken text-xs text-ink-2">
+                        {file.isImage && file.previewUrl ? (
+                          <div className="relative w-6 h-6 rounded-md overflow-hidden">
+                            <Image src={file.previewUrl} alt={file.name} fill className="object-cover" />
+                          </div>
+                        ) : (
+                          <ImageIcon className="w-4 h-4 text-muted ml-1" />
+                        )}
+                        <span className="max-w-[120px] truncate">{file.name}</span>
+                        <button onClick={() => handleRemoveFile(file.id)} className="text-subtle hover:text-danger cursor-pointer" aria-label={`Remove ${file.name}`}>
+                          <X className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    ))}
                   </div>
-                  <button
-                    onClick={stopRecording}
-                    className="px-3 py-1 rounded-lg bg-[#0C513F] text-white hover:bg-[#083b2e] text-xs font-medium"
-                  >
-                    Done
-                  </button>
-                </div>
-              ) : (
-                /* Standard Text Input */
-                <div className="flex items-end gap-1.5">
-                  {/* File Upload Button */}
-                  <button
-                    type="button"
-                    onClick={() => fileInputRef.current?.click()}
-                    className="p-2 rounded-lg text-zinc-400 hover:text-zinc-700 hover:bg-zinc-100 transition-colors shrink-0"
-                    title="Attach photo or document"
-                  >
-                    <Paperclip className="w-4 h-4" />
-                  </button>
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept="image/jpeg,image/png,image/webp,application/pdf"
-                    multiple
-                    onChange={handleFileChange}
-                    className="hidden"
-                  />
+                )}
 
-                  {/* Auto-expanding Textarea */}
-                  <textarea
-                    ref={textareaRef}
-                    value={inputPrompt}
-                    onChange={(e) => setInputPrompt(e.target.value)}
-                    onKeyDown={handleKeyDown}
-                    rows={1}
-                    placeholder={`Describe your service need in ${selectedCity}...`}
-                    className="flex-1 max-h-36 bg-transparent text-zinc-900 placeholder:text-zinc-400 text-xs sm:text-sm py-1.5 px-1 focus:outline-none resize-none leading-relaxed font-normal"
-                  />
+                {isRecording ? (
+                  <div className="flex items-center justify-between gap-3 px-2.5 py-1.5">
+                    <div className="flex items-center gap-2.5 text-sm text-ink">
+                      <span className="w-2.5 h-2.5 rounded-full bg-danger animate-pulse" />
+                      Listening
+                      <span className="text-muted tabular-nums">{recordingSeconds}s</span>
+                    </div>
+                    <Button size="sm" variant="warm" onClick={stopRecording}>
+                      Done
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="flex items-end gap-1">
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      className="w-9 h-9 rounded-xl text-muted hover:text-ink hover:bg-sunken flex items-center justify-center transition-colors shrink-0 cursor-pointer"
+                      title="Add a photo or document"
+                      aria-label="Attach file"
+                    >
+                      <Paperclip className="w-4 h-4" />
+                    </button>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp,application/pdf"
+                      multiple
+                      onChange={handleFileChange}
+                      className="hidden"
+                    />
+                    <textarea
+                      ref={textareaRef}
+                      value={inputPrompt}
+                      onChange={(e) => setInputPrompt(e.target.value)}
+                      onKeyDown={handleKeyDown}
+                      rows={1}
+                      placeholder={`Describe what needs fixing in ${selectedCity}…`}
+                      className="flex-1 max-h-36 bg-transparent text-ink placeholder:text-subtle text-sm py-2 px-1 focus:outline-none resize-none leading-relaxed"
+                    />
+                    <button
+                      type="button"
+                      onClick={startRecording}
+                      className="w-9 h-9 rounded-xl text-muted hover:text-ink hover:bg-sunken flex items-center justify-center transition-colors shrink-0 cursor-pointer"
+                      title="Speak instead"
+                      aria-label="Record voice"
+                    >
+                      <Mic className="w-4 h-4" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleSubmitMessage()}
+                      disabled={isSearching || (!inputPrompt.trim() && attachedFiles.length === 0)}
+                      className="w-9 h-9 rounded-xl bg-warn hover:bg-warn-600 disabled:bg-sunken disabled:text-subtle text-ink flex items-center justify-center transition-colors shrink-0 cursor-pointer disabled:cursor-not-allowed"
+                      aria-label="Send"
+                    >
+                      {isSearching ? <ConnectaLoader size={16} showTrack={false} mono /> : <ArrowUp className="w-4 h-4" />}
+                    </button>
+                  </div>
+                )}
+              </div>
 
-                  {/* Mic Button */}
-                  <button
-                    type="button"
-                    onClick={startRecording}
-                    className="p-2 rounded-lg text-zinc-400 hover:text-zinc-700 hover:bg-zinc-100 transition-colors shrink-0"
-                    title="Record voice note"
-                  >
-                    <Mic className="w-4 h-4" />
-                  </button>
-
-                  {/* Send Button */}
-                  <button
-                    type="button"
-                    onClick={() => handleSubmitMessage()}
-                    disabled={isSearching || (!inputPrompt.trim() && attachedFiles.length === 0)}
-                    className="w-8 h-8 rounded-lg bg-[#0C513F] hover:bg-[#083b2e] disabled:opacity-30 disabled:hover:bg-[#0C513F] text-white flex items-center justify-center transition-all shrink-0 cursor-pointer disabled:cursor-not-allowed"
-                    title="Send"
-                  >
-                    {isSearching ? (
-                      <Loader2 className="w-3.5 h-3.5 animate-spin text-white" />
-                    ) : (
-                      <Send className="w-3.5 h-3.5" />
-                    )}
-                  </button>
-                </div>
-              )}
-            </div>
-
-            {/* Disclaimer */}
-            <div className="text-center text-[10px] text-zinc-400 font-normal">
-              Protected by Connecta Milestone Vault. Funds are released only after inspection.
+              <p className="text-center text-xs text-subtle">Your money is only released after you approve the work.</p>
             </div>
           </div>
-        </div>
-      </main>
+        </main>
 
-      {/* Image Modal Lightbox */}
-      {activeImageModal && (
-        <div
-          className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4 backdrop-blur-2xs"
-          onClick={() => setActiveImageModal(null)}
-        >
-          <div className="relative max-w-4xl max-h-[85vh] w-full h-full">
-            <Image
-              src={activeImageModal}
-              alt="Preview"
-              fill
-              className="object-contain"
-            />
-            <button
-              onClick={() => setActiveImageModal(null)}
-              className="absolute top-4 right-4 p-2 rounded-full bg-white/20 text-white hover:bg-white/40"
-            >
-              <X className="w-4 h-4" />
-            </button>
+        {activeImageModal && (
+          <div className="fixed inset-0 z-50 bg-ink/80 flex items-center justify-center p-4 cn-fade" onClick={() => setActiveImageModal(null)}>
+            <div className="relative max-w-4xl max-h-[85vh] w-full h-full cn-pop">
+              <Image src={activeImageModal} alt="Preview" fill className="object-contain" />
+              <button
+                onClick={() => setActiveImageModal(null)}
+                className="absolute top-4 right-4 w-9 h-9 rounded-full bg-white/15 text-white hover:bg-white/30 flex items-center justify-center cursor-pointer"
+                aria-label="Close preview"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
           </div>
-        </div>
-      )}
-    </div>
+        )}
+      </div>
     </DashboardLayout>
   )
 }

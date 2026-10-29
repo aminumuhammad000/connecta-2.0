@@ -44,6 +44,7 @@ import {
   Save,
 } from 'lucide-react'
 import AdminEmailHub, { EmailDispatchItem } from './AdminEmailHub'
+import { Spinner } from '@/components/brand/ConnectaLoader'
 
 interface AdminMetrics {
   totalUsers: number
@@ -2436,7 +2437,7 @@ export default function AdminClientView({
                 className="flex-1 py-2.5 rounded-full bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold inline-flex items-center justify-center gap-1.5 transition-colors cursor-pointer disabled:opacity-50"
               >
                 {isLoggingOut ? (
-                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  <Spinner className="w-4 h-4 text-white" />
                 ) : (
                   <span>Sign Out</span>
                 )}

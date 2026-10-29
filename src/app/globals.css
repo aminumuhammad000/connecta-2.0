@@ -10,9 +10,57 @@
   --brand-violet: #8B7CFF;
   --brand-green: #10B981;
   --brand-amber: #F59E0B;
+
+  --cn-azure: #1A73E8;
+  --cn-azure-600: #1765CC;
+  --cn-azure-50: #EEF4FE;
+  --cn-ink: #111827;
+  --cn-ink-2: #374151;
+  --cn-muted: #6B7280;
+  --cn-subtle: #9CA3AF;
+  --cn-line: #EAEDF2;
+  --cn-line-strong: #D8DDE5;
+  --cn-canvas: #F7F8FA;
+  --cn-surface: #FFFFFF;
+  --cn-sunken: #F3F5F8;
+  --cn-success: #10B981;
+  --cn-success-ink: #047857;
+  --cn-success-700: #065F46;
+  --cn-success-50: #ECFDF5;
+  --cn-warn: #F59E0B;
+  --cn-warn-600: #E08A00;
+  --cn-warn-ink: #B45309;
+  --cn-warn-50: #FFF7E8;
+  --cn-danger: #E5484D;
+  --cn-danger-ink: #B42318;
+  --cn-danger-50: #FEF2F2;
+  --cn-ease: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 @theme inline {
+  --color-azure: var(--cn-azure);
+  --color-azure-600: var(--cn-azure-600);
+  --color-azure-50: var(--cn-azure-50);
+  --color-ink: var(--cn-ink);
+  --color-ink-2: var(--cn-ink-2);
+  --color-muted: var(--cn-muted);
+  --color-subtle: var(--cn-subtle);
+  --color-line: var(--cn-line);
+  --color-line-strong: var(--cn-line-strong);
+  --color-canvas: var(--cn-canvas);
+  --color-surface: var(--cn-surface);
+  --color-sunken: var(--cn-sunken);
+  --color-success: var(--cn-success);
+  --color-success-ink: var(--cn-success-ink);
+  --color-success-700: var(--cn-success-700);
+  --color-success-50: var(--cn-success-50);
+  --color-warn: var(--cn-warn);
+  --color-warn-600: var(--cn-warn-600);
+  --color-warn-ink: var(--cn-warn-ink);
+  --color-warn-50: var(--cn-warn-50);
+  --color-danger: var(--cn-danger);
+  --color-danger-ink: var(--cn-danger-ink);
+  --color-danger-50: var(--cn-danger-50);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-brand-navy: var(--brand-navy);
@@ -116,3 +164,177 @@ html.lenis body {
 }
 
 
+
+/* ---------------------------------------------------------------------------
+   Connecta dashboard motion system
+   ------------------------------------------------------------------------- */
+
+@keyframes cnRise {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes cnFade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes cnPop {
+  from { opacity: 0; transform: translateY(6px) scale(0.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes cnSheet {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+@keyframes cnSlideIn {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(0); }
+}
+
+.cn-slide-in {
+  animation: cnSlideIn 340ms var(--cn-ease) both;
+}
+
+@keyframes cnShimmer {
+  from { background-position: 200% 0; }
+  to { background-position: -200% 0; }
+}
+
+@keyframes cnDraw {
+  from { stroke-dashoffset: 1; }
+  to { stroke-dashoffset: 0; }
+}
+
+@keyframes cnFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+@keyframes cnPulseDot {
+  0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.45); }
+  70% { box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+}
+
+/* The "C" is written in one continuous stroke: azure, then amber, then green. */
+@keyframes cnLoaderAzure {
+  0% { stroke-dashoffset: 1; opacity: 0; }
+  2% { opacity: 1; }
+  34% { stroke-dashoffset: 0; }
+  80% { stroke-dashoffset: 0; opacity: 1; }
+  94%, 100% { stroke-dashoffset: 0; opacity: 0; }
+}
+
+@keyframes cnLoaderAmber {
+  0%, 30% { stroke-dashoffset: 1; opacity: 0; }
+  31% { opacity: 1; }
+  52% { stroke-dashoffset: 0; }
+  80% { stroke-dashoffset: 0; opacity: 1; }
+  94%, 100% { stroke-dashoffset: 0; opacity: 0; }
+}
+
+@keyframes cnLoaderGreen {
+  0%, 49% { stroke-dashoffset: 1; opacity: 0; }
+  50% { opacity: 1; }
+  70% { stroke-dashoffset: 0; }
+  80% { stroke-dashoffset: 0; opacity: 1; }
+  94%, 100% { stroke-dashoffset: 0; opacity: 0; }
+}
+
+.cn-rise {
+  animation: cnRise 560ms var(--cn-ease) both;
+  animation-delay: var(--d, 0ms);
+}
+
+.cn-fade {
+  animation: cnFade 320ms ease-out both;
+  animation-delay: var(--d, 0ms);
+}
+
+.cn-pop {
+  animation: cnPop 280ms var(--cn-ease) both;
+}
+
+.cn-sheet {
+  animation: cnSheet 360ms var(--cn-ease) both;
+}
+
+.cn-float {
+  animation: cnFloat 5s ease-in-out infinite;
+}
+
+.cn-live-dot {
+  animation: cnPulseDot 2.2s ease-out infinite;
+}
+
+.cn-draw {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: cnDraw 1.1s var(--cn-ease) forwards;
+  animation-delay: var(--d, 0ms);
+}
+
+.cn-skeleton {
+  background: linear-gradient(90deg, var(--cn-sunken) 0%, #ECEFF3 50%, var(--cn-sunken) 100%);
+  background-size: 200% 100%;
+  animation: cnShimmer 1.6s linear infinite;
+}
+
+.cn-loader path[data-seg] {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation-duration: 2.4s;
+  animation-iteration-count: infinite;
+  animation-timing-function: cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+.cn-loader path[data-seg="azure"] { animation-name: cnLoaderAzure; }
+.cn-loader path[data-seg="amber"] { animation-name: cnLoaderAmber; }
+.cn-loader path[data-seg="green"] { animation-name: cnLoaderGreen; }
+
+.cn-lift {
+  transition: transform 220ms var(--cn-ease), box-shadow 220ms var(--cn-ease), border-color 220ms var(--cn-ease);
+}
+
+.cn-lift:hover {
+  transform: translateY(-2px);
+  border-color: var(--cn-line-strong);
+  box-shadow: 0 10px 24px -14px rgba(17, 24, 39, 0.18);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cn-rise, .cn-fade, .cn-pop, .cn-sheet, .cn-slide-in, .cn-float, .cn-live-dot {
+    animation: none;
+  }
+  .cn-draw {
+    animation: none;
+    stroke-dashoffset: 0;
+  }
+  .cn-loader path[data-seg] {
+    animation: cnFade 1.2s ease-in-out infinite alternate;
+    stroke-dashoffset: 0;
+  }
+  .cn-lift:hover {
+    transform: none;
+  }
+}
+
+/* Opening splash: hidden on repeat visits in the same tab, and auto-dismissed by CSS if JS never runs. */
+@keyframes cnSplashOut {
+  to { opacity: 0; visibility: hidden; }
+}
+
+.cn-splash {
+  animation: cnSplashOut 400ms ease-out 6s forwards;
+}
+
+.cn-splash[data-leaving="true"] {
+  animation: cnSplashOut 420ms var(--cn-ease) forwards;
+}
+
+html[data-splash="off"] .cn-splash {
+  display: none;
+}
