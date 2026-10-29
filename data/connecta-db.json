@@ -1177,7 +1177,7 @@
       "companyName": "Connecta Platform Administration",
       "welcomeSparks": 500,
       "createdAt": "2026-01-01T00:00:00.000Z",
-      "updatedAt": "2026-10-29T13:58:05.232Z"
+      "updatedAt": "2026-10-29T14:42:31.851Z"
     },
     {
       "id": "fb3999d3-9e64-474d-8cf4-0b6e2f7c6252",
@@ -1578,6 +1578,56 @@
       "hourlyRateMinor": 0,
       "createdAt": "2026-10-29T13:56:57.774Z",
       "updatedAt": "2026-10-29T13:58:43.766Z"
+    },
+    {
+      "id": "d906282f-86fc-4c9c-92b7-3a3d9f558af9",
+      "fullName": "Sani Umar",
+      "firstName": "Sani",
+      "lastName": "Umar",
+      "email": "test.client.1793284944335@connecta.ng",
+      "phone": "+2348031112233",
+      "whatsapp": "+2348031112233",
+      "role": "provider",
+      "activeRole": "provider",
+      "accountStatus": "active",
+      "country": "Nigeria",
+      "city": "Kano",
+      "currency": "NGN",
+      "avatarUrl": null,
+      "headline": "Commercial Inverter & Solar Power Technician",
+      "bio": "",
+      "skills": [
+        "Solar Sizing",
+        "Hybrid Inverters",
+        "Circuit Tracing"
+      ],
+      "hourlyRateMinor": 1500000,
+      "workshopAddress": "Shop 2, Kofar Ruwa Market, Kano",
+      "createdAt": "2026-10-29T14:42:24.336Z",
+      "updatedAt": "2026-10-29T14:43:02.001Z"
+    },
+    {
+      "id": "1d1a5d41-f2a5-49ac-8e6b-ba06429c30c1",
+      "fullName": "Registered Client",
+      "firstName": "Registered",
+      "lastName": "Client",
+      "email": "existing-1793284944359@connecta.ng",
+      "phone": "+2348000000000",
+      "whatsapp": "+2348000000000",
+      "password": "HashedPassword@2026",
+      "role": "customer",
+      "activeRole": "customer",
+      "accountStatus": "active",
+      "country": "Nigeria",
+      "city": "Kano",
+      "currency": "NGN",
+      "avatarUrl": null,
+      "headline": "Hiring Client",
+      "bio": "",
+      "skills": [],
+      "hourlyRateMinor": 0,
+      "createdAt": "2026-10-29T14:42:24.359Z",
+      "updatedAt": "2026-10-29T14:43:02.005Z"
     }
   ],
   "wallets": [
@@ -1948,7 +1998,7 @@
       "escrowBalanceMinor": 0,
       "sparksBalance": 500,
       "currency": "NGN",
-      "updatedAt": "2026-10-29T13:58:05.234Z"
+      "updatedAt": "2026-10-29T14:42:31.853Z"
     },
     {
       "id": "75accf0d-f5d2-4b57-a437-7ed1bbb42e93",
@@ -2093,6 +2143,24 @@
       "sparksBalance": 25,
       "currency": "NGN",
       "updatedAt": "2026-10-29T13:58:43.766Z"
+    },
+    {
+      "id": "85e59c51-d5f9-4fdd-871a-d62944035b30",
+      "userId": "d906282f-86fc-4c9c-92b7-3a3d9f558af9",
+      "balanceMinor": 0,
+      "escrowBalanceMinor": 0,
+      "sparksBalance": 25,
+      "currency": "NGN",
+      "updatedAt": "2026-10-29T14:43:02.004Z"
+    },
+    {
+      "id": "9106ada6-9d94-4352-b56d-a47622bcd03f",
+      "userId": "1d1a5d41-f2a5-49ac-8e6b-ba06429c30c1",
+      "balanceMinor": 0,
+      "escrowBalanceMinor": 0,
+      "sparksBalance": 25,
+      "currency": "NGN",
+      "updatedAt": "2026-10-29T14:43:02.005Z"
     }
   ],
   "wallet_transactions": [

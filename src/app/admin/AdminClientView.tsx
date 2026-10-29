@@ -936,17 +936,6 @@ export default function AdminClientView({
               </div>
             </button>
           </div>
-
-          {/* Quick System Badge */}
-          <div className="p-4 rounded-3xl bg-white border border-slate-200/90 text-xs text-slate-500 space-y-2">
-            <div className="flex items-center gap-2 font-semibold text-slate-800">
-              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
-              <span>Connecta 2.0 Engine</span>
-            </div>
-            <p className="text-[11px] leading-relaxed">
-              Target Market: <strong>Kano, Nigeria</strong>. Escrow rate: <strong>5.0%</strong>. Built with Next.js App Router.
-            </p>
-          </div>
         </aside>
 
         {/* Main Content Area */}
