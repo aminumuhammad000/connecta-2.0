@@ -321,6 +321,96 @@ export default function AdminClientView({
     initialData.adminProfile || null
   )
 
+  // Live Platform Settings & Governance State
+  const [platformSettings, setPlatformSettings] = useState<PlatformSettings>(
+    initialData.platformSettings || {
+      hubCity: 'Kano, Nigeria',
+      commissionRatePercent: 5.0,
+      currency: 'NGN',
+      supportPhone: '+234 812 345 6789',
+      supportEmail: 'support@myconnecta.ng',
+      supportWhatsapp: 'https://wa.me/2348123456789',
+      welcomeSparks: 500,
+      systemAnnouncement: 'Welcome to Connecta 2.0 — Verified artisans and NDIC-insured escrow custody across Nigeria.',
+      announcementActive: true,
+    }
+  )
+  const [isSavingSettings, setIsSavingSettings] = useState(false)
+  const [settingsNotice, setSettingsNotice] = useState<string | null>(null)
+
+  const [inAppNotifications, setInAppNotifications] = useState<InAppNotificationItem[]>(
+    initialData.inAppNotifications || []
+  )
+  const [pendingWithdrawals, setPendingWithdrawals] = useState<PendingWithdrawalItem[]>(
+    initialData.pendingWithdrawals || []
+  )
+
+  // User Management Modals
+  const [editingUser, setEditingUser] = useState<UserItem | null>(null)
+  const [userEditForm, setUserEditForm] = useState<{
+    fullName: string
+    email: string
+    phone: string
+    city: string
+    trade: string
+    ninNumber: string
+    hourlyRateNaira: string
+    role: 'customer' | 'provider'
+    verificationStatus: 'verified' | 'unverified'
+  }>({
+    fullName: '',
+    email: '',
+    phone: '',
+    city: 'Kano',
+    trade: '',
+    ninNumber: '',
+    hourlyRateNaira: '15000',
+    role: 'provider',
+    verificationStatus: 'verified',
+  })
+  const [isSavingUser, setIsSavingUser] = useState(false)
+
+  const [adjustingWalletUser, setAdjustingWalletUser] = useState<UserItem | null>(null)
+  const [walletAdjustDeltaNaira, setWalletAdjustDeltaNaira] = useState('0')
+  const [walletAdjustSparks, setWalletAdjustSparks] = useState('0')
+  const [walletAdjustReason, setWalletAdjustReason] = useState('')
+  const [isAdjustingWallet, setIsAdjustingWallet] = useState(false)
+
+  const [user360, setUser360] = useState<UserItem | null>(null)
+  const [user360Tab, setUser360Tab] = useState<'profile' | 'contracts' | 'jobs' | 'disputes'>('profile')
+
+  const [resettingUser, setResettingUser] = useState<UserItem | null>(null)
+  const [newPasswordInput, setNewPasswordInput] = useState('')
+  const [isResettingPassword, setIsResettingPassword] = useState(false)
+
+  // Split Dispute Modal
+  const [splitDispute, setSplitDispute] = useState<DisputeItem | null>(null)
+  const [splitProviderPct, setSplitProviderPct] = useState(70)
+  const [splitNotes, setSplitNotes] = useState('')
+  const [isSubmittingSplit, setIsSubmittingSplit] = useState(false)
+
+  // Job Moderation Modal
+  const [editingJob, setEditingJob] = useState<ServiceRequestItem | null>(null)
+  const [jobStatusInput, setJobStatusInput] = useState<'open' | 'closed' | 'cancelled'>('open')
+  const [jobTitleInput, setJobTitleInput] = useState('')
+  const [jobDescriptionInput, setJobDescriptionInput] = useState('')
+  const [isSavingJob, setIsSavingJob] = useState(false)
+
+  // Withdrawal Payout Action Modal
+  const [actionWithdrawal, setActionWithdrawal] = useState<PendingWithdrawalItem | null>(null)
+  const [payoutDecision, setPayoutDecision] = useState<'approve' | 'reject'>('approve')
+  const [payoutRefInput, setPayoutRefInput] = useState('')
+  const [payoutRejectReason, setPayoutRejectReason] = useState('')
+  const [isProcessingPayout, setIsProcessingPayout] = useState(false)
+
+  // In-App Notification Broadcaster Form
+  const [newNotifAudience, setNewNotifAudience] = useState<'all' | 'clients' | 'providers' | string>('all')
+  const [newNotifTitle, setNewNotifTitle] = useState('')
+  const [newNotifMessage, setNewNotifMessage] = useState('')
+  const [newNotifType, setNewNotifType] = useState<'info' | 'success' | 'warning' | 'alert'>('info')
+  const [isSendingNotification, setIsSendingNotification] = useState(false)
+  const [notifNotice, setNotifNotice] = useState<string | null>(null)
+
   const currentAdmin: AdminProfileData = adminProfile || initialData.adminProfile || {
     id: 'adm-001',
     fullName: 'Malam Aminu Danbatta',
@@ -640,6 +730,361 @@ export default function AdminClientView({
         payload: { disputeId: id, resolution: disputeResolutionText },
       }),
     })
+  }
+
+  // --- Extended Administrative Control Handlers ---
+
+  const handleToggleFeatured = async (user: UserItem) => {
+    const nextFeatured = !user.isFeatured
+    setUsers((prev) =>
+      prev.map((u) => (u.id === user.id ? { ...u, isFeatured: nextFeatured } : u))
+    )
+    if (selectedUser?.id === user.id) {
+      setSelectedUser({ ...selectedUser, isFeatured: nextFeatured })
+    }
+    await fetch('/api/admin', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'toggle_featured_provider',
+        payload: { providerId: user.id, isFeatured: nextFeatured },
+      }),
+    })
+  }
+
+  const handleOpenEditUser = (user: UserItem) => {
+    setEditingUser(user)
+    setUserEditForm({
+      fullName: user.fullName || '',
+      email: user.email || '',
+      phone: user.phone || '',
+      city: user.city || 'Kano',
+      trade: user.trade || '',
+      ninNumber: user.ninNumber || '',
+      hourlyRateNaira: user.hourlyRateMinor ? String(Math.round(user.hourlyRateMinor / 100)) : '15000',
+      role: user.role === 'customer' ? 'customer' : 'provider',
+      verificationStatus: user.verificationStatus || 'unverified',
+    })
+  }
+
+  const handleSaveUserEdit = async () => {
+    if (!editingUser) return
+    setIsSavingUser(true)
+    try {
+      const hourlyRateMinor = Math.round((parseFloat(userEditForm.hourlyRateNaira) || 0) * 100)
+      const updates = {
+        fullName: userEditForm.fullName.trim(),
+        email: userEditForm.email.trim(),
+        phone: userEditForm.phone.trim(),
+        city: userEditForm.city.trim(),
+        trade: userEditForm.trade.trim(),
+        ninNumber: userEditForm.ninNumber.trim(),
+        hourlyRateMinor,
+        role: userEditForm.role,
+        verificationStatus: userEditForm.verificationStatus,
+      }
+      const res = await fetch('/api/admin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'update_user_profile',
+          payload: { userId: editingUser.id, updates },
+        }),
+      })
+      if (res.ok) {
+        setUsers((prev) =>
+          prev.map((u) =>
+            u.id === editingUser.id
+              ? {
+                  ...u,
+                  ...updates,
+                }
+              : u
+          )
+        )
+        setEditingUser(null)
+      }
+    } catch (err) {
+      console.error('Failed to update user profile', err)
+    } finally {
+      setIsSavingUser(false)
+    }
+  }
+
+  const handleOpenAdjustWallet = (user: UserItem) => {
+    setAdjustingWalletUser(user)
+    setWalletAdjustDeltaNaira('0')
+    setWalletAdjustSparks('0')
+    setWalletAdjustReason('')
+  }
+
+  const handleSaveWalletAdjustment = async () => {
+    if (!adjustingWalletUser) return
+    setIsAdjustingWallet(true)
+    try {
+      const deltaMinor = Math.round((parseFloat(walletAdjustDeltaNaira) || 0) * 100)
+      const sparksDelta = parseInt(walletAdjustSparks, 10) || 0
+      const reason = walletAdjustReason.trim() || 'Administrative manual adjustment'
+
+      const res = await fetch('/api/admin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'adjust_user_wallet',
+          payload: {
+            userId: adjustingWalletUser.id,
+            balanceDeltaMinor: deltaMinor,
+            sparksDelta,
+            reason,
+          },
+        }),
+      })
+      if (res.ok) {
+        setUsers((prev) =>
+          prev.map((u) => {
+            if (u.id === adjustingWalletUser.id) {
+              const currentWallet = u.wallet || {
+                balanceMinor: 0,
+                escrowBalanceMinor: 0,
+                sparksBalance: 0,
+                currency: 'NGN',
+              }
+              return {
+                ...u,
+                wallet: {
+                  ...currentWallet,
+                  balanceMinor: Math.max(0, currentWallet.balanceMinor + deltaMinor),
+                  sparksBalance: Math.max(0, currentWallet.sparksBalance + sparksDelta),
+                },
+              }
+            }
+            return u
+          })
+        )
+        setAdjustingWalletUser(null)
+      }
+    } catch (err) {
+      console.error('Failed to adjust user wallet', err)
+    } finally {
+      setIsAdjustingWallet(false)
+    }
+  }
+
+  const handleOpenResetPassword = (user: UserItem) => {
+    setResettingUser(user)
+    setNewPasswordInput('')
+  }
+
+  const handleSavePasswordReset = async () => {
+    if (!resettingUser || !newPasswordInput.trim()) return
+    setIsResettingPassword(true)
+    try {
+      await fetch('/api/admin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'reset_user_password',
+          payload: { userId: resettingUser.id, newPassword: newPasswordInput.trim() },
+        }),
+      })
+      setResettingUser(null)
+      setNewPasswordInput('')
+    } catch (err) {
+      console.error('Failed to reset password', err)
+    } finally {
+      setIsResettingPassword(false)
+    }
+  }
+
+  const handleOpenUser360 = (user: UserItem) => {
+    setUser360(user)
+    setUser360Tab('profile')
+  }
+
+  const handleOpenJobEdit = (job: ServiceRequestItem) => {
+    setEditingJob(job)
+    setJobStatusInput(job.status === 'closed' ? 'closed' : 'open')
+    setJobTitleInput(job.title)
+    setJobDescriptionInput(job.description)
+  }
+
+  const handleModerateJob = async (status: 'open' | 'closed' | 'cancelled') => {
+    if (!editingJob) return
+    setIsSavingJob(true)
+    try {
+      const res = await fetch('/api/admin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'moderate_job',
+          payload: {
+            requestId: editingJob.id,
+            status,
+            updates: {
+              title: jobTitleInput || editingJob.title,
+              description: jobDescriptionInput || editingJob.description,
+            },
+          },
+        }),
+      })
+      if (res.ok) {
+        setServiceRequests((prev) =>
+          prev.map((j) =>
+            j.id === editingJob.id
+              ? {
+                  ...j,
+                  status,
+                  title: jobTitleInput || j.title,
+                  description: jobDescriptionInput || j.description,
+                }
+              : j
+          )
+        )
+        setEditingJob(null)
+      }
+    } catch (err) {
+      console.error('Failed to moderate job', err)
+    } finally {
+      setIsSavingJob(false)
+    }
+  }
+
+  const handleProcessWithdrawal = async (decision: 'approve' | 'reject') => {
+    if (!actionWithdrawal) return
+    setIsProcessingPayout(true)
+    try {
+      const res = await fetch('/api/admin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'process_withdrawal',
+          payload: {
+            txId: actionWithdrawal.id,
+            decision,
+            payoutReference: payoutRefInput.trim() || `CBN-${Date.now().toString().slice(-6)}`,
+            reason: payoutRejectReason.trim(),
+          },
+        }),
+      })
+      if (res.ok) {
+        setPendingWithdrawals((prev) => prev.filter((p) => p.id !== actionWithdrawal.id))
+        setActionWithdrawal(null)
+        setPayoutRefInput('')
+        setPayoutRejectReason('')
+      }
+    } catch (err) {
+      console.error('Failed to process payout', err)
+    } finally {
+      setIsProcessingPayout(false)
+    }
+  }
+
+  const handleOpenSplitDispute = (dispute: DisputeItem) => {
+    setSplitDispute(dispute)
+    setSplitProviderPct(70)
+    setSplitNotes(`Mediated settlement for ${dispute.disputeNumber}: 70% paid to specialist for procurement and labour, 30% refunded to client.`)
+  }
+
+  const handleSubmitSplitDispute = async () => {
+    if (!splitDispute) return
+    setIsSubmittingSplit(true)
+    try {
+      const providerPct = splitProviderPct
+      const clientPct = 100 - splitProviderPct
+      const res = await fetch('/api/admin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'settle_dispute_split',
+          payload: {
+            disputeId: splitDispute.id,
+            providerPercent: providerPct,
+            clientPercent: clientPct,
+            resolutionNotes: splitNotes.trim(),
+          },
+        }),
+      })
+      if (res.ok) {
+        setDisputes((prev) =>
+          prev.map((d) =>
+            d.id === splitDispute.id
+              ? {
+                  ...d,
+                  status: 'resolved',
+                  notes: `${d.notes} [Split Settlement: ${providerPct}% Specialist / ${clientPct}% Client]: ${splitNotes}`,
+                }
+              : d
+          )
+        )
+        setMetrics((m) => ({
+          ...m,
+          openDisputesCount: Math.max(0, m.openDisputesCount - 1),
+        }))
+        setSplitDispute(null)
+      }
+    } catch (err) {
+      console.error('Failed to settle split dispute', err)
+    } finally {
+      setIsSubmittingSplit(false)
+    }
+  }
+
+  const handleSavePlatformSettings = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsSavingSettings(true)
+    try {
+      const res = await fetch('/api/admin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'update_platform_settings',
+          payload: platformSettings,
+        }),
+      })
+      if (res.ok) {
+        setSettingsNotice('Platform parameters saved successfully! Live changes are now visible on user dashboards.')
+        setTimeout(() => setSettingsNotice(null), 5000)
+      }
+    } catch (err) {
+      console.error('Failed to save settings', err)
+    } finally {
+      setIsSavingSettings(false)
+    }
+  }
+
+  const handleBroadcastInAppNotification = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!newNotifTitle.trim() || !newNotifMessage.trim()) return
+    setIsSendingNotification(true)
+    try {
+      const res = await fetch('/api/admin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'send_in_app_notification',
+          payload: {
+            userId: newNotifAudience,
+            title: newNotifTitle.trim(),
+            message: newNotifMessage.trim(),
+            type: newNotifType,
+          },
+        }),
+      })
+      if (res.ok) {
+        const body = await res.json()
+        if (body.notification) {
+          setInAppNotifications((prev) => [body.notification, ...prev])
+        }
+        setNotifNotice('In-app notification broadcasted successfully to user dashboards!')
+        setNewNotifTitle('')
+        setNewNotifMessage('')
+        setTimeout(() => setNotifNotice(null), 5000)
+      }
+    } catch (err) {
+      console.error('Failed to broadcast notification', err)
+    } finally {
+      setIsSendingNotification(false)
+    }
   }
 
   // Filtered queries
