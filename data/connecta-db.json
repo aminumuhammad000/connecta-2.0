@@ -26,7 +26,7 @@
       "hourlyRateMinor": 1800000,
       "companyName": "Gwadabe Advanced Solar & Energy Solutions",
       "createdAt": "2026-10-25T11:41:41.645Z",
-      "updatedAt": "2026-10-30T13:14:34.428Z",
+      "updatedAt": "2026-10-30T15:41:00.618Z",
       "isFeatured": true,
       "verificationStatus": "verified",
       "badges": [
@@ -1198,7 +1198,7 @@
       "companyName": "Connecta Platform Administration",
       "welcomeSparks": 500,
       "createdAt": "2026-01-01T00:00:00.000Z",
-      "updatedAt": "2026-10-30T13:14:58.575Z"
+      "updatedAt": "2026-10-30T15:41:10.220Z"
     },
     {
       "id": "fb3999d3-9e64-474d-8cf4-0b6e2f7c6252",
@@ -1949,26 +1949,76 @@
       "hourlyRateMinor": 0,
       "createdAt": "2026-10-30T13:14:35.731Z",
       "updatedAt": "2026-10-30T13:16:21.495Z"
+    },
+    {
+      "id": "0e9d49b7-d52e-48e6-ab54-2099b394a629",
+      "fullName": "Sani Umar",
+      "firstName": "Sani",
+      "lastName": "Umar",
+      "email": "test.client.1793374861811@connecta.ng",
+      "phone": "+2348031112233",
+      "whatsapp": "+2348031112233",
+      "role": "provider",
+      "activeRole": "provider",
+      "accountStatus": "active",
+      "country": "Nigeria",
+      "city": "Kano",
+      "currency": "NGN",
+      "avatarUrl": null,
+      "headline": "Commercial Inverter & Solar Power Technician",
+      "bio": "",
+      "skills": [
+        "Solar Sizing",
+        "Hybrid Inverters",
+        "Circuit Tracing"
+      ],
+      "hourlyRateMinor": 1500000,
+      "workshopAddress": "Shop 2, Kofar Ruwa Market, Kano",
+      "createdAt": "2026-10-30T15:41:01.811Z",
+      "updatedAt": "2026-10-30T15:41:51.966Z"
+    },
+    {
+      "id": "84dd1bbe-ccd5-42bd-9453-668c0c1f0265",
+      "fullName": "Registered Client",
+      "firstName": "Registered",
+      "lastName": "Client",
+      "email": "existing-1793374861831@connecta.ng",
+      "phone": "+2348000000000",
+      "whatsapp": "+2348000000000",
+      "password": "HashedPassword@2026",
+      "role": "customer",
+      "activeRole": "customer",
+      "accountStatus": "active",
+      "country": "Nigeria",
+      "city": "Kano",
+      "currency": "NGN",
+      "avatarUrl": null,
+      "headline": "Hiring Client",
+      "bio": "",
+      "skills": [],
+      "hourlyRateMinor": 0,
+      "createdAt": "2026-10-30T15:41:01.831Z",
+      "updatedAt": "2026-10-30T15:41:51.969Z"
     }
   ],
   "wallets": [
     {
       "id": "87bc5041-15c1-4663-a91d-9fa8b27c3ee8",
       "userId": "b5d0bc98-99ae-47a0-9cf3-9e5795433342",
-      "balanceMinor": 10000000,
+      "balanceMinor": 20000000,
       "escrowBalanceMinor": 0,
-      "sparksBalance": 160,
+      "sparksBalance": 310,
       "currency": "NGN",
-      "updatedAt": "2026-10-30T13:14:34.520Z"
+      "updatedAt": "2026-10-30T15:41:00.691Z"
     },
     {
       "id": "e885acd4-c983-4b28-a066-adcc13e68aed",
       "userId": "3720ee40-2e4c-4e30-bf97-15575ff04476",
-      "balanceMinor": 11000000,
+      "balanceMinor": 17000000,
       "escrowBalanceMinor": 0,
       "sparksBalance": 25,
       "currency": "NGN",
-      "updatedAt": "2026-10-30T13:14:34.536Z"
+      "updatedAt": "2026-10-30T15:41:00.703Z"
     },
     {
       "id": "e2704acc-962c-42eb-8b2b-aa866a00a0e8",
@@ -2319,7 +2369,7 @@
       "escrowBalanceMinor": 0,
       "sparksBalance": 500,
       "currency": "NGN",
-      "updatedAt": "2026-10-30T13:14:58.576Z"
+      "updatedAt": "2026-10-30T15:41:10.221Z"
     },
     {
       "id": "75accf0d-f5d2-4b57-a437-7ed1bbb42e93",
@@ -2590,9 +2640,109 @@
       "sparksBalance": 25,
       "currency": "NGN",
       "updatedAt": "2026-10-30T13:16:21.495Z"
+    },
+    {
+      "id": "615e1d2f-9d88-4038-8210-a9becde50e0c",
+      "userId": "0e9d49b7-d52e-48e6-ab54-2099b394a629",
+      "balanceMinor": 0,
+      "escrowBalanceMinor": 0,
+      "sparksBalance": 25,
+      "currency": "NGN",
+      "updatedAt": "2026-10-30T15:41:51.969Z"
+    },
+    {
+      "id": "0f84e2dc-2f54-457c-a33d-ee9fb1e14c7d",
+      "userId": "84dd1bbe-ccd5-42bd-9453-668c0c1f0265",
+      "balanceMinor": 0,
+      "escrowBalanceMinor": 0,
+      "sparksBalance": 25,
+      "currency": "NGN",
+      "updatedAt": "2026-10-30T15:41:51.969Z"
     }
   ],
   "wallet_transactions": [
+    {
+      "userId": "3720ee40-2e4c-4e30-bf97-15575ff04476",
+      "title": "Dispute Settlement Payout (60%) — DISP-TEST-SPLIT",
+      "type": "escrow_release",
+      "amountMinor": 6000000,
+      "currency": "NGN",
+      "status": "completed",
+      "reference": "DISP-PAY-860707",
+      "id": "TX-860707",
+      "date": "2026-10-30T15:41:00.707Z"
+    },
+    {
+      "userId": "b5d0bc98-99ae-47a0-9cf3-9e5795433342",
+      "title": "Dispute Resolution Refund (40%) — DISP-TEST-SPLIT",
+      "type": "dispute_refund",
+      "amountMinor": 4000000,
+      "currency": "NGN",
+      "status": "completed",
+      "reference": "DISP-REF-860696",
+      "id": "TX-860696",
+      "date": "2026-10-30T15:41:00.696Z"
+    },
+    {
+      "userId": "b5d0bc98-99ae-47a0-9cf3-9e5795433342",
+      "title": "Withdrawal Refund: Account name mismatch",
+      "type": "deposit",
+      "amountMinor": 1000000,
+      "currency": "NGN",
+      "status": "completed",
+      "reference": "REF-74860656",
+      "id": "TX-860656",
+      "date": "2026-10-30T15:41:00.656Z"
+    },
+    {
+      "id": "TX-TEST-REJ-1793374860642",
+      "userId": "b5d0bc98-99ae-47a0-9cf3-9e5795433342",
+      "title": "Bank Transfer Payout (GTBank - 1102)",
+      "type": "withdrawal",
+      "amountMinor": 1000000,
+      "currency": "NGN",
+      "status": "failed",
+      "reference": "WIT-REJ-860642",
+      "bankName": "GTBank",
+      "accountNumber": "0129481102",
+      "date": "2026-10-30T15:41:00.642Z"
+    },
+    {
+      "id": "TX-TEST-WIT-1793374860627",
+      "userId": "b5d0bc98-99ae-47a0-9cf3-9e5795433342",
+      "title": "Bank Transfer Payout (Zenith Bank - 4421)",
+      "type": "withdrawal",
+      "amountMinor": 2000000,
+      "currency": "NGN",
+      "status": "completed",
+      "reference": "WIT-TEST-860627",
+      "bankName": "Zenith Bank",
+      "accountNumber": "2081944210",
+      "date": "2026-10-30T15:41:00.628Z",
+      "payoutReference": "NIP-CBN-991204"
+    },
+    {
+      "id": "TX-SPK-860413",
+      "userId": "b5d0bc98-99ae-47a0-9cf3-9e5795433342",
+      "title": "Sparks Reward Adjustment: Test Goodwill Bonus",
+      "type": "sparks_grant",
+      "amountMinor": 150,
+      "currency": "SPARK",
+      "status": "completed",
+      "reference": "SPK-74860413",
+      "date": "2026-10-30T15:41:00.413Z"
+    },
+    {
+      "id": "TX-ADJ-860413",
+      "userId": "b5d0bc98-99ae-47a0-9cf3-9e5795433342",
+      "title": "Admin Adjustment: Test Goodwill Bonus",
+      "type": "admin_adjustment",
+      "amountMinor": 5000000,
+      "currency": "NGN",
+      "status": "completed",
+      "reference": "ADJ-74860413",
+      "date": "2026-10-30T15:41:00.413Z"
+    },
     {
       "userId": "3720ee40-2e4c-4e30-bf97-15575ff04476",
       "title": "Dispute Settlement Payout (60%) — DISP-TEST-SPLIT",
@@ -2757,6 +2907,26 @@
   ],
   "service_requests": [
     {
+      "id": "REQ-TEST-1793374860728",
+      "customerId": "b5d0bc98-99ae-47a0-9cf3-9e5795433342",
+      "customerName": "Test Requester",
+      "title": "[REMOVED] Inappropriate Request Content",
+      "category": "General",
+      "categorySlug": "general",
+      "description": "Spam body text to be moderated",
+      "urgency": "scheduled",
+      "serviceMode": "onsite",
+      "city": "Kano",
+      "state": "Kano State",
+      "budgetMinMinor": 1000000,
+      "budgetMaxMinor": 2000000,
+      "currency": "NGN",
+      "status": "cancelled",
+      "requiredSkills": [],
+      "proposalsCount": 0,
+      "createdAt": "2026-10-30T15:41:00.729Z"
+    },
+    {
       "id": "REQ-TEST-1793366074560",
       "customerId": "b5d0bc98-99ae-47a0-9cf3-9e5795433342",
       "customerName": "Test Requester",
@@ -2853,6 +3023,33 @@
     }
   ],
   "bookings": [
+    {
+      "id": "BK-TEST-1793374860683",
+      "bookingNumber": "CON-TEST-0684",
+      "customerId": "b5d0bc98-99ae-47a0-9cf3-9e5795433342",
+      "clientName": "Test Client",
+      "providerId": "3720ee40-2e4c-4e30-bf97-15575ff04476",
+      "providerName": "Test Specialist",
+      "providerTitle": "Master Electrician",
+      "title": "Split Settlement Verification Job",
+      "category": "Electrical & Solar",
+      "location": "Kano",
+      "totalAmountMinor": 10000000,
+      "currency": "NGN",
+      "escrowStatus": "released",
+      "bookingStatus": "completed",
+      "progressPercentage": 100,
+      "appointmentDate": "2026-10-28",
+      "milestones": [
+        {
+          "id": "m-split-1",
+          "title": "Phase 1",
+          "amountMinor": 10000000,
+          "status": "completed"
+        }
+      ],
+      "createdAt": "2026-10-30T15:41:00.684Z"
+    },
     {
       "id": "BK-TEST-1793366074513",
       "bookingNumber": "CON-TEST-4513",
@@ -3005,6 +3202,24 @@
   "community_posts": [],
   "disputes": [
     {
+      "id": "DISP-TEST-1793374860683",
+      "disputeNumber": "DISP-TEST-SPLIT",
+      "bookingId": "BK-TEST-1793374860683",
+      "bookingNumber": "CON-TEST",
+      "bookingTitle": "Split Settlement Verification Job",
+      "amountMinor": 10000000,
+      "claimantName": "Test Client",
+      "claimantRole": "Customer",
+      "respondentName": "Test Specialist",
+      "respondentRole": "Provider",
+      "reason": "Partial completion dispute",
+      "status": "resolved",
+      "filedDate": "2026-10-26",
+      "lastUpdate": "2026-10-30 15:41",
+      "evidenceItems": 1,
+      "notes": "Initial claim [Split Resolution: 60% Specialist / 40% Client]: Specialist finished wiring; client buys accessories"
+    },
+    {
       "id": "DISP-TEST-1793366074513",
       "disputeNumber": "DISP-TEST-SPLIT",
       "bookingId": "BK-TEST-1793366074513",
@@ -3097,6 +3312,60 @@
     "announcementActive": true
   },
   "in_app_notifications": [
+    {
+      "userId": "3720ee40-2e4c-4e30-bf97-15575ff04476",
+      "title": "Dispute Settlement Credited",
+      "message": "Dispute DISP-TEST-SPLIT was resolved. ₦60,000 (60%) has been credited to your payout balance.",
+      "type": "success",
+      "id": "notif-1793374860711-190",
+      "createdAt": "2026-10-30T15:41:00.711Z",
+      "readBy": []
+    },
+    {
+      "userId": "b5d0bc98-99ae-47a0-9cf3-9e5795433342",
+      "title": "Dispute Resolved — Refund Credited",
+      "message": "Dispute DISP-TEST-SPLIT was resolved. ₦40,000 (40%) has been credited to your available vault.",
+      "type": "info",
+      "id": "notif-1793374860699-477",
+      "createdAt": "2026-10-30T15:41:00.699Z",
+      "readBy": []
+    },
+    {
+      "userId": "all",
+      "title": "Platform Maintenance Notice",
+      "message": "Scheduled backup tonight at 11:30 PM.",
+      "type": "warning",
+      "id": "notif-1793374860675-883",
+      "createdAt": "2026-10-30T15:41:00.675Z",
+      "readBy": []
+    },
+    {
+      "userId": "b5d0bc98-99ae-47a0-9cf3-9e5795433342",
+      "title": "Withdrawal Unsuccessful — Funds Returned",
+      "message": "Your withdrawal of ₦10,000 could not be processed (Account name mismatch). The funds have been returned to your vault.",
+      "type": "warning",
+      "id": "notif-1793374860666-68",
+      "createdAt": "2026-10-30T15:41:00.666Z",
+      "readBy": []
+    },
+    {
+      "userId": "b5d0bc98-99ae-47a0-9cf3-9e5795433342",
+      "title": "Bank Withdrawal Approved",
+      "message": "Your withdrawal of ₦20,000 has been processed to your bank (Ref: NIP-CBN-991204).",
+      "type": "success",
+      "id": "notif-1793374860635-758",
+      "createdAt": "2026-10-30T15:41:00.635Z",
+      "readBy": []
+    },
+    {
+      "userId": "b5d0bc98-99ae-47a0-9cf3-9e5795433342",
+      "title": "Vault Balance Adjusted",
+      "message": "Your account was adjusted by +₦50,000 and +150 Sparks. Reason: Test Goodwill Bonus",
+      "type": "success",
+      "id": "notif-1793374860608-228",
+      "createdAt": "2026-10-30T15:41:00.609Z",
+      "readBy": []
+    },
     {
       "userId": "3720ee40-2e4c-4e30-bf97-15575ff04476",
       "title": "Dispute Settlement Credited",

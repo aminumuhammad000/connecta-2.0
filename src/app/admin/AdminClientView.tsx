@@ -11,18 +11,12 @@ import {
   AlertTriangle,
   Settings,
   Search,
-  Filter,
   CheckCircle2,
-  XCircle,
   Clock,
   MapPin,
   Star,
-  FileText,
   ChevronRight,
-  ArrowUpRight,
   Eye,
-  Lock,
-  Unlock,
   Check,
   X,
   Menu,
@@ -30,11 +24,8 @@ import {
   RefreshCw,
   LogOut,
   Building2,
-  Wrench,
   DollarSign,
   TrendingUp,
-  ExternalLink,
-  SlidersHorizontal,
   Mail,
   ChevronDown,
   User,
@@ -45,17 +36,24 @@ import {
   Bell,
   KeyRound,
   Coins,
-  Flame,
-  ShieldAlert,
   Split,
-  ToggleLeft,
-  ToggleRight,
   Send,
+  FolderKanban,
+  LayoutGrid,
+  ArrowRight,
+  ArrowUpRight,
+  ShieldAlert,
+  SlidersHorizontal,
 } from 'lucide-react'
 import AdminEmailHub, { EmailDispatchItem } from './AdminEmailHub'
-import { Spinner } from '@/components/brand/ConnectaLoader'
+import { BrandStripe, ConnectaMark, Spinner } from '@/components/brand/ConnectaLoader'
+import { Avatar, Badge, Notice } from '@/components/dashboard/ui'
 
-interface AdminMetrics {
+// =============================================================================
+// TYPES & INTERFACES
+// =============================================================================
+
+export interface AdminMetrics {
   totalUsers: number
   totalCustomers: number
   totalProviders: number
@@ -71,7 +69,7 @@ interface AdminMetrics {
   openDisputesCount: number
 }
 
-interface UserItem {
+export interface UserItem {
   id: string
   fullName: string
   businessName: string
@@ -134,7 +132,7 @@ export interface PendingWithdrawalItem {
   status: string
 }
 
-interface ServiceRequestItem {
+export interface ServiceRequestItem {
   id: string
   customerId: string
   customerName: string
@@ -156,7 +154,7 @@ interface ServiceRequestItem {
   createdAt: string
 }
 
-interface BookingContractItem {
+export interface BookingContractItem {
   id: string
   bookingNumber: string
   customerId: string
@@ -183,7 +181,7 @@ interface BookingContractItem {
   createdAt: string
 }
 
-interface VerificationCaseItem {
+export interface VerificationCaseItem {
   id: string
   providerName: string
   businessName: string
@@ -197,7 +195,7 @@ interface VerificationCaseItem {
   rejectionReason?: string
 }
 
-interface DisputeItem {
+export interface DisputeItem {
   id: string
   disputeNumber: string
   bookingId: string
@@ -257,6 +255,26 @@ type TabType =
   | 'email'
   | 'notifications'
 
+type NavGroup = {
+  label: string
+  items: Array<{
+    id: TabType
+    label: string
+    icon: React.ComponentType<{ className?: string }>
+    badge?: string | number | null
+    alert?: boolean
+  }>
+}
+
+const formatNaira = (minor: number) => {
+  const val = Math.round(minor / 100)
+  return `₦${val.toLocaleString('en-NG')}`
+}
+
+// =============================================================================
+// MAIN COMPONENT
+// =============================================================================
+
 export default function AdminClientView({
   initialData,
 }: {
@@ -278,51 +296,45 @@ export default function AdminClientView({
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [isRefreshing, setIsRefreshing] = useState(false)
 
-  // Datasets in state
+  // Datasets
   const [metrics, setMetrics] = useState<AdminMetrics>(initialData.metrics)
   const [users, setUsers] = useState<UserItem[]>(initialData.users)
   const [serviceRequests, setServiceRequests] = useState<ServiceRequestItem[]>(initialData.serviceRequests)
   const [bookings, setBookings] = useState<BookingContractItem[]>(initialData.bookings)
   const [verificationCases, setVerificationCases] = useState<VerificationCaseItem[]>(initialData.verificationCases)
   const [disputes, setDisputes] = useState<DisputeItem[]>(initialData.disputes)
+  const [emailDispatches, setEmailDispatches] = useState<EmailDispatchItem[]>(initialData.emailDispatches || [])
+  const [inAppNotifications, setInAppNotifications] = useState<InAppNotificationItem[]>(initialData.inAppNotifications || [])
+  const [pendingWithdrawals, setPendingWithdrawals] = useState<PendingWithdrawalItem[]>(initialData.pendingWithdrawals || [])
 
-  // Filters & Search
+  // Filters
+  const [navSearchQuery, setNavSearchQuery] = useState('')
   const [userSearch, setUserSearch] = useState('')
   const [userRoleFilter, setUserRoleFilter] = useState<'all' | 'customer' | 'provider'>('all')
-
   const [jobSearch, setJobSearch] = useState('')
   const [jobTradeFilter, setJobTradeFilter] = useState('all')
-
   const [bookingFilter, setBookingFilter] = useState<'all' | 'locked' | 'released'>('all')
 
-  // Modals state
+  // Modals & Drawers state
   const [selectedUser, setSelectedUser] = useState<UserItem | null>(null)
   const [selectedCase, setSelectedCase] = useState<VerificationCaseItem | null>(null)
   const [rejectionReason, setRejectionReason] = useState('')
-
   const [actionBooking, setActionBooking] = useState<{
     booking: BookingContractItem
     type: 'release' | 'refund'
   } | null>(null)
-
   const [selectedDispute, setSelectedDispute] = useState<DisputeItem | null>(null)
   const [disputeResolutionText, setDisputeResolutionText] = useState('')
-
   const [showLogoutModal, setShowLogoutModal] = useState(false)
-  const [emailDispatches, setEmailDispatches] = useState<EmailDispatchItem[]>(
-    initialData.emailDispatches || []
-  )
   const [preselectedEmailUser, setPreselectedEmailUser] = useState<UserItem | null>(null)
   const [profileMenuOpen, setProfileMenuOpen] = useState(false)
   const [showAdminProfileModal, setShowAdminProfileModal] = useState(false)
   const profileDropdownRef = useRef<HTMLDivElement>(null)
 
-  // Real Admin Profile from Server Database
-  const [adminProfile, setAdminProfile] = useState<AdminProfileData | null>(
-    initialData.adminProfile || null
-  )
+  // Admin Profile state
+  const [adminProfile, setAdminProfile] = useState<AdminProfileData | null>(initialData.adminProfile || null)
 
-  // Live Platform Settings & Governance State
+  // Platform Settings State
   const [platformSettings, setPlatformSettings] = useState<PlatformSettings>(
     initialData.platformSettings || {
       hubCity: 'Kano, Nigeria',
@@ -339,26 +351,9 @@ export default function AdminClientView({
   const [isSavingSettings, setIsSavingSettings] = useState(false)
   const [settingsNotice, setSettingsNotice] = useState<string | null>(null)
 
-  const [inAppNotifications, setInAppNotifications] = useState<InAppNotificationItem[]>(
-    initialData.inAppNotifications || []
-  )
-  const [pendingWithdrawals, setPendingWithdrawals] = useState<PendingWithdrawalItem[]>(
-    initialData.pendingWithdrawals || []
-  )
-
   // User Management Modals
   const [editingUser, setEditingUser] = useState<UserItem | null>(null)
-  const [userEditForm, setUserEditForm] = useState<{
-    fullName: string
-    email: string
-    phone: string
-    city: string
-    trade: string
-    ninNumber: string
-    hourlyRateNaira: string
-    role: 'customer' | 'provider'
-    verificationStatus: 'verified' | 'unverified'
-  }>({
+  const [userEditForm, setUserEditForm] = useState({
     fullName: '',
     email: '',
     phone: '',
@@ -366,8 +361,8 @@ export default function AdminClientView({
     trade: '',
     ninNumber: '',
     hourlyRateNaira: '15000',
-    role: 'provider',
-    verificationStatus: 'verified',
+    role: 'provider' as 'customer' | 'provider',
+    verificationStatus: 'verified' as 'verified' | 'unverified',
   })
   const [isSavingUser, setIsSavingUser] = useState(false)
 
@@ -392,7 +387,6 @@ export default function AdminClientView({
 
   // Job Moderation Modal
   const [editingJob, setEditingJob] = useState<ServiceRequestItem | null>(null)
-  const [jobStatusInput, setJobStatusInput] = useState<'open' | 'closed' | 'cancelled'>('open')
   const [jobTitleInput, setJobTitleInput] = useState('')
   const [jobDescriptionInput, setJobDescriptionInput] = useState('')
   const [isSavingJob, setIsSavingJob] = useState(false)
@@ -422,7 +416,7 @@ export default function AdminClientView({
     country: 'Nigeria',
     city: 'Kano',
     currency: 'NGN',
-    avatarUrl: '/brand/svg/connecta-icon.svg',
+    avatarUrl: null,
     headline: 'Lead Platform Administrator & Escrow Supervisor',
     bio: 'Official administrator account for Connecta platform governance, trade artisan verification, and escrow administration.',
     companyName: 'Connecta Platform Administration',
@@ -446,71 +440,16 @@ export default function AdminClientView({
   const [isSavingAdminProfile, setIsSavingAdminProfile] = useState(false)
   const [adminProfileSuccessNotice, setAdminProfileSuccessNotice] = useState<string | null>(null)
 
-  const getInitials = (name: string) => {
-    if (!name) return 'AD'
-    const parts = name.trim().split(/\s+/)
-    if (parts.length >= 2) return `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase()
-    return name.slice(0, 2).toUpperCase()
-  }
-
-  const handleOpenProfileModal = () => {
-    setProfileMenuOpen(false)
-    setEditAdminForm({
-      fullName: currentAdmin.fullName,
-      phone: currentAdmin.phone,
-      whatsapp: currentAdmin.whatsapp || currentAdmin.phone,
-      headline: currentAdmin.headline || '',
-      bio: currentAdmin.bio || '',
-      city: currentAdmin.city,
-      country: currentAdmin.country,
-    })
-    setIsEditingAdminProfile(false)
-    setAdminProfileSuccessNotice(null)
-    setShowAdminProfileModal(true)
-  }
-
-  const handleSaveAdminProfile = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsSavingAdminProfile(true)
-    try {
-      const res = await fetch('/api/admin', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          action: 'update_admin_profile',
-          payload: editAdminForm,
-        }),
-      })
-      const json = await res.json()
-      if (json.success && json.profile) {
-        setAdminProfile((prev) => ({
-          ...(prev || currentAdmin),
-          ...json.profile,
-        }))
-        setAdminProfileSuccessNotice('Profile details saved to server database!')
-        setIsEditingAdminProfile(false)
-        setTimeout(() => setAdminProfileSuccessNotice(null), 3000)
-      }
-    } catch (err) {
-      console.error('Failed to update admin profile', err)
-    } finally {
-      setIsSavingAdminProfile(false)
-    }
-  }
-
   // Inactivity tracking (2 hours / 7200 seconds of zero interaction)
-  const INACTIVITY_LIMIT_SECONDS = 7200 // 2 hours
+  const INACTIVITY_LIMIT_SECONDS = 7200
   const [inactivityModalOpen, setInactivityModalOpen] = useState(false)
   const [isLoggingOut, setIsLoggingOut] = useState(false)
   const lastActiveTimestampRef = useRef<number>(Date.now())
   const lastHeartbeatTimestampRef = useRef<number>(Date.now())
 
-  // Seamless Session Keep-Alive while user is actively using the dashboard
   useEffect(() => {
-    // Record user activity and refresh session automatically
     const recordActivity = () => {
       lastActiveTimestampRef.current = Date.now()
-      // Send heartbeat to renew session every 2 minutes while active
       if (Date.now() - lastHeartbeatTimestampRef.current > 2 * 60 * 1000) {
         lastHeartbeatTimestampRef.current = Date.now()
         fetch('/api/admin/session', { method: 'POST' }).catch(() => {})
@@ -519,21 +458,16 @@ export default function AdminClientView({
 
     const activityEvents = ['mousedown', 'mousemove', 'keydown', 'scroll', 'touchstart', 'click']
     activityEvents.forEach((ev) => window.addEventListener(ev, recordActivity, { passive: true }))
-
-    // Initial session touch on mount
     fetch('/api/admin/session', { method: 'POST' }).catch(() => {})
 
-    // Check every minute: if active within the last 30 minutes, keep session alive
     const interval = setInterval(() => {
       const elapsedMs = Date.now() - lastActiveTimestampRef.current
       if (elapsedMs < 30 * 60 * 1000) {
-        // User was recently active: keep session renewed
         if (Date.now() - lastHeartbeatTimestampRef.current > 2 * 60 * 1000) {
           lastHeartbeatTimestampRef.current = Date.now()
           fetch('/api/admin/session', { method: 'POST' }).catch(() => {})
         }
       } else if (elapsedMs >= INACTIVITY_LIMIT_SECONDS * 1000) {
-        // True continuous 2-hour absence without any interaction
         clearInterval(interval)
         setInactivityModalOpen(true)
         fetch('/api/admin/logout', { method: 'POST' }).finally(() => {
@@ -550,16 +484,6 @@ export default function AdminClientView({
     }
   }, [])
 
-  const handleAdminLogout = async () => {
-    setIsLoggingOut(true)
-    try {
-      await fetch('/api/admin/logout', { method: 'POST' })
-    } catch (e) {
-      // ignore
-    }
-    window.location.href = '/admin/login'
-  }
-
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (profileDropdownRef.current && !profileDropdownRef.current.contains(event.target as Node)) {
@@ -570,31 +494,29 @@ export default function AdminClientView({
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
-  // Helper formatting
-  const formatNaira = (minor: number) => {
-    const val = Math.round(minor / 100)
-    return `₦${val.toLocaleString('en-NG')}`
+  // Action handlers
+  const handleAdminLogout = async () => {
+    setIsLoggingOut(true)
+    try {
+      await fetch('/api/admin/logout', { method: 'POST' })
+    } catch {}
+    window.location.href = '/admin/login'
   }
 
-  // Refresh data from API
   const refreshData = async () => {
     setIsRefreshing(true)
     try {
       const res = await fetch('/api/admin')
       const json = await res.json()
       if (json.success && json.data) {
-        if (json.data.adminProfile) {
-          setAdminProfile(json.data.adminProfile)
-        }
+        if (json.data.adminProfile) setAdminProfile(json.data.adminProfile)
         setMetrics(json.data.metrics)
         setUsers(json.data.users)
         setServiceRequests(json.data.serviceRequests)
         setBookings(json.data.bookings)
         setVerificationCases(json.data.verificationCases)
         setDisputes(json.data.disputes)
-        if (json.data.emailDispatches) {
-          setEmailDispatches(json.data.emailDispatches)
-        }
+        if (json.data.emailDispatches) setEmailDispatches(json.data.emailDispatches)
       }
     } catch (e) {
       console.error('Refresh error', e)
@@ -603,7 +525,6 @@ export default function AdminClientView({
     }
   }
 
-  // Action handlers
   const handleToggleUserStatus = async (user: UserItem) => {
     const nextStatus = user.accountStatus === 'active' ? 'suspended' : 'active'
     setUsers((prev) =>
@@ -618,6 +539,24 @@ export default function AdminClientView({
       body: JSON.stringify({
         action: 'toggle_user_status',
         payload: { userId: user.id, newStatus: nextStatus },
+      }),
+    })
+  }
+
+  const handleToggleFeatured = async (user: UserItem) => {
+    const nextFeatured = !user.isFeatured
+    setUsers((prev) =>
+      prev.map((u) => (u.id === user.id ? { ...u, isFeatured: nextFeatured } : u))
+    )
+    if (selectedUser?.id === user.id) {
+      setSelectedUser({ ...selectedUser, isFeatured: nextFeatured })
+    }
+    await fetch('/api/admin', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'toggle_featured_provider',
+        payload: { providerId: user.id, isFeatured: nextFeatured },
       }),
     })
   }
@@ -733,26 +672,6 @@ export default function AdminClientView({
     })
   }
 
-  // --- Extended Administrative Control Handlers ---
-
-  const handleToggleFeatured = async (user: UserItem) => {
-    const nextFeatured = !user.isFeatured
-    setUsers((prev) =>
-      prev.map((u) => (u.id === user.id ? { ...u, isFeatured: nextFeatured } : u))
-    )
-    if (selectedUser?.id === user.id) {
-      setSelectedUser({ ...selectedUser, isFeatured: nextFeatured })
-    }
-    await fetch('/api/admin', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        action: 'toggle_featured_provider',
-        payload: { providerId: user.id, isFeatured: nextFeatured },
-      }),
-    })
-  }
-
   const handleOpenEditUser = (user: UserItem) => {
     setEditingUser(user)
     setUserEditForm({
@@ -794,14 +713,7 @@ export default function AdminClientView({
       })
       if (res.ok) {
         setUsers((prev) =>
-          prev.map((u) =>
-            u.id === editingUser.id
-              ? {
-                  ...u,
-                  ...updates,
-                }
-              : u
-          )
+          prev.map((u) => (u.id === editingUser.id ? { ...u, ...updates } : u))
         )
         setEditingUser(null)
       }
@@ -904,7 +816,6 @@ export default function AdminClientView({
 
   const handleOpenJobEdit = (job: ServiceRequestItem) => {
     setEditingJob(job)
-    setJobStatusInput(job.status === 'closed' ? 'closed' : 'open')
     setJobTitleInput(job.title)
     setJobDescriptionInput(job.description)
   }
@@ -1043,7 +954,7 @@ export default function AdminClientView({
         }),
       })
       if (res.ok) {
-        setSettingsNotice('Platform parameters saved successfully! Live changes are now visible on user dashboards.')
+        setSettingsNotice('Live platform parameters saved. All updates are now active on user dashboards.')
         setTimeout(() => setSettingsNotice(null), 5000)
       }
     } catch (err) {
@@ -1076,7 +987,7 @@ export default function AdminClientView({
         if (body.notification) {
           setInAppNotifications((prev) => [body.notification, ...prev])
         }
-        setNotifNotice('In-app notification broadcasted successfully to user dashboards!')
+        setNotifNotice('In-app alert broadcasted successfully to user dashboards.')
         setNewNotifTitle('')
         setNewNotifMessage('')
         setTimeout(() => setNotifNotice(null), 5000)
@@ -1085,6 +996,51 @@ export default function AdminClientView({
       console.error('Failed to broadcast notification', err)
     } finally {
       setIsSendingNotification(false)
+    }
+  }
+
+  const handleOpenProfileModal = () => {
+    setProfileMenuOpen(false)
+    setEditAdminForm({
+      fullName: currentAdmin.fullName,
+      phone: currentAdmin.phone,
+      whatsapp: currentAdmin.whatsapp || currentAdmin.phone,
+      headline: currentAdmin.headline || '',
+      bio: currentAdmin.bio || '',
+      city: currentAdmin.city,
+      country: currentAdmin.country,
+    })
+    setIsEditingAdminProfile(false)
+    setAdminProfileSuccessNotice(null)
+    setShowAdminProfileModal(true)
+  }
+
+  const handleSaveAdminProfile = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsSavingAdminProfile(true)
+    try {
+      const res = await fetch('/api/admin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'update_admin_profile',
+          payload: editAdminForm,
+        }),
+      })
+      const json = await res.json()
+      if (json.success && json.profile) {
+        setAdminProfile((prev) => ({
+          ...(prev || currentAdmin),
+          ...json.profile,
+        }))
+        setAdminProfileSuccessNotice('Profile saved to database.')
+        setIsEditingAdminProfile(false)
+        setTimeout(() => setAdminProfileSuccessNotice(null), 3000)
+      }
+    } catch (err) {
+      console.error('Failed to update admin profile', err)
+    } finally {
+      setIsSavingAdminProfile(false)
     }
   }
 
@@ -1124,48 +1080,307 @@ export default function AdminClientView({
     })
   }, [bookings, bookingFilter])
 
-  return (
-    <div className="min-h-screen bg-[#F5F7FC] text-[#0A1020] flex flex-col font-sans selection:bg-[#10B981]/20">
-      {/* Unified Professional Floating Header - Exact Match to Landing Page Design */}
-      <div className="sticky top-0 left-0 right-0 z-50 pt-2 sm:pt-4 px-2.5 sm:px-6">
-        <header className="max-w-7xl mx-auto flex items-center justify-between gap-4 transition-all duration-300 rounded-full px-4 sm:px-6 py-2.5 bg-white/95 backdrop-blur-xl border border-slate-200/90 shadow-none">
-          {/* Left: Brand Logo Only */}
-          <Link href="/" className="flex items-center gap-2 sm:gap-2.5 group shrink-0">
-            <div className="w-8 h-8 rounded-full bg-[#0C513F] flex items-center justify-center p-1.5 shadow-none transition-transform group-hover:scale-105 shrink-0">
-              <div className="relative w-4.5 h-4.5">
-                <Image
-                  src="/brand/connecta-header-icon.svg"
-                  alt="Connecta Icon"
-                  fill
-                  className="object-contain"
-                  priority
-                />
-              </div>
-            </div>
-            <span className="font-semibold text-base sm:text-lg tracking-tight text-slate-900 flex items-center">
-              Connecta
-            </span>
-          </Link>
+  // Navigation Groups modeled after user dashboard
+  const navGroups: NavGroup[] = [
+    {
+      label: 'Workspace',
+      items: [
+        { id: 'overview', label: 'Command Overview', icon: LayoutGrid },
+        { id: 'users', label: 'Users & Artisans', icon: Users, badge: users.length },
+        { id: 'jobs', label: 'Service Requests', icon: Briefcase, badge: serviceRequests.length },
+        { id: 'contracts', label: 'Escrow Contracts', icon: FolderKanban, badge: bookings.length },
+      ],
+    },
+    {
+      label: 'Compliance & Trust',
+      items: [
+        {
+          id: 'verifications',
+          label: 'Verifications',
+          icon: ShieldCheck,
+          badge: metrics.pendingVerificationsCount > 0 ? metrics.pendingVerificationsCount : null,
+          alert: metrics.pendingVerificationsCount > 0,
+        },
+        {
+          id: 'disputes',
+          label: 'Disputes Desk',
+          icon: AlertTriangle,
+          badge: metrics.openDisputesCount > 0 ? metrics.openDisputesCount : null,
+        },
+      ],
+    },
+    {
+      label: 'Finance',
+      items: [
+        {
+          id: 'payments',
+          label: 'Financial Ledger',
+          icon: CreditCard,
+          badge: pendingWithdrawals.length > 0 ? `${pendingWithdrawals.length} Payouts` : null,
+          alert: pendingWithdrawals.length > 0,
+        },
+      ],
+    },
+    {
+      label: 'Communications & System',
+      items: [
+        { id: 'notifications', label: 'In-App Alerts', icon: Bell, badge: inAppNotifications.length },
+        { id: 'email', label: 'Broadcast Email', icon: Mail, badge: 'Hub' },
+        { id: 'settings', label: 'Platform Settings', icon: Settings },
+      ],
+    },
+  ]
 
-          {/* Right: Profile Trigger & Dropdown Menu */}
-          <div className="flex items-center gap-2.5 sm:gap-3">
-            {/* Active Session Status Badge */}
-            <div
-              className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-200/80 text-[11px] font-medium text-emerald-800 select-none"
-              title="Administrator session is active"
-            >
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span className="font-medium">Live Admin</span>
-            </div>
+  const allNavItems = navGroups.flatMap((g) => g.items)
+  const currentNav = allNavItems.find((n) => n.id === activeTab) || allNavItems[0]
 
-            {/* Mobile menu toggle for sidebar tabs */}
+  // Filtered Nav Groups if search is active
+  const filteredNavGroups = useMemo(() => {
+    if (!navSearchQuery.trim()) return navGroups
+    const q = navSearchQuery.toLowerCase()
+    return navGroups
+      .map((group) => ({
+        ...group,
+        items: group.items.filter((item) => item.label.toLowerCase().includes(q)),
+      }))
+      .filter((group) => group.items.length > 0)
+  }, [navSearchQuery, navGroups])
+
+  // Shared Sidebar Component
+  const sidebarContent = (
+    <div className="flex flex-col h-full bg-surface">
+      <BrandStripe className="h-[3px]" />
+      
+      {/* Brand Header */}
+      <div className="h-[61px] px-5 flex items-center justify-between border-b border-line/60">
+        <Link href="/admin" className="flex items-center gap-2.5">
+          <ConnectaMark size={22} />
+          <span className="text-[17px] font-medium tracking-[-0.02em] text-ink">connecta</span>
+          <span className="px-1.5 py-0.5 rounded-[6px] bg-ink text-white text-[10px] font-semibold tracking-wider uppercase">
+            Admin
+          </span>
+        </Link>
+        <button
+          type="button"
+          onClick={() => setMobileMenuOpen(false)}
+          className="lg:hidden w-8 h-8 rounded-lg text-muted hover:bg-sunken flex items-center justify-center cursor-pointer"
+          aria-label="Close menu"
+        >
+          <X className="w-4 h-4" />
+        </button>
+      </div>
+
+      {/* Quick Filter Bar */}
+      <div className="px-3 pt-3">
+        <div className="relative">
+          <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-subtle" />
+          <input
+            type="text"
+            value={navSearchQuery}
+            onChange={(e) => setNavSearchQuery(e.target.value)}
+            placeholder="Quick tab jump..."
+            className="w-full h-9 pl-8 pr-3 rounded-[10px] bg-sunken hover:bg-[#EDF0F4] text-[13px] text-ink placeholder:text-subtle transition-colors focus:bg-surface focus:ring-2 focus:ring-azure/20 focus:outline-none"
+          />
+          {navSearchQuery && (
             <button
               type="button"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden p-2 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors"
-              title="Navigation Tabs"
+              onClick={() => setNavSearchQuery('')}
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs text-subtle hover:text-ink cursor-pointer"
             >
-              {mobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
+              ✕
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Nav groups */}
+      <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-5">
+        {filteredNavGroups.map((group) => (
+          <div key={group.label}>
+            <div className="px-3 pb-1.5 text-xs text-subtle font-medium">{group.label}</div>
+            <div className="space-y-0.5">
+              {group.items.map((item) => {
+                const active = activeTab === item.id
+                const Icon = item.icon
+                return (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => {
+                      setActiveTab(item.id)
+                      setMobileMenuOpen(false)
+                    }}
+                    className={`w-full group relative flex items-center justify-between h-9 px-3 rounded-[10px] text-sm transition-colors duration-200 cursor-pointer ${
+                      active
+                        ? 'bg-azure-50 text-azure-600 font-medium'
+                        : 'text-ink-2 hover:bg-sunken hover:text-ink'
+                    }`}
+                  >
+                    {active && (
+                      <span className="absolute left-0 top-2 bottom-2 w-[3px] rounded-r-full bg-azure cn-fade" />
+                    )}
+                    <span className="flex items-center gap-2.5">
+                      <Icon className={`w-4 h-4 ${active ? 'text-azure' : 'text-subtle group-hover:text-ink-2'}`} />
+                      <span>{item.label}</span>
+                    </span>
+                    {item.badge !== undefined && item.badge !== null && (
+                      <span
+                        className={`min-w-5 h-5 px-1.5 rounded-full text-[11px] font-medium inline-flex items-center justify-center ${
+                          item.alert
+                            ? 'bg-rose-500 text-white animate-pulse'
+                            : active
+                            ? 'bg-azure text-white'
+                            : 'bg-sunken text-ink-2'
+                        }`}
+                      >
+                        {item.badge}
+                      </span>
+                    )}
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+        ))}
+      </nav>
+
+      {/* Sidebar Footer Widget: Escrow Custody & Admin Profile */}
+      <div className="p-3 space-y-2 border-t border-line/60 bg-surface">
+        <button
+          type="button"
+          onClick={() => setActiveTab('contracts')}
+          className="w-full text-left rounded-xl border border-line p-3 hover:border-line-strong transition-colors cursor-pointer bg-canvas/60"
+        >
+          <div className="flex items-center justify-between text-xs text-muted">
+            <span className="flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-success cn-live-dot" />
+              Locked in Escrow
+            </span>
+            <ShieldCheck className="w-3.5 h-3.5 text-success" />
+          </div>
+          <div className="mt-1 text-base font-semibold tracking-tight text-ink">
+            {formatNaira(metrics.totalEscrowLockedMinor)}
+          </div>
+        </button>
+
+        <div className="flex items-center gap-2.5 px-1.5 py-1">
+          <button
+            type="button"
+            onClick={handleOpenProfileModal}
+            className="flex items-center gap-2.5 min-w-0 flex-1 group text-left cursor-pointer"
+          >
+            <Avatar name={currentAdmin.fullName} size={32} />
+            <div className="min-w-0">
+              <div className="text-[13px] font-medium text-ink truncate group-hover:text-azure-600 transition-colors">
+                {currentAdmin.fullName}
+              </div>
+              <div className="text-xs text-muted truncate">Lead Administrator</div>
+            </div>
+          </button>
+          <div className="flex items-center gap-1">
+            <button
+              type="button"
+              onClick={() => setActiveTab('settings')}
+              title="Platform Settings"
+              className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors cursor-pointer ${
+                activeTab === 'settings'
+                  ? 'text-azure-600 bg-azure-50'
+                  : 'text-subtle hover:text-ink hover:bg-sunken'
+              }`}
+            >
+              <Settings className="w-4 h-4" />
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowLogoutModal(true)}
+              title="Sign out"
+              className="w-8 h-8 rounded-lg flex items-center justify-center text-subtle hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
+            >
+              <LogOut className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+
+  return (
+    <div className="min-h-screen bg-canvas text-ink flex font-sans antialiased selection:bg-azure/15">
+      {/* Desktop Persistent Left Sidebar */}
+      <aside className="hidden lg:block w-[248px] shrink-0 bg-surface border-r border-line sticky top-0 h-screen">
+        {sidebarContent}
+      </aside>
+
+      {/* Mobile Slide-in Drawer */}
+      {mobileMenuOpen && (
+        <div className="lg:hidden fixed inset-0 z-50">
+          <div
+            className="absolute inset-0 bg-ink/30 backdrop-blur-[2px] cn-fade"
+            onClick={() => setMobileMenuOpen(false)}
+          />
+          <div className="absolute inset-y-0 left-0 w-[284px] max-w-[85vw] bg-surface shadow-2xl cn-slide-in">
+            {sidebarContent}
+          </div>
+        </div>
+      )}
+
+      {/* Main Content Area */}
+      <div className="flex-1 flex flex-col min-w-0">
+        {/* Sticky Top Header */}
+        <header className="sticky top-0 z-30 h-14 bg-canvas/85 backdrop-blur-md border-b border-line flex items-center justify-between px-4 sm:px-8">
+          <div className="flex items-center gap-3 min-w-0">
+            <button
+              type="button"
+              onClick={() => setMobileMenuOpen(true)}
+              className="lg:hidden w-9 h-9 -ml-1.5 rounded-lg text-ink-2 hover:bg-sunken flex items-center justify-center cursor-pointer"
+              aria-label="Open menu"
+            >
+              <Menu className="w-5 h-5" />
+            </button>
+            <Link href="/admin" className="lg:hidden flex items-center gap-1.5">
+              <ConnectaMark size={20} />
+              <span className="font-semibold text-sm tracking-tight text-ink">Connecta</span>
+            </Link>
+            <nav className="hidden sm:flex items-center gap-1.5 text-[13px] text-muted min-w-0">
+              <span className="hover:text-ink transition-colors cursor-pointer" onClick={() => setActiveTab('overview')}>
+                Admin
+              </span>
+              <ChevronRight className="w-3.5 h-3.5 text-subtle" />
+              <span className="text-ink font-medium truncate">{currentNav.label}</span>
+            </nav>
+          </div>
+
+          <div className="flex items-center gap-2">
+            {/* Live Indicator */}
+            <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200/80 text-[11px] font-medium text-emerald-800">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              <span>Live System Hub</span>
+            </div>
+
+            {/* Refresh Data Button */}
+            <button
+              type="button"
+              onClick={refreshData}
+              title="Refresh platform data"
+              disabled={isRefreshing}
+              className="w-9 h-9 rounded-lg flex items-center justify-center text-muted hover:text-ink hover:bg-sunken transition-colors cursor-pointer"
+            >
+              <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin text-azure' : ''}`} />
+            </button>
+
+            {/* In-App Alerts bell */}
+            <button
+              type="button"
+              onClick={() => setActiveTab('notifications')}
+              title="In-App Alerts"
+              className={`relative w-9 h-9 rounded-lg flex items-center justify-center transition-colors cursor-pointer ${
+                activeTab === 'notifications' ? 'bg-sunken text-ink' : 'text-muted hover:text-ink hover:bg-sunken'
+              }`}
+            >
+              <Bell className="w-4 h-4" />
+              {inAppNotifications.length > 0 && (
+                <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-azure ring-2 ring-canvas" />
+              )}
             </button>
 
             {/* Profile Dropdown */}
@@ -1173,52 +1388,22 @@ export default function AdminClientView({
               <button
                 type="button"
                 onClick={() => setProfileMenuOpen((prev) => !prev)}
-                className="flex items-center gap-2 sm:gap-2.5 px-3 py-1.5 rounded-full bg-slate-100 hover:bg-slate-200/80 border border-slate-200/80 transition-all cursor-pointer group"
-                aria-expanded={profileMenuOpen}
-                aria-haspopup="true"
+                className="flex items-center gap-2 pl-2 pr-1.5 py-1 rounded-full hover:bg-sunken border border-line transition-all cursor-pointer"
               >
-                <div className="w-7 h-7 rounded-full bg-[#0C513F] text-white flex items-center justify-center text-xs font-medium shadow-none overflow-hidden relative">
-                  {currentAdmin.avatarUrl ? (
-                    <Image
-                      src={currentAdmin.avatarUrl}
-                      alt={currentAdmin.fullName}
-                      fill
-                      className="object-cover"
-                    />
-                  ) : (
-                    getInitials(currentAdmin.fullName)
-                  )}
-                </div>
-                <div className="hidden sm:flex flex-col text-left">
-                  <span className="text-xs font-medium text-slate-900 leading-tight">
-                    {currentAdmin.fullName.split(' ')[0] || 'Admin'}
-                  </span>
-                </div>
-                <ChevronDown
-                  className={`w-3.5 h-3.5 text-slate-500 transition-transform duration-200 ${
-                    profileMenuOpen ? 'rotate-180' : ''
-                  }`}
-                />
+                <Avatar name={currentAdmin.fullName} size={26} />
+                <span className="hidden sm:inline text-xs font-medium text-ink max-w-[100px] truncate">
+                  {currentAdmin.fullName.split(' ')[0]}
+                </span>
+                <ChevronDown className="w-3.5 h-3.5 text-subtle" />
               </button>
 
-              {/* Profile Dropdown Menu */}
               {profileMenuOpen && (
-                <div className="absolute right-0 mt-2 w-60 bg-white rounded-2xl shadow-sm border border-slate-200/90 py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
-                  <div className="px-4 py-2.5 border-b border-slate-100">
-                    <p className="text-xs font-semibold text-slate-900 truncate">{currentAdmin.fullName}</p>
-                    <p className="text-[11px] font-normal text-slate-500 truncate">{currentAdmin.email}</p>
-                    <span className="inline-block mt-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-emerald-100 text-emerald-800">
-                      {currentAdmin.role === 'admin' ? 'Super Administrator' : currentAdmin.role}
-                    </span>
-                  </div>
-
-                  <div className="px-4 py-2 bg-slate-50 border-b border-slate-100 flex items-center justify-between text-[11px]">
-                    <span className="text-slate-500 flex items-center gap-1.5">
-                      <span className="w-2 h-2 rounded-full bg-emerald-500" />
-                      <span>Session</span>
-                    </span>
-                    <span className="font-medium text-emerald-700">
-                      Active
+                <div className="absolute right-0 mt-2 w-56 bg-surface rounded-2xl shadow-[0_20px_40px_-16px_rgba(17,24,39,0.22)] border border-line py-1.5 z-50 cn-pop origin-top-right overflow-hidden">
+                  <div className="px-4 py-2.5 border-b border-line">
+                    <p className="text-xs font-semibold text-ink truncate">{currentAdmin.fullName}</p>
+                    <p className="text-[11px] text-muted truncate">{currentAdmin.email}</p>
+                    <span className="inline-block mt-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-azure-50 text-azure-600">
+                      Super Administrator
                     </span>
                   </div>
 
@@ -1226,10 +1411,10 @@ export default function AdminClientView({
                     <button
                       type="button"
                       onClick={handleOpenProfileModal}
-                      className="w-full px-4 py-2 text-left text-xs font-medium text-slate-700 hover:bg-slate-50 hover:text-emerald-700 flex items-center gap-2.5 transition-colors cursor-pointer"
+                      className="w-full px-4 py-2 text-left text-xs text-ink hover:bg-sunken flex items-center gap-2.5 transition-colors cursor-pointer"
                     >
-                      <User className="w-4 h-4 text-slate-400" />
-                      <span>Profile</span>
+                      <User className="w-4 h-4 text-subtle" />
+                      <span>Administrator Profile</span>
                     </button>
                     <button
                       type="button"
@@ -1237,14 +1422,14 @@ export default function AdminClientView({
                         setProfileMenuOpen(false)
                         setActiveTab('settings')
                       }}
-                      className="w-full px-4 py-2 text-left text-xs font-medium text-slate-700 hover:bg-slate-50 hover:text-emerald-700 flex items-center gap-2.5 transition-colors cursor-pointer"
+                      className="w-full px-4 py-2 text-left text-xs text-ink hover:bg-sunken flex items-center gap-2.5 transition-colors cursor-pointer"
                     >
-                      <Settings className="w-4 h-4 text-slate-400" />
-                      <span>Setting</span>
+                      <Settings className="w-4 h-4 text-subtle" />
+                      <span>Platform Settings</span>
                     </button>
                   </div>
 
-                  <div className="border-t border-slate-100 pt-1">
+                  <div className="border-t border-line pt-1">
                     <button
                       type="button"
                       onClick={() => {
@@ -1254,7 +1439,7 @@ export default function AdminClientView({
                       className="w-full px-4 py-2 text-left text-xs font-medium text-rose-600 hover:bg-rose-50 flex items-center gap-2.5 transition-colors cursor-pointer"
                     >
                       <LogOut className="w-4 h-4 text-rose-500" />
-                      <span>Logout</span>
+                      <span>Sign Out</span>
                     </button>
                   </div>
                 </div>
@@ -1262,341 +1447,169 @@ export default function AdminClientView({
             </div>
           </div>
         </header>
-      </div>
 
-      {/* Main Admin Layout */}
-      <div className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 flex flex-col lg:flex-row gap-6 relative">
-        {/* Layer 1: Connecta Signature Halftone Dot Matrix Pattern with subtle opacity */}
-        <div
-          className="fixed inset-0 opacity-[0.05] pointer-events-none"
-          style={{
-            backgroundImage: 'radial-gradient(#0A2614 2px, transparent 2px)',
-            backgroundSize: '24px 24px',
-          }}
-        />
-
-        {/* Navigation Sidebar */}
-        <aside
-          className={`${
-            mobileMenuOpen ? 'block' : 'hidden'
-          } lg:block w-full lg:w-64 shrink-0 space-y-2 relative z-20`}
-        >
-          <div className="bg-white rounded-3xl p-3 border border-slate-200/90 shadow-none space-y-1">
+        {/* System Announcement Banner if active */}
+        {platformSettings.announcementActive && platformSettings.systemAnnouncement && (
+          <div className="bg-azure-50/90 border-b border-azure-100 px-5 sm:px-8 py-2 text-azure-900 text-xs sm:text-sm flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <Sparkles className="w-4 h-4 text-azure shrink-0" />
+              <span><strong>Live Announcement:</strong> {platformSettings.systemAnnouncement}</span>
+            </div>
             <button
               type="button"
-              onClick={() => { setActiveTab('overview'); setMobileMenuOpen(false); }}
-              className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl text-xs sm:text-sm font-medium transition-all cursor-pointer ${
-                activeTab === 'overview'
-                  ? 'bg-[#0A1020] text-white shadow-none'
-                  : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
-              }`}
+              onClick={() => setActiveTab('settings')}
+              className="text-xs font-medium text-azure-600 hover:text-azure-900 underline shrink-0 cursor-pointer"
             >
-              <div className="flex items-center gap-3">
-                <TrendingUp className="w-4 h-4 text-[#10B981]" />
-                <span>Command Overview</span>
-              </div>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => { setActiveTab('users'); setMobileMenuOpen(false); }}
-              className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl text-xs sm:text-sm font-medium transition-all cursor-pointer ${
-                activeTab === 'users'
-                  ? 'bg-[#0A1020] text-white shadow-none'
-                  : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
-              }`}
-            >
-              <div className="flex items-center gap-3">
-                <Users className="w-4 h-4 text-[#4D78FF]" />
-                <span>Users &amp; Artisans</span>
-              </div>
-              <span className="text-[10px] font-medium px-2 py-0.5 rounded-full whitespace-nowrap bg-slate-100 text-slate-700">
-                {users.length}
-              </span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => { setActiveTab('jobs'); setMobileMenuOpen(false); }}
-              className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl text-xs sm:text-sm font-medium transition-all cursor-pointer ${
-                activeTab === 'jobs'
-                  ? 'bg-[#0A1020] text-white shadow-none'
-                  : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
-              }`}
-            >
-              <div className="flex items-center gap-3">
-                <Briefcase className="w-4 h-4 text-[#F59E0B]" />
-                <span>Service Requests</span>
-              </div>
-              <span className="text-[10px] font-medium px-2 py-0.5 rounded-full whitespace-nowrap bg-slate-100 text-slate-700">
-                {serviceRequests.length}
-              </span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => { setActiveTab('contracts'); setMobileMenuOpen(false); }}
-              className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl text-xs sm:text-sm font-medium transition-all cursor-pointer ${
-                activeTab === 'contracts'
-                  ? 'bg-[#0A1020] text-white shadow-none'
-                  : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
-              }`}
-            >
-              <div className="flex items-center gap-3">
-                <Building2 className="w-4 h-4 text-emerald-600" />
-                <span>Escrow Contracts</span>
-              </div>
-              <span className="text-[10px] font-medium px-2 py-0.5 rounded-full whitespace-nowrap bg-emerald-100 text-emerald-800">
-                {bookings.length}
-              </span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => { setActiveTab('verifications'); setMobileMenuOpen(false); }}
-              className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl text-xs sm:text-sm font-medium transition-all cursor-pointer ${
-                activeTab === 'verifications'
-                  ? 'bg-[#0A1020] text-white shadow-none'
-                  : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
-              }`}
-            >
-              <div className="flex items-center gap-3">
-                <ShieldCheck className="w-4 h-4 text-emerald-500" />
-                <span>Verifications Queue</span>
-              </div>
-              {metrics.pendingVerificationsCount > 0 && (
-                <span className="text-[10px] font-medium px-2 py-0.5 rounded-full whitespace-nowrap bg-rose-500 text-white animate-pulse">
-                  {metrics.pendingVerificationsCount}
-                </span>
-              )}
-            </button>
-
-            <button
-              type="button"
-              onClick={() => { setActiveTab('payments'); setMobileMenuOpen(false); }}
-              className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl text-xs sm:text-sm font-medium transition-all cursor-pointer ${
-                activeTab === 'payments'
-                  ? 'bg-[#0A1020] text-white shadow-none'
-                  : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
-              }`}
-            >
-              <div className="flex items-center gap-3">
-                <CreditCard className="w-4 h-4 text-indigo-500" />
-                <span>Financial Ledger</span>
-              </div>
-              {pendingWithdrawals.length > 0 && (
-                <span className="text-[10px] font-medium px-2 py-0.5 rounded-full whitespace-nowrap bg-amber-500 text-white animate-pulse">
-                  {pendingWithdrawals.length} Payouts
-                </span>
-              )}
-            </button>
-
-            <button
-              type="button"
-              onClick={() => { setActiveTab('disputes'); setMobileMenuOpen(false); }}
-              className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl text-xs sm:text-sm font-medium transition-all cursor-pointer ${
-                activeTab === 'disputes'
-                  ? 'bg-[#0A1020] text-white shadow-none'
-                  : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
-              }`}
-            >
-              <div className="flex items-center gap-3">
-                <AlertTriangle className="w-4 h-4 text-amber-500" />
-                <span>Dispute Resolution</span>
-              </div>
-              {metrics.openDisputesCount > 0 && (
-                <span className="text-[10px] font-medium px-2 py-0.5 rounded-full whitespace-nowrap bg-amber-500 text-white">
-                  {metrics.openDisputesCount}
-                </span>
-              )}
-            </button>
-
-            <button
-              type="button"
-              onClick={() => { setActiveTab('email'); setMobileMenuOpen(false); }}
-              className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl text-xs sm:text-sm font-medium transition-all cursor-pointer ${
-                activeTab === 'email'
-                  ? 'bg-[#0A1020] text-white shadow-none'
-                  : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
-              }`}
-            >
-              <div className="flex items-center gap-3">
-                <Mail className={`w-4 h-4 ${activeTab === 'email' ? 'text-[#10B981]' : 'text-emerald-500'}`} />
-                <span>Send Email</span>
-              </div>
-              <span className="text-[10px] font-medium px-2 py-0.5 rounded-full whitespace-nowrap bg-emerald-100 text-emerald-800">
-                Hub
-              </span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => { setActiveTab('notifications'); setMobileMenuOpen(false); }}
-              className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl text-xs sm:text-sm font-medium transition-all cursor-pointer ${
-                activeTab === 'notifications'
-                  ? 'bg-[#0A1020] text-white shadow-none'
-                  : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
-              }`}
-            >
-              <div className="flex items-center gap-3">
-                <Bell className={`w-4 h-4 ${activeTab === 'notifications' ? 'text-amber-400' : 'text-amber-500'}`} />
-                <span>In-App Alerts</span>
-              </div>
-              <span className="text-[10px] font-medium px-2 py-0.5 rounded-full whitespace-nowrap bg-amber-100 text-amber-800">
-                {inAppNotifications.length}
-              </span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => { setActiveTab('settings'); setMobileMenuOpen(false); }}
-              className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl text-xs sm:text-sm font-medium transition-all cursor-pointer ${
-                activeTab === 'settings'
-                  ? 'bg-[#0A1020] text-white shadow-none'
-                  : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
-              }`}
-            >
-              <div className="flex items-center gap-3">
-                <Settings className="w-4 h-4 text-slate-500" />
-                <span>Platform Settings</span>
-              </div>
+              Configure Banner →
             </button>
           </div>
-        </aside>
+        )}
 
-        {/* Main Content Area */}
-        <main className="flex-1 min-w-0 space-y-6 relative z-20">
+        {/* Main Content Body */}
+        <main className="flex-1 w-full max-w-[1240px] mx-auto px-4 sm:px-8 lg:px-10 py-6 sm:py-8 cn-fade">
           {/* ================================================================= */}
-          {/* TAB: OVERVIEW */}
+          {/* TAB: COMMAND OVERVIEW                                             */}
           {/* ================================================================= */}
           {activeTab === 'overview' && (
             <div className="space-y-6">
-              {/* Header Banner */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              {/* Header */}
+              <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
                 <div>
-                  <div className="flex items-center gap-2 mb-1">
-                    <div className="w-6 h-6 rounded-full border border-[#0A1020] bg-white flex items-center justify-center font-medium text-xs text-[#0A1020]">
-                      ↓
-                    </div>
-                    <span className="text-[11px] font-medium uppercase tracking-wider text-slate-600">
-                      Operations Dashboard
-                    </span>
-                  </div>
-                  <h1 className="text-2xl sm:text-3xl font-semibold text-[#0A1020] tracking-tight">
-                    Connecta Admin Command Center
+                  <p className="text-[13px] text-muted mb-1 font-medium">OPERATIONS COMMAND</p>
+                  <h1 className="text-[26px] sm:text-[28px] leading-tight font-medium tracking-[-0.02em] text-ink">
+                    Platform Command Center
                   </h1>
-                  <p className="text-xs sm:text-sm text-slate-500 mt-1">
-                    Monitoring local services discoverability, verification queues, and milestone escrow security in Kano.
+                  <p className="text-sm text-muted mt-1 leading-relaxed max-w-2xl">
+                    Live oversight of verified artisans, customer requests, and NDIC-insured milestone escrow security across Nigeria.
                   </p>
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 shrink-0">
                   <button
                     type="button"
                     onClick={() => setActiveTab('verifications')}
-                    className="px-4 py-2 rounded-full bg-[#10B981] hover:bg-[#059669] text-white text-xs font-medium shadow-none transition-all flex items-center gap-1.5 cursor-pointer"
+                    className="h-9 px-3.5 rounded-[10px] bg-surface border border-line hover:bg-sunken text-ink text-xs font-medium inline-flex items-center gap-1.5 transition-colors cursor-pointer"
                   >
-                    <ShieldCheck className="w-4 h-4" />
+                    <ShieldCheck className="w-4 h-4 text-emerald-600" />
                     <span>Verifications ({metrics.pendingVerificationsCount})</span>
                   </button>
                   <button
                     type="button"
                     onClick={() => setActiveTab('contracts')}
-                    className="px-4 py-2 rounded-full bg-[#0A1020] hover:bg-slate-800 text-white text-xs font-medium shadow-none transition-all flex items-center gap-1.5 cursor-pointer"
+                    className="h-9 px-4 rounded-[10px] bg-ink hover:bg-ink-2 text-white text-xs font-medium inline-flex items-center gap-1.5 transition-colors cursor-pointer"
                   >
-                    <Building2 className="w-4 h-4" />
+                    <Building2 className="w-4 h-4 text-emerald-400" />
                     <span>Escrow Vault</span>
                   </button>
                 </div>
               </div>
 
               {/* 4 Primary Hero KPI Cards */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 {/* Total Users */}
-                <div className="bg-gradient-to-br from-[#1E3A8A] to-[#3B82F6] rounded-3xl p-6 text-white shadow-none relative overflow-hidden group">
-                  <div className="relative z-10 space-y-2">
-                    <p className="text-[11px] font-medium text-blue-100 uppercase tracking-wider whitespace-nowrap">
-                      Total Platform Users
-                    </p>
-                    <p className="text-2xl sm:text-3xl font-semibold tracking-tight">
-                      {metrics.totalUsers}
-                    </p>
-                    <div className="flex items-center gap-2 text-xs text-blue-100 pt-1">
-                      <span>{metrics.totalProviders} Artisans</span>
-                      <span>•</span>
-                      <span>{metrics.totalCustomers} Clients</span>
-                    </div>
+                <div
+                  onClick={() => setActiveTab('users')}
+                  className="bg-surface rounded-2xl border border-line p-5 hover:border-line-strong transition-all cursor-pointer shadow-[0_1px_3px_rgba(0,0,0,0.03)] group"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-medium text-muted uppercase tracking-wider">
+                      Platform Users
+                    </span>
+                    <span className="w-8 h-8 rounded-lg bg-azure-50 text-azure-600 flex items-center justify-center">
+                      <Users className="w-4 h-4" />
+                    </span>
                   </div>
-                  <Users className="w-20 h-20 text-white/10 absolute -bottom-2 -right-2 pointer-events-none group-hover:scale-110 transition-transform" />
+                  <div className="text-2xl sm:text-3xl font-semibold text-ink tracking-tight mt-2.5">
+                    {metrics.totalUsers}
+                  </div>
+                  <div className="flex items-center justify-between text-xs text-muted mt-2 pt-2 border-t border-line/60">
+                    <span>{metrics.totalProviders} Artisans</span>
+                    <span>{metrics.totalCustomers} Clients</span>
+                  </div>
                 </div>
 
                 {/* Service Requests */}
-                <div className="bg-gradient-to-br from-[#B45309] to-[#F59E0B] rounded-3xl p-6 text-white shadow-none relative overflow-hidden group">
-                  <div className="relative z-10 space-y-2">
-                    <p className="text-[11px] font-medium text-amber-100 uppercase tracking-wider whitespace-nowrap">
+                <div
+                  onClick={() => setActiveTab('jobs')}
+                  className="bg-surface rounded-2xl border border-line p-5 hover:border-line-strong transition-all cursor-pointer shadow-[0_1px_3px_rgba(0,0,0,0.03)] group"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-medium text-muted uppercase tracking-wider">
                       Service Requests
-                    </p>
-                    <p className="text-2xl sm:text-3xl font-semibold tracking-tight">
-                      {metrics.totalJobs}
-                    </p>
-                    <div className="flex items-center gap-2 text-xs text-amber-100 pt-1">
-                      <span className="font-medium text-white">{metrics.activeJobs} Active</span>
-                      <span>in Kano &amp; Nigeria</span>
-                    </div>
+                    </span>
+                    <span className="w-8 h-8 rounded-lg bg-warn-50 text-warn-ink flex items-center justify-center">
+                      <Briefcase className="w-4 h-4" />
+                    </span>
                   </div>
-                  <Briefcase className="w-20 h-20 text-white/10 absolute -bottom-2 -right-2 pointer-events-none group-hover:scale-110 transition-transform" />
+                  <div className="text-2xl sm:text-3xl font-semibold text-ink tracking-tight mt-2.5">
+                    {metrics.totalJobs}
+                  </div>
+                  <div className="flex items-center justify-between text-xs text-muted mt-2 pt-2 border-t border-line/60">
+                    <span className="text-emerald-700 font-medium">{metrics.activeJobs} Active</span>
+                    <span>Nigeria</span>
+                  </div>
                 </div>
 
                 {/* Escrow Locked */}
-                <div className="bg-gradient-to-br from-[#0C513F] to-[#10B981] rounded-3xl p-6 text-white shadow-none relative overflow-hidden group">
-                  <div className="relative z-10 space-y-2">
-                    <p className="text-[11px] font-medium text-emerald-100 uppercase tracking-wider whitespace-nowrap">
-                      Locked in Escrow Vault
-                    </p>
-                    <p className="text-xl sm:text-2xl font-semibold tracking-tight">
-                      {formatNaira(metrics.totalEscrowLockedMinor)}
-                    </p>
-                    <div className="flex items-center gap-2 text-xs text-emerald-100 pt-1">
-                      <span>{metrics.activeContracts} Contracts Underway</span>
-                    </div>
+                <div
+                  onClick={() => setActiveTab('contracts')}
+                  className="bg-surface rounded-2xl border border-line p-5 hover:border-line-strong transition-all cursor-pointer shadow-[0_1px_3px_rgba(0,0,0,0.03)] group"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-medium text-muted uppercase tracking-wider">
+                      Locked In Escrow
+                    </span>
+                    <span className="w-8 h-8 rounded-lg bg-success-50 text-success-ink flex items-center justify-center">
+                      <ShieldCheck className="w-4 h-4" />
+                    </span>
                   </div>
-                  <ShieldCheck className="w-20 h-20 text-white/10 absolute -bottom-2 -right-2 pointer-events-none group-hover:scale-110 transition-transform" />
+                  <div className="text-xl sm:text-2xl font-semibold text-success-ink tracking-tight mt-2.5">
+                    {formatNaira(metrics.totalEscrowLockedMinor)}
+                  </div>
+                  <div className="flex items-center justify-between text-xs text-muted mt-2 pt-2 border-t border-line/60">
+                    <span>{metrics.activeContracts} Ongoing Contracts</span>
+                    <ArrowRight className="w-3.5 h-3.5 text-subtle group-hover:text-ink transition-colors" />
+                  </div>
                 </div>
 
-                {/* Platform Revenue (5% Fee) */}
-                <div className="bg-gradient-to-br from-[#0A1020] to-[#1E293B] rounded-3xl p-6 text-white shadow-none relative overflow-hidden group">
-                  <div className="relative z-10 space-y-2">
-                    <p className="text-[11px] font-medium text-slate-300 uppercase tracking-wider whitespace-nowrap">
-                      Connecta Revenue (5%)
-                    </p>
-                    <p className="text-xl sm:text-2xl font-semibold tracking-tight text-[#10B981]">
-                      {formatNaira(metrics.totalPlatformFeeRevenueMinor)}
-                    </p>
-                    <div className="flex items-center gap-2 text-xs text-slate-300 pt-1">
-                      <span>{formatNaira(metrics.totalEscrowReleasedMinor)} released</span>
-                    </div>
+                {/* Revenue (5%) */}
+                <div
+                  onClick={() => setActiveTab('payments')}
+                  className="bg-surface rounded-2xl border border-line p-5 hover:border-line-strong transition-all cursor-pointer shadow-[0_1px_3px_rgba(0,0,0,0.03)] group"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-medium text-muted uppercase tracking-wider">
+                      Platform Fees (5%)
+                    </span>
+                    <span className="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center">
+                      <Coins className="w-4 h-4" />
+                    </span>
                   </div>
-                  <DollarSign className="w-20 h-20 text-white/10 absolute -bottom-2 -right-2 pointer-events-none group-hover:scale-110 transition-transform" />
+                  <div className="text-xl sm:text-2xl font-semibold text-ink tracking-tight mt-2.5">
+                    {formatNaira(metrics.totalPlatformFeeRevenueMinor)}
+                  </div>
+                  <div className="flex items-center justify-between text-xs text-muted mt-2 pt-2 border-t border-line/60">
+                    <span>{formatNaira(metrics.totalEscrowReleasedMinor)} Settled</span>
+                    <ArrowRight className="w-3.5 h-3.5 text-subtle group-hover:text-ink transition-colors" />
+                  </div>
                 </div>
               </div>
 
-              {/* 2-Column Overview Tables: Recent Jobs & Pending Verifications */}
+              {/* 2-Column Split: Pending Verifications & Recent Requests */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Pending Verification Alerts */}
-                <div className="bg-white rounded-3xl p-6 border border-slate-200/90 shadow-none space-y-4">
-                  <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+                <div className="bg-surface rounded-2xl border border-line p-6 shadow-[0_1px_3px_rgba(0,0,0,0.03)] space-y-4">
+                  <div className="flex items-center justify-between pb-3 border-b border-line">
                     <div className="flex items-center gap-2">
-                      <ShieldCheck className="w-5 h-5 text-emerald-600" />
-                      <h3 className="font-semibold text-slate-900 text-sm sm:text-base">
-                        Verification Requests
-                      </h3>
+                      <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                      <h3 className="text-base font-medium text-ink">Artisan Verification Queue</h3>
                     </div>
                     <button
                       type="button"
                       onClick={() => setActiveTab('verifications')}
-                      className="text-xs font-medium text-[#0C513F] hover:underline cursor-pointer"
+                      className="text-xs font-medium text-azure-600 hover:text-azure-700 cursor-pointer"
                     >
-                      View All →
+                      View all ({verificationCases.length}) →
                     </button>
                   </div>
 
@@ -1604,49 +1617,40 @@ export default function AdminClientView({
                     {verificationCases.slice(0, 3).map((v) => (
                       <div
                         key={v.id}
-                        className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-center justify-between gap-3 hover:bg-slate-100/70 transition-colors"
+                        className="p-3.5 rounded-xl bg-canvas/70 border border-line flex items-center justify-between gap-3 hover:bg-sunken transition-colors"
                       >
-                        <div className="space-y-1 min-w-0">
-                          <p className="font-medium text-xs text-slate-900 truncate">
-                            {v.providerName}
-                          </p>
-                          <p className="text-[11px] text-slate-500 truncate">
+                        <div className="space-y-0.5 min-w-0">
+                          <p className="font-medium text-[13px] text-ink truncate">{v.providerName}</p>
+                          <p className="text-xs text-muted truncate">
                             {v.trade} • {v.city}
                           </p>
-                          <span className="text-[10px] font-normal text-slate-400">
-                            {v.documentType}
-                          </span>
+                          <p className="text-[11px] text-subtle">{v.documentType} ({v.documentNumber})</p>
                         </div>
-
-                        <div className="flex items-center gap-1.5 shrink-0">
-                          <button
-                            type="button"
-                            onClick={() => setSelectedCase(v)}
-                            className="px-3 py-1.5 rounded-full bg-[#0A1020] text-white text-[11px] font-medium hover:bg-[#10B981] transition-colors cursor-pointer"
-                          >
-                            Review
-                          </button>
-                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setSelectedCase(v)}
+                          className="h-8 px-3 rounded-lg bg-surface border border-line text-ink hover:bg-sunken text-xs font-medium shrink-0 transition-colors cursor-pointer"
+                        >
+                          Review
+                        </button>
                       </div>
                     ))}
                   </div>
                 </div>
 
-                {/* Recent Service Requests in Kano */}
-                <div className="bg-white rounded-3xl p-6 border border-slate-200/90 shadow-none space-y-4">
-                  <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+                {/* Recent Service Requests */}
+                <div className="bg-surface rounded-2xl border border-line p-6 shadow-[0_1px_3px_rgba(0,0,0,0.03)] space-y-4">
+                  <div className="flex items-center justify-between pb-3 border-b border-line">
                     <div className="flex items-center gap-2">
-                      <Briefcase className="w-5 h-5 text-amber-600" />
-                      <h3 className="font-semibold text-slate-900 text-sm sm:text-base">
-                        Recent Local Service Requests
-                      </h3>
+                      <Briefcase className="w-4 h-4 text-warn-ink" />
+                      <h3 className="text-base font-medium text-ink">Recent Service Requests</h3>
                     </div>
                     <button
                       type="button"
                       onClick={() => setActiveTab('jobs')}
-                      className="text-xs font-medium text-[#0C513F] hover:underline cursor-pointer"
+                      className="text-xs font-medium text-azure-600 hover:text-azure-700 cursor-pointer"
                     >
-                      View All →
+                      View all ({serviceRequests.length}) →
                     </button>
                   </div>
 
@@ -1654,28 +1658,21 @@ export default function AdminClientView({
                     {serviceRequests.slice(0, 3).map((j) => (
                       <div
                         key={j.id}
-                        className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-center justify-between gap-3 hover:bg-slate-100/70 transition-colors"
+                        className="p-3.5 rounded-xl bg-canvas/70 border border-line flex items-center justify-between gap-3 hover:bg-sunken transition-colors"
                       >
                         <div className="space-y-1 min-w-0">
                           <div className="flex items-center gap-2">
-                            <span className="text-[10px] font-medium px-2 py-0.5 rounded-full whitespace-nowrap bg-emerald-100 text-emerald-800 uppercase">
-                              {j.category}
-                            </span>
-                            <span className="text-[10px] font-medium text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded">
-                              {j.urgency}
-                            </span>
+                            <Badge tone="azure">{j.category}</Badge>
+                            <span className="text-[10px] font-medium text-warn-ink uppercase">{j.urgency}</span>
                           </div>
-                          <p className="font-medium text-xs text-slate-900 truncate">
-                            {j.title}
-                          </p>
-                          <p className="text-[11px] text-slate-500">
-                            Budget: <span className="font-medium text-slate-800">{formatNaira(j.budgetMinMinor)} - {formatNaira(j.budgetMaxMinor)}</span> • {j.city}
+                          <p className="font-medium text-[13px] text-ink truncate">{j.title}</p>
+                          <p className="text-xs text-muted">
+                            Budget: <span className="font-medium text-ink">{formatNaira(j.budgetMinMinor)} - {formatNaira(j.budgetMaxMinor)}</span> • {j.city}
                           </p>
                         </div>
-
-                        <span className="text-[10px] font-medium px-2.5 py-1 rounded-full whitespace-nowrap bg-white border border-slate-200 text-slate-700 shrink-0">
+                        <Badge tone={j.status === 'open' ? 'success' : 'neutral'}>
                           {j.status}
-                        </span>
+                        </Badge>
                       </div>
                     ))}
                   </div>
@@ -1685,28 +1682,29 @@ export default function AdminClientView({
           )}
 
           {/* ================================================================= */}
-          {/* TAB: USERS & ARTISANS */}
+          {/* TAB: USERS & ARTISANS                                             */}
           {/* ================================================================= */}
           {activeTab === 'users' && (
             <div className="space-y-6">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
                 <div>
-                  <h2 className="text-xl sm:text-2xl font-semibold text-slate-900 tracking-tight">
+                  <h1 className="text-[26px] leading-tight font-medium tracking-[-0.02em] text-ink">
                     Users &amp; Service Providers
-                  </h2>
-                  <p className="text-xs sm:text-sm text-slate-500 mt-1">
-                    Manage registered clients, verified trade artisans, and platform administrators.
+                  </h1>
+                  <p className="text-sm text-muted mt-1">
+                    Manage registered clients, verified trade artisans, and administrative governance.
                   </p>
                 </div>
 
-                <div className="flex items-center gap-2">
+                {/* Role Tabs */}
+                <div className="inline-flex items-center gap-0.5 p-1 rounded-xl bg-sunken border border-line">
                   <button
                     type="button"
                     onClick={() => setUserRoleFilter('all')}
-                    className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+                    className={`h-8 px-3 rounded-lg text-xs font-medium transition-all cursor-pointer ${
                       userRoleFilter === 'all'
-                        ? 'bg-[#0A1020] text-white shadow-none'
-                        : 'bg-white text-slate-700 border border-slate-200'
+                        ? 'bg-surface text-ink shadow-[0_1px_3px_rgba(17,24,39,0.08)]'
+                        : 'text-muted hover:text-ink'
                     }`}
                   >
                     All ({users.length})
@@ -1714,10 +1712,10 @@ export default function AdminClientView({
                   <button
                     type="button"
                     onClick={() => setUserRoleFilter('provider')}
-                    className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+                    className={`h-8 px-3 rounded-lg text-xs font-medium transition-all cursor-pointer ${
                       userRoleFilter === 'provider'
-                        ? 'bg-[#0A1020] text-white shadow-none'
-                        : 'bg-white text-slate-700 border border-slate-200'
+                        ? 'bg-surface text-ink shadow-[0_1px_3px_rgba(17,24,39,0.08)]'
+                        : 'text-muted hover:text-ink'
                     }`}
                   >
                     Artisans ({users.filter((u) => u.role === 'provider').length})
@@ -1725,10 +1723,10 @@ export default function AdminClientView({
                   <button
                     type="button"
                     onClick={() => setUserRoleFilter('customer')}
-                    className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+                    className={`h-8 px-3 rounded-lg text-xs font-medium transition-all cursor-pointer ${
                       userRoleFilter === 'customer'
-                        ? 'bg-[#0A1020] text-white shadow-none'
-                        : 'bg-white text-slate-700 border border-slate-200'
+                        ? 'bg-surface text-ink shadow-[0_1px_3px_rgba(17,24,39,0.08)]'
+                        : 'text-muted hover:text-ink'
                     }`}
                   >
                     Clients ({users.filter((u) => u.role === 'customer').length})
@@ -1737,118 +1735,95 @@ export default function AdminClientView({
               </div>
 
               {/* Search Bar */}
-              <div className="p-2 rounded-2xl bg-white border border-slate-200/90 shadow-none flex items-center gap-2">
-                <Search className="w-4 h-4 text-slate-400 ml-2" />
+              <div className="relative">
+                <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-subtle" />
                 <input
                   type="text"
                   value={userSearch}
                   onChange={(e) => setUserSearch(e.target.value)}
-                  placeholder="Search by name, trade (e.g. Plumber, Electrician), email, or city..."
-                  className="w-full bg-transparent text-xs sm:text-sm font-normal text-slate-800 focus:outline-none"
+                  placeholder="Search by name, trade specialty, email, or city..."
+                  className="w-full h-10 pl-10 pr-4 rounded-xl bg-surface border border-line text-sm text-ink placeholder:text-subtle focus:outline-none focus:border-azure focus:ring-4 focus:ring-azure/10 transition-all"
                 />
-                {userSearch && (
-                  <button
-                    type="button"
-                    onClick={() => setUserSearch('')}
-                    className="text-xs text-slate-400 hover:text-slate-600 px-2"
-                  >
-                    ✕
-                  </button>
-                )}
               </div>
 
               {/* Users Table */}
-              <div className="bg-white rounded-3xl border border-slate-200/90 shadow-none overflow-hidden">
+              <div className="bg-surface rounded-2xl border border-line overflow-hidden shadow-[0_1px_3px_rgba(0,0,0,0.03)]">
                 <div className="overflow-x-auto">
                   <table className="w-full text-left text-xs">
-                    <thead className="bg-slate-50/90 border-b border-slate-200 text-slate-500 uppercase tracking-wider font-medium text-[11px] whitespace-nowrap">
+                    <thead className="bg-sunken/60 border-b border-line text-subtle uppercase tracking-wider font-semibold text-[11px] whitespace-nowrap">
                       <tr>
-                        <th className="py-3.5 px-5 whitespace-nowrap">Name &amp; Business</th>
-                        <th className="py-3.5 px-4 whitespace-nowrap">Role / Trade</th>
-                        <th className="py-3.5 px-4 whitespace-nowrap">City</th>
-                        <th className="py-3.5 px-4 whitespace-nowrap">Verification</th>
-                        <th className="py-3.5 px-4 whitespace-nowrap">Status</th>
-                        <th className="py-3.5 px-4 text-right whitespace-nowrap">Actions</th>
+                        <th className="py-3 px-5">Member &amp; Contact</th>
+                        <th className="py-3 px-4">Role / Trade</th>
+                        <th className="py-3 px-4">Location</th>
+                        <th className="py-3 px-4">Verification</th>
+                        <th className="py-3 px-4">Status</th>
+                        <th className="py-3 px-4 text-right">Actions</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-100 font-medium text-slate-700">
+                    <tbody className="divide-y divide-line/60 text-ink-2 font-normal">
                       {filteredUsers.map((u) => (
-                        <tr key={u.id} className="hover:bg-slate-50/70 transition-colors">
+                        <tr key={u.id} className="hover:bg-sunken/40 transition-colors">
                           <td className="py-3.5 px-5">
-                            <div className="font-medium text-slate-900 text-xs">
-                              {u.fullName}
-                            </div>
-                            <div className="text-[11px] text-slate-400 font-normal">
-                              {u.email} • {u.phone}
+                            <div className="flex items-center gap-2.5">
+                              <Avatar name={u.fullName} size={30} />
+                              <div className="min-w-0">
+                                <div className="font-medium text-ink text-[13px] truncate">{u.fullName}</div>
+                                <div className="text-[11px] text-muted truncate">{u.email} • {u.phone}</div>
+                              </div>
                             </div>
                           </td>
                           <td className="py-3.5 px-4">
-                            <span className="font-medium text-slate-800 capitalize text-xs">
+                            <span className="font-medium text-ink capitalize text-xs">
                               {u.role === 'provider' ? u.trade : 'Client'}
                             </span>
                           </td>
-                          <td className="py-3.5 px-4">
-                            <span className="inline-flex items-center gap-1 text-slate-600 font-normal">
-                              <MapPin className="w-3 h-3 text-slate-400" />
+                          <td className="py-3.5 px-4 text-muted">
+                            <span className="inline-flex items-center gap-1">
+                              <MapPin className="w-3 h-3 text-subtle" />
                               <span>{u.city}</span>
                             </span>
                           </td>
                           <td className="py-3.5 px-4">
-                            <span
-                              className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-medium ${
-                                u.verificationStatus === 'verified'
-                                  ? 'bg-emerald-100 text-emerald-800'
-                                  : 'bg-slate-100 text-slate-600'
-                              }`}
-                            >
-                              {u.verificationStatus === 'verified' && (
-                                <CheckCircle2 className="w-3 h-3 text-emerald-600" />
-                              )}
-                              <span>{u.verificationStatus.toUpperCase()}</span>
-                            </span>
+                            <Badge tone={u.verificationStatus === 'verified' ? 'success' : 'neutral'} dot>
+                              {u.verificationStatus.toUpperCase()}
+                            </Badge>
                           </td>
                           <td className="py-3.5 px-4">
-                            <span
-                              className={`px-2 py-0.5 rounded-full text-[10px] font-medium ${
-                                u.accountStatus === 'active'
-                                  ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                                  : 'bg-rose-50 text-rose-700 border border-rose-200'
-                              }`}
-                            >
+                            <Badge tone={u.accountStatus === 'active' ? 'success' : 'danger'}>
                               {u.accountStatus.toUpperCase()}
-                            </span>
+                            </Badge>
                           </td>
                           <td className="py-3.5 px-4 text-right">
-                            <div className="inline-flex items-center gap-1.5 flex-wrap justify-end">
+                            <div className="inline-flex items-center gap-1.5 justify-end">
                               {u.role === 'provider' && (
                                 <button
                                   type="button"
                                   onClick={() => handleToggleFeatured(u)}
-                                  className={`px-2 py-1 rounded-full text-[11px] font-medium transition-all cursor-pointer flex items-center gap-1 border ${
+                                  className={`h-7 px-2.5 rounded-lg text-xs font-medium transition-all cursor-pointer flex items-center gap-1 border ${
                                     u.isFeatured
-                                      ? 'bg-amber-50 text-amber-700 border-amber-300 hover:bg-amber-100'
-                                      : 'bg-slate-50 text-slate-500 border-slate-200 hover:bg-amber-50 hover:text-amber-600'
+                                      ? 'bg-amber-50 text-amber-700 border-amber-300'
+                                      : 'border-line text-muted hover:bg-sunken hover:text-ink'
                                   }`}
-                                  title={u.isFeatured ? 'Featured on User Dashboard Overview' : 'Click to feature on User Dashboard Overview'}
+                                  title={u.isFeatured ? 'Featured on User Overview' : 'Click to feature'}
                                 >
-                                  <Star className={`w-3 h-3 ${u.isFeatured ? 'fill-amber-400 text-amber-500' : 'text-slate-400'}`} />
+                                  <Star className={`w-3 h-3 ${u.isFeatured ? 'fill-amber-400 text-amber-500' : 'text-subtle'}`} />
                                   <span>{u.isFeatured ? 'Featured' : 'Feature'}</span>
                                 </button>
                               )}
                               <button
                                 type="button"
                                 onClick={() => handleOpenEditUser(u)}
-                                className="px-2.5 py-1 rounded-full border border-slate-200 hover:border-indigo-600 hover:bg-indigo-50 text-slate-700 hover:text-indigo-700 text-[11px] font-medium transition-all cursor-pointer flex items-center gap-1"
-                                title="Edit User Profile, NIN, Trade & Role"
+                                className="h-7 px-2.5 rounded-lg border border-line hover:border-line-strong hover:bg-sunken text-ink text-xs font-medium transition-colors cursor-pointer flex items-center gap-1"
+                                title="Edit profile"
                               >
-                                <Edit3 className="w-3 h-3 text-indigo-600" />
+                                <Edit3 className="w-3 h-3 text-subtle" />
                                 <span>Edit</span>
                               </button>
                               <button
                                 type="button"
                                 onClick={() => handleOpenAdjustWallet(u)}
-                                className="px-2.5 py-1 rounded-full border border-slate-200 hover:border-emerald-600 hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 text-[11px] font-medium transition-all cursor-pointer flex items-center gap-1"
-                                title="Adjust Balance or Sparks Points"
+                                className="h-7 px-2.5 rounded-lg border border-line hover:border-line-strong hover:bg-sunken text-ink text-xs font-medium transition-colors cursor-pointer flex items-center gap-1"
+                                title="Adjust vault balance"
                               >
                                 <Coins className="w-3 h-3 text-emerald-600" />
                                 <span>Vault</span>
@@ -1856,31 +1831,19 @@ export default function AdminClientView({
                               <button
                                 type="button"
                                 onClick={() => handleOpenUser360(u)}
-                                className="px-2.5 py-1 rounded-full border border-slate-200 hover:border-slate-800 text-slate-700 text-[11px] font-medium transition-all cursor-pointer flex items-center gap-1"
-                                title="360° View of User's Projects, Wallet & Disputes"
+                                className="h-7 px-2.5 rounded-lg border border-line hover:border-line-strong hover:bg-sunken text-ink text-xs font-medium transition-colors cursor-pointer flex items-center gap-1"
+                                title="360 View"
                               >
-                                <Eye className="w-3 h-3 text-slate-500" />
+                                <Eye className="w-3 h-3 text-subtle" />
                                 <span>360°</span>
                               </button>
                               <button
                                 type="button"
-                                onClick={() => {
-                                  setPreselectedEmailUser(u)
-                                  setActiveTab('email')
-                                }}
-                                className="px-2.5 py-1 rounded-full border border-slate-200 hover:border-emerald-600 hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 text-[11px] font-medium transition-all cursor-pointer flex items-center gap-1"
-                                title={`Send email to ${u.fullName}`}
-                              >
-                                <Mail className="w-3 h-3 text-emerald-600" />
-                                <span>Email</span>
-                              </button>
-                              <button
-                                type="button"
                                 onClick={() => handleToggleUserStatus(u)}
-                                className={`px-2.5 py-1 rounded-full text-[11px] font-medium transition-all cursor-pointer ${
+                                className={`h-7 px-2.5 rounded-lg text-xs font-medium transition-colors cursor-pointer ${
                                   u.accountStatus === 'active'
-                                    ? 'bg-rose-50 text-rose-600 hover:bg-rose-100'
-                                    : 'bg-emerald-50 text-emerald-600 hover:bg-emerald-100'
+                                    ? 'bg-rose-50 text-rose-700 hover:bg-rose-100'
+                                    : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
                                 }`}
                               >
                                 {u.accountStatus === 'active' ? 'Suspend' : 'Activate'}
@@ -1897,104 +1860,86 @@ export default function AdminClientView({
           )}
 
           {/* ================================================================= */}
-          {/* TAB: JOBS / SERVICE REQUESTS */}
+          {/* TAB: SERVICE REQUESTS                                             */}
           {/* ================================================================= */}
           {activeTab === 'jobs' && (
             <div className="space-y-6">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
                 <div>
-                  <h2 className="text-xl sm:text-2xl font-semibold text-slate-900 tracking-tight">
+                  <h1 className="text-[26px] leading-tight font-medium tracking-[-0.02em] text-ink">
                     Service Requests &amp; Jobs
-                  </h2>
-                  <p className="text-xs sm:text-sm text-slate-500 mt-1">
-                    Live homeowner and business job requests across Kano and Nigerian metropolitan areas.
+                  </h1>
+                  <p className="text-sm text-muted mt-1">
+                    Live client job inquiries across Kano and Nigerian metropolitan hubs.
                   </p>
                 </div>
 
-                {/* Trade Filter */}
                 <select
                   value={jobTradeFilter}
                   onChange={(e) => setJobTradeFilter(e.target.value)}
-                  className="px-3.5 py-2 rounded-full border border-slate-200 bg-white font-medium text-xs text-slate-700 cursor-pointer"
+                  className="h-9 px-3 rounded-xl border border-line bg-surface text-xs font-medium text-ink cursor-pointer focus:outline-none focus:ring-2 focus:ring-azure/20"
                 >
-                  <option value="all">All Local Trades</option>
-                  <option value="plumbing">Plumbing &amp; Water Systems</option>
+                  <option value="all">All Trade Categories</option>
+                  <option value="plumbing">Plumbing &amp; Pipes</option>
                   <option value="electrical">Electrical &amp; Solar</option>
                   <option value="ac-cooling">AC &amp; Refrigeration</option>
                   <option value="carpentry">Carpentry &amp; Woodwork</option>
                 </select>
               </div>
 
-              {/* Job Search */}
-              <div className="p-2 rounded-2xl bg-white border border-slate-200/90 shadow-none flex items-center gap-2">
-                <Search className="w-4 h-4 text-slate-400 ml-2" />
+              {/* Search */}
+              <div className="relative">
+                <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-subtle" />
                 <input
                   type="text"
                   value={jobSearch}
                   onChange={(e) => setJobSearch(e.target.value)}
-                  placeholder="Search job title, customer, or location..."
-                  className="w-full bg-transparent text-xs sm:text-sm font-normal text-slate-800 focus:outline-none"
+                  placeholder="Search job title, customer name, or location..."
+                  className="w-full h-10 pl-10 pr-4 rounded-xl bg-surface border border-line text-sm text-ink placeholder:text-subtle focus:outline-none focus:border-azure focus:ring-4 focus:ring-azure/10 transition-all"
                 />
               </div>
 
-              {/* Jobs List Grid */}
+              {/* Grid */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {filteredJobs.map((j) => (
                   <div
                     key={j.id}
-                    className="bg-white rounded-3xl p-5 border border-slate-200/90 shadow-none space-y-3 flex flex-col justify-between"
+                    className="bg-surface rounded-2xl border border-line p-5 shadow-[0_1px_3px_rgba(0,0,0,0.03)] space-y-3 flex flex-col justify-between"
                   >
                     <div className="space-y-2">
                       <div className="flex items-center justify-between gap-2">
-                        <span className="text-[10px] font-medium px-2.5 py-1 rounded-full whitespace-nowrap bg-[#10B981]/10 text-[#0C513F] uppercase tracking-wider">
-                          {j.category}
-                        </span>
-                        <span className="text-[10px] font-medium px-2 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200 uppercase">
-                          {j.urgency}
-                        </span>
+                        <Badge tone="azure">{j.category}</Badge>
+                        <Badge tone="warn">{j.urgency}</Badge>
                       </div>
 
-                      <h3 className="font-medium text-sm text-slate-900 leading-snug">
-                        {j.title}
-                      </h3>
+                      <h3 className="font-medium text-base text-ink leading-snug">{j.title}</h3>
+                      <p className="text-xs text-muted line-clamp-2 leading-relaxed">{j.description}</p>
 
-                      <p className="text-xs text-slate-600 line-clamp-2 leading-relaxed">
-                        {j.description}
-                      </p>
-
-                      <div className="flex flex-wrap items-center gap-2 pt-1">
+                      <div className="flex flex-wrap items-center gap-1.5 pt-1">
                         {j.requiredSkills.map((sk, i) => (
-                          <span
-                            key={i}
-                            className="text-[10px] font-medium px-2 py-0.5 rounded-md bg-slate-100 text-slate-600"
-                          >
+                          <span key={i} className="text-[11px] px-2 py-0.5 rounded-md bg-sunken text-ink-2">
                             {sk}
                           </span>
                         ))}
                       </div>
                     </div>
 
-                    <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+                    <div className="pt-3 border-t border-line flex items-center justify-between text-xs">
                       <div>
-                        <div className="text-[10px] font-medium text-slate-400 uppercase">
-                          Budget Escrow
-                        </div>
-                        <div className="font-medium text-slate-900 text-xs sm:text-sm">
+                        <div className="text-[11px] text-muted">Budget Escrow</div>
+                        <div className="font-medium text-ink text-sm">
                           {formatNaira(j.budgetMinMinor)} - {formatNaira(j.budgetMaxMinor)}
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-1.5">
-                        <span className="text-[10px] font-medium px-2.5 py-1 rounded-full whitespace-nowrap bg-slate-100 text-slate-700">
-                          {j.proposalsCount} Proposals
-                        </span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-muted">{j.proposalsCount} proposals</span>
                         <button
                           type="button"
                           onClick={() => handleOpenJobEdit(j)}
-                          className="px-2.5 py-1 rounded-full border border-slate-200 hover:border-slate-800 text-slate-700 hover:bg-slate-50 text-[11px] font-medium transition-all cursor-pointer flex items-center gap-1"
-                          title="Moderate or Edit Job Request"
+                          className="h-8 px-3 rounded-lg border border-line hover:bg-sunken text-ink text-xs font-medium transition-colors cursor-pointer flex items-center gap-1"
                         >
-                          <Edit3 className="w-3 h-3 text-slate-500" />
+                          <Edit3 className="w-3.5 h-3.5 text-subtle" />
                           <span>Moderate</span>
                         </button>
                       </div>
@@ -2006,28 +1951,28 @@ export default function AdminClientView({
           )}
 
           {/* ================================================================= */}
-          {/* TAB: CONTRACTS & ESCROW VAULT */}
+          {/* TAB: CONTRACTS & ESCROW VAULT                                     */}
           {/* ================================================================= */}
           {activeTab === 'contracts' && (
             <div className="space-y-6">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
                 <div>
-                  <h2 className="text-xl sm:text-2xl font-semibold text-slate-900 tracking-tight">
-                    Active Contracts &amp; Escrow Vault
-                  </h2>
-                  <p className="text-xs sm:text-sm text-slate-500 mt-1">
-                    Manage locked funds, monitor milestone fulfillment, and administer escrow releases or client refunds.
+                  <h1 className="text-[26px] leading-tight font-medium tracking-[-0.02em] text-ink">
+                    Escrow Contracts &amp; Vault
+                  </h1>
+                  <p className="text-sm text-muted mt-1">
+                    Manage locked funds, monitor milestone fulfillment, and administer escrow releases or refunds.
                   </p>
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="inline-flex items-center gap-0.5 p-1 rounded-xl bg-sunken border border-line">
                   <button
                     type="button"
                     onClick={() => setBookingFilter('all')}
-                    className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+                    className={`h-8 px-3 rounded-lg text-xs font-medium transition-all cursor-pointer ${
                       bookingFilter === 'all'
-                        ? 'bg-[#0A1020] text-white shadow-none'
-                        : 'bg-white text-slate-700 border border-slate-200'
+                        ? 'bg-surface text-ink shadow-[0_1px_3px_rgba(17,24,39,0.08)]'
+                        : 'text-muted hover:text-ink'
                     }`}
                   >
                     All ({bookings.length})
@@ -2035,21 +1980,21 @@ export default function AdminClientView({
                   <button
                     type="button"
                     onClick={() => setBookingFilter('locked')}
-                    className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+                    className={`h-8 px-3 rounded-lg text-xs font-medium transition-all cursor-pointer ${
                       bookingFilter === 'locked'
-                        ? 'bg-[#0A1020] text-white shadow-none'
-                        : 'bg-white text-slate-700 border border-slate-200'
+                        ? 'bg-surface text-ink shadow-[0_1px_3px_rgba(17,24,39,0.08)]'
+                        : 'text-muted hover:text-ink'
                     }`}
                   >
-                    Escrow Locked ({bookings.filter((b) => b.escrowStatus === 'locked').length})
+                    Locked ({bookings.filter((b) => b.escrowStatus === 'locked').length})
                   </button>
                   <button
                     type="button"
                     onClick={() => setBookingFilter('released')}
-                    className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+                    className={`h-8 px-3 rounded-lg text-xs font-medium transition-all cursor-pointer ${
                       bookingFilter === 'released'
-                        ? 'bg-[#0A1020] text-white shadow-none'
-                        : 'bg-white text-slate-700 border border-slate-200'
+                        ? 'bg-surface text-ink shadow-[0_1px_3px_rgba(17,24,39,0.08)]'
+                        : 'text-muted hover:text-ink'
                     }`}
                   >
                     Released ({bookings.filter((b) => b.escrowStatus === 'released').length})
@@ -2062,106 +2007,86 @@ export default function AdminClientView({
                 {filteredBookings.map((b) => (
                   <div
                     key={b.id}
-                    className="bg-white rounded-3xl p-6 border border-slate-200/90 shadow-none space-y-4"
+                    className="bg-surface rounded-2xl border border-line p-6 shadow-[0_1px_3px_rgba(0,0,0,0.03)] space-y-4"
                   >
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-line">
                       <div>
                         <div className="flex items-center gap-2">
-                          <span className="text-[11px] font-medium text-slate-500 uppercase tracking-wider whitespace-nowrap">
-                            {b.bookingNumber}
-                          </span>
-                          <span
-                            className={`px-2 py-0.5 rounded-full text-[10px] font-medium uppercase whitespace-nowrap ${
-                              b.escrowStatus === 'locked'
-                                ? 'bg-amber-100 text-amber-800'
-                                : 'bg-emerald-100 text-emerald-800'
-                            }`}
-                          >
+                          <span className="text-xs font-medium text-muted">{b.bookingNumber}</span>
+                          <Badge tone={b.escrowStatus === 'locked' ? 'warn' : 'success'}>
                             Escrow: {b.escrowStatus}
-                          </span>
+                          </Badge>
                         </div>
-                        <h3 className="text-base font-semibold text-slate-900 mt-1">
-                          {b.title}
-                        </h3>
+                        <h3 className="text-base font-medium text-ink mt-1">{b.title}</h3>
                       </div>
 
-                      <div className="text-left sm:text-right">
-                        <div className="text-[10px] font-medium text-slate-400 uppercase">
-                          Contract Value
-                        </div>
-                        <div className="text-base sm:text-lg font-semibold text-[#0C513F]">
-                          {formatNaira(b.totalAmountMinor)}
-                        </div>
+                      <div className="sm:text-right">
+                        <div className="text-xs text-muted">Contract Value</div>
+                        <div className="text-lg font-semibold text-ink">{formatNaira(b.totalAmountMinor)}</div>
                       </div>
                     </div>
 
-                    {/* Parties involved */}
+                    {/* Parties */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-                      <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200/70">
-                        <span className="text-[10px] font-medium uppercase text-slate-500 whitespace-nowrap block mb-0.5">
-                          Client / Homeowner
-                        </span>
-                        <span className="text-slate-900 font-medium block">{b.clientName}</span>
-                        <span className="text-slate-500 text-[11px] font-normal">{b.clientCompany || 'Residential'} • {b.location}</span>
+                      <div className="p-3 rounded-xl bg-canvas/70 border border-line">
+                        <span className="text-subtle uppercase text-[10px] block font-medium mb-0.5">Customer / Client</span>
+                        <div className="font-medium text-ink">{b.clientName}</div>
+                        <div className="text-muted text-[11px]">{b.clientCompany || 'Residential'} • {b.location}</div>
                       </div>
-
-                      <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200/70">
-                        <span className="text-[10px] font-medium uppercase text-slate-500 whitespace-nowrap block mb-0.5">
-                          Assigned Artisan
-                        </span>
-                        <span className="text-slate-900 font-medium block">{b.providerName}</span>
-                        <span className="text-slate-500 text-[11px] font-normal">{b.providerTitle}</span>
+                      <div className="p-3 rounded-xl bg-canvas/70 border border-line">
+                        <span className="text-subtle uppercase text-[10px] block font-medium mb-0.5">Assigned Specialist</span>
+                        <div className="font-medium text-ink">{b.providerName}</div>
+                        <div className="text-muted text-[11px]">{b.providerTitle}</div>
                       </div>
                     </div>
 
-                    {/* Milestones list */}
+                    {/* Milestone Progress */}
                     <div className="space-y-2">
-                      <div className="flex items-center justify-between text-xs font-medium text-slate-700">
+                      <div className="flex items-center justify-between text-xs text-muted">
                         <span>Milestones Progress</span>
-                        <span>{b.progressPercentage}% Completed</span>
+                        <span className="font-medium text-ink">{b.progressPercentage}% Completed</span>
                       </div>
-                      <div className="w-full h-2 rounded-full bg-slate-100 overflow-hidden">
+                      <div className="w-full h-2 rounded-full bg-sunken overflow-hidden">
                         <div
-                          className="h-full bg-gradient-to-r from-[#10B981] to-[#0C513F] transition-all"
+                          className="h-full bg-azure transition-all duration-300"
                           style={{ width: `${b.progressPercentage}%` }}
                         />
                       </div>
-
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-1">
                         {b.milestones.map((m) => (
                           <div
                             key={m.id}
-                            className={`p-2 rounded-xl text-[11px] font-medium border ${
+                            className={`p-2.5 rounded-lg text-xs border ${
                               m.status === 'completed'
-                                ? 'bg-emerald-50 border-emerald-200 text-emerald-900'
+                                ? 'bg-success-50/70 border-success/30 text-success-ink'
                                 : m.status === 'current'
-                                ? 'bg-amber-50 border-amber-200 text-amber-900 font-medium'
-                                : 'bg-slate-50 border-slate-200 text-slate-500'
+                                ? 'bg-azure-50/70 border-azure/30 text-azure-600'
+                                : 'bg-sunken border-line text-muted'
                             }`}
                           >
-                            <div className="truncate">{m.title}</div>
-                            <div className="font-medium text-[10px] mt-0.5">{formatNaira(m.amountMinor)}</div>
+                            <div className="font-medium truncate">{m.title}</div>
+                            <div className="text-[11px] opacity-80 mt-0.5">{formatNaira(m.amountMinor)}</div>
                           </div>
                         ))}
                       </div>
                     </div>
 
-                    {/* Action buttons */}
+                    {/* Actions */}
                     {b.escrowStatus === 'locked' && (
-                      <div className="pt-2 flex flex-wrap items-center justify-end gap-2.5">
+                      <div className="pt-2 flex justify-end gap-2.5">
                         <button
                           type="button"
                           onClick={() => setActionBooking({ booking: b, type: 'refund' })}
-                          className="px-4 py-2 rounded-full border border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-medium transition-all cursor-pointer"
+                          className="h-9 px-4 rounded-[10px] border border-rose-200 text-rose-700 hover:bg-rose-50 text-xs font-medium transition-colors cursor-pointer"
                         >
                           Refund to Client
                         </button>
                         <button
                           type="button"
                           onClick={() => setActionBooking({ booking: b, type: 'release' })}
-                          className="px-5 py-2 rounded-full bg-[#10B981] hover:bg-[#059669] text-white text-xs font-medium shadow-none transition-all cursor-pointer"
+                          className="h-9 px-4 rounded-[10px] bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-medium transition-colors cursor-pointer"
                         >
-                          Release Escrow to Artisan
+                          Release to Specialist
                         </button>
                       </div>
                     )}
@@ -2172,58 +2097,45 @@ export default function AdminClientView({
           )}
 
           {/* ================================================================= */}
-          {/* TAB: VERIFICATIONS QUEUE */}
+          {/* TAB: VERIFICATIONS QUEUE                                          */}
           {/* ================================================================= */}
           {activeTab === 'verifications' && (
             <div className="space-y-6">
               <div>
-                <h2 className="text-xl sm:text-2xl font-semibold text-slate-900 tracking-tight">
+                <h1 className="text-[26px] leading-tight font-medium tracking-[-0.02em] text-ink">
                   Artisan Verification Queue
-                </h2>
-                <p className="text-xs sm:text-sm text-slate-500 mt-1">
+                </h1>
+                <p className="text-sm text-muted mt-1">
                   Inspect submitted National Identification Numbers (NIN), CAC certificates, and Trade Guild licenses.
                 </p>
               </div>
 
-              <div className="bg-white rounded-3xl border border-slate-200/90 shadow-none divide-y divide-slate-100 overflow-hidden">
+              <div className="bg-surface rounded-2xl border border-line divide-y divide-line overflow-hidden shadow-[0_1px_3px_rgba(0,0,0,0.03)]">
                 {verificationCases.map((c) => (
                   <div
                     key={c.id}
-                    className="p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-slate-50/60 transition-colors"
+                    className="p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-sunken/40 transition-colors"
                   >
-                    <div className="space-y-1.5">
-                      <div className="flex items-center gap-2.5">
-                        <h4 className="font-semibold text-sm text-slate-900">
-                          {c.providerName}
-                        </h4>
-                        <span
-                          className={`text-[10px] font-medium px-2.5 py-0.5 rounded-full whitespace-nowrap uppercase ${
-                            c.status === 'approved'
-                              ? 'bg-emerald-100 text-emerald-800'
-                              : c.status === 'rejected'
-                              ? 'bg-rose-100 text-rose-800'
-                              : 'bg-amber-100 text-amber-800'
-                          }`}
-                        >
-                          {c.status.replace('_', ' ')}
-                        </span>
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <h4 className="font-medium text-base text-ink">{c.providerName}</h4>
+                        <Badge tone={c.status === 'approved' ? 'success' : c.status === 'rejected' ? 'danger' : 'warn'}>
+                          {c.status.replace('_', ' ').toUpperCase()}
+                        </Badge>
                       </div>
-
-                      <p className="text-xs text-slate-600">
-                        <span className="font-medium text-slate-800">{c.businessName}</span> • {c.trade} • {c.city}
+                      <p className="text-xs text-muted">
+                        <span className="font-medium text-ink">{c.businessName}</span> • {c.trade} • {c.city}
                       </p>
-
-                      <div className="flex flex-wrap items-center gap-2 text-[11px] text-slate-500">
-                        <span className="font-medium text-slate-700">{c.documentType}</span>
+                      <div className="flex items-center gap-2 text-xs text-subtle pt-0.5">
+                        <span className="font-medium text-ink-2">{c.documentType}</span>
                         <span>•</span>
                         <span>ID: {c.documentNumber}</span>
                         <span>•</span>
                         <span>{c.yearsOfExperience}+ Years Experience</span>
                       </div>
-
                       {c.rejectionReason && (
                         <p className="text-xs text-rose-600 bg-rose-50 p-2 rounded-lg mt-1 font-medium">
-                          Reason: {c.rejectionReason}
+                          Rejection Reason: {c.rejectionReason}
                         </p>
                       )}
                     </div>
@@ -2234,23 +2146,21 @@ export default function AdminClientView({
                           <button
                             type="button"
                             onClick={() => setSelectedCase(c)}
-                            className="px-4 py-2 rounded-full border border-slate-200 hover:border-slate-800 text-slate-700 text-xs font-medium transition-all cursor-pointer"
+                            className="h-8 px-3 rounded-lg border border-line text-ink hover:bg-sunken text-xs font-medium transition-colors cursor-pointer"
                           >
                             Inspect &amp; Reject
                           </button>
                           <button
                             type="button"
                             onClick={() => handleApproveCase(c.id)}
-                            className="px-4 py-2 rounded-full bg-[#10B981] hover:bg-[#059669] text-white text-xs font-medium shadow-none transition-all cursor-pointer flex items-center gap-1"
+                            className="h-8 px-3.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-medium inline-flex items-center gap-1.5 transition-colors cursor-pointer"
                           >
                             <Check className="w-3.5 h-3.5" />
                             <span>Approve</span>
                           </button>
                         </>
                       ) : (
-                        <span className="text-xs font-medium text-slate-400">
-                          Processed
-                        </span>
+                        <span className="text-xs text-muted font-medium">Processed</span>
                       )}
                     </div>
                   </div>
@@ -2260,107 +2170,87 @@ export default function AdminClientView({
           )}
 
           {/* ================================================================= */}
-          {/* TAB: FINANCIAL LEDGER */}
+          {/* TAB: FINANCIAL LEDGER & PAYOUTS                                   */}
           {/* ================================================================= */}
           {activeTab === 'payments' && (
             <div className="space-y-6">
               <div>
-                <h2 className="text-xl sm:text-2xl font-semibold text-slate-900 tracking-tight">
-                  Financial Ledger &amp; Platform Fees
-                </h2>
-                <p className="text-xs sm:text-sm text-slate-500 mt-1">
-                  100% Milestone Escrow Accounting in Nigerian Naira (NGN).
+                <h1 className="text-[26px] leading-tight font-medium tracking-[-0.02em] text-ink">
+                  Financial Ledger &amp; Payouts
+                </h1>
+                <p className="text-sm text-muted mt-1">
+                  Milestone Escrow accounting and bank withdrawal processing in Nigerian Naira (NGN).
                 </p>
               </div>
 
-              {/* Financial KPI stats */}
+              {/* KPI Strip */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div className="bg-white rounded-3xl p-5 border border-slate-200/90 shadow-none">
-                  <span className="text-[11px] font-medium uppercase text-slate-500 whitespace-nowrap">
-                    Active Locked Escrow
-                  </span>
-                  <div className="text-xl sm:text-2xl font-semibold text-[#0C513F] mt-1">
-                    {formatNaira(metrics.totalEscrowLockedMinor)}
-                  </div>
-                  <span className="text-[11px] text-slate-500 mt-1 block font-normal">
-                    Safeguarded in Custody
-                  </span>
+                <div className="bg-surface rounded-2xl border border-line p-5 shadow-[0_1px_3px_rgba(0,0,0,0.03)]">
+                  <span className="text-xs text-muted uppercase font-medium">Active Locked Escrow</span>
+                  <div className="text-2xl font-semibold text-ink mt-1.5">{formatNaira(metrics.totalEscrowLockedMinor)}</div>
+                  <span className="text-xs text-muted mt-1 block">Safeguarded in Custody</span>
                 </div>
-
-                <div className="bg-white rounded-3xl p-5 border border-slate-200/90 shadow-none">
-                  <span className="text-[11px] font-medium uppercase text-slate-500 whitespace-nowrap">
-                    Total Released to Artisans
-                  </span>
-                  <div className="text-xl sm:text-2xl font-semibold text-[#10B981] mt-1">
-                    {formatNaira(metrics.totalEscrowReleasedMinor)}
-                  </div>
-                  <span className="text-[11px] text-slate-500 mt-1 block font-normal">
-                    Successful Milestone Payouts
-                  </span>
+                <div className="bg-surface rounded-2xl border border-line p-5 shadow-[0_1px_3px_rgba(0,0,0,0.03)]">
+                  <span className="text-xs text-muted uppercase font-medium">Total Released to Artisans</span>
+                  <div className="text-2xl font-semibold text-emerald-700 mt-1.5">{formatNaira(metrics.totalEscrowReleasedMinor)}</div>
+                  <span className="text-xs text-muted mt-1 block">Completed Milestone Payouts</span>
                 </div>
-
-                <div className="bg-white rounded-3xl p-5 border border-slate-200/90 shadow-none">
-                  <span className="text-[11px] font-medium uppercase text-slate-500 whitespace-nowrap">
-                    Platform Revenue (5%)
-                  </span>
-                  <div className="text-xl sm:text-2xl font-semibold text-[#4D78FF] mt-1">
-                    {formatNaira(metrics.totalPlatformFeeRevenueMinor)}
-                  </div>
-                  <span className="text-[11px] text-slate-500 mt-1 block font-normal">
-                    Connecta Operations Fee
-                  </span>
+                <div className="bg-surface rounded-2xl border border-line p-5 shadow-[0_1px_3px_rgba(0,0,0,0.03)]">
+                  <span className="text-xs text-muted uppercase font-medium">Connecta Platform Fee (5%)</span>
+                  <div className="text-2xl font-semibold text-azure-600 mt-1.5">{formatNaira(metrics.totalPlatformFeeRevenueMinor)}</div>
+                  <span className="text-xs text-muted mt-1 block">Retained Operations Revenue</span>
                 </div>
               </div>
 
               {/* Pending Bank Payouts Queue */}
-              <div className="bg-white rounded-3xl p-6 border border-slate-200/90 shadow-none space-y-4">
+              <div className="bg-surface rounded-2xl border border-line p-6 shadow-[0_1px_3px_rgba(0,0,0,0.03)] space-y-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h3 className="font-semibold text-slate-900 text-sm flex items-center gap-2">
+                    <h3 className="font-medium text-base text-ink flex items-center gap-2">
                       <span>Pending Bank Payouts Desk</span>
                       {pendingWithdrawals.length > 0 && (
-                        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500 text-white animate-pulse">
+                        <Badge tone="warn" dot>
                           {pendingWithdrawals.length} Action Needed
-                        </span>
+                        </Badge>
                       )}
                     </h3>
-                    <p className="text-xs text-slate-500 mt-0.5">
-                      User withdrawals to Nigerian commercial banks awaiting compliance clearance &amp; transfer execution.
+                    <p className="text-xs text-muted mt-0.5">
+                      User bank withdrawals to Nigerian commercial accounts awaiting compliance clearance.
                     </p>
                   </div>
                 </div>
 
                 {pendingWithdrawals.length === 0 ? (
-                  <div className="py-6 text-center text-xs text-slate-400 bg-slate-50/50 rounded-2xl border border-slate-100">
+                  <div className="py-8 text-center text-xs text-muted bg-canvas/60 rounded-xl border border-line">
                     No pending bank withdrawal requests at this time. All payouts are settled.
                   </div>
                 ) : (
                   <div className="overflow-x-auto">
                     <table className="w-full text-left text-xs">
-                      <thead className="bg-slate-50 text-slate-500 uppercase tracking-wider text-[11px] font-medium border-b border-slate-200">
+                      <thead className="bg-sunken/60 text-subtle uppercase tracking-wider text-[11px] font-semibold border-b border-line">
                         <tr>
-                          <th className="py-2.5 px-4">User</th>
-                          <th className="py-2.5 px-4">Bank &amp; Account</th>
-                          <th className="py-2.5 px-4">Amount</th>
-                          <th className="py-2.5 px-4">Date</th>
-                          <th className="py-2.5 px-4 text-right">Actions</th>
+                          <th className="py-3 px-4">User</th>
+                          <th className="py-3 px-4">Bank &amp; Account</th>
+                          <th className="py-3 px-4">Amount</th>
+                          <th className="py-3 px-4">Date</th>
+                          <th className="py-3 px-4 text-right">Actions</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-slate-100 text-slate-700">
+                      <tbody className="divide-y divide-line/60 text-ink">
                         {pendingWithdrawals.map((pw) => (
-                          <tr key={pw.id} className="hover:bg-slate-50">
+                          <tr key={pw.id} className="hover:bg-sunken/40">
                             <td className="py-3 px-4">
-                              <div className="font-medium text-slate-900">{pw.userName}</div>
-                              <div className="text-[11px] text-slate-400">{pw.userEmail}</div>
+                              <div className="font-medium text-ink">{pw.userName}</div>
+                              <div className="text-[11px] text-muted">{pw.userEmail}</div>
                             </td>
                             <td className="py-3 px-4">
-                              <div className="font-medium text-slate-800">{pw.bankName || 'Verified Bank'}</div>
-                              <div className="text-[11px] text-slate-500 font-mono">{pw.accountNumber || '••••••••••'}</div>
+                              <div className="font-medium text-ink">{pw.bankName || 'Commercial Bank'}</div>
+                              <div className="text-[11px] text-muted font-mono">{pw.accountNumber || '••••••••••'}</div>
                             </td>
                             <td className="py-3 px-4 font-semibold text-emerald-700">
                               {formatNaira(pw.amountMinor)}
                             </td>
-                            <td className="py-3 px-4 text-[11px] text-slate-400">
+                            <td className="py-3 px-4 text-xs text-muted">
                               {pw.date ? pw.date.slice(0, 10) : 'Recent'}
                             </td>
                             <td className="py-3 px-4 text-right">
@@ -2372,7 +2262,7 @@ export default function AdminClientView({
                                     setPayoutDecision('approve')
                                     setPayoutRefInput(`NIP-${Date.now().toString().slice(-6)}`)
                                   }}
-                                  className="px-3 py-1 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-medium transition-colors cursor-pointer"
+                                  className="h-7 px-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-medium transition-colors cursor-pointer"
                                 >
                                   Approve
                                 </button>
@@ -2383,7 +2273,7 @@ export default function AdminClientView({
                                     setPayoutDecision('reject')
                                     setPayoutRejectReason('Account name mismatch with verified BVN')
                                   }}
-                                  className="px-3 py-1 rounded-full bg-rose-50 hover:bg-rose-100 text-rose-600 text-[11px] font-medium transition-colors cursor-pointer"
+                                  className="h-7 px-2.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-medium transition-colors cursor-pointer"
                                 >
                                   Reject &amp; Refund
                                 </button>
@@ -2397,23 +2287,21 @@ export default function AdminClientView({
                 )}
               </div>
 
-              {/* Ledger Summary */}
-              <div className="bg-white rounded-3xl p-6 border border-slate-200/90 shadow-none space-y-4">
-                <h3 className="font-semibold text-slate-900 text-sm">
-                  Recent Milestone Transactions
-                </h3>
-                <div className="divide-y divide-slate-100">
+              {/* Recent Milestone Transactions */}
+              <div className="bg-surface rounded-2xl border border-line p-6 shadow-[0_1px_3px_rgba(0,0,0,0.03)] space-y-4">
+                <h3 className="font-medium text-base text-ink">Recent Milestone Transactions</h3>
+                <div className="divide-y divide-line/60">
                   {bookings.map((b) => (
-                    <div key={b.id} className="py-3.5 flex items-center justify-between text-xs">
+                    <div key={b.id} className="py-3 flex items-center justify-between text-xs">
                       <div>
-                        <div className="font-medium text-slate-900">{b.title}</div>
-                        <div className="text-slate-400 text-[11px] font-normal">
+                        <div className="font-medium text-ink">{b.title}</div>
+                        <div className="text-muted text-[11px]">
                           {b.bookingNumber} • Client: {b.clientName} → Provider: {b.providerName}
                         </div>
                       </div>
                       <div className="text-right">
-                        <div className="font-medium text-slate-900">{formatNaira(b.totalAmountMinor)}</div>
-                        <div className="text-[10px] text-emerald-600 font-medium uppercase">
+                        <div className="font-semibold text-ink">{formatNaira(b.totalAmountMinor)}</div>
+                        <div className="text-[11px] text-emerald-600 font-medium">
                           Fee: {formatNaira(Math.round(b.totalAmountMinor * 0.05))} (5%)
                         </div>
                       </div>
@@ -2425,16 +2313,16 @@ export default function AdminClientView({
           )}
 
           {/* ================================================================= */}
-          {/* TAB: DISPUTES */}
+          {/* TAB: DISPUTES DESK                                                */}
           {/* ================================================================= */}
           {activeTab === 'disputes' && (
             <div className="space-y-6">
               <div>
-                <h2 className="text-xl sm:text-2xl font-semibold text-slate-900 tracking-tight">
+                <h1 className="text-[26px] leading-tight font-medium tracking-[-0.02em] text-ink">
                   Dispute &amp; Mediation Center
-                </h2>
-                <p className="text-xs sm:text-sm text-slate-500 mt-1">
-                  Connecta Trust Desk claims resolution for job quality, scheduling, and payment disagreements.
+                </h1>
+                <p className="text-sm text-muted mt-1">
+                  Connecta Trust Desk claims resolution for job quality, delays, and payment splits.
                 </p>
               </div>
 
@@ -2442,34 +2330,27 @@ export default function AdminClientView({
                 {disputes.map((d) => (
                   <div
                     key={d.id}
-                    className="bg-white rounded-3xl p-6 border border-slate-200/90 shadow-none space-y-3"
+                    className="bg-surface rounded-2xl border border-line p-6 shadow-[0_1px_3px_rgba(0,0,0,0.03)] space-y-3"
                   >
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b border-slate-100">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b border-line">
                       <div>
-                        <span className="text-xs font-medium text-slate-500">{d.disputeNumber}</span>
-                        <h4 className="font-medium text-sm text-slate-900 mt-0.5">{d.bookingTitle}</h4>
+                        <span className="text-xs text-muted font-medium">{d.disputeNumber}</span>
+                        <h4 className="font-medium text-base text-ink mt-0.5">{d.bookingTitle}</h4>
                       </div>
-                      <span
-                        className={`text-[10px] font-medium px-2.5 py-1 rounded-full whitespace-nowrap uppercase ${
-                          d.status === 'resolved'
-                            ? 'bg-emerald-100 text-emerald-800'
-                            : 'bg-amber-100 text-amber-800'
-                        }`}
-                      >
-                        {d.status}
-                      </span>
+                      <Badge tone={d.status === 'resolved' ? 'success' : 'warn'}>
+                        {d.status.toUpperCase()}
+                      </Badge>
                     </div>
 
-                    <div className="text-xs space-y-1.5">
-                      <p className="text-slate-700">
-                        <span className="font-medium">Claimant:</span> {d.claimantName} vs <span className="font-medium">Respondent:</span> {d.respondentName}
+                    <div className="text-xs space-y-2">
+                      <p className="text-ink-2">
+                        <span className="font-medium text-ink">Claimant:</span> {d.claimantName} vs{' '}
+                        <span className="font-medium text-ink">Respondent:</span> {d.respondentName}
                       </p>
-                      <p className="text-slate-600 bg-slate-50 p-3 rounded-2xl border border-slate-200/70">
+                      <div className="p-3 rounded-xl bg-canvas/70 border border-line text-muted leading-relaxed">
                         {d.reason}
-                      </p>
-                      <p className="text-[11px] text-slate-500 italic">
-                        Desk Notes: {d.notes}
-                      </p>
+                      </div>
+                      <p className="text-[11px] text-subtle italic">Desk Notes: {d.notes}</p>
                     </div>
 
                     {d.status !== 'resolved' && (
@@ -2477,7 +2358,7 @@ export default function AdminClientView({
                         <button
                           type="button"
                           onClick={() => handleOpenSplitDispute(d)}
-                          className="px-4 py-2 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-medium transition-all cursor-pointer shadow-none flex items-center gap-1.5"
+                          className="h-9 px-4 rounded-[10px] bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-medium inline-flex items-center gap-1.5 transition-colors cursor-pointer"
                         >
                           <Split className="w-3.5 h-3.5" />
                           <span>Settle Split Payout</span>
@@ -2485,7 +2366,7 @@ export default function AdminClientView({
                         <button
                           type="button"
                           onClick={() => setSelectedDispute(d)}
-                          className="px-4 py-2 rounded-full bg-[#0A1020] hover:bg-slate-800 text-white text-xs font-medium transition-all cursor-pointer shadow-none"
+                          className="h-9 px-4 rounded-[10px] bg-ink hover:bg-ink-2 text-white text-xs font-medium transition-colors cursor-pointer"
                         >
                           Resolve (Notes)
                         </button>
@@ -2498,50 +2379,49 @@ export default function AdminClientView({
           )}
 
           {/* ================================================================= */}
-          {/* TAB: SETTINGS */}
+          {/* TAB: PLATFORM SETTINGS                                            */}
           {/* ================================================================= */}
           {activeTab === 'settings' && (
-            <form onSubmit={handleSavePlatformSettings} className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-none space-y-6">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <form onSubmit={handleSavePlatformSettings} className="bg-surface rounded-2xl border border-line p-6 sm:p-8 shadow-[0_1px_3px_rgba(0,0,0,0.03)] space-y-6">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-line">
                 <div>
-                  <h2 className="text-xl sm:text-2xl font-semibold text-slate-900 tracking-tight">
-                    Platform Parameters &amp; Control
-                  </h2>
-                  <p className="text-xs sm:text-sm text-slate-500 mt-1">
+                  <h1 className="text-[26px] leading-tight font-medium tracking-[-0.02em] text-ink">
+                    Platform Settings &amp; Governance
+                  </h1>
+                  <p className="text-sm text-muted mt-1">
                     Live system settings that immediately govern user dashboards, fees, hotlines, and announcements.
                   </p>
                 </div>
                 <button
                   type="submit"
                   disabled={isSavingSettings}
-                  className="px-5 py-2.5 rounded-2xl bg-[#0A1020] hover:bg-emerald-600 text-white text-xs sm:text-sm font-semibold transition-all cursor-pointer flex items-center gap-2 self-start sm:self-auto"
+                  className="h-10 px-5 rounded-[10px] bg-ink hover:bg-ink-2 text-white text-xs font-medium inline-flex items-center gap-2 transition-colors cursor-pointer"
                 >
                   <Save className="w-4 h-4" />
-                  <span>{isSavingSettings ? 'Saving Settings...' : 'Save Live Settings'}</span>
+                  <span>{isSavingSettings ? 'Saving...' : 'Save Live Settings'}</span>
                 </button>
               </div>
 
               {settingsNotice && (
-                <div className="p-3 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-2xl text-xs font-medium flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                  <span>{settingsNotice}</span>
-                </div>
+                <Notice tone="success" onClose={() => setSettingsNotice(null)}>
+                  {settingsNotice}
+                </Notice>
               )}
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 text-xs">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 text-xs">
                 <div className="space-y-1.5">
-                  <label className="font-semibold text-slate-700">Primary Hub City</label>
+                  <label className="block text-xs font-medium text-ink-2">Primary Hub City</label>
                   <input
                     type="text"
                     value={platformSettings.hubCity}
                     onChange={(e) => setPlatformSettings({ ...platformSettings, hubCity: e.target.value })}
-                    className="w-full px-4 py-2.5 rounded-2xl border border-slate-200 bg-white font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                    className="w-full h-10 px-3.5 rounded-[10px] bg-surface border border-line text-sm text-ink focus:outline-none focus:border-azure focus:ring-4 focus:ring-azure/10"
                   />
-                  <p className="text-[11px] text-slate-400">Headquarters location displayed on marketplace headers.</p>
+                  <p className="text-[11px] text-muted">Headquarters city displayed on platform branding.</p>
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="font-semibold text-slate-700">Platform Escrow Commission (%)</label>
+                  <label className="block text-xs font-medium text-ink-2">Platform Escrow Commission (%)</label>
                   <input
                     type="number"
                     step="0.1"
@@ -2549,64 +2429,62 @@ export default function AdminClientView({
                     max="30"
                     value={platformSettings.commissionRatePercent}
                     onChange={(e) => setPlatformSettings({ ...platformSettings, commissionRatePercent: parseFloat(e.target.value) || 0 })}
-                    className="w-full px-4 py-2.5 rounded-2xl border border-slate-200 bg-white font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                    className="w-full h-10 px-3.5 rounded-[10px] bg-surface border border-line text-sm text-ink focus:outline-none focus:border-azure focus:ring-4 focus:ring-azure/10"
                   />
-                  <p className="text-[11px] text-slate-400">Deducted from completed contracts upon milestone payout.</p>
+                  <p className="text-[11px] text-muted">Deducted from completed contracts upon milestone payout.</p>
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="font-semibold text-slate-700">Connecta Trust Desk Hotline (Phone)</label>
+                  <label className="block text-xs font-medium text-ink-2">Support Desk Hotline (Phone)</label>
                   <input
                     type="text"
                     value={platformSettings.supportPhone}
                     onChange={(e) => setPlatformSettings({ ...platformSettings, supportPhone: e.target.value })}
-                    className="w-full px-4 py-2.5 rounded-2xl border border-slate-200 bg-white font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                    className="w-full h-10 px-3.5 rounded-[10px] bg-surface border border-line text-sm text-ink focus:outline-none focus:border-azure focus:ring-4 focus:ring-azure/10"
                   />
-                  <p className="text-[11px] text-slate-400">Displayed on User Dashboard Help &amp; Support page.</p>
+                  <p className="text-[11px] text-muted">Displayed on User Dashboard Help &amp; Support page.</p>
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="font-semibold text-slate-700">Connecta Official WhatsApp Desk</label>
+                  <label className="block text-xs font-medium text-ink-2">Official WhatsApp Direct Link</label>
                   <input
                     type="text"
                     value={platformSettings.supportWhatsapp}
                     onChange={(e) => setPlatformSettings({ ...platformSettings, supportWhatsapp: e.target.value })}
-                    className="w-full px-4 py-2.5 rounded-2xl border border-slate-200 bg-white font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                    className="w-full h-10 px-3.5 rounded-[10px] bg-surface border border-line text-sm text-ink focus:outline-none focus:border-azure focus:ring-4 focus:ring-azure/10"
                   />
-                  <p className="text-[11px] text-slate-400">Direct WhatsApp click-to-chat URL for client disputes.</p>
+                  <p className="text-[11px] text-muted">Direct click-to-chat URL for client disputes.</p>
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="font-semibold text-slate-700">Support Desk Email</label>
+                  <label className="block text-xs font-medium text-ink-2">Support Desk Email</label>
                   <input
                     type="email"
                     value={platformSettings.supportEmail}
                     onChange={(e) => setPlatformSettings({ ...platformSettings, supportEmail: e.target.value })}
-                    className="w-full px-4 py-2.5 rounded-2xl border border-slate-200 bg-white font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                    className="w-full h-10 px-3.5 rounded-[10px] bg-surface border border-line text-sm text-ink focus:outline-none focus:border-azure focus:ring-4 focus:ring-azure/10"
                   />
-                  <p className="text-[11px] text-slate-400">Public support inbox for customer complaints.</p>
+                  <p className="text-[11px] text-muted">Public support inbox for customer complaints.</p>
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="font-semibold text-slate-700">New User Welcome Sparks Bonus</label>
+                  <label className="block text-xs font-medium text-ink-2">New User Welcome Sparks Bonus</label>
                   <input
                     type="number"
                     value={platformSettings.welcomeSparks}
                     onChange={(e) => setPlatformSettings({ ...platformSettings, welcomeSparks: parseInt(e.target.value, 10) || 0 })}
-                    className="w-full px-4 py-2.5 rounded-2xl border border-slate-200 bg-white font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                    className="w-full h-10 px-3.5 rounded-[10px] bg-surface border border-line text-sm text-ink focus:outline-none focus:border-azure focus:ring-4 focus:ring-azure/10"
                   />
-                  <p className="text-[11px] text-slate-400">AI Sparks awarded to clients and artisans upon sign up.</p>
+                  <p className="text-[11px] text-muted">AI Sparks awarded to new accounts upon registration.</p>
                 </div>
               </div>
 
-              {/* Announcement Banner Configuration */}
-              <div className="pt-4 border-t border-slate-100 space-y-3">
+              {/* Announcement Banner */}
+              <div className="pt-4 border-t border-line space-y-3">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h3 className="font-semibold text-slate-900 text-sm">Dashboard Broadcast Banner</h3>
-                    <p className="text-xs text-slate-500">
-                      Shows a prominent top alert banner across all user dashboards.
-                    </p>
+                    <h3 className="font-medium text-sm text-ink">Dashboard Broadcast Banner</h3>
+                    <p className="text-xs text-muted">Shows an alert banner across the top of all user dashboards.</p>
                   </div>
                   <label className="relative inline-flex items-center cursor-pointer">
                     <input
@@ -2615,58 +2493,55 @@ export default function AdminClientView({
                       onChange={(e) => setPlatformSettings({ ...platformSettings, announcementActive: e.target.checked })}
                       className="sr-only peer"
                     />
-                    <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
+                    <div className="w-10 h-5 bg-sunken border border-line peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-azure"></div>
                   </label>
                 </div>
 
-                <div className="space-y-1.5">
-                  <input
-                    type="text"
-                    value={platformSettings.systemAnnouncement || ''}
-                    onChange={(e) => setPlatformSettings({ ...platformSettings, systemAnnouncement: e.target.value })}
-                    placeholder="e.g. Scheduled maintenance tonight at 11 PM or Special Eid promo active!"
-                    className="w-full px-4 py-2.5 rounded-2xl border border-slate-200 bg-white text-xs font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
-                  />
-                </div>
+                <input
+                  type="text"
+                  value={platformSettings.systemAnnouncement || ''}
+                  onChange={(e) => setPlatformSettings({ ...platformSettings, systemAnnouncement: e.target.value })}
+                  placeholder="e.g. Scheduled maintenance tonight at 11 PM or Special Eid promo active!"
+                  className="w-full h-10 px-3.5 rounded-[10px] bg-surface border border-line text-sm text-ink focus:outline-none focus:border-azure focus:ring-4 focus:ring-azure/10"
+                />
               </div>
             </form>
           )}
 
           {/* ================================================================= */}
-          {/* TAB: IN-APP ALERTS & NOTIFICATIONS HUB                            */}
+          {/* TAB: IN-APP ALERTS & NOTIFICATIONS                                */}
           {/* ================================================================= */}
           {activeTab === 'notifications' && (
             <div className="space-y-6">
               <div>
-                <h2 className="text-xl sm:text-2xl font-semibold text-slate-900 tracking-tight">
-                  In-App Alerts &amp; Notification Broadcaster
-                </h2>
-                <p className="text-xs sm:text-sm text-slate-500 mt-1">
-                  Deliver instant alerts right into user dashboard notification bell icons and mobile heads-up displays.
+                <h1 className="text-[26px] leading-tight font-medium tracking-[-0.02em] text-ink">
+                  In-App Alerts Broadcaster
+                </h1>
+                <p className="text-sm text-muted mt-1">
+                  Deliver instant alerts into user dashboard notification bell dropdowns and system headers.
                 </p>
               </div>
 
               {notifNotice && (
-                <div className="p-3 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-2xl text-xs font-medium flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                  <span>{notifNotice}</span>
-                </div>
+                <Notice tone="success" onClose={() => setNotifNotice(null)}>
+                  {notifNotice}
+                </Notice>
               )}
 
-              {/* Broadcaster Card */}
-              <form onSubmit={handleBroadcastInAppNotification} className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-none space-y-4">
-                <h3 className="font-semibold text-slate-900 text-sm flex items-center gap-2">
-                  <Bell className="w-4 h-4 text-amber-500" />
-                  <span>Compose Live In-App Notification</span>
+              {/* Compose */}
+              <form onSubmit={handleBroadcastInAppNotification} className="bg-surface rounded-2xl border border-line p-6 sm:p-8 shadow-[0_1px_3px_rgba(0,0,0,0.03)] space-y-4">
+                <h3 className="font-medium text-base text-ink flex items-center gap-2">
+                  <Bell className="w-4 h-4 text-warn" />
+                  <span>Compose Live Broadcast</span>
                 </h3>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
                   <div className="space-y-1.5">
-                    <label className="font-semibold text-slate-700">Target Audience</label>
+                    <label className="block text-xs font-medium text-ink-2">Target Audience</label>
                     <select
                       value={newNotifAudience}
                       onChange={(e) => setNewNotifAudience(e.target.value)}
-                      className="w-full px-4 py-2.5 rounded-2xl border border-slate-200 bg-slate-50 font-medium text-slate-800 cursor-pointer"
+                      className="w-full h-10 px-3 rounded-[10px] bg-surface border border-line text-sm text-ink cursor-pointer focus:outline-none focus:border-azure focus:ring-4 focus:ring-azure/10"
                     >
                       <option value="all">Broadcast to All Users</option>
                       <option value="clients">All Registered Clients</option>
@@ -2680,11 +2555,11 @@ export default function AdminClientView({
                   </div>
 
                   <div className="space-y-1.5">
-                    <label className="font-semibold text-slate-700">Notification Alert Tone</label>
+                    <label className="block text-xs font-medium text-ink-2">Notification Alert Tone</label>
                     <select
                       value={newNotifType}
                       onChange={(e) => setNewNotifType(e.target.value as any)}
-                      className="w-full px-4 py-2.5 rounded-2xl border border-slate-200 bg-slate-50 font-medium text-slate-800 cursor-pointer"
+                      className="w-full h-10 px-3 rounded-[10px] bg-surface border border-line text-sm text-ink cursor-pointer focus:outline-none focus:border-azure focus:ring-4 focus:ring-azure/10"
                     >
                       <option value="info">Info (Azure Blue dot)</option>
                       <option value="success">Success / Milestone Paid (Green dot)</option>
@@ -2695,26 +2570,26 @@ export default function AdminClientView({
                 </div>
 
                 <div className="space-y-1.5 text-xs">
-                  <label className="font-semibold text-slate-700">Notification Title</label>
+                  <label className="block text-xs font-medium text-ink-2">Notification Title</label>
                   <input
                     type="text"
                     required
                     value={newNotifTitle}
                     onChange={(e) => setNewNotifTitle(e.target.value)}
                     placeholder="e.g. Escrow Deposit Confirmed or New Booking Available"
-                    className="w-full px-4 py-2.5 rounded-2xl border border-slate-200 bg-white font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                    className="w-full h-10 px-3.5 rounded-[10px] bg-surface border border-line text-sm text-ink focus:outline-none focus:border-azure focus:ring-4 focus:ring-azure/10"
                   />
                 </div>
 
                 <div className="space-y-1.5 text-xs">
-                  <label className="font-semibold text-slate-700">Message Body</label>
+                  <label className="block text-xs font-medium text-ink-2">Message Body</label>
                   <textarea
                     required
                     rows={3}
                     value={newNotifMessage}
                     onChange={(e) => setNewNotifMessage(e.target.value)}
-                    placeholder="Enter the short notification text that will appear in the user's dashboard bell dropdown..."
-                    className="w-full px-4 py-2.5 rounded-2xl border border-slate-200 bg-white font-normal text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 resize-none"
+                    placeholder="Enter short notification text that will appear in the user's dashboard bell dropdown..."
+                    className="w-full p-3 rounded-[10px] bg-surface border border-line text-sm text-ink focus:outline-none focus:border-azure focus:ring-4 focus:ring-azure/10 resize-none leading-relaxed"
                   />
                 </div>
 
@@ -2722,7 +2597,7 @@ export default function AdminClientView({
                   <button
                     type="submit"
                     disabled={isSendingNotification}
-                    className="px-6 py-2.5 rounded-2xl bg-[#0A1020] hover:bg-emerald-600 text-white text-xs sm:text-sm font-semibold transition-all cursor-pointer flex items-center gap-2"
+                    className="h-10 px-5 rounded-[10px] bg-ink hover:bg-ink-2 text-white text-xs font-medium inline-flex items-center gap-2 transition-colors cursor-pointer"
                   >
                     <Send className="w-4 h-4" />
                     <span>{isSendingNotification ? 'Dispatching...' : 'Dispatch Live Notification'}</span>
@@ -2730,22 +2605,22 @@ export default function AdminClientView({
                 </div>
               </form>
 
-              {/* In-App Notifications History */}
-              <div className="bg-white rounded-3xl p-6 border border-slate-200/90 shadow-none space-y-4">
-                <h3 className="font-semibold text-slate-900 text-sm">Recently Broadcasted In-App Alerts</h3>
-                <div className="divide-y divide-slate-100">
+              {/* History */}
+              <div className="bg-surface rounded-2xl border border-line p-6 shadow-[0_1px_3px_rgba(0,0,0,0.03)] space-y-4">
+                <h3 className="font-medium text-base text-ink">Broadcast History</h3>
+                <div className="divide-y divide-line/60">
                   {inAppNotifications.map((notif) => (
                     <div key={notif.id} className="py-3 flex items-start gap-3 text-xs">
                       <span className={`w-2.5 h-2.5 rounded-full mt-1 shrink-0 ${
-                        notif.type === 'warning' ? 'bg-amber-500' : notif.type === 'success' ? 'bg-emerald-500' : notif.type === 'alert' ? 'bg-rose-500' : 'bg-blue-500'
+                        notif.type === 'warning' ? 'bg-warn' : notif.type === 'success' ? 'bg-success' : notif.type === 'alert' ? 'bg-rose-500' : 'bg-azure'
                       }`} />
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between gap-2">
-                          <span className="font-semibold text-slate-900">{notif.title}</span>
-                          <span className="text-[11px] text-slate-400">{notif.createdAt ? notif.createdAt.slice(0, 16).replace('T', ' ') : 'Recent'}</span>
+                          <span className="font-medium text-ink text-[13px]">{notif.title}</span>
+                          <span className="text-[11px] text-muted">{notif.createdAt ? notif.createdAt.slice(0, 16).replace('T', ' ') : 'Recent'}</span>
                         </div>
-                        <p className="text-slate-600 mt-0.5 leading-relaxed">{notif.message}</p>
-                        <span className="text-[10px] text-slate-400 mt-1 block">Audience: {notif.userId === 'all' ? 'All Users' : notif.userId}</span>
+                        <p className="text-muted mt-0.5 leading-relaxed">{notif.message}</p>
+                        <span className="text-[11px] text-subtle mt-1 block">Audience: {notif.userId === 'all' ? 'All Users' : notif.userId}</span>
                       </div>
                     </div>
                   ))}
@@ -2755,7 +2630,7 @@ export default function AdminClientView({
           )}
 
           {/* ================================================================= */}
-          {/* TAB: EMAIL DISPATCH & BROADCAST HUB                              */}
+          {/* TAB: EMAIL BROADCAST HUB                                          */}
           {/* ================================================================= */}
           {activeTab === 'email' && (
             <AdminEmailHub
@@ -2769,86 +2644,140 @@ export default function AdminClientView({
       </div>
 
       {/* ===================================================================== */}
-      {/* MODAL: USER DETAILS */}
+      {/* MODAL: EDIT USER PROFILE & VERIFICATION                               */}
       {/* ===================================================================== */}
-      {selectedUser && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl w-full max-w-lg p-6 sm:p-8 space-y-5 border border-slate-200/90 shadow-sm animate-in fade-in zoom-in-95 duration-200">
-            <div className="flex items-start justify-between pb-3 border-b border-slate-100">
+      {editingUser && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-ink/30 backdrop-blur-[2px] cn-fade" onClick={() => setEditingUser(null)} />
+          <div className="relative w-full max-w-lg bg-surface rounded-2xl shadow-[0_24px_48px_-12px_rgba(17,24,39,0.25)] border border-line cn-pop p-6 space-y-5 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-start justify-between">
               <div>
-                <span className="text-[10px] font-medium uppercase tracking-wider whitespace-nowrap text-slate-400">
-                  User Details
-                </span>
-                <h3 className="text-lg sm:text-xl font-semibold text-slate-900">{selectedUser.fullName}</h3>
-                <p className="text-xs text-slate-500">{selectedUser.businessName}</p>
+                <h3 className="text-lg font-medium text-ink">Edit Member Profile</h3>
+                <p className="text-xs text-muted mt-0.5">{editingUser.fullName} ({editingUser.id})</p>
               </div>
               <button
                 type="button"
-                onClick={() => setSelectedUser(null)}
-                className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 hover:text-slate-700 cursor-pointer"
+                onClick={() => setEditingUser(null)}
+                className="w-8 h-8 rounded-lg text-subtle hover:text-ink hover:bg-sunken flex items-center justify-center cursor-pointer"
               >
-                ✕
+                <X className="w-4 h-4" />
               </button>
             </div>
 
-            <div className="grid grid-cols-2 gap-3 text-xs">
-              <div className="p-3 rounded-2xl bg-slate-50">
-                <span className="text-[10px] font-medium text-slate-400 uppercase block">Role</span>
-                <span className="font-medium text-slate-900 capitalize">{selectedUser.role}</span>
+            <div className="space-y-3.5 text-xs">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <label className="block text-xs font-medium text-ink-2">Full Name</label>
+                  <input
+                    type="text"
+                    value={userEditForm.fullName}
+                    onChange={(e) => setUserEditForm({ ...userEditForm, fullName: e.target.value })}
+                    className="w-full h-10 px-3 rounded-[10px] bg-surface border border-line text-sm text-ink focus:outline-none focus:border-azure focus:ring-4 focus:ring-azure/10"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="block text-xs font-medium text-ink-2">Email Address</label>
+                  <input
+                    type="email"
+                    value={userEditForm.email}
+                    onChange={(e) => setUserEditForm({ ...userEditForm, email: e.target.value })}
+                    className="w-full h-10 px-3 rounded-[10px] bg-surface border border-line text-sm text-ink focus:outline-none focus:border-azure focus:ring-4 focus:ring-azure/10"
+                  />
+                </div>
               </div>
-              <div className="p-3 rounded-2xl bg-slate-50">
-                <span className="text-[10px] font-medium text-slate-400 uppercase block">Trade</span>
-                <span className="font-medium text-slate-900">{selectedUser.trade}</span>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <label className="block text-xs font-medium text-ink-2">Phone Number</label>
+                  <input
+                    type="text"
+                    value={userEditForm.phone}
+                    onChange={(e) => setUserEditForm({ ...userEditForm, phone: e.target.value })}
+                    className="w-full h-10 px-3 rounded-[10px] bg-surface border border-line text-sm text-ink focus:outline-none focus:border-azure focus:ring-4 focus:ring-azure/10"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="block text-xs font-medium text-ink-2">Operating City</label>
+                  <input
+                    type="text"
+                    value={userEditForm.city}
+                    onChange={(e) => setUserEditForm({ ...userEditForm, city: e.target.value })}
+                    className="w-full h-10 px-3 rounded-[10px] bg-surface border border-line text-sm text-ink focus:outline-none focus:border-azure focus:ring-4 focus:ring-azure/10"
+                  />
+                </div>
               </div>
-              <div className="p-3 rounded-2xl bg-slate-50">
-                <span className="text-[10px] font-medium text-slate-400 uppercase block">City</span>
-                <span className="font-medium text-slate-900">{selectedUser.city}</span>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <label className="block text-xs font-medium text-ink-2">Trade / Specialty</label>
+                  <input
+                    type="text"
+                    value={userEditForm.trade}
+                    onChange={(e) => setUserEditForm({ ...userEditForm, trade: e.target.value })}
+                    className="w-full h-10 px-3 rounded-[10px] bg-surface border border-line text-sm text-ink focus:outline-none focus:border-azure focus:ring-4 focus:ring-azure/10"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="block text-xs font-medium text-ink-2">National ID (NIN)</label>
+                  <input
+                    type="text"
+                    value={userEditForm.ninNumber}
+                    onChange={(e) => setUserEditForm({ ...userEditForm, ninNumber: e.target.value })}
+                    className="w-full h-10 px-3 rounded-[10px] bg-surface border border-line text-sm text-ink focus:outline-none focus:border-azure focus:ring-4 focus:ring-azure/10"
+                  />
+                </div>
               </div>
-              <div className="p-3 rounded-2xl bg-slate-50">
-                <span className="text-[10px] font-medium text-slate-400 uppercase block">Phone</span>
-                <span className="font-medium text-slate-900">{selectedUser.phone}</span>
-              </div>
-              <div className="p-3 rounded-2xl bg-slate-50">
-                <span className="text-[10px] font-medium text-slate-400 uppercase block">Rating</span>
-                <span className="font-medium text-slate-900">★ {selectedUser.averageRating.toFixed(2)}</span>
-              </div>
-              <div className="p-3 rounded-2xl bg-slate-50">
-                <span className="text-[10px] font-medium text-slate-400 uppercase block">Jobs Done</span>
-                <span className="font-medium text-slate-900">{selectedUser.completedJobs} completed</span>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div className="space-y-1">
+                  <label className="block text-xs font-medium text-ink-2">Hourly Rate (₦)</label>
+                  <input
+                    type="number"
+                    value={userEditForm.hourlyRateNaira}
+                    onChange={(e) => setUserEditForm({ ...userEditForm, hourlyRateNaira: e.target.value })}
+                    className="w-full h-10 px-3 rounded-[10px] bg-surface border border-line text-sm text-ink focus:outline-none focus:border-azure focus:ring-4 focus:ring-azure/10"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="block text-xs font-medium text-ink-2">Role</label>
+                  <select
+                    value={userEditForm.role}
+                    onChange={(e) => setUserEditForm({ ...userEditForm, role: e.target.value as any })}
+                    className="w-full h-10 px-2.5 rounded-[10px] bg-surface border border-line text-xs font-medium text-ink"
+                  >
+                    <option value="provider">Provider (Artisan)</option>
+                    <option value="customer">Customer (Client)</option>
+                  </select>
+                </div>
+                <div className="space-y-1">
+                  <label className="block text-xs font-medium text-ink-2">Verification</label>
+                  <select
+                    value={userEditForm.verificationStatus}
+                    onChange={(e) => setUserEditForm({ ...userEditForm, verificationStatus: e.target.value as any })}
+                    className="w-full h-10 px-2.5 rounded-[10px] bg-surface border border-line text-xs font-medium text-ink"
+                  >
+                    <option value="verified">Verified</option>
+                    <option value="unverified">Unverified</option>
+                  </select>
+                </div>
               </div>
             </div>
 
-            <div className="flex gap-2.5 pt-2">
+            <div className="flex gap-2.5 pt-3 border-t border-line">
               <button
                 type="button"
-                onClick={() => {
-                  const target = selectedUser
-                  setSelectedUser(null)
-                  setPreselectedEmailUser(target)
-                  setActiveTab('email')
-                }}
-                className="flex-1 py-3 rounded-full bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-xs font-medium transition-all cursor-pointer flex items-center justify-center gap-1.5"
+                onClick={() => setEditingUser(null)}
+                className="flex-1 h-10 rounded-[10px] border border-line text-ink hover:bg-sunken text-xs font-medium cursor-pointer"
               >
-                <Mail className="w-3.5 h-3.5" />
-                <span>Send Email</span>
+                Cancel
               </button>
               <button
                 type="button"
-                onClick={() => handleToggleUserStatus(selectedUser)}
-                className={`flex-1 py-3 rounded-full text-xs font-medium transition-all cursor-pointer ${
-                  selectedUser.accountStatus === 'active'
-                    ? 'bg-rose-50 hover:bg-rose-100 text-rose-700'
-                    : 'bg-emerald-50 hover:bg-emerald-100 text-emerald-700'
-                }`}
+                onClick={handleSaveUserEdit}
+                disabled={isSavingUser}
+                className="flex-1 h-10 rounded-[10px] bg-ink hover:bg-ink-2 text-white text-xs font-medium transition-colors cursor-pointer"
               >
-                {selectedUser.accountStatus === 'active' ? 'Suspend' : 'Activate'}
-              </button>
-              <button
-                type="button"
-                onClick={() => setSelectedUser(null)}
-                className="px-5 py-3 rounded-full bg-[#0A1020] hover:bg-slate-800 text-white text-xs font-medium transition-all cursor-pointer shadow-none"
-              >
-                Close
+                {isSavingUser ? 'Saving...' : 'Save Profile'}
               </button>
             </div>
           </div>
@@ -2856,44 +2785,684 @@ export default function AdminClientView({
       )}
 
       {/* ===================================================================== */}
-      {/* MODAL: VERIFICATION INSPECT & REJECT */}
+      {/* MODAL: MANUAL WALLET ADJUSTMENT                                       */}
       {/* ===================================================================== */}
-      {selectedCase && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl w-full max-w-md p-6 sm:p-7 space-y-4 border border-slate-200/90 shadow-sm">
-            <div className="flex items-start justify-between pb-2 border-b border-slate-100">
+      {adjustingWalletUser && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-ink/30 backdrop-blur-[2px] cn-fade" onClick={() => setAdjustingWalletUser(null)} />
+          <div className="relative w-full max-w-md bg-surface rounded-2xl shadow-[0_24px_48px_-12px_rgba(17,24,39,0.25)] border border-line cn-pop p-6 space-y-4">
+            <div className="flex items-start justify-between">
               <div>
-                <span className="text-[10px] font-medium uppercase tracking-wider whitespace-nowrap text-rose-500">
-                  Verification Rejection
-                </span>
-                <h3 className="text-base sm:text-lg font-semibold text-slate-900">{selectedCase.providerName}</h3>
-                <p className="text-xs text-slate-500">{selectedCase.documentType}</p>
+                <h3 className="text-lg font-medium text-ink">Adjust Vault Balance &amp; Sparks</h3>
+                <p className="text-xs text-muted mt-0.5">{adjustingWalletUser.fullName}</p>
               </div>
               <button
                 type="button"
-                onClick={() => setSelectedCase(null)}
-                className="w-7 h-7 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 hover:text-slate-700 cursor-pointer"
+                onClick={() => setAdjustingWalletUser(null)}
+                className="w-8 h-8 rounded-lg text-subtle hover:text-ink hover:bg-sunken flex items-center justify-center cursor-pointer"
               >
-                ✕
+                <X className="w-4 h-4" />
               </button>
             </div>
 
-            <div className="space-y-1.5 text-xs">
-              <label className="font-medium text-slate-700">Reason for Rejection</label>
-              <textarea
-                rows={3}
-                value={rejectionReason}
-                onChange={(e) => setRejectionReason(e.target.value)}
-                placeholder="e.g. Blurred document photograph, NIN name mismatch, or expired trade license..."
-                className="w-full p-3 rounded-2xl border border-slate-200 font-normal text-slate-800 focus:outline-none focus:border-rose-500"
+            <div className="bg-canvas/70 rounded-xl p-3.5 border border-line text-xs space-y-1.5">
+              <div className="flex justify-between text-muted">
+                <span>Available Cash Balance:</span>
+                <span className="font-semibold text-ink">{formatNaira(adjustingWalletUser.wallet?.balanceMinor || 0)}</span>
+              </div>
+              <div className="flex justify-between text-muted">
+                <span>Escrow in Custody:</span>
+                <span className="font-semibold text-emerald-700">{formatNaira(adjustingWalletUser.wallet?.escrowBalanceMinor || 0)}</span>
+              </div>
+              <div className="flex justify-between text-muted">
+                <span>AI Sparks Points:</span>
+                <span className="font-semibold text-amber-600">{adjustingWalletUser.wallet?.sparksBalance || 0} Sparks</span>
+              </div>
+            </div>
+
+            <div className="space-y-3 text-xs">
+              <div className="space-y-1">
+                <label className="block text-xs font-medium text-ink-2">Cash Adjustment (₦ Delta)</label>
+                <input
+                  type="number"
+                  step="100"
+                  value={walletAdjustDeltaNaira}
+                  onChange={(e) => setWalletAdjustDeltaNaira(e.target.value)}
+                  placeholder="e.g. 50000 to credit, or -25000 to debit"
+                  className="w-full h-10 px-3.5 rounded-[10px] bg-surface border border-line text-sm text-ink focus:outline-none focus:border-azure focus:ring-4 focus:ring-azure/10"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="block text-xs font-medium text-ink-2">AI Sparks Delta</label>
+                <input
+                  type="number"
+                  step="10"
+                  value={walletAdjustSparks}
+                  onChange={(e) => setWalletAdjustSparks(e.target.value)}
+                  placeholder="e.g. 200 to grant Sparks"
+                  className="w-full h-10 px-3.5 rounded-[10px] bg-surface border border-line text-sm text-ink focus:outline-none focus:border-azure focus:ring-4 focus:ring-azure/10"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="block text-xs font-medium text-ink-2">Audit Reason</label>
+                <input
+                  type="text"
+                  required
+                  value={walletAdjustReason}
+                  onChange={(e) => setWalletAdjustReason(e.target.value)}
+                  placeholder="e.g. Goodwill credit for project completion"
+                  className="w-full h-10 px-3.5 rounded-[10px] bg-surface border border-line text-sm text-ink focus:outline-none focus:border-azure focus:ring-4 focus:ring-azure/10"
+                />
+              </div>
+            </div>
+
+            <div className="flex gap-2.5 pt-3 border-t border-line">
+              <button
+                type="button"
+                onClick={() => setAdjustingWalletUser(null)}
+                className="flex-1 h-10 rounded-[10px] border border-line text-ink hover:bg-sunken text-xs font-medium cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleSaveWalletAdjustment}
+                disabled={isAdjustingWallet}
+                className="flex-1 h-10 rounded-[10px] bg-ink hover:bg-ink-2 text-white text-xs font-medium transition-colors cursor-pointer"
+              >
+                {isAdjustingWallet ? 'Applying...' : 'Apply Ledger Adjustment'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ===================================================================== */}
+      {/* MODAL: RESET PASSWORD                                                 */}
+      {/* ===================================================================== */}
+      {resettingUser && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-ink/30 backdrop-blur-[2px] cn-fade" onClick={() => setResettingUser(null)} />
+          <div className="relative w-full max-w-sm bg-surface rounded-2xl shadow-[0_24px_48px_-12px_rgba(17,24,39,0.25)] border border-line cn-pop p-6 space-y-4 text-center">
+            <div className="w-10 h-10 rounded-full bg-azure-50 text-azure-600 mx-auto flex items-center justify-center">
+              <KeyRound className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="text-base font-medium text-ink">Reset Member Password</h3>
+              <p className="text-xs text-muted mt-0.5">{resettingUser.fullName} ({resettingUser.email})</p>
+            </div>
+
+            <div className="text-left text-xs space-y-1">
+              <label className="block text-xs font-medium text-ink-2">New Temporary Password</label>
+              <input
+                type="text"
+                required
+                value={newPasswordInput}
+                onChange={(e) => setNewPasswordInput(e.target.value)}
+                placeholder="Enter new temporary password"
+                className="w-full h-10 px-3.5 rounded-[10px] bg-surface border border-line text-sm text-ink focus:outline-none focus:border-azure focus:ring-4 focus:ring-azure/10"
               />
             </div>
 
             <div className="flex gap-2.5 pt-2">
               <button
                 type="button"
+                onClick={() => setResettingUser(null)}
+                className="flex-1 h-10 rounded-[10px] border border-line text-ink hover:bg-sunken text-xs font-medium cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleSavePasswordReset}
+                disabled={isResettingPassword || !newPasswordInput.trim()}
+                className="flex-1 h-10 rounded-[10px] bg-ink hover:bg-ink-2 text-white text-xs font-medium transition-colors cursor-pointer disabled:opacity-50"
+              >
+                {isResettingPassword ? 'Updating...' : 'Set Password'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ===================================================================== */}
+      {/* MODAL: USER 360° ACTIVITY DRAWER                                      */}
+      {/* ===================================================================== */}
+      {user360 && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-ink/30 backdrop-blur-[2px] cn-fade" onClick={() => setUser360(null)} />
+          <div className="relative w-full max-w-2xl bg-surface rounded-2xl shadow-[0_24px_48px_-12px_rgba(17,24,39,0.25)] border border-line cn-pop p-6 space-y-5 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-start justify-between border-b border-line pb-4">
+              <div className="flex items-center gap-3">
+                <Avatar name={user360.fullName} size={40} />
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-lg font-medium text-ink">{user360.fullName}</h3>
+                    <Badge tone="neutral">{user360.role.toUpperCase()}</Badge>
+                    {user360.verificationStatus === 'verified' && (
+                      <Badge tone="success" dot>VERIFIED</Badge>
+                    )}
+                  </div>
+                  <p className="text-xs text-muted mt-0.5">{user360.email} • {user360.phone} • {user360.city}</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setUser360(null)}
+                className="w-8 h-8 rounded-lg text-subtle hover:text-ink hover:bg-sunken flex items-center justify-center cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Sub-tabs */}
+            <div className="flex border-b border-line text-xs font-medium gap-4">
+              <button
+                type="button"
+                onClick={() => setUser360Tab('profile')}
+                className={`pb-2 transition-colors cursor-pointer border-b-2 ${
+                  user360Tab === 'profile' ? 'border-azure text-azure font-medium' : 'border-transparent text-muted hover:text-ink'
+                }`}
+              >
+                Profile &amp; Vault
+              </button>
+              <button
+                type="button"
+                onClick={() => setUser360Tab('contracts')}
+                className={`pb-2 transition-colors cursor-pointer border-b-2 ${
+                  user360Tab === 'contracts' ? 'border-azure text-azure font-medium' : 'border-transparent text-muted hover:text-ink'
+                }`}
+              >
+                Contracts ({bookings.filter((b) => b.customerId === user360.id || b.providerId === user360.id).length})
+              </button>
+              <button
+                type="button"
+                onClick={() => setUser360Tab('jobs')}
+                className={`pb-2 transition-colors cursor-pointer border-b-2 ${
+                  user360Tab === 'jobs' ? 'border-azure text-azure font-medium' : 'border-transparent text-muted hover:text-ink'
+                }`}
+              >
+                Requests ({serviceRequests.filter((r) => r.customerId === user360.id).length})
+              </button>
+              <button
+                type="button"
+                onClick={() => setUser360Tab('disputes')}
+                className={`pb-2 transition-colors cursor-pointer border-b-2 ${
+                  user360Tab === 'disputes' ? 'border-azure text-azure font-medium' : 'border-transparent text-muted hover:text-ink'
+                }`}
+              >
+                Disputes ({disputes.filter((d) => d.claimantName.includes(user360.fullName) || d.respondentName.includes(user360.fullName)).length})
+              </button>
+            </div>
+
+            {/* Content */}
+            {user360Tab === 'profile' && (
+              <div className="space-y-4 text-xs">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-canvas/70 p-4 rounded-xl border border-line">
+                  <div>
+                    <span className="text-subtle text-[11px] block">Vault Balance</span>
+                    <span className="text-sm font-semibold text-ink mt-0.5 block">
+                      {formatNaira(user360.wallet?.balanceMinor || 0)}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-subtle text-[11px] block">Escrow In-Flight</span>
+                    <span className="text-sm font-semibold text-emerald-700 mt-0.5 block">
+                      {formatNaira(user360.wallet?.escrowBalanceMinor || 0)}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-subtle text-[11px] block">AI Sparks</span>
+                    <span className="text-sm font-semibold text-amber-600 mt-0.5 block">
+                      {user360.wallet?.sparksBalance || 0} SPK
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-subtle text-[11px] block">Status</span>
+                    <span className={`text-xs font-semibold mt-0.5 block uppercase ${
+                      user360.accountStatus === 'active' ? 'text-emerald-700' : 'text-rose-600'
+                    }`}>
+                      {user360.accountStatus}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="p-3 bg-surface rounded-xl border border-line">
+                    <span className="text-subtle text-[11px]">Trade Specialty:</span>
+                    <p className="font-medium text-ink mt-0.5">{user360.trade || 'General Services'}</p>
+                  </div>
+                  <div className="p-3 bg-surface rounded-xl border border-line">
+                    <span className="text-subtle text-[11px]">National Identification (NIN):</span>
+                    <p className="font-medium text-ink mt-0.5">{user360.ninNumber || 'Not submitted'}</p>
+                  </div>
+                  <div className="p-3 bg-surface rounded-xl border border-line">
+                    <span className="text-subtle text-[11px]">Hourly Billing Rate:</span>
+                    <p className="font-medium text-ink mt-0.5">
+                      {user360.hourlyRateMinor ? `${formatNaira(user360.hourlyRateMinor)}/hr` : 'Default'}
+                    </p>
+                  </div>
+                  <div className="p-3 bg-surface rounded-xl border border-line">
+                    <span className="text-subtle text-[11px]">Dashboard Featured Pro:</span>
+                    <p className="font-medium text-ink mt-0.5">
+                      {user360.isFeatured ? '⭐️ Yes, featured on user overview' : 'No'}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex gap-2 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setUser360(null)
+                      handleOpenEditUser(user360)
+                    }}
+                    className="h-9 px-3.5 rounded-lg border border-line text-ink hover:bg-sunken text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer"
+                  >
+                    <Edit3 className="w-3.5 h-3.5 text-subtle" />
+                    <span>Edit Profile</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setUser360(null)
+                      handleOpenAdjustWallet(user360)
+                    }}
+                    className="h-9 px-3.5 rounded-lg border border-line text-ink hover:bg-sunken text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer"
+                  >
+                    <Coins className="w-3.5 h-3.5 text-emerald-600" />
+                    <span>Adjust Vault</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setUser360(null)
+                      handleOpenResetPassword(user360)
+                    }}
+                    className="h-9 px-3.5 rounded-lg border border-line text-ink hover:bg-sunken text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer"
+                  >
+                    <KeyRound className="w-3.5 h-3.5 text-azure" />
+                    <span>Reset Password</span>
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {user360Tab === 'contracts' && (
+              <div className="space-y-3 text-xs">
+                {bookings.filter((b) => b.customerId === user360.id || b.providerId === user360.id).length === 0 ? (
+                  <p className="text-muted py-8 text-center">No contracts found for this member.</p>
+                ) : (
+                  bookings
+                    .filter((b) => b.customerId === user360.id || b.providerId === user360.id)
+                    .map((b) => (
+                      <div key={b.id} className="p-3 bg-canvas/70 rounded-xl border border-line flex items-center justify-between">
+                        <div>
+                          <div className="font-medium text-ink">{b.title}</div>
+                          <div className="text-muted text-[11px] mt-0.5">
+                            {b.bookingNumber} • Escrow: {b.escrowStatus} • Status: {b.bookingStatus}
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <div className="font-semibold text-ink">{formatNaira(b.totalAmountMinor)}</div>
+                          <div className="text-[11px] text-emerald-700">{b.progressPercentage}% done</div>
+                        </div>
+                      </div>
+                    ))
+                )}
+              </div>
+            )}
+
+            {user360Tab === 'jobs' && (
+              <div className="space-y-3 text-xs">
+                {serviceRequests.filter((r) => r.customerId === user360.id).length === 0 ? (
+                  <p className="text-muted py-8 text-center">No service requests posted by this member.</p>
+                ) : (
+                  serviceRequests
+                    .filter((r) => r.customerId === user360.id)
+                    .map((j) => (
+                      <div key={j.id} className="p-3 bg-canvas/70 rounded-xl border border-line flex items-center justify-between">
+                        <div>
+                          <div className="font-medium text-ink">{j.title}</div>
+                          <div className="text-muted text-[11px] mt-0.5">
+                            {j.category} • Status: {j.status} • {j.proposalsCount} Quotes
+                          </div>
+                        </div>
+                        <div className="text-right font-semibold text-ink">
+                          {formatNaira(j.budgetMinMinor)} - {formatNaira(j.budgetMaxMinor)}
+                        </div>
+                      </div>
+                    ))
+                )}
+              </div>
+            )}
+
+            {user360Tab === 'disputes' && (
+              <div className="space-y-3 text-xs">
+                {disputes.filter((d) => d.claimantName.includes(user360.fullName) || d.respondentName.includes(user360.fullName)).length === 0 ? (
+                  <p className="text-muted py-8 text-center">No disputes on file for this member.</p>
+                ) : (
+                  disputes
+                    .filter((d) => d.claimantName.includes(user360.fullName) || d.respondentName.includes(user360.fullName))
+                    .map((d) => (
+                      <div key={d.id} className="p-3 bg-canvas/70 rounded-xl border border-line space-y-1">
+                        <div className="flex justify-between font-medium text-ink">
+                          <span>{d.disputeNumber} — {d.bookingTitle}</span>
+                          <span className="uppercase text-[10px] text-amber-700">{d.status}</span>
+                        </div>
+                        <p className="text-muted">{d.reason}</p>
+                      </div>
+                    ))
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* ===================================================================== */}
+      {/* MODAL: MODERATE SERVICE REQUEST                                       */}
+      {/* ===================================================================== */}
+      {editingJob && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-ink/30 backdrop-blur-[2px] cn-fade" onClick={() => setEditingJob(null)} />
+          <div className="relative w-full max-w-md bg-surface rounded-2xl shadow-[0_24px_48px_-12px_rgba(17,24,39,0.25)] border border-line cn-pop p-6 space-y-4">
+            <div className="flex items-start justify-between">
+              <div>
+                <h3 className="text-base font-medium text-ink">Moderate Job Brief</h3>
+                <p className="text-xs text-muted mt-0.5">{editingJob.id} • Client: {editingJob.customerName}</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setEditingJob(null)}
+                className="w-8 h-8 rounded-lg text-subtle hover:text-ink hover:bg-sunken flex items-center justify-center cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="space-y-3 text-xs">
+              <div className="space-y-1">
+                <label className="block text-xs font-medium text-ink-2">Request Title</label>
+                <input
+                  type="text"
+                  value={jobTitleInput}
+                  onChange={(e) => setJobTitleInput(e.target.value)}
+                  className="w-full h-10 px-3.5 rounded-[10px] bg-surface border border-line text-sm text-ink focus:outline-none focus:border-azure focus:ring-4 focus:ring-azure/10"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="block text-xs font-medium text-ink-2">Description</label>
+                <textarea
+                  rows={3}
+                  value={jobDescriptionInput}
+                  onChange={(e) => setJobDescriptionInput(e.target.value)}
+                  className="w-full p-3 rounded-[10px] bg-surface border border-line text-sm text-ink focus:outline-none focus:border-azure focus:ring-4 focus:ring-azure/10 resize-none leading-relaxed"
+                />
+              </div>
+
+              <div className="space-y-1.5 pt-1">
+                <label className="block text-xs font-medium text-ink-2">Moderation Action</label>
+                <div className="grid grid-cols-3 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => handleModerateJob('open')}
+                    className={`h-9 rounded-lg text-xs font-medium border transition-colors cursor-pointer ${
+                      editingJob.status === 'open'
+                        ? 'bg-emerald-50 border-emerald-300 text-emerald-800'
+                        : 'border-line text-ink hover:bg-sunken'
+                    }`}
+                  >
+                    Keep Open
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleModerateJob('closed')}
+                    className="h-9 rounded-lg text-xs font-medium border border-line text-ink hover:bg-sunken transition-colors cursor-pointer"
+                  >
+                    Close Job
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleModerateJob('cancelled')}
+                    className="h-9 rounded-lg text-xs font-medium border border-rose-200 text-rose-700 hover:bg-rose-50 transition-colors cursor-pointer"
+                  >
+                    Spam / Cancel
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div className="pt-2 border-t border-line">
+              <button
+                type="button"
+                onClick={() => setEditingJob(null)}
+                className="w-full h-10 rounded-[10px] border border-line text-ink hover:bg-sunken text-xs font-medium cursor-pointer"
+              >
+                Close Window
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ===================================================================== */}
+      {/* MODAL: DISPUTE CUSTOM SPLIT SETTLEMENT                                */}
+      {/* ===================================================================== */}
+      {splitDispute && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-ink/30 backdrop-blur-[2px] cn-fade" onClick={() => setSplitDispute(null)} />
+          <div className="relative w-full max-w-md bg-surface rounded-2xl shadow-[0_24px_48px_-12px_rgba(17,24,39,0.25)] border border-line cn-pop p-6 space-y-4">
+            <div className="flex items-start justify-between">
+              <div>
+                <h3 className="text-base font-medium text-ink">Custom Split Settlement</h3>
+                <p className="text-xs text-muted mt-0.5">{splitDispute.disputeNumber} ({formatNaira(splitDispute.amountMinor)})</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setSplitDispute(null)}
+                className="w-8 h-8 rounded-lg text-subtle hover:text-ink hover:bg-sunken flex items-center justify-center cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="space-y-4 text-xs">
+              <div className="space-y-2">
+                <div className="flex justify-between font-medium text-ink">
+                  <span>Specialist Share: {splitProviderPct}%</span>
+                  <span>Client Refund: {100 - splitProviderPct}%</span>
+                </div>
+                <input
+                  type="range"
+                  min="0"
+                  max="100"
+                  step="5"
+                  value={splitProviderPct}
+                  onChange={(e) => setSplitProviderPct(parseInt(e.target.value, 10))}
+                  className="w-full accent-azure cursor-pointer"
+                />
+                <div className="grid grid-cols-2 gap-3 bg-canvas/70 p-3 rounded-xl border border-line">
+                  <div>
+                    <span className="text-[11px] text-muted block">PAYS TO SPECIALIST</span>
+                    <span className="font-semibold text-emerald-700 text-sm mt-0.5 block">
+                      {formatNaira(Math.round((splitDispute.amountMinor * splitProviderPct) / 100))}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-[11px] text-muted block">REFUNDS TO CLIENT</span>
+                    <span className="font-semibold text-azure-600 text-sm mt-0.5 block">
+                      {formatNaira(Math.round((splitDispute.amountMinor * (100 - splitProviderPct)) / 100))}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <label className="block text-xs font-medium text-ink-2">Settlement Notes</label>
+                <textarea
+                  rows={3}
+                  value={splitNotes}
+                  onChange={(e) => setSplitNotes(e.target.value)}
+                  className="w-full p-3 rounded-[10px] bg-surface border border-line text-sm text-ink focus:outline-none focus:border-azure focus:ring-4 focus:ring-azure/10 resize-none leading-relaxed"
+                />
+              </div>
+            </div>
+
+            <div className="flex gap-2.5 pt-3 border-t border-line">
+              <button
+                type="button"
+                onClick={() => setSplitDispute(null)}
+                className="flex-1 h-10 rounded-[10px] border border-line text-ink hover:bg-sunken text-xs font-medium cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleSubmitSplitDispute}
+                disabled={isSubmittingSplit}
+                className="flex-1 h-10 rounded-[10px] bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-medium transition-colors cursor-pointer"
+              >
+                {isSubmittingSplit ? 'Settling...' : 'Execute Split Payout'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ===================================================================== */}
+      {/* MODAL: PROCESS BANK PAYOUT                                            */}
+      {/* ===================================================================== */}
+      {actionWithdrawal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-ink/30 backdrop-blur-[2px] cn-fade" onClick={() => setActionWithdrawal(null)} />
+          <div className="relative w-full max-w-md bg-surface rounded-2xl shadow-[0_24px_48px_-12px_rgba(17,24,39,0.25)] border border-line cn-pop p-6 space-y-4">
+            <div className="flex items-start justify-between">
+              <div>
+                <h3 className="text-base font-medium text-ink">
+                  {payoutDecision === 'approve' ? 'Approve Bank Payout' : 'Reject & Refund Withdrawal'}
+                </h3>
+                <p className="text-xs text-muted mt-0.5">{actionWithdrawal.reference} • {formatNaira(actionWithdrawal.amountMinor)}</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setActionWithdrawal(null)}
+                className="w-8 h-8 rounded-lg text-subtle hover:text-ink hover:bg-sunken flex items-center justify-center cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="bg-canvas/70 p-3.5 rounded-xl border border-line text-xs space-y-1.5">
+              <div className="flex justify-between">
+                <span className="text-muted">Beneficiary:</span>
+                <span className="font-medium text-ink">{actionWithdrawal.userName}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted">Destination Bank:</span>
+                <span className="font-medium text-ink">{actionWithdrawal.bankName || 'Verified Bank'}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted">Account Number:</span>
+                <span className="font-mono font-medium text-ink">{actionWithdrawal.accountNumber || '••••'}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted">Payout Sum:</span>
+                <span className="font-semibold text-emerald-700">{formatNaira(actionWithdrawal.amountMinor)}</span>
+              </div>
+            </div>
+
+            <div className="space-y-3 text-xs">
+              {payoutDecision === 'approve' ? (
+                <div className="space-y-1">
+                  <label className="block text-xs font-medium text-ink-2">Bank Transfer / NIP Session Reference</label>
+                  <input
+                    type="text"
+                    required
+                    value={payoutRefInput}
+                    onChange={(e) => setPayoutRefInput(e.target.value)}
+                    placeholder="e.g. NIP-0902672401824190"
+                    className="w-full h-10 px-3.5 rounded-[10px] bg-surface border border-line text-sm text-ink focus:outline-none focus:border-azure focus:ring-4 focus:ring-azure/10"
+                  />
+                </div>
+              ) : (
+                <div className="space-y-1">
+                  <label className="block text-xs font-medium text-ink-2">Rejection Reason</label>
+                  <textarea
+                    rows={3}
+                    required
+                    value={payoutRejectReason}
+                    onChange={(e) => setPayoutRejectReason(e.target.value)}
+                    placeholder="Specify why withdrawal was rejected (e.g. Account name mismatch)..."
+                    className="w-full p-3 rounded-[10px] bg-surface border border-line text-sm text-ink focus:outline-none focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10 resize-none"
+                  />
+                </div>
+              )}
+            </div>
+
+            <div className="flex gap-2.5 pt-3 border-t border-line">
+              <button
+                type="button"
+                onClick={() => setActionWithdrawal(null)}
+                className="flex-1 h-10 rounded-[10px] border border-line text-ink hover:bg-sunken text-xs font-medium cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => handleProcessWithdrawal(payoutDecision)}
+                disabled={isProcessingPayout}
+                className={`flex-1 h-10 rounded-[10px] text-white text-xs font-medium transition-colors cursor-pointer ${
+                  payoutDecision === 'approve' ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-rose-600 hover:bg-rose-700'
+                }`}
+              >
+                {isProcessingPayout ? 'Processing...' : payoutDecision === 'approve' ? 'Confirm Payout' : 'Reject & Refund'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ===================================================================== */}
+      {/* MODAL: VERIFICATION INSPECT & REJECT                                  */}
+      {/* ===================================================================== */}
+      {selectedCase && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-ink/30 backdrop-blur-[2px] cn-fade" onClick={() => setSelectedCase(null)} />
+          <div className="relative w-full max-w-md bg-surface rounded-2xl shadow-[0_24px_48px_-12px_rgba(17,24,39,0.25)] border border-line cn-pop p-6 space-y-4">
+            <div className="flex items-start justify-between">
+              <div>
+                <h3 className="text-base font-medium text-ink">Reject Verification</h3>
+                <p className="text-xs text-muted mt-0.5">{selectedCase.providerName} • {selectedCase.documentType}</p>
+              </div>
+              <button
+                type="button"
                 onClick={() => setSelectedCase(null)}
-                className="flex-1 py-2.5 rounded-full border border-slate-200 text-slate-700 text-xs font-medium"
+                className="w-8 h-8 rounded-lg text-subtle hover:text-ink hover:bg-sunken flex items-center justify-center cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="space-y-1 text-xs">
+              <label className="block text-xs font-medium text-ink-2">Reason for Rejection</label>
+              <textarea
+                rows={3}
+                value={rejectionReason}
+                onChange={(e) => setRejectionReason(e.target.value)}
+                placeholder="e.g. Blurred document photograph, NIN name mismatch, or expired trade license..."
+                className="w-full p-3 rounded-[10px] bg-surface border border-line text-sm text-ink focus:outline-none focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10 resize-none"
+              />
+            </div>
+
+            <div className="flex gap-2.5 pt-2 border-t border-line">
+              <button
+                type="button"
+                onClick={() => setSelectedCase(null)}
+                className="flex-1 h-10 rounded-[10px] border border-line text-ink hover:bg-sunken text-xs font-medium cursor-pointer"
               >
                 Cancel
               </button>
@@ -2901,7 +3470,7 @@ export default function AdminClientView({
                 type="button"
                 onClick={() => handleRejectCase(selectedCase.id)}
                 disabled={!rejectionReason.trim()}
-                className="flex-1 py-2.5 rounded-full bg-rose-600 hover:bg-rose-700 disabled:opacity-40 text-white text-xs font-medium transition-all cursor-pointer shadow-none"
+                className="flex-1 h-10 rounded-[10px] bg-rose-600 hover:bg-rose-700 disabled:opacity-40 text-white text-xs font-medium transition-colors cursor-pointer"
               >
                 Confirm Rejection
               </button>
@@ -2911,16 +3480,15 @@ export default function AdminClientView({
       )}
 
       {/* ===================================================================== */}
-      {/* MODAL: ESCROW ACTION CONFIRMATION */}
+      {/* MODAL: ESCROW ACTION CONFIRMATION                                     */}
       {/* ===================================================================== */}
       {actionBooking && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl w-full max-w-sm p-6 text-center space-y-4 border border-slate-200/90 shadow-sm">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-ink/30 backdrop-blur-[2px] cn-fade" onClick={() => setActionBooking(null)} />
+          <div className="relative w-full max-w-sm bg-surface rounded-2xl shadow-[0_24px_48px_-12px_rgba(17,24,39,0.25)] border border-line cn-pop p-6 space-y-4 text-center">
             <div
               className={`w-12 h-12 rounded-full mx-auto flex items-center justify-center ${
-                actionBooking.type === 'release'
-                  ? 'bg-emerald-100 text-emerald-600'
-                  : 'bg-rose-100 text-rose-600'
+                actionBooking.type === 'release' ? 'bg-success-50 text-success' : 'bg-rose-50 text-rose-600'
               }`}
             >
               {actionBooking.type === 'release' ? (
@@ -2931,13 +3499,13 @@ export default function AdminClientView({
             </div>
 
             <div>
-              <h3 className="text-base sm:text-lg font-semibold text-slate-900">
+              <h3 className="text-base font-medium text-ink">
                 {actionBooking.type === 'release' ? 'Release Escrow Vault' : 'Refund Escrow to Client'}
               </h3>
-              <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+              <p className="text-xs text-muted mt-1 leading-relaxed">
                 Confirm {actionBooking.type === 'release' ? 'payout of' : 'refund of'}{' '}
-                <span className="font-medium text-slate-800">{formatNaira(actionBooking.booking.totalAmountMinor)}</span> for contract{' '}
-                <span className="font-medium text-slate-800">{actionBooking.booking.bookingNumber}</span>?
+                <span className="font-semibold text-ink">{formatNaira(actionBooking.booking.totalAmountMinor)}</span> for contract{' '}
+                <span className="font-semibold text-ink">{actionBooking.booking.bookingNumber}</span>?
               </p>
             </div>
 
@@ -2945,17 +3513,15 @@ export default function AdminClientView({
               <button
                 type="button"
                 onClick={() => setActionBooking(null)}
-                className="flex-1 py-2.5 rounded-full border border-slate-200 text-slate-700 text-xs font-medium cursor-pointer"
+                className="flex-1 h-10 rounded-[10px] border border-line text-ink hover:bg-sunken text-xs font-medium cursor-pointer"
               >
                 Cancel
               </button>
               <button
                 type="button"
                 onClick={handleEscrowAction}
-                className={`flex-1 py-2.5 rounded-full text-white text-xs font-medium transition-all cursor-pointer shadow-none ${
-                  actionBooking.type === 'release'
-                    ? 'bg-[#10B981] hover:bg-[#059669]'
-                    : 'bg-rose-600 hover:bg-rose-700'
+                className={`flex-1 h-10 rounded-[10px] text-white text-xs font-medium transition-colors cursor-pointer ${
+                  actionBooking.type === 'release' ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-rose-600 hover:bg-rose-700'
                 }`}
               >
                 Confirm
@@ -2966,37 +3532,42 @@ export default function AdminClientView({
       )}
 
       {/* ===================================================================== */}
-      {/* MODAL: DISPUTE RESOLUTION */}
+      {/* MODAL: DISPUTE RESOLUTION                                             */}
       {/* ===================================================================== */}
       {selectedDispute && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl w-full max-w-md p-6 sm:p-7 space-y-4 border border-slate-200/90 shadow-sm">
-            <div>
-              <span className="text-[10px] font-medium uppercase tracking-wider whitespace-nowrap text-amber-600">
-                Resolution Terms
-              </span>
-              <h3 className="text-base sm:text-lg font-semibold text-slate-900">
-                Resolve {selectedDispute.disputeNumber}
-              </h3>
-              <p className="text-xs text-slate-500">{selectedDispute.bookingTitle}</p>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-ink/30 backdrop-blur-[2px] cn-fade" onClick={() => setSelectedDispute(null)} />
+          <div className="relative w-full max-w-md bg-surface rounded-2xl shadow-[0_24px_48px_-12px_rgba(17,24,39,0.25)] border border-line cn-pop p-6 space-y-4">
+            <div className="flex items-start justify-between">
+              <div>
+                <h3 className="text-base font-medium text-ink">Resolve {selectedDispute.disputeNumber}</h3>
+                <p className="text-xs text-muted mt-0.5">{selectedDispute.bookingTitle}</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setSelectedDispute(null)}
+                className="w-8 h-8 rounded-lg text-subtle hover:text-ink hover:bg-sunken flex items-center justify-center cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
             </div>
 
-            <div className="space-y-1.5 text-xs">
-              <label className="font-medium text-slate-700">Resolution Summary</label>
+            <div className="space-y-1 text-xs">
+              <label className="block text-xs font-medium text-ink-2">Resolution Terms &amp; Summary</label>
               <textarea
                 rows={3}
                 value={disputeResolutionText}
                 onChange={(e) => setDisputeResolutionText(e.target.value)}
-                placeholder="Enter agreed settlement terms (e.g. 50% refund, or re-performance within 48 hours)..."
-                className="w-full p-3 rounded-2xl border border-slate-200 font-normal text-slate-800 focus:outline-none focus:border-[#10B981]"
+                placeholder="Enter agreed settlement terms..."
+                className="w-full p-3 rounded-[10px] bg-surface border border-line text-sm text-ink focus:outline-none focus:border-azure focus:ring-4 focus:ring-azure/10 resize-none"
               />
             </div>
 
-            <div className="flex gap-2.5 pt-2">
+            <div className="flex gap-2.5 pt-2 border-t border-line">
               <button
                 type="button"
                 onClick={() => setSelectedDispute(null)}
-                className="flex-1 py-2.5 rounded-full border border-slate-200 text-slate-700 text-xs font-medium"
+                className="flex-1 h-10 rounded-[10px] border border-line text-ink hover:bg-sunken text-xs font-medium cursor-pointer"
               >
                 Cancel
               </button>
@@ -3004,7 +3575,7 @@ export default function AdminClientView({
                 type="button"
                 onClick={handleResolveDispute}
                 disabled={!disputeResolutionText.trim()}
-                className="flex-1 py-2.5 rounded-full bg-[#10B981] hover:bg-[#059669] disabled:opacity-40 text-white text-xs font-medium transition-all cursor-pointer shadow-none"
+                className="flex-1 h-10 rounded-[10px] bg-ink hover:bg-ink-2 disabled:opacity-40 text-white text-xs font-medium transition-colors cursor-pointer"
               >
                 Mark Resolved
               </button>
@@ -3014,125 +3585,74 @@ export default function AdminClientView({
       )}
 
       {/* ===================================================================== */}
-      {/* MODAL: ADMIN PROFILE (REAL SERVER DATABASE DATA)                      */}
+      {/* MODAL: ADMIN PROFILE (VIEW / EDIT)                                    */}
       {/* ===================================================================== */}
       {showAdminProfileModal && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-white rounded-3xl w-full max-w-lg p-6 sm:p-8 space-y-6 border border-slate-200/90 shadow-sm relative animate-in fade-in zoom-in-95 duration-150 my-8">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-ink/30 backdrop-blur-[2px] cn-fade" onClick={() => setShowAdminProfileModal(false)} />
+          <div className="relative w-full max-w-lg bg-surface rounded-2xl shadow-[0_24px_48px_-12px_rgba(17,24,39,0.25)] border border-line cn-pop p-6 sm:p-7 space-y-5 max-h-[90vh] overflow-y-auto">
             <button
               type="button"
               onClick={() => {
                 setShowAdminProfileModal(false)
                 setIsEditingAdminProfile(false)
               }}
-              className="absolute top-5 right-5 p-2 rounded-full hover:bg-slate-100 text-slate-400 hover:text-slate-700 cursor-pointer"
+              className="absolute top-5 right-5 w-8 h-8 rounded-lg text-subtle hover:text-ink hover:bg-sunken flex items-center justify-center cursor-pointer"
             >
-              <X className="w-5 h-5" />
+              <X className="w-4 h-4" />
             </button>
 
             {adminProfileSuccessNotice && (
-              <div className="p-3 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-2xl text-xs flex items-center gap-2 animate-in fade-in duration-200">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                <span className="font-medium">{adminProfileSuccessNotice}</span>
-              </div>
+              <Notice tone="success" onClose={() => setAdminProfileSuccessNotice(null)}>
+                {adminProfileSuccessNotice}
+              </Notice>
             )}
 
             {!isEditingAdminProfile ? (
               <>
                 <div className="flex items-center gap-4">
-                  <div className="w-16 h-16 rounded-full bg-[#0C513F] text-white flex items-center justify-center text-xl font-semibold ring-4 ring-emerald-500/20 shadow-none overflow-hidden relative shrink-0">
-                    {currentAdmin.avatarUrl ? (
-                      <Image
-                        src={currentAdmin.avatarUrl}
-                        alt={currentAdmin.fullName}
-                        fill
-                        className="object-cover p-1"
-                      />
-                    ) : (
-                      getInitials(currentAdmin.fullName)
-                    )}
-                  </div>
+                  <Avatar name={currentAdmin.fullName} size={54} />
                   <div>
                     <div className="flex items-center gap-2">
-                      <h3 className="text-lg sm:text-xl font-semibold text-slate-900">{currentAdmin.fullName}</h3>
-                      <BadgeCheck className="w-5 h-5 text-[#10B981]" />
+                      <h3 className="text-lg font-medium text-ink">{currentAdmin.fullName}</h3>
+                      <BadgeCheck className="w-4 h-4 text-azure" />
                     </div>
-                    <p className="text-xs font-medium text-emerald-700">
-                      {currentAdmin.headline || 'Lead Platform Administrator & Escrow Supervisor'}
-                    </p>
-                    <p className="text-xs text-slate-500 mt-0.5">{currentAdmin.email}</p>
+                    <p className="text-xs text-muted mt-0.5">{currentAdmin.headline || 'Lead Platform Administrator'}</p>
+                    <p className="text-xs text-subtle">{currentAdmin.email}</p>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-3 bg-slate-50 p-4 rounded-2xl border border-slate-200/80 text-xs">
+                <div className="grid grid-cols-2 gap-3 bg-canvas/70 p-4 rounded-xl border border-line text-xs">
                   <div>
-                    <span className="text-slate-500 block">Operations Hub</span>
-                    <span className="font-medium text-slate-900 flex items-center gap-1 mt-0.5">
-                      <MapPin className="w-3.5 h-3.5 text-emerald-600" />
-                      {currentAdmin.city}, {currentAdmin.country}
-                    </span>
+                    <span className="text-subtle block">Hub Location</span>
+                    <span className="font-medium text-ink mt-0.5 block">{currentAdmin.city}, {currentAdmin.country}</span>
                   </div>
                   <div>
-                    <span className="text-slate-500 block">Official Phone</span>
-                    <span className="font-medium text-slate-900 flex items-center gap-1 mt-0.5">
-                      <Phone className="w-3.5 h-3.5 text-emerald-600" />
-                      {currentAdmin.phone}
-                    </span>
+                    <span className="text-subtle block">Official Phone</span>
+                    <span className="font-medium text-ink mt-0.5 block">{currentAdmin.phone}</span>
                   </div>
                   <div>
-                    <span className="text-slate-500 block">Security Clearance</span>
-                    <span className="font-medium text-emerald-700 flex items-center gap-1 mt-0.5">
-                      <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-                      Level 4 Root Authority
-                    </span>
+                    <span className="text-subtle block">Security Clearance</span>
+                    <span className="font-medium text-azure mt-0.5 block">Level 4 Root Authority</span>
                   </div>
                   <div>
-                    <span className="text-slate-500 block">Organization</span>
-                    <span className="font-medium text-slate-900 mt-0.5 block truncate">
-                      {currentAdmin.companyName || 'Connecta Kano Administration'}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-slate-500 block">Sparks Balance</span>
-                    <span className="font-medium text-emerald-700 mt-0.5 flex items-center gap-1">
-                      <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+                    <span className="text-subtle block">Sparks Vault</span>
+                    <span className="font-medium text-amber-600 mt-0.5 block">
                       {currentAdmin.wallet?.sparksBalance ?? currentAdmin.welcomeSparks ?? 500} Sparks
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-slate-500 block">Account Status</span>
-                    <span className="font-medium text-emerald-600 mt-0.5 flex items-center gap-1 capitalize">
-                      <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                      {currentAdmin.accountStatus || 'active'}
                     </span>
                   </div>
                 </div>
 
                 {currentAdmin.bio && (
                   <div className="space-y-1">
-                    <h4 className="text-[11px] font-medium uppercase tracking-wider text-slate-500">Bio & Administrative Scope</h4>
-                    <p className="text-xs text-slate-700 leading-relaxed bg-slate-50 p-3 rounded-2xl border border-slate-200/80 font-normal">
+                    <span className="text-xs font-medium text-ink-2">Administrative Scope</span>
+                    <p className="text-xs text-muted leading-relaxed bg-canvas/70 p-3 rounded-xl border border-line">
                       {currentAdmin.bio}
                     </p>
                   </div>
                 )}
 
-                <div className="space-y-2">
-                  <h4 className="text-[11px] font-medium uppercase tracking-wider text-slate-500">Platform Responsibilities</h4>
-                  <ul className="space-y-1.5 text-xs text-slate-700 font-normal">
-                    {(currentAdmin.skills && currentAdmin.skills.length > 0
-                      ? currentAdmin.skills
-                      : ['Platform Administration', 'Escrow Oversight', 'Dispute Resolution']
-                    ).map((skill, idx) => (
-                      <li key={idx} className="flex items-center gap-2">
-                        <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                        <span>{skill}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                <div className="flex gap-3 pt-2">
+                <div className="flex gap-2.5 pt-2">
                   <button
                     type="button"
                     onClick={() => {
@@ -3147,118 +3667,117 @@ export default function AdminClientView({
                       })
                       setIsEditingAdminProfile(true)
                     }}
-                    className="flex-1 py-2.5 rounded-full border border-slate-300 text-slate-700 text-xs font-medium hover:bg-slate-50 flex items-center justify-center gap-2 transition-colors cursor-pointer shadow-none"
+                    className="flex-1 h-10 rounded-[10px] border border-line text-ink hover:bg-sunken text-xs font-medium flex items-center justify-center gap-2 cursor-pointer"
                   >
                     <Edit3 className="w-3.5 h-3.5" />
-                    <span>Edit Profile</span>
+                    <span>Edit Profile Details</span>
                   </button>
                   <button
                     type="button"
                     onClick={() => setShowAdminProfileModal(false)}
-                    className="flex-1 py-2.5 rounded-full bg-[#0A1020] hover:bg-slate-800 text-white text-xs font-medium transition-colors cursor-pointer shadow-none"
+                    className="flex-1 h-10 rounded-[10px] bg-ink hover:bg-ink-2 text-white text-xs font-medium cursor-pointer"
                   >
                     Done
                   </button>
                 </div>
               </>
             ) : (
-              <form onSubmit={handleSaveAdminProfile} className="space-y-4">
-                <div className="border-b border-slate-100 pb-3">
-                  <h3 className="text-base font-semibold text-slate-900">Edit Administrator Profile</h3>
-                  <p className="text-xs text-slate-500 mt-0.5">Update administrator details in the server database</p>
+              <form onSubmit={handleSaveAdminProfile} className="space-y-4 text-xs">
+                <div>
+                  <h3 className="text-base font-medium text-ink">Edit Administrator Profile</h3>
+                  <p className="text-xs text-muted mt-0.5">Update root authority record in database</p>
                 </div>
 
-                <div className="space-y-3 text-xs">
-                  <div>
-                    <label className="font-medium text-slate-700 block mb-1">Full Name</label>
+                <div className="space-y-3">
+                  <div className="space-y-1">
+                    <label className="block text-xs font-medium text-ink-2">Full Name</label>
                     <input
                       type="text"
                       required
                       value={editAdminForm.fullName}
                       onChange={(e) => setEditAdminForm({ ...editAdminForm, fullName: e.target.value })}
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-900 font-normal"
+                      className="w-full h-10 px-3.5 rounded-[10px] bg-surface border border-line text-sm text-ink focus:outline-none focus:border-azure focus:ring-4 focus:ring-azure/10"
                     />
                   </div>
 
-                  <div>
-                    <label className="font-medium text-slate-700 block mb-1">Headline / Title</label>
+                  <div className="space-y-1">
+                    <label className="block text-xs font-medium text-ink-2">Headline / Role Title</label>
                     <input
                       type="text"
                       value={editAdminForm.headline}
                       onChange={(e) => setEditAdminForm({ ...editAdminForm, headline: e.target.value })}
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-900 font-normal"
+                      className="w-full h-10 px-3.5 rounded-[10px] bg-surface border border-line text-sm text-ink focus:outline-none focus:border-azure focus:ring-4 focus:ring-azure/10"
                     />
                   </div>
 
                   <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <label className="font-medium text-slate-700 block mb-1">Phone Number</label>
+                    <div className="space-y-1">
+                      <label className="block text-xs font-medium text-ink-2">Phone</label>
                       <input
                         type="text"
                         required
                         value={editAdminForm.phone}
                         onChange={(e) => setEditAdminForm({ ...editAdminForm, phone: e.target.value })}
-                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-900 font-normal"
+                        className="w-full h-10 px-3.5 rounded-[10px] bg-surface border border-line text-sm text-ink focus:outline-none focus:border-azure focus:ring-4 focus:ring-azure/10"
                       />
                     </div>
-                    <div>
-                      <label className="font-medium text-slate-700 block mb-1">WhatsApp Number</label>
+                    <div className="space-y-1">
+                      <label className="block text-xs font-medium text-ink-2">WhatsApp</label>
                       <input
                         type="text"
                         value={editAdminForm.whatsapp}
                         onChange={(e) => setEditAdminForm({ ...editAdminForm, whatsapp: e.target.value })}
-                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-900 font-normal"
+                        className="w-full h-10 px-3.5 rounded-[10px] bg-surface border border-line text-sm text-ink focus:outline-none focus:border-azure focus:ring-4 focus:ring-azure/10"
                       />
                     </div>
                   </div>
 
                   <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <label className="font-medium text-slate-700 block mb-1">City</label>
+                    <div className="space-y-1">
+                      <label className="block text-xs font-medium text-ink-2">City</label>
                       <input
                         type="text"
                         value={editAdminForm.city}
                         onChange={(e) => setEditAdminForm({ ...editAdminForm, city: e.target.value })}
-                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-900 font-normal"
+                        className="w-full h-10 px-3.5 rounded-[10px] bg-surface border border-line text-sm text-ink focus:outline-none focus:border-azure focus:ring-4 focus:ring-azure/10"
                       />
                     </div>
-                    <div>
-                      <label className="font-medium text-slate-700 block mb-1">Country</label>
+                    <div className="space-y-1">
+                      <label className="block text-xs font-medium text-ink-2">Country</label>
                       <input
                         type="text"
                         value={editAdminForm.country}
                         onChange={(e) => setEditAdminForm({ ...editAdminForm, country: e.target.value })}
-                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-900 font-normal"
+                        className="w-full h-10 px-3.5 rounded-[10px] bg-surface border border-line text-sm text-ink focus:outline-none focus:border-azure focus:ring-4 focus:ring-azure/10"
                       />
                     </div>
                   </div>
 
-                  <div>
-                    <label className="font-medium text-slate-700 block mb-1">Bio / Administrative Overview</label>
+                  <div className="space-y-1">
+                    <label className="block text-xs font-medium text-ink-2">Administrative Bio</label>
                     <textarea
                       rows={3}
                       value={editAdminForm.bio}
                       onChange={(e) => setEditAdminForm({ ...editAdminForm, bio: e.target.value })}
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-900 resize-none font-normal"
+                      className="w-full p-3 rounded-[10px] bg-surface border border-line text-sm text-ink focus:outline-none focus:border-azure focus:ring-4 focus:ring-azure/10 resize-none leading-relaxed"
                     />
                   </div>
                 </div>
 
-                <div className="flex gap-3 pt-3">
+                <div className="flex gap-2.5 pt-2 border-t border-line">
                   <button
                     type="button"
                     onClick={() => setIsEditingAdminProfile(false)}
-                    className="flex-1 py-2.5 rounded-full border border-slate-300 text-slate-700 text-xs font-medium hover:bg-slate-50 transition-colors cursor-pointer shadow-none"
+                    className="flex-1 h-10 rounded-[10px] border border-line text-ink hover:bg-sunken text-xs font-medium cursor-pointer"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={isSavingAdminProfile}
-                    className="flex-1 py-2.5 rounded-full bg-[#0C513F] hover:bg-emerald-700 disabled:opacity-50 text-white text-xs font-medium flex items-center justify-center gap-2 transition-colors cursor-pointer shadow-none"
+                    className="flex-1 h-10 rounded-[10px] bg-ink hover:bg-ink-2 text-white text-xs font-medium transition-colors cursor-pointer"
                   >
-                    <Save className="w-3.5 h-3.5" />
-                    <span>{isSavingAdminProfile ? 'Saving...' : 'Save to Database'}</span>
+                    {isSavingAdminProfile ? 'Saving...' : 'Save to Database'}
                   </button>
                 </div>
               </form>
@@ -3268,848 +3787,19 @@ export default function AdminClientView({
       )}
 
       {/* ===================================================================== */}
-      {/* MODAL: EDIT USER PROFILE & VERIFICATION */}
-      {/* ===================================================================== */}
-      {editingUser && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl w-full max-w-lg p-6 sm:p-8 space-y-5 border border-slate-200/90 shadow-sm animate-in fade-in zoom-in-95 duration-150 max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <div>
-                <h3 className="text-base sm:text-lg font-semibold text-slate-900">
-                  Edit Member Profile
-                </h3>
-                <p className="text-xs text-slate-500 mt-0.5">
-                  Direct administrative edit for {editingUser.fullName} ({editingUser.id})
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={() => setEditingUser(null)}
-                className="text-slate-400 hover:text-slate-600 p-1 rounded-full cursor-pointer"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <div className="space-y-3.5 text-xs">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div className="space-y-1">
-                  <label className="font-semibold text-slate-700">Full Name</label>
-                  <input
-                    type="text"
-                    value={userEditForm.fullName}
-                    onChange={(e) => setUserEditForm({ ...userEditForm, fullName: e.target.value })}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
-                  />
-                </div>
-                <div className="space-y-1">
-                  <label className="font-semibold text-slate-700">Email Address</label>
-                  <input
-                    type="email"
-                    value={userEditForm.email}
-                    onChange={(e) => setUserEditForm({ ...userEditForm, email: e.target.value })}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div className="space-y-1">
-                  <label className="font-semibold text-slate-700">Phone Number</label>
-                  <input
-                    type="text"
-                    value={userEditForm.phone}
-                    onChange={(e) => setUserEditForm({ ...userEditForm, phone: e.target.value })}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
-                  />
-                </div>
-                <div className="space-y-1">
-                  <label className="font-semibold text-slate-700">Operating City</label>
-                  <input
-                    type="text"
-                    value={userEditForm.city}
-                    onChange={(e) => setUserEditForm({ ...userEditForm, city: e.target.value })}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div className="space-y-1">
-                  <label className="font-semibold text-slate-700">Trade / Primary Craft</label>
-                  <input
-                    type="text"
-                    value={userEditForm.trade}
-                    onChange={(e) => setUserEditForm({ ...userEditForm, trade: e.target.value })}
-                    placeholder="e.g. Solar & Electrical"
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
-                  />
-                </div>
-                <div className="space-y-1">
-                  <label className="font-semibold text-slate-700">National ID (NIN)</label>
-                  <input
-                    type="text"
-                    value={userEditForm.ninNumber}
-                    onChange={(e) => setUserEditForm({ ...userEditForm, ninNumber: e.target.value })}
-                    placeholder="NIN-xxxxxxxxxxx"
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <div className="space-y-1">
-                  <label className="font-semibold text-slate-700">Hourly Rate (₦)</label>
-                  <input
-                    type="number"
-                    value={userEditForm.hourlyRateNaira}
-                    onChange={(e) => setUserEditForm({ ...userEditForm, hourlyRateNaira: e.target.value })}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
-                  />
-                </div>
-                <div className="space-y-1">
-                  <label className="font-semibold text-slate-700">Platform Role</label>
-                  <select
-                    value={userEditForm.role}
-                    onChange={(e) => setUserEditForm({ ...userEditForm, role: e.target.value as any })}
-                    className="w-full px-3 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 font-medium"
-                  >
-                    <option value="provider">Provider (Artisan)</option>
-                    <option value="customer">Customer (Client)</option>
-                  </select>
-                </div>
-                <div className="space-y-1">
-                  <label className="font-semibold text-slate-700">Verification Status</label>
-                  <select
-                    value={userEditForm.verificationStatus}
-                    onChange={(e) => setUserEditForm({ ...userEditForm, verificationStatus: e.target.value as any })}
-                    className="w-full px-3 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 font-medium"
-                  >
-                    <option value="verified">Verified (Badge Active)</option>
-                    <option value="unverified">Unverified (Pending)</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-
-            <div className="flex gap-2.5 pt-3 border-t border-slate-100">
-              <button
-                type="button"
-                onClick={() => setEditingUser(null)}
-                className="flex-1 py-2.5 rounded-full border border-slate-200 text-slate-700 text-xs font-semibold hover:bg-slate-50 cursor-pointer"
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                onClick={handleSaveUserEdit}
-                disabled={isSavingUser}
-                className="flex-1 py-2.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold transition-colors cursor-pointer flex items-center justify-center gap-1.5"
-              >
-                {isSavingUser ? 'Updating...' : 'Save Member Details'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ===================================================================== */}
-      {/* MODAL: MANUAL WALLET & SPARKS ADJUSTMENT */}
-      {/* ===================================================================== */}
-      {adjustingWalletUser && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl w-full max-w-md p-6 sm:p-7 space-y-4 border border-slate-200/90 shadow-sm animate-in fade-in zoom-in-95 duration-150">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <div>
-                <h3 className="text-base font-semibold text-slate-900">
-                  Adjust Vault &amp; Sparks Balance
-                </h3>
-                <p className="text-xs text-slate-500 mt-0.5">
-                  Direct ledger credit/debit for {adjustingWalletUser.fullName}
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={() => setAdjustingWalletUser(null)}
-                className="text-slate-400 hover:text-slate-600 p-1 rounded-full cursor-pointer"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <div className="bg-slate-50 rounded-2xl p-3 border border-slate-200/70 text-xs space-y-1">
-              <div className="flex justify-between text-slate-600">
-                <span>Current Available Balance:</span>
-                <span className="font-semibold text-slate-900">
-                  {formatNaira(adjustingWalletUser.wallet?.balanceMinor || 0)}
-                </span>
-              </div>
-              <div className="flex justify-between text-slate-600">
-                <span>Current Escrow Balance:</span>
-                <span className="font-semibold text-[#0C513F]">
-                  {formatNaira(adjustingWalletUser.wallet?.escrowBalanceMinor || 0)}
-                </span>
-              </div>
-              <div className="flex justify-between text-slate-600">
-                <span>AI Sparks Points:</span>
-                <span className="font-semibold text-amber-600">
-                  {adjustingWalletUser.wallet?.sparksBalance || 0} Sparks
-                </span>
-              </div>
-            </div>
-
-            <div className="space-y-3 text-xs">
-              <div className="space-y-1">
-                <label className="font-semibold text-slate-700">
-                  Wallet Cash Adjustment (₦ Naira)
-                </label>
-                <input
-                  type="number"
-                  step="100"
-                  value={walletAdjustDeltaNaira}
-                  onChange={(e) => setWalletAdjustDeltaNaira(e.target.value)}
-                  placeholder="e.g. 50000 to credit, or -25000 to deduct"
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
-                />
-                <p className="text-[11px] text-slate-400">
-                  Positive number credits vault; negative number debits vault.
-                </p>
-              </div>
-
-              <div className="space-y-1">
-                <label className="font-semibold text-slate-700">
-                  AI Sparks Reward Delta
-                </label>
-                <input
-                  type="number"
-                  step="10"
-                  value={walletAdjustSparks}
-                  onChange={(e) => setWalletAdjustSparks(e.target.value)}
-                  placeholder="e.g. 200 to grant Sparks"
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <label className="font-semibold text-slate-700">
-                  Audit Reason / Ledger Title
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={walletAdjustReason}
-                  onChange={(e) => setWalletAdjustReason(e.target.value)}
-                  placeholder="e.g. Goodwill refund for project #CN-824 or Promo Sparks"
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
-                />
-              </div>
-            </div>
-
-            <div className="flex gap-2.5 pt-3 border-t border-slate-100">
-              <button
-                type="button"
-                onClick={() => setAdjustingWalletUser(null)}
-                className="flex-1 py-2.5 rounded-full border border-slate-200 text-slate-700 text-xs font-semibold hover:bg-slate-50 cursor-pointer"
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                onClick={handleSaveWalletAdjustment}
-                disabled={isAdjustingWallet}
-                className="flex-1 py-2.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold transition-colors cursor-pointer flex items-center justify-center gap-1.5"
-              >
-                {isAdjustingWallet ? 'Processing...' : 'Apply Ledger Adjustment'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ===================================================================== */}
-      {/* MODAL: RESET USER PASSWORD */}
-      {/* ===================================================================== */}
-      {resettingUser && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl w-full max-w-sm p-6 text-center space-y-4 border border-slate-200/90 shadow-sm animate-in fade-in zoom-in-95 duration-150">
-            <div className="w-12 h-12 rounded-full bg-indigo-50 text-indigo-600 mx-auto flex items-center justify-center">
-              <KeyRound className="w-6 h-6" />
-            </div>
-            <div>
-              <h3 className="text-base font-semibold text-slate-900">
-                Reset Member Password
-              </h3>
-              <p className="text-xs text-slate-500 mt-0.5">
-                Set a new password for {resettingUser.fullName} ({resettingUser.email})
-              </p>
-            </div>
-
-            <div className="text-left text-xs space-y-1">
-              <label className="font-semibold text-slate-700">New Password</label>
-              <input
-                type="text"
-                required
-                value={newPasswordInput}
-                onChange={(e) => setNewPasswordInput(e.target.value)}
-                placeholder="Enter new temporary password"
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
-              />
-            </div>
-
-            <div className="flex gap-2.5 pt-2">
-              <button
-                type="button"
-                onClick={() => setResettingUser(null)}
-                className="flex-1 py-2.5 rounded-full border border-slate-200 text-slate-700 text-xs font-semibold hover:bg-slate-50 cursor-pointer"
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                onClick={handleSavePasswordReset}
-                disabled={isResettingPassword || !newPasswordInput.trim()}
-                className="flex-1 py-2.5 rounded-full bg-[#0A1020] hover:bg-slate-800 text-white text-xs font-semibold transition-colors cursor-pointer disabled:opacity-50"
-              >
-                {isResettingPassword ? 'Updating...' : 'Set Password'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ===================================================================== */}
-      {/* MODAL: USER 360° ACTIVITY DRAWER */}
-      {/* ===================================================================== */}
-      {user360 && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl w-full max-w-2xl p-6 sm:p-8 space-y-5 border border-slate-200/90 shadow-sm animate-in fade-in zoom-in-95 duration-150 max-h-[90vh] overflow-y-auto">
-            <div className="flex items-start justify-between border-b border-slate-100 pb-4">
-              <div className="flex items-center gap-3.5">
-                <div className="w-12 h-12 rounded-2xl bg-slate-900 text-white flex items-center justify-center font-bold text-base">
-                  {user360.fullName.slice(0, 2).toUpperCase()}
-                </div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <h3 className="text-base sm:text-lg font-semibold text-slate-900">
-                      {user360.fullName}
-                    </h3>
-                    <span className="text-[10px] font-semibold uppercase px-2 py-0.5 rounded-full bg-slate-100 text-slate-700">
-                      {user360.role}
-                    </span>
-                    {user360.verificationStatus === 'verified' && (
-                      <span className="text-[10px] font-semibold uppercase px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 flex items-center gap-1">
-                        <CheckCircle2 className="w-3 h-3 text-emerald-600" />
-                        Verified
-                      </span>
-                    )}
-                  </div>
-                  <p className="text-xs text-slate-400 mt-0.5 font-normal">
-                    {user360.email} • {user360.phone} • {user360.city}
-                  </p>
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={() => setUser360(null)}
-                className="text-slate-400 hover:text-slate-600 p-1 rounded-full cursor-pointer"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            {/* Sub-tabs */}
-            <div className="flex border-b border-slate-100 text-xs font-semibold gap-4">
-              <button
-                type="button"
-                onClick={() => setUser360Tab('profile')}
-                className={`pb-2 transition-colors cursor-pointer border-b-2 ${
-                  user360Tab === 'profile' ? 'border-slate-900 text-slate-900' : 'border-transparent text-slate-400 hover:text-slate-600'
-                }`}
-              >
-                Profile &amp; Vault
-              </button>
-              <button
-                type="button"
-                onClick={() => setUser360Tab('contracts')}
-                className={`pb-2 transition-colors cursor-pointer border-b-2 ${
-                  user360Tab === 'contracts' ? 'border-slate-900 text-slate-900' : 'border-transparent text-slate-400 hover:text-slate-600'
-                }`}
-              >
-                Contracts ({bookings.filter((b) => b.customerId === user360.id || b.providerId === user360.id).length})
-              </button>
-              <button
-                type="button"
-                onClick={() => setUser360Tab('jobs')}
-                className={`pb-2 transition-colors cursor-pointer border-b-2 ${
-                  user360Tab === 'jobs' ? 'border-slate-900 text-slate-900' : 'border-transparent text-slate-400 hover:text-slate-600'
-                }`}
-              >
-                Requests ({serviceRequests.filter((r) => r.customerId === user360.id).length})
-              </button>
-              <button
-                type="button"
-                onClick={() => setUser360Tab('disputes')}
-                className={`pb-2 transition-colors cursor-pointer border-b-2 ${
-                  user360Tab === 'disputes' ? 'border-slate-900 text-slate-900' : 'border-transparent text-slate-400 hover:text-slate-600'
-                }`}
-              >
-                Disputes ({disputes.filter((d) => d.claimantName.includes(user360.fullName) || d.respondentName.includes(user360.fullName)).length})
-              </button>
-            </div>
-
-            {/* Tab content */}
-            {user360Tab === 'profile' && (
-              <div className="space-y-4 text-xs">
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-slate-50 p-4 rounded-2xl border border-slate-100">
-                  <div>
-                    <span className="text-slate-400 block text-[11px]">Vault Balance</span>
-                    <span className="text-sm font-semibold text-slate-900 mt-0.5 block">
-                      {formatNaira(user360.wallet?.balanceMinor || 0)}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-slate-400 block text-[11px]">Escrow In-Flight</span>
-                    <span className="text-sm font-semibold text-[#0C513F] mt-0.5 block">
-                      {formatNaira(user360.wallet?.escrowBalanceMinor || 0)}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-slate-400 block text-[11px]">AI Sparks</span>
-                    <span className="text-sm font-semibold text-amber-600 mt-0.5 block">
-                      {user360.wallet?.sparksBalance || 0} SPK
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-slate-400 block text-[11px]">Account Status</span>
-                    <span className={`text-xs font-semibold mt-0.5 block uppercase ${
-                      user360.accountStatus === 'active' ? 'text-emerald-700' : 'text-rose-600'
-                    }`}>
-                      {user360.accountStatus}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div className="p-3 bg-white rounded-2xl border border-slate-200">
-                    <span className="text-slate-400 text-[11px]">Trade Specialty:</span>
-                    <p className="font-semibold text-slate-900 mt-0.5">{user360.trade || 'General Services'}</p>
-                  </div>
-                  <div className="p-3 bg-white rounded-2xl border border-slate-200">
-                    <span className="text-slate-400 text-[11px]">National Identification (NIN):</span>
-                    <p className="font-semibold text-slate-900 mt-0.5">{user360.ninNumber || 'Not submitted'}</p>
-                  </div>
-                  <div className="p-3 bg-white rounded-2xl border border-slate-200">
-                    <span className="text-slate-400 text-[11px]">Hourly Billing Rate:</span>
-                    <p className="font-semibold text-slate-900 mt-0.5">
-                      {user360.hourlyRateMinor ? `${formatNaira(user360.hourlyRateMinor)}/hr` : 'Default'}
-                    </p>
-                  </div>
-                  <div className="p-3 bg-white rounded-2xl border border-slate-200">
-                    <span className="text-slate-400 text-[11px]">Dashboard Featured Pro:</span>
-                    <p className="font-semibold text-slate-900 mt-0.5">
-                      {user360.isFeatured ? '⭐️ Yes, featured on user overview' : 'No'}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex gap-2 pt-2">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setUser360(null)
-                      handleOpenEditUser(user360)
-                    }}
-                    className="px-4 py-2 rounded-full border border-slate-200 text-slate-700 font-semibold hover:bg-slate-50 flex items-center gap-1.5"
-                  >
-                    <Edit3 className="w-3.5 h-3.5" />
-                    <span>Edit Profile</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setUser360(null)
-                      handleOpenAdjustWallet(user360)
-                    }}
-                    className="px-4 py-2 rounded-full border border-slate-200 text-slate-700 font-semibold hover:bg-slate-50 flex items-center gap-1.5"
-                  >
-                    <Coins className="w-3.5 h-3.5 text-emerald-600" />
-                    <span>Adjust Funds / Sparks</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setUser360(null)
-                      handleOpenResetPassword(user360)
-                    }}
-                    className="px-4 py-2 rounded-full border border-slate-200 text-slate-700 font-semibold hover:bg-slate-50 flex items-center gap-1.5"
-                  >
-                    <KeyRound className="w-3.5 h-3.5 text-indigo-600" />
-                    <span>Reset Password</span>
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {user360Tab === 'contracts' && (
-              <div className="space-y-3 text-xs">
-                {bookings.filter((b) => b.customerId === user360.id || b.providerId === user360.id).length === 0 ? (
-                  <p className="text-slate-400 py-6 text-center">No contracts found for this user.</p>
-                ) : (
-                  bookings
-                    .filter((b) => b.customerId === user360.id || b.providerId === user360.id)
-                    .map((b) => (
-                      <div key={b.id} className="p-3 bg-slate-50 rounded-2xl border border-slate-100 flex items-center justify-between">
-                        <div>
-                          <div className="font-semibold text-slate-900">{b.title}</div>
-                          <div className="text-slate-400 text-[11px] mt-0.5">
-                            {b.bookingNumber} • Escrow: {b.escrowStatus} • Status: {b.bookingStatus}
-                          </div>
-                        </div>
-                        <div className="text-right">
-                          <div className="font-semibold text-slate-900">{formatNaira(b.totalAmountMinor)}</div>
-                          <div className="text-[10px] text-emerald-600">{b.progressPercentage}% done</div>
-                        </div>
-                      </div>
-                    ))
-                )}
-              </div>
-            )}
-
-            {user360Tab === 'jobs' && (
-              <div className="space-y-3 text-xs">
-                {serviceRequests.filter((r) => r.customerId === user360.id).length === 0 ? (
-                  <p className="text-slate-400 py-6 text-center">No service requests posted by this user.</p>
-                ) : (
-                  serviceRequests
-                    .filter((r) => r.customerId === user360.id)
-                    .map((j) => (
-                      <div key={j.id} className="p-3 bg-slate-50 rounded-2xl border border-slate-100 flex items-center justify-between">
-                        <div>
-                          <div className="font-semibold text-slate-900">{j.title}</div>
-                          <div className="text-slate-400 text-[11px] mt-0.5">
-                            {j.category} • Status: {j.status} • {j.proposalsCount} Quotes
-                          </div>
-                        </div>
-                        <div className="text-right font-semibold text-slate-900">
-                          {formatNaira(j.budgetMinMinor)} - {formatNaira(j.budgetMaxMinor)}
-                        </div>
-                      </div>
-                    ))
-                )}
-              </div>
-            )}
-
-            {user360Tab === 'disputes' && (
-              <div className="space-y-3 text-xs">
-                {disputes.filter((d) => d.claimantName.includes(user360.fullName) || d.respondentName.includes(user360.fullName)).length === 0 ? (
-                  <p className="text-slate-400 py-6 text-center">No disputes on file for this user.</p>
-                ) : (
-                  disputes
-                    .filter((d) => d.claimantName.includes(user360.fullName) || d.respondentName.includes(user360.fullName))
-                    .map((d) => (
-                      <div key={d.id} className="p-3 bg-slate-50 rounded-2xl border border-slate-100 space-y-1">
-                        <div className="flex justify-between font-semibold text-slate-900">
-                          <span>{d.disputeNumber} — {d.bookingTitle}</span>
-                          <span className="uppercase text-[10px] text-amber-700">{d.status}</span>
-                        </div>
-                        <p className="text-slate-600">{d.reason}</p>
-                      </div>
-                    ))
-                )}
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* ===================================================================== */}
-      {/* MODAL: MODERATE SERVICE REQUEST */}
-      {/* ===================================================================== */}
-      {editingJob && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl w-full max-w-md p-6 space-y-4 border border-slate-200/90 shadow-sm animate-in fade-in zoom-in-95 duration-150">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <div>
-                <h3 className="text-base font-semibold text-slate-900">
-                  Moderate Job Brief ({editingJob.id})
-                </h3>
-                <p className="text-xs text-slate-500 mt-0.5">
-                  Client: {editingJob.customerName}
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={() => setEditingJob(null)}
-                className="text-slate-400 hover:text-slate-600 p-1 rounded-full cursor-pointer"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <div className="space-y-3 text-xs">
-              <div className="space-y-1">
-                <label className="font-semibold text-slate-700">Request Title</label>
-                <input
-                  type="text"
-                  value={jobTitleInput}
-                  onChange={(e) => setJobTitleInput(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <label className="font-semibold text-slate-700">Description</label>
-                <textarea
-                  rows={3}
-                  value={jobDescriptionInput}
-                  onChange={(e) => setJobDescriptionInput(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-slate-900 font-normal focus:outline-none focus:ring-2 focus:ring-emerald-500/20 resize-none"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <label className="font-semibold text-slate-700">Moderation Action</label>
-                <div className="grid grid-cols-3 gap-2">
-                  <button
-                    type="button"
-                    onClick={() => handleModerateJob('open')}
-                    className={`py-2 rounded-xl text-xs font-semibold border ${
-                      editingJob.status === 'open' ? 'bg-emerald-50 border-emerald-300 text-emerald-800' : 'border-slate-200 text-slate-600 hover:bg-slate-50'
-                    }`}
-                  >
-                    Keep Open
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleModerateJob('closed')}
-                    className="py-2 rounded-xl text-xs font-semibold border border-slate-200 text-slate-700 hover:bg-slate-100"
-                  >
-                    Close Job
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleModerateJob('cancelled')}
-                    className="py-2 rounded-xl text-xs font-semibold border border-rose-200 text-rose-700 hover:bg-rose-50"
-                  >
-                    Spam / Cancel
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <div className="flex gap-2.5 pt-2 border-t border-slate-100">
-              <button
-                type="button"
-                onClick={() => setEditingJob(null)}
-                className="w-full py-2.5 rounded-full border border-slate-200 text-slate-700 text-xs font-semibold hover:bg-slate-50 cursor-pointer"
-              >
-                Close Window
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ===================================================================== */}
-      {/* MODAL: DISPUTE CUSTOM SPLIT SETTLEMENT */}
-      {/* ===================================================================== */}
-      {splitDispute && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl w-full max-w-md p-6 sm:p-7 space-y-4 border border-slate-200/90 shadow-sm animate-in fade-in zoom-in-95 duration-150">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <div>
-                <h3 className="text-base font-semibold text-slate-900">
-                  Custom Split Settlement
-                </h3>
-                <p className="text-xs text-slate-500 mt-0.5">
-                  Dispute: {splitDispute.disputeNumber} ({formatNaira(splitDispute.amountMinor)})
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={() => setSplitDispute(null)}
-                className="text-slate-400 hover:text-slate-600 p-1 rounded-full cursor-pointer"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <div className="space-y-4 text-xs">
-              <div className="space-y-2">
-                <div className="flex justify-between font-semibold text-slate-800">
-                  <span>Specialist Share: {splitProviderPct}%</span>
-                  <span>Client Refund: {100 - splitProviderPct}%</span>
-                </div>
-                <input
-                  type="range"
-                  min="0"
-                  max="100"
-                  step="5"
-                  value={splitProviderPct}
-                  onChange={(e) => setSplitProviderPct(parseInt(e.target.value, 10))}
-                  className="w-full accent-emerald-600 cursor-pointer"
-                />
-                <div className="grid grid-cols-2 gap-3 bg-slate-50 p-3 rounded-2xl border border-slate-100">
-                  <div>
-                    <span className="text-[11px] text-slate-400 block">PAYS TO SPECIALIST</span>
-                    <span className="font-semibold text-emerald-700 text-sm mt-0.5 block">
-                      {formatNaira(Math.round((splitDispute.amountMinor * splitProviderPct) / 100))}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-[11px] text-slate-400 block">REFUNDS TO CLIENT</span>
-                    <span className="font-semibold text-indigo-700 text-sm mt-0.5 block">
-                      {formatNaira(Math.round((splitDispute.amountMinor * (100 - splitProviderPct)) / 100))}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="space-y-1">
-                <label className="font-semibold text-slate-700">Settlement Notes &amp; Binding Agreement</label>
-                <textarea
-                  rows={3}
-                  value={splitNotes}
-                  onChange={(e) => setSplitNotes(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-slate-900 font-normal focus:outline-none focus:ring-2 focus:ring-emerald-500/20 resize-none"
-                />
-              </div>
-            </div>
-
-            <div className="flex gap-2.5 pt-3 border-t border-slate-100">
-              <button
-                type="button"
-                onClick={() => setSplitDispute(null)}
-                className="flex-1 py-2.5 rounded-full border border-slate-200 text-slate-700 text-xs font-semibold hover:bg-slate-50 cursor-pointer"
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                onClick={handleSubmitSplitDispute}
-                disabled={isSubmittingSplit}
-                className="flex-1 py-2.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold transition-colors cursor-pointer flex items-center justify-center gap-1.5"
-              >
-                {isSubmittingSplit ? 'Settling...' : 'Execute Split Payout'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ===================================================================== */}
-      {/* MODAL: PROCESS BANK PAYOUT (APPROVAL / REJECTION) */}
-      {/* ===================================================================== */}
-      {actionWithdrawal && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl w-full max-w-md p-6 sm:p-7 space-y-4 border border-slate-200/90 shadow-sm animate-in fade-in zoom-in-95 duration-150">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <div>
-                <h3 className="text-base font-semibold text-slate-900">
-                  {payoutDecision === 'approve' ? 'Approve Bank Payout' : 'Reject & Refund Withdrawal'}
-                </h3>
-                <p className="text-xs text-slate-500 mt-0.5">
-                  Request: {actionWithdrawal.reference} • {formatNaira(actionWithdrawal.amountMinor)}
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={() => setActionWithdrawal(null)}
-                className="text-slate-400 hover:text-slate-600 p-1 rounded-full cursor-pointer"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <div className="bg-slate-50 p-3.5 rounded-2xl border border-slate-100 text-xs space-y-1">
-              <div className="flex justify-between">
-                <span className="text-slate-500">Beneficiary:</span>
-                <span className="font-semibold text-slate-900">{actionWithdrawal.userName}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-slate-500">Destination Bank:</span>
-                <span className="font-semibold text-slate-900">{actionWithdrawal.bankName || 'Verified Bank'}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-slate-500">Account Number:</span>
-                <span className="font-mono font-semibold text-slate-900">{actionWithdrawal.accountNumber || '••••'}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-slate-500">Payout Sum:</span>
-                <span className="font-semibold text-emerald-700">{formatNaira(actionWithdrawal.amountMinor)}</span>
-              </div>
-            </div>
-
-            <div className="space-y-3 text-xs">
-              {payoutDecision === 'approve' ? (
-                <div className="space-y-1">
-                  <label className="font-semibold text-slate-700">Bank Transfer / NIP Session Reference</label>
-                  <input
-                    type="text"
-                    required
-                    value={payoutRefInput}
-                    onChange={(e) => setPayoutRefInput(e.target.value)}
-                    placeholder="e.g. NIP-0902672401824190"
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
-                  />
-                  <p className="text-[11px] text-slate-400">
-                    Will be stored in the member transaction ledger and sent via in-app alert.
-                  </p>
-                </div>
-              ) : (
-                <div className="space-y-1">
-                  <label className="font-semibold text-slate-700">Rejection Reason (Sent to User)</label>
-                  <textarea
-                    rows={3}
-                    required
-                    value={payoutRejectReason}
-                    onChange={(e) => setPayoutRejectReason(e.target.value)}
-                    placeholder="Specify why withdrawal was rejected (e.g. Account name mismatch with BVN)..."
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-slate-900 font-normal focus:outline-none focus:ring-2 focus:ring-rose-500/20 resize-none"
-                  />
-                  <p className="text-[11px] text-slate-400">
-                    The requested ₦ amount will be immediately refunded back to the member available vault.
-                  </p>
-                </div>
-              )}
-            </div>
-
-            <div className="flex gap-2.5 pt-3 border-t border-slate-100">
-              <button
-                type="button"
-                onClick={() => setActionWithdrawal(null)}
-                className="flex-1 py-2.5 rounded-full border border-slate-200 text-slate-700 text-xs font-semibold hover:bg-slate-50 cursor-pointer"
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                onClick={() => handleProcessWithdrawal(payoutDecision)}
-                disabled={isProcessingPayout}
-                className={`flex-1 py-2.5 rounded-full text-white text-xs font-semibold transition-colors cursor-pointer flex items-center justify-center gap-1.5 ${
-                  payoutDecision === 'approve' ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-rose-600 hover:bg-rose-700'
-                }`}
-              >
-                {isProcessingPayout ? 'Processing...' : payoutDecision === 'approve' ? 'Confirm Payout' : 'Reject & Refund'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ===================================================================== */}
-      {/* MODAL: SIGN OUT */}
+      {/* MODAL: SIGN OUT CONFIRMATION                                          */}
       {/* ===================================================================== */}
       {showLogoutModal && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl w-full max-w-sm p-6 text-center space-y-4 border border-slate-200/90 shadow-sm animate-in fade-in zoom-in-95 duration-150">
-            <div className="w-12 h-12 rounded-full bg-rose-100 text-rose-600 mx-auto flex items-center justify-center">
-              <LogOut className="w-6 h-6" />
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-ink/30 backdrop-blur-[2px] cn-fade" onClick={() => setShowLogoutModal(false)} />
+          <div className="relative w-full max-w-sm bg-surface rounded-2xl shadow-[0_24px_48px_-12px_rgba(17,24,39,0.25)] border border-line cn-pop p-6 space-y-4 text-center">
+            <div className="w-11 h-11 rounded-full bg-rose-50 text-rose-600 mx-auto flex items-center justify-center">
+              <LogOut className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-base sm:text-lg font-semibold text-slate-900">Sign Out of Admin Portal</h3>
-              <p className="text-xs text-slate-500 mt-1">
-                Are you sure you want to exit the Connecta Admin Command Center? Your encrypted session token will be cleared.
+              <h3 className="text-base font-medium text-ink">Sign Out of Admin Command</h3>
+              <p className="text-xs text-muted mt-1 leading-relaxed">
+                Are you sure you want to exit? Your cryptographic session signature will be cleared.
               </p>
             </div>
             <div className="flex gap-2.5 pt-2">
@@ -4117,7 +3807,7 @@ export default function AdminClientView({
                 type="button"
                 onClick={() => setShowLogoutModal(false)}
                 disabled={isLoggingOut}
-                className="flex-1 py-2.5 rounded-full border border-slate-200 text-slate-700 text-xs font-medium hover:bg-slate-50 transition-colors cursor-pointer disabled:opacity-50 shadow-none"
+                className="flex-1 h-10 rounded-[10px] border border-line text-ink hover:bg-sunken text-xs font-medium cursor-pointer"
               >
                 Cancel
               </button>
@@ -4125,13 +3815,9 @@ export default function AdminClientView({
                 type="button"
                 onClick={handleAdminLogout}
                 disabled={isLoggingOut}
-                className="flex-1 py-2.5 rounded-full bg-rose-600 hover:bg-rose-700 text-white text-xs font-medium inline-flex items-center justify-center gap-1.5 transition-colors cursor-pointer disabled:opacity-50 shadow-none"
+                className="flex-1 h-10 rounded-[10px] bg-rose-600 hover:bg-rose-700 text-white text-xs font-medium inline-flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
               >
-                {isLoggingOut ? (
-                  <Spinner className="w-4 h-4 text-white" />
-                ) : (
-                  <span>Sign Out</span>
-                )}
+                {isLoggingOut ? <Spinner className="w-4 h-4 text-white" /> : <span>Sign Out</span>}
               </button>
             </div>
           </div>
@@ -4139,27 +3825,26 @@ export default function AdminClientView({
       )}
 
       {/* ===================================================================== */}
-      {/* MODAL: INACTIVITY AUTO-LOCK (2 HOURS) */}
+      {/* MODAL: INACTIVITY AUTO-LOCK (2 HOURS)                                 */}
       {/* ===================================================================== */}
       {inactivityModalOpen && (
-        <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="bg-[#0A1020] border border-amber-500/40 rounded-3xl w-full max-w-md p-6 sm:p-8 text-center space-y-4 shadow-sm text-white">
-            <div className="w-14 h-14 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-400 mx-auto flex items-center justify-center">
-              <Clock className="w-7 h-7" />
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-ink/50 backdrop-blur-md" />
+          <div className="relative w-full max-w-md bg-surface rounded-2xl shadow-2xl border border-line cn-pop p-6 sm:p-8 space-y-4 text-center">
+            <div className="w-12 h-12 rounded-full bg-amber-50 text-amber-600 mx-auto flex items-center justify-center">
+              <Clock className="w-6 h-6" />
             </div>
             <div>
-              <span className="inline-block px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 text-[10px] font-medium uppercase tracking-wider mb-2">
-                Security Auto-Lock
-              </span>
-              <h3 className="text-xl font-semibold text-white">Session Timed Out</h3>
-              <p className="text-xs text-slate-400 mt-2 leading-relaxed">
-                You have been inactive for <span className="text-white font-medium">2 hours</span>. For the safety of user escrows and platform administration, your session has been securely locked.
+              <Badge tone="warn" dot>SECURITY AUTO-LOCK</Badge>
+              <h3 className="text-lg font-medium text-ink mt-2">Session Timed Out</h3>
+              <p className="text-xs text-muted mt-2 leading-relaxed">
+                You have been inactive for <span className="font-semibold text-ink">2 hours</span>. For the safety of escrow funds and platform governance, your session has been securely locked.
               </p>
             </div>
             <div className="pt-2">
               <Link
                 href="/admin/login?reason=inactivity"
-                className="w-full py-3 px-4 rounded-full bg-[#0C513F] hover:bg-emerald-700 text-white font-medium text-xs flex items-center justify-center gap-2 transition-colors shadow-none"
+                className="w-full h-10 rounded-[10px] bg-ink hover:bg-ink-2 text-white text-xs font-medium inline-flex items-center justify-center gap-2 transition-colors"
               >
                 <span>Re-Authenticate to Resume</span>
                 <ChevronRight className="w-4 h-4" />
