@@ -1,7 +1,5 @@
 import fs from 'fs'
 import path from 'path'
-import { cookies } from 'next/headers'
-import { getAllUsers } from '@/lib/auth/user-store'
 
 // =============================================================================
 // TYPES & DATA STRUCTURES
@@ -284,6 +282,26 @@ function getInitialDatabase(): ServerDatabaseSchema {
   }
 }
 
+function getRegisteredUsersList(): any[] {
+  try {
+    const regPath = path.resolve(DB_DIR, 'registered-users.json')
+    if (fs.existsSync(regPath)) {
+      const raw = fs.readFileSync(regPath, 'utf-8')
+      const parsed = JSON.parse(raw)
+      if (Array.isArray(parsed)) return parsed
+    }
+    const fallbackPath = path.resolve(process.cwd(), 'data', 'registered-users.json')
+    if (fs.existsSync(fallbackPath)) {
+      const raw = fs.readFileSync(fallbackPath, 'utf-8')
+      const parsed = JSON.parse(raw)
+      if (Array.isArray(parsed)) return parsed
+    }
+  } catch {
+    // Graceful fallback
+  }
+  return []
+}
+
 export function readDatabase(): ServerDatabaseSchema {
   if (globalThis.__connecta_memory_db) {
     return globalThis.__connecta_memory_db
@@ -329,7 +347,7 @@ export function readDatabase(): ServerDatabaseSchema {
 
     // Sync from registered-users store if profiles are missing
     try {
-      const usersList = getAllUsers()
+      const usersList = getRegisteredUsersList()
       if (Array.isArray(usersList) && usersList.length > 0) {
         let dirty = false
 
@@ -464,6 +482,7 @@ export const SESSION_COOKIE_NAME = 'connecta_session'
 
 export async function getSessionUserId(): Promise<string | null> {
   try {
+    const { cookies } = await import('next/headers')
     const cookieStore = await cookies()
     const session = cookieStore.get(SESSION_COOKIE_NAME)
     return session?.value || null

@@ -50,6 +50,7 @@ import {
   Split,
   ToggleLeft,
   ToggleRight,
+  Send,
 } from 'lucide-react'
 import AdminEmailHub, { EmailDispatchItem } from './AdminEmailHub'
 import { Spinner } from '@/components/brand/ConnectaLoader'
@@ -149,7 +150,7 @@ interface ServiceRequestItem {
   budgetMinMinor: number
   budgetMaxMinor: number
   currency: string
-  status: 'open' | 'matching' | 'quoted' | 'booked' | 'closed'
+  status: 'open' | 'matching' | 'quoted' | 'booked' | 'closed' | 'cancelled'
   requiredSkills: string[]
   proposalsCount: number
   createdAt: string
@@ -1383,6 +1384,11 @@ export default function AdminClientView({
                 <CreditCard className="w-4 h-4 text-indigo-500" />
                 <span>Financial Ledger</span>
               </div>
+              {pendingWithdrawals.length > 0 && (
+                <span className="text-[10px] font-medium px-2 py-0.5 rounded-full whitespace-nowrap bg-amber-500 text-white animate-pulse">
+                  {pendingWithdrawals.length} Payouts
+                </span>
+              )}
             </button>
 
             <button
@@ -1420,6 +1426,24 @@ export default function AdminClientView({
               </div>
               <span className="text-[10px] font-medium px-2 py-0.5 rounded-full whitespace-nowrap bg-emerald-100 text-emerald-800">
                 Hub
+              </span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => { setActiveTab('notifications'); setMobileMenuOpen(false); }}
+              className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl text-xs sm:text-sm font-medium transition-all cursor-pointer ${
+                activeTab === 'notifications'
+                  ? 'bg-[#0A1020] text-white shadow-none'
+                  : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <Bell className={`w-4 h-4 ${activeTab === 'notifications' ? 'text-amber-400' : 'text-amber-500'}`} />
+                <span>In-App Alerts</span>
+              </div>
+              <span className="text-[10px] font-medium px-2 py-0.5 rounded-full whitespace-nowrap bg-amber-100 text-amber-800">
+                {inAppNotifications.length}
               </span>
             </button>
 
@@ -1795,7 +1819,49 @@ export default function AdminClientView({
                             </span>
                           </td>
                           <td className="py-3.5 px-4 text-right">
-                            <div className="inline-flex items-center gap-1.5">
+                            <div className="inline-flex items-center gap-1.5 flex-wrap justify-end">
+                              {u.role === 'provider' && (
+                                <button
+                                  type="button"
+                                  onClick={() => handleToggleFeatured(u)}
+                                  className={`px-2 py-1 rounded-full text-[11px] font-medium transition-all cursor-pointer flex items-center gap-1 border ${
+                                    u.isFeatured
+                                      ? 'bg-amber-50 text-amber-700 border-amber-300 hover:bg-amber-100'
+                                      : 'bg-slate-50 text-slate-500 border-slate-200 hover:bg-amber-50 hover:text-amber-600'
+                                  }`}
+                                  title={u.isFeatured ? 'Featured on User Dashboard Overview' : 'Click to feature on User Dashboard Overview'}
+                                >
+                                  <Star className={`w-3 h-3 ${u.isFeatured ? 'fill-amber-400 text-amber-500' : 'text-slate-400'}`} />
+                                  <span>{u.isFeatured ? 'Featured' : 'Feature'}</span>
+                                </button>
+                              )}
+                              <button
+                                type="button"
+                                onClick={() => handleOpenEditUser(u)}
+                                className="px-2.5 py-1 rounded-full border border-slate-200 hover:border-indigo-600 hover:bg-indigo-50 text-slate-700 hover:text-indigo-700 text-[11px] font-medium transition-all cursor-pointer flex items-center gap-1"
+                                title="Edit User Profile, NIN, Trade & Role"
+                              >
+                                <Edit3 className="w-3 h-3 text-indigo-600" />
+                                <span>Edit</span>
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleOpenAdjustWallet(u)}
+                                className="px-2.5 py-1 rounded-full border border-slate-200 hover:border-emerald-600 hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 text-[11px] font-medium transition-all cursor-pointer flex items-center gap-1"
+                                title="Adjust Balance or Sparks Points"
+                              >
+                                <Coins className="w-3 h-3 text-emerald-600" />
+                                <span>Vault</span>
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleOpenUser360(u)}
+                                className="px-2.5 py-1 rounded-full border border-slate-200 hover:border-slate-800 text-slate-700 text-[11px] font-medium transition-all cursor-pointer flex items-center gap-1"
+                                title="360° View of User's Projects, Wallet & Disputes"
+                              >
+                                <Eye className="w-3 h-3 text-slate-500" />
+                                <span>360°</span>
+                              </button>
                               <button
                                 type="button"
                                 onClick={() => {
@@ -1807,13 +1873,6 @@ export default function AdminClientView({
                               >
                                 <Mail className="w-3 h-3 text-emerald-600" />
                                 <span>Email</span>
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => setSelectedUser(u)}
-                                className="px-3 py-1 rounded-full border border-slate-200 hover:border-slate-800 text-slate-700 text-[11px] font-medium transition-all cursor-pointer"
-                              >
-                                Details
                               </button>
                               <button
                                 type="button"
@@ -1925,9 +1984,20 @@ export default function AdminClientView({
                         </div>
                       </div>
 
-                      <span className="text-[10px] font-medium px-3 py-1 rounded-full whitespace-nowrap bg-slate-100 text-slate-700">
-                        {j.proposalsCount} Proposals
-                      </span>
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-[10px] font-medium px-2.5 py-1 rounded-full whitespace-nowrap bg-slate-100 text-slate-700">
+                          {j.proposalsCount} Proposals
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => handleOpenJobEdit(j)}
+                          className="px-2.5 py-1 rounded-full border border-slate-200 hover:border-slate-800 text-slate-700 hover:bg-slate-50 text-[11px] font-medium transition-all cursor-pointer flex items-center gap-1"
+                          title="Moderate or Edit Job Request"
+                        >
+                          <Edit3 className="w-3 h-3 text-slate-500" />
+                          <span>Moderate</span>
+                        </button>
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -2242,6 +2312,91 @@ export default function AdminClientView({
                 </div>
               </div>
 
+              {/* Pending Bank Payouts Queue */}
+              <div className="bg-white rounded-3xl p-6 border border-slate-200/90 shadow-none space-y-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="font-semibold text-slate-900 text-sm flex items-center gap-2">
+                      <span>Pending Bank Payouts Desk</span>
+                      {pendingWithdrawals.length > 0 && (
+                        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500 text-white animate-pulse">
+                          {pendingWithdrawals.length} Action Needed
+                        </span>
+                      )}
+                    </h3>
+                    <p className="text-xs text-slate-500 mt-0.5">
+                      User withdrawals to Nigerian commercial banks awaiting compliance clearance &amp; transfer execution.
+                    </p>
+                  </div>
+                </div>
+
+                {pendingWithdrawals.length === 0 ? (
+                  <div className="py-6 text-center text-xs text-slate-400 bg-slate-50/50 rounded-2xl border border-slate-100">
+                    No pending bank withdrawal requests at this time. All payouts are settled.
+                  </div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left text-xs">
+                      <thead className="bg-slate-50 text-slate-500 uppercase tracking-wider text-[11px] font-medium border-b border-slate-200">
+                        <tr>
+                          <th className="py-2.5 px-4">User</th>
+                          <th className="py-2.5 px-4">Bank &amp; Account</th>
+                          <th className="py-2.5 px-4">Amount</th>
+                          <th className="py-2.5 px-4">Date</th>
+                          <th className="py-2.5 px-4 text-right">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100 text-slate-700">
+                        {pendingWithdrawals.map((pw) => (
+                          <tr key={pw.id} className="hover:bg-slate-50">
+                            <td className="py-3 px-4">
+                              <div className="font-medium text-slate-900">{pw.userName}</div>
+                              <div className="text-[11px] text-slate-400">{pw.userEmail}</div>
+                            </td>
+                            <td className="py-3 px-4">
+                              <div className="font-medium text-slate-800">{pw.bankName || 'Verified Bank'}</div>
+                              <div className="text-[11px] text-slate-500 font-mono">{pw.accountNumber || '••••••••••'}</div>
+                            </td>
+                            <td className="py-3 px-4 font-semibold text-emerald-700">
+                              {formatNaira(pw.amountMinor)}
+                            </td>
+                            <td className="py-3 px-4 text-[11px] text-slate-400">
+                              {pw.date ? pw.date.slice(0, 10) : 'Recent'}
+                            </td>
+                            <td className="py-3 px-4 text-right">
+                              <div className="inline-flex items-center gap-1.5">
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setActionWithdrawal(pw)
+                                    setPayoutDecision('approve')
+                                    setPayoutRefInput(`NIP-${Date.now().toString().slice(-6)}`)
+                                  }}
+                                  className="px-3 py-1 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-medium transition-colors cursor-pointer"
+                                >
+                                  Approve
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setActionWithdrawal(pw)
+                                    setPayoutDecision('reject')
+                                    setPayoutRejectReason('Account name mismatch with verified BVN')
+                                  }}
+                                  className="px-3 py-1 rounded-full bg-rose-50 hover:bg-rose-100 text-rose-600 text-[11px] font-medium transition-colors cursor-pointer"
+                                >
+                                  Reject &amp; Refund
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+
               {/* Ledger Summary */}
               <div className="bg-white rounded-3xl p-6 border border-slate-200/90 shadow-none space-y-4">
                 <h3 className="font-semibold text-slate-900 text-sm">
@@ -2318,13 +2473,21 @@ export default function AdminClientView({
                     </div>
 
                     {d.status !== 'resolved' && (
-                      <div className="pt-2 flex justify-end">
+                      <div className="pt-2 flex justify-end items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => handleOpenSplitDispute(d)}
+                          className="px-4 py-2 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-medium transition-all cursor-pointer shadow-none flex items-center gap-1.5"
+                        >
+                          <Split className="w-3.5 h-3.5" />
+                          <span>Settle Split Payout</span>
+                        </button>
                         <button
                           type="button"
                           onClick={() => setSelectedDispute(d)}
-                          className="px-4 py-2 rounded-full bg-[#0A1020] hover:bg-[#10B981] text-white text-xs font-medium transition-all cursor-pointer shadow-none"
+                          className="px-4 py-2 rounded-full bg-[#0A1020] hover:bg-slate-800 text-white text-xs font-medium transition-all cursor-pointer shadow-none"
                         >
-                          Resolve Dispute
+                          Resolve (Notes)
                         </button>
                       </div>
                     )}
@@ -2338,57 +2501,254 @@ export default function AdminClientView({
           {/* TAB: SETTINGS */}
           {/* ================================================================= */}
           {activeTab === 'settings' && (
-            <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-none space-y-6">
-              <div>
-                <h2 className="text-xl sm:text-2xl font-semibold text-slate-900 tracking-tight">
-                  Platform Parameters
-                </h2>
-                <p className="text-xs sm:text-sm text-slate-500 mt-1">
-                  Global marketplace configuration for Kano and Pan-African expansion.
-                </p>
+            <form onSubmit={handleSavePlatformSettings} className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-none space-y-6">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                  <h2 className="text-xl sm:text-2xl font-semibold text-slate-900 tracking-tight">
+                    Platform Parameters &amp; Control
+                  </h2>
+                  <p className="text-xs sm:text-sm text-slate-500 mt-1">
+                    Live system settings that immediately govern user dashboards, fees, hotlines, and announcements.
+                  </p>
+                </div>
+                <button
+                  type="submit"
+                  disabled={isSavingSettings}
+                  className="px-5 py-2.5 rounded-2xl bg-[#0A1020] hover:bg-emerald-600 text-white text-xs sm:text-sm font-semibold transition-all cursor-pointer flex items-center gap-2 self-start sm:self-auto"
+                >
+                  <Save className="w-4 h-4" />
+                  <span>{isSavingSettings ? 'Saving Settings...' : 'Save Live Settings'}</span>
+                </button>
               </div>
+
+              {settingsNotice && (
+                <div className="p-3 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-2xl text-xs font-medium flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <span>{settingsNotice}</span>
+                </div>
+              )}
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 text-xs">
                 <div className="space-y-1.5">
-                  <label className="font-medium text-slate-700">Primary Hub City</label>
+                  <label className="font-semibold text-slate-700">Primary Hub City</label>
                   <input
                     type="text"
-                    defaultValue="Kano, Nigeria"
-                    disabled
-                    className="w-full px-4 py-2.5 rounded-2xl border border-slate-200 bg-slate-50 font-medium text-slate-700"
+                    value={platformSettings.hubCity}
+                    onChange={(e) => setPlatformSettings({ ...platformSettings, hubCity: e.target.value })}
+                    className="w-full px-4 py-2.5 rounded-2xl border border-slate-200 bg-white font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
                   />
-                  <p className="text-[11px] text-slate-400">Initial strategic target market.</p>
+                  <p className="text-[11px] text-slate-400">Headquarters location displayed on marketplace headers.</p>
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="font-medium text-slate-700">Platform Escrow Commission</label>
+                  <label className="font-semibold text-slate-700">Platform Escrow Commission (%)</label>
                   <input
-                    type="text"
-                    defaultValue="5.0% of Completed Contract Value"
-                    disabled
-                    className="w-full px-4 py-2.5 rounded-2xl border border-slate-200 bg-slate-50 font-medium text-slate-700"
+                    type="number"
+                    step="0.1"
+                    min="0"
+                    max="30"
+                    value={platformSettings.commissionRatePercent}
+                    onChange={(e) => setPlatformSettings({ ...platformSettings, commissionRatePercent: parseFloat(e.target.value) || 0 })}
+                    className="w-full px-4 py-2.5 rounded-2xl border border-slate-200 bg-white font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
                   />
-                  <p className="text-[11px] text-slate-400">Automatically deducted upon milestone release.</p>
+                  <p className="text-[11px] text-slate-400">Deducted from completed contracts upon milestone payout.</p>
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="font-medium text-slate-700">Supported Currencies</label>
+                  <label className="font-semibold text-slate-700">Connecta Trust Desk Hotline (Phone)</label>
                   <input
                     type="text"
-                    defaultValue="NGN (₦ Nigerian Naira)"
-                    disabled
-                    className="w-full px-4 py-2.5 rounded-2xl border border-slate-200 bg-slate-50 font-medium text-slate-700"
+                    value={platformSettings.supportPhone}
+                    onChange={(e) => setPlatformSettings({ ...platformSettings, supportPhone: e.target.value })}
+                    className="w-full px-4 py-2.5 rounded-2xl border border-slate-200 bg-white font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
                   />
+                  <p className="text-[11px] text-slate-400">Displayed on User Dashboard Help &amp; Support page.</p>
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="font-medium text-slate-700">Connecta Trust Desk Hotline</label>
+                  <label className="font-semibold text-slate-700">Connecta Official WhatsApp Desk</label>
                   <input
                     type="text"
-                    defaultValue="+234 812 345 6789"
-                    disabled
-                    className="w-full px-4 py-2.5 rounded-2xl border border-slate-200 bg-slate-50 font-medium text-slate-700"
+                    value={platformSettings.supportWhatsapp}
+                    onChange={(e) => setPlatformSettings({ ...platformSettings, supportWhatsapp: e.target.value })}
+                    className="w-full px-4 py-2.5 rounded-2xl border border-slate-200 bg-white font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
                   />
+                  <p className="text-[11px] text-slate-400">Direct WhatsApp click-to-chat URL for client disputes.</p>
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="font-semibold text-slate-700">Support Desk Email</label>
+                  <input
+                    type="email"
+                    value={platformSettings.supportEmail}
+                    onChange={(e) => setPlatformSettings({ ...platformSettings, supportEmail: e.target.value })}
+                    className="w-full px-4 py-2.5 rounded-2xl border border-slate-200 bg-white font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                  />
+                  <p className="text-[11px] text-slate-400">Public support inbox for customer complaints.</p>
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="font-semibold text-slate-700">New User Welcome Sparks Bonus</label>
+                  <input
+                    type="number"
+                    value={platformSettings.welcomeSparks}
+                    onChange={(e) => setPlatformSettings({ ...platformSettings, welcomeSparks: parseInt(e.target.value, 10) || 0 })}
+                    className="w-full px-4 py-2.5 rounded-2xl border border-slate-200 bg-white font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                  />
+                  <p className="text-[11px] text-slate-400">AI Sparks awarded to clients and artisans upon sign up.</p>
+                </div>
+              </div>
+
+              {/* Announcement Banner Configuration */}
+              <div className="pt-4 border-t border-slate-100 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="font-semibold text-slate-900 text-sm">Dashboard Broadcast Banner</h3>
+                    <p className="text-xs text-slate-500">
+                      Shows a prominent top alert banner across all user dashboards.
+                    </p>
+                  </div>
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={Boolean(platformSettings.announcementActive)}
+                      onChange={(e) => setPlatformSettings({ ...platformSettings, announcementActive: e.target.checked })}
+                      className="sr-only peer"
+                    />
+                    <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
+                  </label>
+                </div>
+
+                <div className="space-y-1.5">
+                  <input
+                    type="text"
+                    value={platformSettings.systemAnnouncement || ''}
+                    onChange={(e) => setPlatformSettings({ ...platformSettings, systemAnnouncement: e.target.value })}
+                    placeholder="e.g. Scheduled maintenance tonight at 11 PM or Special Eid promo active!"
+                    className="w-full px-4 py-2.5 rounded-2xl border border-slate-200 bg-white text-xs font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                  />
+                </div>
+              </div>
+            </form>
+          )}
+
+          {/* ================================================================= */}
+          {/* TAB: IN-APP ALERTS & NOTIFICATIONS HUB                            */}
+          {/* ================================================================= */}
+          {activeTab === 'notifications' && (
+            <div className="space-y-6">
+              <div>
+                <h2 className="text-xl sm:text-2xl font-semibold text-slate-900 tracking-tight">
+                  In-App Alerts &amp; Notification Broadcaster
+                </h2>
+                <p className="text-xs sm:text-sm text-slate-500 mt-1">
+                  Deliver instant alerts right into user dashboard notification bell icons and mobile heads-up displays.
+                </p>
+              </div>
+
+              {notifNotice && (
+                <div className="p-3 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-2xl text-xs font-medium flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <span>{notifNotice}</span>
+                </div>
+              )}
+
+              {/* Broadcaster Card */}
+              <form onSubmit={handleBroadcastInAppNotification} className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-none space-y-4">
+                <h3 className="font-semibold text-slate-900 text-sm flex items-center gap-2">
+                  <Bell className="w-4 h-4 text-amber-500" />
+                  <span>Compose Live In-App Notification</span>
+                </h3>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                  <div className="space-y-1.5">
+                    <label className="font-semibold text-slate-700">Target Audience</label>
+                    <select
+                      value={newNotifAudience}
+                      onChange={(e) => setNewNotifAudience(e.target.value)}
+                      className="w-full px-4 py-2.5 rounded-2xl border border-slate-200 bg-slate-50 font-medium text-slate-800 cursor-pointer"
+                    >
+                      <option value="all">Broadcast to All Users</option>
+                      <option value="clients">All Registered Clients</option>
+                      <option value="providers">All Verified Providers</option>
+                      {users.slice(0, 15).map((u) => (
+                        <option key={u.id} value={u.id}>
+                          Individual: {u.fullName} ({u.role})
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="font-semibold text-slate-700">Notification Alert Tone</label>
+                    <select
+                      value={newNotifType}
+                      onChange={(e) => setNewNotifType(e.target.value as any)}
+                      className="w-full px-4 py-2.5 rounded-2xl border border-slate-200 bg-slate-50 font-medium text-slate-800 cursor-pointer"
+                    >
+                      <option value="info">Info (Azure Blue dot)</option>
+                      <option value="success">Success / Milestone Paid (Green dot)</option>
+                      <option value="warning">Warning / Action Required (Amber dot)</option>
+                      <option value="alert">Security Alert (Red dot)</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="space-y-1.5 text-xs">
+                  <label className="font-semibold text-slate-700">Notification Title</label>
+                  <input
+                    type="text"
+                    required
+                    value={newNotifTitle}
+                    onChange={(e) => setNewNotifTitle(e.target.value)}
+                    placeholder="e.g. Escrow Deposit Confirmed or New Booking Available"
+                    className="w-full px-4 py-2.5 rounded-2xl border border-slate-200 bg-white font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                  />
+                </div>
+
+                <div className="space-y-1.5 text-xs">
+                  <label className="font-semibold text-slate-700">Message Body</label>
+                  <textarea
+                    required
+                    rows={3}
+                    value={newNotifMessage}
+                    onChange={(e) => setNewNotifMessage(e.target.value)}
+                    placeholder="Enter the short notification text that will appear in the user's dashboard bell dropdown..."
+                    className="w-full px-4 py-2.5 rounded-2xl border border-slate-200 bg-white font-normal text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 resize-none"
+                  />
+                </div>
+
+                <div className="pt-2 flex justify-end">
+                  <button
+                    type="submit"
+                    disabled={isSendingNotification}
+                    className="px-6 py-2.5 rounded-2xl bg-[#0A1020] hover:bg-emerald-600 text-white text-xs sm:text-sm font-semibold transition-all cursor-pointer flex items-center gap-2"
+                  >
+                    <Send className="w-4 h-4" />
+                    <span>{isSendingNotification ? 'Dispatching...' : 'Dispatch Live Notification'}</span>
+                  </button>
+                </div>
+              </form>
+
+              {/* In-App Notifications History */}
+              <div className="bg-white rounded-3xl p-6 border border-slate-200/90 shadow-none space-y-4">
+                <h3 className="font-semibold text-slate-900 text-sm">Recently Broadcasted In-App Alerts</h3>
+                <div className="divide-y divide-slate-100">
+                  {inAppNotifications.map((notif) => (
+                    <div key={notif.id} className="py-3 flex items-start gap-3 text-xs">
+                      <span className={`w-2.5 h-2.5 rounded-full mt-1 shrink-0 ${
+                        notif.type === 'warning' ? 'bg-amber-500' : notif.type === 'success' ? 'bg-emerald-500' : notif.type === 'alert' ? 'bg-rose-500' : 'bg-blue-500'
+                      }`} />
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="font-semibold text-slate-900">{notif.title}</span>
+                          <span className="text-[11px] text-slate-400">{notif.createdAt ? notif.createdAt.slice(0, 16).replace('T', ' ') : 'Recent'}</span>
+                        </div>
+                        <p className="text-slate-600 mt-0.5 leading-relaxed">{notif.message}</p>
+                        <span className="text-[10px] text-slate-400 mt-1 block">Audience: {notif.userId === 'all' ? 'All Users' : notif.userId}</span>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
@@ -2903,6 +3263,836 @@ export default function AdminClientView({
                 </div>
               </form>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* ===================================================================== */}
+      {/* MODAL: EDIT USER PROFILE & VERIFICATION */}
+      {/* ===================================================================== */}
+      {editingUser && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl w-full max-w-lg p-6 sm:p-8 space-y-5 border border-slate-200/90 shadow-sm animate-in fade-in zoom-in-95 duration-150 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div>
+                <h3 className="text-base sm:text-lg font-semibold text-slate-900">
+                  Edit Member Profile
+                </h3>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Direct administrative edit for {editingUser.fullName} ({editingUser.id})
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setEditingUser(null)}
+                className="text-slate-400 hover:text-slate-600 p-1 rounded-full cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="space-y-3.5 text-xs">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <label className="font-semibold text-slate-700">Full Name</label>
+                  <input
+                    type="text"
+                    value={userEditForm.fullName}
+                    onChange={(e) => setUserEditForm({ ...userEditForm, fullName: e.target.value })}
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="font-semibold text-slate-700">Email Address</label>
+                  <input
+                    type="email"
+                    value={userEditForm.email}
+                    onChange={(e) => setUserEditForm({ ...userEditForm, email: e.target.value })}
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <label className="font-semibold text-slate-700">Phone Number</label>
+                  <input
+                    type="text"
+                    value={userEditForm.phone}
+                    onChange={(e) => setUserEditForm({ ...userEditForm, phone: e.target.value })}
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="font-semibold text-slate-700">Operating City</label>
+                  <input
+                    type="text"
+                    value={userEditForm.city}
+                    onChange={(e) => setUserEditForm({ ...userEditForm, city: e.target.value })}
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <label className="font-semibold text-slate-700">Trade / Primary Craft</label>
+                  <input
+                    type="text"
+                    value={userEditForm.trade}
+                    onChange={(e) => setUserEditForm({ ...userEditForm, trade: e.target.value })}
+                    placeholder="e.g. Solar & Electrical"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="font-semibold text-slate-700">National ID (NIN)</label>
+                  <input
+                    type="text"
+                    value={userEditForm.ninNumber}
+                    onChange={(e) => setUserEditForm({ ...userEditForm, ninNumber: e.target.value })}
+                    placeholder="NIN-xxxxxxxxxxx"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div className="space-y-1">
+                  <label className="font-semibold text-slate-700">Hourly Rate (₦)</label>
+                  <input
+                    type="number"
+                    value={userEditForm.hourlyRateNaira}
+                    onChange={(e) => setUserEditForm({ ...userEditForm, hourlyRateNaira: e.target.value })}
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="font-semibold text-slate-700">Platform Role</label>
+                  <select
+                    value={userEditForm.role}
+                    onChange={(e) => setUserEditForm({ ...userEditForm, role: e.target.value as any })}
+                    className="w-full px-3 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 font-medium"
+                  >
+                    <option value="provider">Provider (Artisan)</option>
+                    <option value="customer">Customer (Client)</option>
+                  </select>
+                </div>
+                <div className="space-y-1">
+                  <label className="font-semibold text-slate-700">Verification Status</label>
+                  <select
+                    value={userEditForm.verificationStatus}
+                    onChange={(e) => setUserEditForm({ ...userEditForm, verificationStatus: e.target.value as any })}
+                    className="w-full px-3 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 font-medium"
+                  >
+                    <option value="verified">Verified (Badge Active)</option>
+                    <option value="unverified">Unverified (Pending)</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex gap-2.5 pt-3 border-t border-slate-100">
+              <button
+                type="button"
+                onClick={() => setEditingUser(null)}
+                className="flex-1 py-2.5 rounded-full border border-slate-200 text-slate-700 text-xs font-semibold hover:bg-slate-50 cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleSaveUserEdit}
+                disabled={isSavingUser}
+                className="flex-1 py-2.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold transition-colors cursor-pointer flex items-center justify-center gap-1.5"
+              >
+                {isSavingUser ? 'Updating...' : 'Save Member Details'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ===================================================================== */}
+      {/* MODAL: MANUAL WALLET & SPARKS ADJUSTMENT */}
+      {/* ===================================================================== */}
+      {adjustingWalletUser && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl w-full max-w-md p-6 sm:p-7 space-y-4 border border-slate-200/90 shadow-sm animate-in fade-in zoom-in-95 duration-150">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div>
+                <h3 className="text-base font-semibold text-slate-900">
+                  Adjust Vault &amp; Sparks Balance
+                </h3>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Direct ledger credit/debit for {adjustingWalletUser.fullName}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setAdjustingWalletUser(null)}
+                className="text-slate-400 hover:text-slate-600 p-1 rounded-full cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="bg-slate-50 rounded-2xl p-3 border border-slate-200/70 text-xs space-y-1">
+              <div className="flex justify-between text-slate-600">
+                <span>Current Available Balance:</span>
+                <span className="font-semibold text-slate-900">
+                  {formatNaira(adjustingWalletUser.wallet?.balanceMinor || 0)}
+                </span>
+              </div>
+              <div className="flex justify-between text-slate-600">
+                <span>Current Escrow Balance:</span>
+                <span className="font-semibold text-[#0C513F]">
+                  {formatNaira(adjustingWalletUser.wallet?.escrowBalanceMinor || 0)}
+                </span>
+              </div>
+              <div className="flex justify-between text-slate-600">
+                <span>AI Sparks Points:</span>
+                <span className="font-semibold text-amber-600">
+                  {adjustingWalletUser.wallet?.sparksBalance || 0} Sparks
+                </span>
+              </div>
+            </div>
+
+            <div className="space-y-3 text-xs">
+              <div className="space-y-1">
+                <label className="font-semibold text-slate-700">
+                  Wallet Cash Adjustment (₦ Naira)
+                </label>
+                <input
+                  type="number"
+                  step="100"
+                  value={walletAdjustDeltaNaira}
+                  onChange={(e) => setWalletAdjustDeltaNaira(e.target.value)}
+                  placeholder="e.g. 50000 to credit, or -25000 to deduct"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                />
+                <p className="text-[11px] text-slate-400">
+                  Positive number credits vault; negative number debits vault.
+                </p>
+              </div>
+
+              <div className="space-y-1">
+                <label className="font-semibold text-slate-700">
+                  AI Sparks Reward Delta
+                </label>
+                <input
+                  type="number"
+                  step="10"
+                  value={walletAdjustSparks}
+                  onChange={(e) => setWalletAdjustSparks(e.target.value)}
+                  placeholder="e.g. 200 to grant Sparks"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="font-semibold text-slate-700">
+                  Audit Reason / Ledger Title
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={walletAdjustReason}
+                  onChange={(e) => setWalletAdjustReason(e.target.value)}
+                  placeholder="e.g. Goodwill refund for project #CN-824 or Promo Sparks"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                />
+              </div>
+            </div>
+
+            <div className="flex gap-2.5 pt-3 border-t border-slate-100">
+              <button
+                type="button"
+                onClick={() => setAdjustingWalletUser(null)}
+                className="flex-1 py-2.5 rounded-full border border-slate-200 text-slate-700 text-xs font-semibold hover:bg-slate-50 cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleSaveWalletAdjustment}
+                disabled={isAdjustingWallet}
+                className="flex-1 py-2.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold transition-colors cursor-pointer flex items-center justify-center gap-1.5"
+              >
+                {isAdjustingWallet ? 'Processing...' : 'Apply Ledger Adjustment'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ===================================================================== */}
+      {/* MODAL: RESET USER PASSWORD */}
+      {/* ===================================================================== */}
+      {resettingUser && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl w-full max-w-sm p-6 text-center space-y-4 border border-slate-200/90 shadow-sm animate-in fade-in zoom-in-95 duration-150">
+            <div className="w-12 h-12 rounded-full bg-indigo-50 text-indigo-600 mx-auto flex items-center justify-center">
+              <KeyRound className="w-6 h-6" />
+            </div>
+            <div>
+              <h3 className="text-base font-semibold text-slate-900">
+                Reset Member Password
+              </h3>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Set a new password for {resettingUser.fullName} ({resettingUser.email})
+              </p>
+            </div>
+
+            <div className="text-left text-xs space-y-1">
+              <label className="font-semibold text-slate-700">New Password</label>
+              <input
+                type="text"
+                required
+                value={newPasswordInput}
+                onChange={(e) => setNewPasswordInput(e.target.value)}
+                placeholder="Enter new temporary password"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+              />
+            </div>
+
+            <div className="flex gap-2.5 pt-2">
+              <button
+                type="button"
+                onClick={() => setResettingUser(null)}
+                className="flex-1 py-2.5 rounded-full border border-slate-200 text-slate-700 text-xs font-semibold hover:bg-slate-50 cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleSavePasswordReset}
+                disabled={isResettingPassword || !newPasswordInput.trim()}
+                className="flex-1 py-2.5 rounded-full bg-[#0A1020] hover:bg-slate-800 text-white text-xs font-semibold transition-colors cursor-pointer disabled:opacity-50"
+              >
+                {isResettingPassword ? 'Updating...' : 'Set Password'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ===================================================================== */}
+      {/* MODAL: USER 360° ACTIVITY DRAWER */}
+      {/* ===================================================================== */}
+      {user360 && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl w-full max-w-2xl p-6 sm:p-8 space-y-5 border border-slate-200/90 shadow-sm animate-in fade-in zoom-in-95 duration-150 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-start justify-between border-b border-slate-100 pb-4">
+              <div className="flex items-center gap-3.5">
+                <div className="w-12 h-12 rounded-2xl bg-slate-900 text-white flex items-center justify-center font-bold text-base">
+                  {user360.fullName.slice(0, 2).toUpperCase()}
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-base sm:text-lg font-semibold text-slate-900">
+                      {user360.fullName}
+                    </h3>
+                    <span className="text-[10px] font-semibold uppercase px-2 py-0.5 rounded-full bg-slate-100 text-slate-700">
+                      {user360.role}
+                    </span>
+                    {user360.verificationStatus === 'verified' && (
+                      <span className="text-[10px] font-semibold uppercase px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 flex items-center gap-1">
+                        <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                        Verified
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-xs text-slate-400 mt-0.5 font-normal">
+                    {user360.email} • {user360.phone} • {user360.city}
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setUser360(null)}
+                className="text-slate-400 hover:text-slate-600 p-1 rounded-full cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Sub-tabs */}
+            <div className="flex border-b border-slate-100 text-xs font-semibold gap-4">
+              <button
+                type="button"
+                onClick={() => setUser360Tab('profile')}
+                className={`pb-2 transition-colors cursor-pointer border-b-2 ${
+                  user360Tab === 'profile' ? 'border-slate-900 text-slate-900' : 'border-transparent text-slate-400 hover:text-slate-600'
+                }`}
+              >
+                Profile &amp; Vault
+              </button>
+              <button
+                type="button"
+                onClick={() => setUser360Tab('contracts')}
+                className={`pb-2 transition-colors cursor-pointer border-b-2 ${
+                  user360Tab === 'contracts' ? 'border-slate-900 text-slate-900' : 'border-transparent text-slate-400 hover:text-slate-600'
+                }`}
+              >
+                Contracts ({bookings.filter((b) => b.customerId === user360.id || b.providerId === user360.id).length})
+              </button>
+              <button
+                type="button"
+                onClick={() => setUser360Tab('jobs')}
+                className={`pb-2 transition-colors cursor-pointer border-b-2 ${
+                  user360Tab === 'jobs' ? 'border-slate-900 text-slate-900' : 'border-transparent text-slate-400 hover:text-slate-600'
+                }`}
+              >
+                Requests ({serviceRequests.filter((r) => r.customerId === user360.id).length})
+              </button>
+              <button
+                type="button"
+                onClick={() => setUser360Tab('disputes')}
+                className={`pb-2 transition-colors cursor-pointer border-b-2 ${
+                  user360Tab === 'disputes' ? 'border-slate-900 text-slate-900' : 'border-transparent text-slate-400 hover:text-slate-600'
+                }`}
+              >
+                Disputes ({disputes.filter((d) => d.claimantName.includes(user360.fullName) || d.respondentName.includes(user360.fullName)).length})
+              </button>
+            </div>
+
+            {/* Tab content */}
+            {user360Tab === 'profile' && (
+              <div className="space-y-4 text-xs">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                  <div>
+                    <span className="text-slate-400 block text-[11px]">Vault Balance</span>
+                    <span className="text-sm font-semibold text-slate-900 mt-0.5 block">
+                      {formatNaira(user360.wallet?.balanceMinor || 0)}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-slate-400 block text-[11px]">Escrow In-Flight</span>
+                    <span className="text-sm font-semibold text-[#0C513F] mt-0.5 block">
+                      {formatNaira(user360.wallet?.escrowBalanceMinor || 0)}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-slate-400 block text-[11px]">AI Sparks</span>
+                    <span className="text-sm font-semibold text-amber-600 mt-0.5 block">
+                      {user360.wallet?.sparksBalance || 0} SPK
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-slate-400 block text-[11px]">Account Status</span>
+                    <span className={`text-xs font-semibold mt-0.5 block uppercase ${
+                      user360.accountStatus === 'active' ? 'text-emerald-700' : 'text-rose-600'
+                    }`}>
+                      {user360.accountStatus}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="p-3 bg-white rounded-2xl border border-slate-200">
+                    <span className="text-slate-400 text-[11px]">Trade Specialty:</span>
+                    <p className="font-semibold text-slate-900 mt-0.5">{user360.trade || 'General Services'}</p>
+                  </div>
+                  <div className="p-3 bg-white rounded-2xl border border-slate-200">
+                    <span className="text-slate-400 text-[11px]">National Identification (NIN):</span>
+                    <p className="font-semibold text-slate-900 mt-0.5">{user360.ninNumber || 'Not submitted'}</p>
+                  </div>
+                  <div className="p-3 bg-white rounded-2xl border border-slate-200">
+                    <span className="text-slate-400 text-[11px]">Hourly Billing Rate:</span>
+                    <p className="font-semibold text-slate-900 mt-0.5">
+                      {user360.hourlyRateMinor ? `${formatNaira(user360.hourlyRateMinor)}/hr` : 'Default'}
+                    </p>
+                  </div>
+                  <div className="p-3 bg-white rounded-2xl border border-slate-200">
+                    <span className="text-slate-400 text-[11px]">Dashboard Featured Pro:</span>
+                    <p className="font-semibold text-slate-900 mt-0.5">
+                      {user360.isFeatured ? '⭐️ Yes, featured on user overview' : 'No'}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex gap-2 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setUser360(null)
+                      handleOpenEditUser(user360)
+                    }}
+                    className="px-4 py-2 rounded-full border border-slate-200 text-slate-700 font-semibold hover:bg-slate-50 flex items-center gap-1.5"
+                  >
+                    <Edit3 className="w-3.5 h-3.5" />
+                    <span>Edit Profile</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setUser360(null)
+                      handleOpenAdjustWallet(user360)
+                    }}
+                    className="px-4 py-2 rounded-full border border-slate-200 text-slate-700 font-semibold hover:bg-slate-50 flex items-center gap-1.5"
+                  >
+                    <Coins className="w-3.5 h-3.5 text-emerald-600" />
+                    <span>Adjust Funds / Sparks</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setUser360(null)
+                      handleOpenResetPassword(user360)
+                    }}
+                    className="px-4 py-2 rounded-full border border-slate-200 text-slate-700 font-semibold hover:bg-slate-50 flex items-center gap-1.5"
+                  >
+                    <KeyRound className="w-3.5 h-3.5 text-indigo-600" />
+                    <span>Reset Password</span>
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {user360Tab === 'contracts' && (
+              <div className="space-y-3 text-xs">
+                {bookings.filter((b) => b.customerId === user360.id || b.providerId === user360.id).length === 0 ? (
+                  <p className="text-slate-400 py-6 text-center">No contracts found for this user.</p>
+                ) : (
+                  bookings
+                    .filter((b) => b.customerId === user360.id || b.providerId === user360.id)
+                    .map((b) => (
+                      <div key={b.id} className="p-3 bg-slate-50 rounded-2xl border border-slate-100 flex items-center justify-between">
+                        <div>
+                          <div className="font-semibold text-slate-900">{b.title}</div>
+                          <div className="text-slate-400 text-[11px] mt-0.5">
+                            {b.bookingNumber} • Escrow: {b.escrowStatus} • Status: {b.bookingStatus}
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <div className="font-semibold text-slate-900">{formatNaira(b.totalAmountMinor)}</div>
+                          <div className="text-[10px] text-emerald-600">{b.progressPercentage}% done</div>
+                        </div>
+                      </div>
+                    ))
+                )}
+              </div>
+            )}
+
+            {user360Tab === 'jobs' && (
+              <div className="space-y-3 text-xs">
+                {serviceRequests.filter((r) => r.customerId === user360.id).length === 0 ? (
+                  <p className="text-slate-400 py-6 text-center">No service requests posted by this user.</p>
+                ) : (
+                  serviceRequests
+                    .filter((r) => r.customerId === user360.id)
+                    .map((j) => (
+                      <div key={j.id} className="p-3 bg-slate-50 rounded-2xl border border-slate-100 flex items-center justify-between">
+                        <div>
+                          <div className="font-semibold text-slate-900">{j.title}</div>
+                          <div className="text-slate-400 text-[11px] mt-0.5">
+                            {j.category} • Status: {j.status} • {j.proposalsCount} Quotes
+                          </div>
+                        </div>
+                        <div className="text-right font-semibold text-slate-900">
+                          {formatNaira(j.budgetMinMinor)} - {formatNaira(j.budgetMaxMinor)}
+                        </div>
+                      </div>
+                    ))
+                )}
+              </div>
+            )}
+
+            {user360Tab === 'disputes' && (
+              <div className="space-y-3 text-xs">
+                {disputes.filter((d) => d.claimantName.includes(user360.fullName) || d.respondentName.includes(user360.fullName)).length === 0 ? (
+                  <p className="text-slate-400 py-6 text-center">No disputes on file for this user.</p>
+                ) : (
+                  disputes
+                    .filter((d) => d.claimantName.includes(user360.fullName) || d.respondentName.includes(user360.fullName))
+                    .map((d) => (
+                      <div key={d.id} className="p-3 bg-slate-50 rounded-2xl border border-slate-100 space-y-1">
+                        <div className="flex justify-between font-semibold text-slate-900">
+                          <span>{d.disputeNumber} — {d.bookingTitle}</span>
+                          <span className="uppercase text-[10px] text-amber-700">{d.status}</span>
+                        </div>
+                        <p className="text-slate-600">{d.reason}</p>
+                      </div>
+                    ))
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* ===================================================================== */}
+      {/* MODAL: MODERATE SERVICE REQUEST */}
+      {/* ===================================================================== */}
+      {editingJob && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl w-full max-w-md p-6 space-y-4 border border-slate-200/90 shadow-sm animate-in fade-in zoom-in-95 duration-150">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div>
+                <h3 className="text-base font-semibold text-slate-900">
+                  Moderate Job Brief ({editingJob.id})
+                </h3>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Client: {editingJob.customerName}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setEditingJob(null)}
+                className="text-slate-400 hover:text-slate-600 p-1 rounded-full cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="space-y-3 text-xs">
+              <div className="space-y-1">
+                <label className="font-semibold text-slate-700">Request Title</label>
+                <input
+                  type="text"
+                  value={jobTitleInput}
+                  onChange={(e) => setJobTitleInput(e.target.value)}
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="font-semibold text-slate-700">Description</label>
+                <textarea
+                  rows={3}
+                  value={jobDescriptionInput}
+                  onChange={(e) => setJobDescriptionInput(e.target.value)}
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-slate-900 font-normal focus:outline-none focus:ring-2 focus:ring-emerald-500/20 resize-none"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="font-semibold text-slate-700">Moderation Action</label>
+                <div className="grid grid-cols-3 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => handleModerateJob('open')}
+                    className={`py-2 rounded-xl text-xs font-semibold border ${
+                      editingJob.status === 'open' ? 'bg-emerald-50 border-emerald-300 text-emerald-800' : 'border-slate-200 text-slate-600 hover:bg-slate-50'
+                    }`}
+                  >
+                    Keep Open
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleModerateJob('closed')}
+                    className="py-2 rounded-xl text-xs font-semibold border border-slate-200 text-slate-700 hover:bg-slate-100"
+                  >
+                    Close Job
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleModerateJob('cancelled')}
+                    className="py-2 rounded-xl text-xs font-semibold border border-rose-200 text-rose-700 hover:bg-rose-50"
+                  >
+                    Spam / Cancel
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex gap-2.5 pt-2 border-t border-slate-100">
+              <button
+                type="button"
+                onClick={() => setEditingJob(null)}
+                className="w-full py-2.5 rounded-full border border-slate-200 text-slate-700 text-xs font-semibold hover:bg-slate-50 cursor-pointer"
+              >
+                Close Window
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ===================================================================== */}
+      {/* MODAL: DISPUTE CUSTOM SPLIT SETTLEMENT */}
+      {/* ===================================================================== */}
+      {splitDispute && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl w-full max-w-md p-6 sm:p-7 space-y-4 border border-slate-200/90 shadow-sm animate-in fade-in zoom-in-95 duration-150">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div>
+                <h3 className="text-base font-semibold text-slate-900">
+                  Custom Split Settlement
+                </h3>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Dispute: {splitDispute.disputeNumber} ({formatNaira(splitDispute.amountMinor)})
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setSplitDispute(null)}
+                className="text-slate-400 hover:text-slate-600 p-1 rounded-full cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="space-y-4 text-xs">
+              <div className="space-y-2">
+                <div className="flex justify-between font-semibold text-slate-800">
+                  <span>Specialist Share: {splitProviderPct}%</span>
+                  <span>Client Refund: {100 - splitProviderPct}%</span>
+                </div>
+                <input
+                  type="range"
+                  min="0"
+                  max="100"
+                  step="5"
+                  value={splitProviderPct}
+                  onChange={(e) => setSplitProviderPct(parseInt(e.target.value, 10))}
+                  className="w-full accent-emerald-600 cursor-pointer"
+                />
+                <div className="grid grid-cols-2 gap-3 bg-slate-50 p-3 rounded-2xl border border-slate-100">
+                  <div>
+                    <span className="text-[11px] text-slate-400 block">PAYS TO SPECIALIST</span>
+                    <span className="font-semibold text-emerald-700 text-sm mt-0.5 block">
+                      {formatNaira(Math.round((splitDispute.amountMinor * splitProviderPct) / 100))}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-[11px] text-slate-400 block">REFUNDS TO CLIENT</span>
+                    <span className="font-semibold text-indigo-700 text-sm mt-0.5 block">
+                      {formatNaira(Math.round((splitDispute.amountMinor * (100 - splitProviderPct)) / 100))}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <label className="font-semibold text-slate-700">Settlement Notes &amp; Binding Agreement</label>
+                <textarea
+                  rows={3}
+                  value={splitNotes}
+                  onChange={(e) => setSplitNotes(e.target.value)}
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-slate-900 font-normal focus:outline-none focus:ring-2 focus:ring-emerald-500/20 resize-none"
+                />
+              </div>
+            </div>
+
+            <div className="flex gap-2.5 pt-3 border-t border-slate-100">
+              <button
+                type="button"
+                onClick={() => setSplitDispute(null)}
+                className="flex-1 py-2.5 rounded-full border border-slate-200 text-slate-700 text-xs font-semibold hover:bg-slate-50 cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleSubmitSplitDispute}
+                disabled={isSubmittingSplit}
+                className="flex-1 py-2.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold transition-colors cursor-pointer flex items-center justify-center gap-1.5"
+              >
+                {isSubmittingSplit ? 'Settling...' : 'Execute Split Payout'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ===================================================================== */}
+      {/* MODAL: PROCESS BANK PAYOUT (APPROVAL / REJECTION) */}
+      {/* ===================================================================== */}
+      {actionWithdrawal && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl w-full max-w-md p-6 sm:p-7 space-y-4 border border-slate-200/90 shadow-sm animate-in fade-in zoom-in-95 duration-150">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div>
+                <h3 className="text-base font-semibold text-slate-900">
+                  {payoutDecision === 'approve' ? 'Approve Bank Payout' : 'Reject & Refund Withdrawal'}
+                </h3>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Request: {actionWithdrawal.reference} • {formatNaira(actionWithdrawal.amountMinor)}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setActionWithdrawal(null)}
+                className="text-slate-400 hover:text-slate-600 p-1 rounded-full cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="bg-slate-50 p-3.5 rounded-2xl border border-slate-100 text-xs space-y-1">
+              <div className="flex justify-between">
+                <span className="text-slate-500">Beneficiary:</span>
+                <span className="font-semibold text-slate-900">{actionWithdrawal.userName}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-500">Destination Bank:</span>
+                <span className="font-semibold text-slate-900">{actionWithdrawal.bankName || 'Verified Bank'}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-500">Account Number:</span>
+                <span className="font-mono font-semibold text-slate-900">{actionWithdrawal.accountNumber || '••••'}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-500">Payout Sum:</span>
+                <span className="font-semibold text-emerald-700">{formatNaira(actionWithdrawal.amountMinor)}</span>
+              </div>
+            </div>
+
+            <div className="space-y-3 text-xs">
+              {payoutDecision === 'approve' ? (
+                <div className="space-y-1">
+                  <label className="font-semibold text-slate-700">Bank Transfer / NIP Session Reference</label>
+                  <input
+                    type="text"
+                    required
+                    value={payoutRefInput}
+                    onChange={(e) => setPayoutRefInput(e.target.value)}
+                    placeholder="e.g. NIP-0902672401824190"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                  />
+                  <p className="text-[11px] text-slate-400">
+                    Will be stored in the member transaction ledger and sent via in-app alert.
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-1">
+                  <label className="font-semibold text-slate-700">Rejection Reason (Sent to User)</label>
+                  <textarea
+                    rows={3}
+                    required
+                    value={payoutRejectReason}
+                    onChange={(e) => setPayoutRejectReason(e.target.value)}
+                    placeholder="Specify why withdrawal was rejected (e.g. Account name mismatch with BVN)..."
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-slate-900 font-normal focus:outline-none focus:ring-2 focus:ring-rose-500/20 resize-none"
+                  />
+                  <p className="text-[11px] text-slate-400">
+                    The requested ₦ amount will be immediately refunded back to the member available vault.
+                  </p>
+                </div>
+              )}
+            </div>
+
+            <div className="flex gap-2.5 pt-3 border-t border-slate-100">
+              <button
+                type="button"
+                onClick={() => setActionWithdrawal(null)}
+                className="flex-1 py-2.5 rounded-full border border-slate-200 text-slate-700 text-xs font-semibold hover:bg-slate-50 cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => handleProcessWithdrawal(payoutDecision)}
+                disabled={isProcessingPayout}
+                className={`flex-1 py-2.5 rounded-full text-white text-xs font-semibold transition-colors cursor-pointer flex items-center justify-center gap-1.5 ${
+                  payoutDecision === 'approve' ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-rose-600 hover:bg-rose-700'
+                }`}
+              >
+                {isProcessingPayout ? 'Processing...' : payoutDecision === 'approve' ? 'Confirm Payout' : 'Reject & Refund'}
+              </button>
+            </div>
           </div>
         </div>
       )}
