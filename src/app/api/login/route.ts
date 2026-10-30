@@ -96,6 +96,19 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Check if account has been suspended by Admin
+    if (existing.accountStatus === 'suspended') {
+      return errorResponse(
+        'Your account has been temporarily suspended by Connecta Trust & Safety. Please contact support@myconnecta.ng or your account officer for review.',
+        403,
+        {
+          code: 'ACCOUNT_SUSPENDED',
+          isSuspended: true,
+          email: cleanEmail,
+        }
+      )
+    }
+
     // Check password
     if (existing.password && existing.password !== password) {
       return errorResponse('Incorrect password. Please verify and try again.', 401)

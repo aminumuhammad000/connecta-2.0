@@ -63,6 +63,18 @@ interface ServerOverviewData {
     milestones?: MilestoneLike[]
   } | null
   recentJobs: unknown[]
+  featuredPros?: Array<{
+    id?: string
+    name?: string
+    fullName?: string
+    trade?: string
+    headline?: string
+    bio?: string
+    rating?: number
+    location?: string
+    city?: string
+    hourlyRateMinor?: number
+  }>
 }
 
 const FEATURED_PROS = [
@@ -322,7 +334,17 @@ export default function DashboardOverviewPage() {
           }
         />
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {FEATURED_PROS.map((pro, idx) => (
+          {(data?.featuredPros && data.featuredPros.length > 0
+            ? data.featuredPros.map((p) => ({
+                name: p.name || p.fullName || 'Verified Pro',
+                trade: p.trade || 'Certified Specialist',
+                headline: p.headline || p.bio || 'Verified Connecta Master Artisan',
+                rating: p.rating || 4.95,
+                city: p.location || p.city || 'Kano / Lagos',
+                rate: p.hourlyRateMinor ? `₦${Math.round(p.hourlyRateMinor / 100).toLocaleString('en-NG')}/hr` : '₦12,000/hr',
+              }))
+            : FEATURED_PROS
+          ).map((pro, idx) => (
             <Link key={pro.name} href="/dashboard/jobs" className="group block cn-rise" style={stagger(idx + 7, 60)}>
               <Card interactive className="p-5 h-full">
                 <div className="flex items-start gap-3.5">

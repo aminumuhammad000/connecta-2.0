@@ -73,7 +73,7 @@ function AdminLoginForm() {
         </div>
       </div>
 
-      <div className="bg-white border border-slate-200 rounded-2xl p-6 sm:p-8 shadow-xl shadow-slate-900/5">
+      <div className="bg-white border border-slate-200 rounded-2xl p-6 sm:p-8 shadow-sm">
         {errorMessage && (
           <div role="alert" className="mb-5 p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-start gap-2.5">
             <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
@@ -84,7 +84,7 @@ function AdminLoginForm() {
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Email field */}
           <div>
-            <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wider">
+            <label className="block text-xs font-medium text-slate-700 mb-1.5 uppercase tracking-wider">
               Admin Email
             </label>
             <div className="relative">
@@ -106,7 +106,7 @@ function AdminLoginForm() {
           {/* Password field */}
           <div>
             <div className="flex items-center justify-between mb-1.5">
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">
+              <label className="block text-xs font-medium text-slate-700 uppercase tracking-wider">
                 Admin Password
               </label>
             </div>
@@ -138,7 +138,7 @@ function AdminLoginForm() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full mt-2 py-3.5 px-4 rounded-xl bg-[#0C513F] hover:bg-[#0f644e] active:scale-[0.99] text-white font-bold text-sm shadow-sm flex items-center justify-center gap-2 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full mt-2 py-3.5 px-4 rounded-xl bg-[#0C513F] hover:bg-[#0f644e] active:scale-[0.99] text-white font-medium text-sm shadow-none flex items-center justify-center gap-2 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? (
               <>

@@ -6,7 +6,10 @@ import {
   getUserBookings,
   getServiceRequests,
   getSquads,
+  getPlatformSettings,
+  getInAppNotifications,
 } from '@/lib/server/db'
+import { getFeaturedSpecialists } from '@/lib/server/providers'
 
 export async function GET(request: NextRequest) {
   try {
@@ -109,6 +112,14 @@ export async function GET(request: NextRequest) {
     // Recent marketplace jobs from server
     const recentJobs = allRequests.slice(0, 3)
 
+    // Featured pros from database & seed
+    const featuredSpecialists = getFeaturedSpecialists()
+
+    // Platform settings & notifications
+    const platformSettings = getPlatformSettings()
+    const userNotifications = getInAppNotifications(user.id)
+    const unreadCount = userNotifications.filter((n) => !n.readBy || !n.readBy.includes(user.id)).length
+
     return successResponse({
       user: {
         id: user.id,
@@ -119,6 +130,8 @@ export async function GET(request: NextRequest) {
         phone: user.phone,
         role: user.role,
         activeRole: user.activeRole,
+        accountStatus: user.accountStatus || 'active',
+        isSuspended: user.accountStatus === 'suspended',
         city: user.city,
         currency: user.currency,
         avatarUrl: user.avatarUrl,
@@ -137,7 +150,10 @@ export async function GET(request: NextRequest) {
       activeBooking,
       recentJobs,
       squads: allSquads,
-      unreadNotifications: 0,
+      featuredPros: featuredSpecialists,
+      platformSettings,
+      notifications: userNotifications,
+      unreadNotifications: unreadCount,
     })
   } catch (err: any) {
     return errorResponse(err.message || 'Failed to fetch dashboard overview', 500)

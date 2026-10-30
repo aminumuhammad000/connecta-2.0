@@ -31,19 +31,21 @@ export async function POST(request: NextRequest) {
     // Deduct from available balance
     const updatedWallet = updateWalletBalance(user.id, -amount, 0)
 
-    // Record transaction
+    // Record transaction as pending admin compliance & bank dispatch
     const tx = addTransaction({
       userId: user.id,
       title: `Bank Transfer Payout (${bankName || 'Verified Bank'} - ${accountNumber ? accountNumber.slice(-4) : '••••'})`,
       type: 'withdrawal',
       amountMinor: amount,
       currency: user.currency || 'NGN',
-      status: 'completed',
+      status: 'pending',
       reference: `WIT-${Date.now().toString().slice(-8)}`,
+      bankName: bankName || 'Verified Bank',
+      accountNumber: accountNumber || '',
     })
 
     return successResponse({
-      message: 'Withdrawal successfully initiated to your verified bank account!',
+      message: 'Withdrawal successfully initiated and submitted to Connecta Settlement Desk for bank transfer processing!',
       wallet: updatedWallet,
       transaction: tx,
     }, 201)

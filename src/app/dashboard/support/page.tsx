@@ -48,13 +48,47 @@ export default function DashboardSupportPage() {
   const [disputeReason, setDisputeReason] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [notice, setNotice] = useState<string | null>(null)
+  const [supportContacts, setSupportContacts] = useState(CONTACTS)
 
   const fetchDisputes = async () => {
     try {
-      const res = await fetch('/api/dashboard/support')
-      if (res.ok) {
-        const body = await res.json()
+      const [resDisputes, resSettings] = await Promise.all([
+        fetch('/api/dashboard/support'),
+        fetch('/api/dashboard/settings'),
+      ])
+      if (resDisputes.ok) {
+        const body = await resDisputes.json()
         setDisputes(body.data || [])
+      }
+      if (resSettings.ok) {
+        const setBody = await resSettings.json()
+        const ps = setBody.data?.platformSettings
+        if (ps) {
+          setSupportContacts([
+            {
+              icon: Mail,
+              label: 'Email',
+              value: ps.supportEmail || 'support@myconnecta.ng',
+              href: `mailto:${ps.supportEmail || 'support@myconnecta.ng'}`,
+              tile: 'bg-azure-50 text-azure',
+            },
+            {
+              icon: Phone,
+              label: 'Call',
+              value: ps.supportPhone || '+234 812 345 6789',
+              href: `tel:${(ps.supportPhone || '+2348123456789').replace(/\s+/g, '')}`,
+              tile: 'bg-warn-50 text-warn-ink',
+            },
+            {
+              icon: MessageCircle,
+              label: 'WhatsApp',
+              value: 'Chat with us',
+              href: ps.supportWhatsapp || 'https://wa.me/2348123456789',
+              external: true,
+              tile: 'bg-success-50 text-success-ink',
+            },
+          ])
+        }
       }
     } catch (err) {
       console.error('Failed to load disputes:', err)
@@ -113,7 +147,7 @@ export default function DashboardSupportPage() {
       )}
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        {CONTACTS.map((c, idx) => {
+        {supportContacts.map((c, idx) => {
           const Icon = c.icon
           return (
             <a

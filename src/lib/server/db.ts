@@ -45,6 +45,9 @@ export interface ServerUserProfile {
   accountNumber?: string
   accountName?: string
   welcomeSparks?: number
+  isFeatured?: boolean
+  verificationStatus?: 'verified' | 'unverified'
+  badges?: string[]
   createdAt: string
   updatedAt: string
 }
@@ -63,12 +66,49 @@ export interface ServerWalletTransaction {
   id: string
   userId: string
   title: string
-  type: 'deposit' | 'escrow_lock' | 'escrow_release' | 'withdrawal' | 'sparks_grant'
+  type: 'deposit' | 'escrow_lock' | 'escrow_release' | 'withdrawal' | 'sparks_grant' | 'admin_adjustment' | 'dispute_refund'
   amountMinor: number
   currency: string
   status: 'completed' | 'pending' | 'failed'
   reference: string
   date: string
+  bankName?: string
+  accountNumber?: string
+  payoutReference?: string
+}
+
+export interface PlatformSettings {
+  hubCity: string
+  commissionRatePercent: number
+  currency: string
+  supportPhone: string
+  supportEmail: string
+  supportWhatsapp: string
+  welcomeSparks: number
+  systemAnnouncement?: string
+  announcementActive?: boolean
+}
+
+export interface InAppNotification {
+  id: string
+  userId: string // 'all' or specific user ID
+  title: string
+  message: string
+  type: 'info' | 'success' | 'warning' | 'alert'
+  createdAt: string
+  readBy?: string[]
+}
+
+export const DEFAULT_PLATFORM_SETTINGS: PlatformSettings = {
+  hubCity: 'Kano, Nigeria',
+  commissionRatePercent: 5.0,
+  currency: 'NGN',
+  supportPhone: '+234 812 345 6789',
+  supportEmail: 'support@myconnecta.ng',
+  supportWhatsapp: 'https://wa.me/2348123456789',
+  welcomeSparks: 500,
+  systemAnnouncement: 'Welcome to Connecta 2.0 — Verified artisans and NDIC-insured escrow custody across Nigeria.',
+  announcementActive: true,
 }
 
 export interface ServerServiceRequest {
@@ -201,6 +241,8 @@ export interface ServerDatabaseSchema {
   community_posts: ServerCommunityPost[]
   disputes: ServerDispute[]
   email_dispatches?: ServerEmailDispatch[]
+  platform_settings?: PlatformSettings
+  in_app_notifications?: InAppNotification[]
 }
 
 // =============================================================================
@@ -236,6 +278,9 @@ function getInitialDatabase(): ServerDatabaseSchema {
     squads: [],
     community_posts: [],
     disputes: [],
+    email_dispatches: [],
+    platform_settings: { ...DEFAULT_PLATFORM_SETTINGS },
+    in_app_notifications: [],
   }
 }
 
@@ -278,6 +323,8 @@ export function readDatabase(): ServerDatabaseSchema {
       community_posts: parsed.community_posts || [],
       disputes: parsed.disputes || [],
       email_dispatches: parsed.email_dispatches || [],
+      platform_settings: parsed.platform_settings || { ...DEFAULT_PLATFORM_SETTINGS },
+      in_app_notifications: parsed.in_app_notifications || [],
     }
 
     // Sync from registered-users store if profiles are missing
@@ -664,6 +711,287 @@ export function updateUserPassword(email: string, newPassword: string): boolean 
 
   user.password = newPassword
   user.updatedAt = new Date().toISOString()
+  writeDatabase(db)
+  return true
+}
+
+// =============================================================================
+// PLATFORM CONTROLS & ADMIN GOVERNANCE
+// =============================================================================
+
+export function getPlatformSettings(): PlatformSettings {
+  const db = readDatabase()
+  return db.platform_settings || { ...DEFAULT_PLATFORM_SETTINGS }
+}
+
+export function updatePlatformSettings(settings: Partial<PlatformSettings>): PlatformSettings {
+  const db = readDatabase()
+  db.platform_settings = {
+    ...(db.platform_settings || DEFAULT_PLATFORM_SETTINGS),
+    ...settings,
+  }
+  writeDatabase(db)
+  return db.platform_settings
+}
+
+export function getInAppNotifications(userId?: string): InAppNotification[] {
+  const db = readDatabase()
+  const list = db.in_app_notifications || []
+  if (!userId) return list
+  return list.filter((n) => n.userId === 'all' || n.userId === userId)
+}
+
+export function addInAppNotification(notification: Omit<InAppNotification, 'id' | 'createdAt'>): InAppNotification {
+  const db = readDatabase()
+  if (!db.in_app_notifications) {
+    db.in_app_notifications = []
+  }
+  const newNotif: InAppNotification = {
+    ...notification,
+    id: `notif-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+    createdAt: new Date().toISOString(),
+    readBy: [],
+  }
+  db.in_app_notifications.unshift(newNotif)
+  writeDatabase(db)
+  return newNotif
+}
+
+export function markNotificationRead(notificationId: string, userId: string): boolean {
+  const db = readDatabase()
+  if (!db.in_app_notifications) return false
+  const notif = db.in_app_notifications.find((n) => n.id === notificationId)
+  if (!notif) return false
+  if (!notif.readBy) notif.readBy = []
+  if (!notif.readBy.includes(userId)) {
+    notif.readBy.push(userId)
+    writeDatabase(db)
+  }
+  return true
+}
+
+export function getPendingWithdrawals(): ServerWalletTransaction[] {
+  const db = readDatabase()
+  return db.wallet_transactions.filter((tx) => tx.type === 'withdrawal' && tx.status === 'pending')
+}
+
+export function approveWithdrawal(txId: string, payoutReference: string): boolean {
+  const db = readDatabase()
+  const tx = db.wallet_transactions.find((t) => t.id === txId)
+  if (!tx || tx.type !== 'withdrawal') return false
+
+  tx.status = 'completed'
+  tx.payoutReference = payoutReference || `PAY-OUT-${Date.now().toString().slice(-6)}`
+  tx.date = new Date().toISOString()
+  writeDatabase(db)
+
+  // Push an in-app notification to the user
+  addInAppNotification({
+    userId: tx.userId,
+    title: 'Bank Withdrawal Approved',
+    message: `Your withdrawal of ₦${Math.round(tx.amountMinor / 100).toLocaleString('en-NG')} has been processed to your bank (Ref: ${tx.payoutReference}).`,
+    type: 'success',
+  })
+
+  return true
+}
+
+export function rejectWithdrawal(txId: string, reason: string): boolean {
+  const db = readDatabase()
+  const tx = db.wallet_transactions.find((t) => t.id === txId)
+  if (!tx || tx.type !== 'withdrawal') return false
+
+  tx.status = 'failed'
+  writeDatabase(db)
+
+  // Refund the amount back to user available wallet
+  updateWalletBalance(tx.userId, tx.amountMinor, 0)
+
+  // Add refund record
+  addTransaction({
+    userId: tx.userId,
+    title: `Withdrawal Refund: ${reason || 'Bank payout rejected'}`,
+    type: 'deposit',
+    amountMinor: tx.amountMinor,
+    currency: tx.currency || 'NGN',
+    status: 'completed',
+    reference: `REF-${Date.now().toString().slice(-8)}`,
+  })
+
+  // Push an in-app notification to the user
+  addInAppNotification({
+    userId: tx.userId,
+    title: 'Withdrawal Unsuccessful — Funds Returned',
+    message: `Your withdrawal of ₦${Math.round(tx.amountMinor / 100).toLocaleString('en-NG')} could not be processed (${reason}). The funds have been returned to your vault.`,
+    type: 'warning',
+  })
+
+  return true
+}
+
+export function settleDisputeWithSplit(
+  disputeId: string,
+  providerPercent: number,
+  clientPercent: number,
+  resolutionNotes: string
+): boolean {
+  const db = readDatabase()
+  const dispute = db.disputes.find((d) => d.id === disputeId)
+  if (!dispute) return false
+
+  const booking = db.bookings.find((b) => b.id === dispute.bookingId || b.bookingNumber === dispute.bookingNumber)
+  const totalAmountMinor = dispute.amountMinor || (booking ? booking.totalAmountMinor : 0)
+
+  const providerAmountMinor = Math.round((totalAmountMinor * providerPercent) / 100)
+  const clientAmountMinor = totalAmountMinor - providerAmountMinor
+
+  // If there is an associated booking with locked escrow
+  if (booking) {
+    booking.escrowStatus = 'released'
+    booking.bookingStatus = clientPercent === 100 ? 'disputed' : 'completed'
+    booking.progressPercentage = 100
+
+    if (booking.milestones) {
+      booking.milestones.forEach((m) => {
+        m.status = 'completed'
+      })
+    }
+
+    // Deduct total locked escrow from client's escrow balance
+    updateWalletBalance(booking.customerId, 0, -totalAmountMinor)
+
+    // Credit client refund if any
+    if (clientAmountMinor > 0) {
+      updateWalletBalance(booking.customerId, clientAmountMinor, 0)
+      addTransaction({
+        userId: booking.customerId,
+        title: `Dispute Resolution Refund (${clientPercent}%) — ${dispute.disputeNumber}`,
+        type: 'dispute_refund',
+        amountMinor: clientAmountMinor,
+        currency: booking.currency || 'NGN',
+        status: 'completed',
+        reference: `DISP-REF-${Date.now().toString().slice(-6)}`,
+      })
+      addInAppNotification({
+        userId: booking.customerId,
+        title: 'Dispute Resolved — Refund Credited',
+        message: `Dispute ${dispute.disputeNumber} was resolved. ₦${Math.round(clientAmountMinor / 100).toLocaleString('en-NG')} (${clientPercent}%) has been credited to your available vault.`,
+        type: 'info',
+      })
+    }
+
+    // Credit provider payout if any
+    if (providerAmountMinor > 0) {
+      updateWalletBalance(booking.providerId, providerAmountMinor, 0)
+      addTransaction({
+        userId: booking.providerId,
+        title: `Dispute Settlement Payout (${providerPercent}%) — ${dispute.disputeNumber}`,
+        type: 'escrow_release',
+        amountMinor: providerAmountMinor,
+        currency: booking.currency || 'NGN',
+        status: 'completed',
+        reference: `DISP-PAY-${Date.now().toString().slice(-6)}`,
+      })
+      addInAppNotification({
+        userId: booking.providerId,
+        title: 'Dispute Settlement Credited',
+        message: `Dispute ${dispute.disputeNumber} was resolved. ₦${Math.round(providerAmountMinor / 100).toLocaleString('en-NG')} (${providerPercent}%) has been credited to your payout balance.`,
+        type: 'success',
+      })
+    }
+  }
+
+  dispute.status = 'resolved'
+  dispute.notes += ` [Split Resolution: ${providerPercent}% Specialist / ${clientPercent}% Client]: ${resolutionNotes}`
+  dispute.lastUpdate = new Date().toISOString().replace('T', ' ').slice(0, 16)
+  writeDatabase(db)
+  return true
+}
+
+export function adjustUserBalance(
+  userId: string,
+  balanceDeltaMinor: number,
+  sparksDelta: number,
+  reason: string
+): boolean {
+  const db = readDatabase()
+  const wallet = db.wallets.find((w) => w.userId === userId)
+  if (!wallet) return false
+
+  wallet.balanceMinor = Math.max(0, wallet.balanceMinor + balanceDeltaMinor)
+  wallet.sparksBalance = Math.max(0, wallet.sparksBalance + sparksDelta)
+  wallet.updatedAt = new Date().toISOString()
+
+  // Add ledger transaction
+  if (balanceDeltaMinor !== 0) {
+    db.wallet_transactions.unshift({
+      id: `TX-ADJ-${Date.now().toString().slice(-6)}`,
+      userId,
+      title: `Admin Adjustment: ${reason || 'Manual ledger balance adjustment'}`,
+      type: 'admin_adjustment',
+      amountMinor: Math.abs(balanceDeltaMinor),
+      currency: wallet.currency || 'NGN',
+      status: 'completed',
+      reference: `ADJ-${Date.now().toString().slice(-8)}`,
+      date: new Date().toISOString(),
+    })
+  }
+
+  if (sparksDelta !== 0) {
+    db.wallet_transactions.unshift({
+      id: `TX-SPK-${Date.now().toString().slice(-6)}`,
+      userId,
+      title: `Sparks Reward Adjustment: ${reason || 'Promotional reward bonus'}`,
+      type: 'sparks_grant',
+      amountMinor: Math.abs(sparksDelta),
+      currency: 'SPARK',
+      status: 'completed',
+      reference: `SPK-${Date.now().toString().slice(-8)}`,
+      date: new Date().toISOString(),
+    })
+  }
+
+  writeDatabase(db)
+
+  // Notify user
+  addInAppNotification({
+    userId,
+    title: 'Vault Balance Adjusted',
+    message: `Your account was adjusted by ${balanceDeltaMinor >= 0 ? '+' : '-'}₦${Math.round(Math.abs(balanceDeltaMinor) / 100).toLocaleString('en-NG')}${sparksDelta !== 0 ? ` and ${sparksDelta >= 0 ? '+' : ''}${sparksDelta} Sparks` : ''}. Reason: ${reason || 'Administrative adjustment'}`,
+    type: balanceDeltaMinor >= 0 ? 'success' : 'info',
+  })
+
+  return true
+}
+
+export function toggleFeaturedProvider(providerId: string, isFeatured?: boolean): boolean {
+  const db = readDatabase()
+  const profile = db.profiles.find((p) => p.id === providerId)
+  if (!profile) return false
+
+  profile.isFeatured = typeof isFeatured === 'boolean' ? isFeatured : !profile.isFeatured
+  profile.updatedAt = new Date().toISOString()
+  writeDatabase(db)
+  return true
+}
+
+export function moderateServiceRequest(
+  requestId: string,
+  status: ServerServiceRequest['status'],
+  updates?: Partial<ServerServiceRequest>
+): boolean {
+  const db = readDatabase()
+  const req = db.service_requests.find((r) => r.id === requestId)
+  if (!req) return false
+
+  req.status = status
+  if (updates) {
+    if (updates.title) req.title = updates.title
+    if (updates.description) req.description = updates.description
+    if (updates.budgetMinMinor) req.budgetMinMinor = updates.budgetMinMinor
+    if (updates.budgetMaxMinor) req.budgetMaxMinor = updates.budgetMaxMinor
+    if (updates.category) req.category = updates.category
+  }
   writeDatabase(db)
   return true
 }

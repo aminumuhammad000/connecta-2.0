@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server'
 import { successResponse, errorResponse } from '@/lib/api/response'
-import { getActiveUser, upsertUser } from '@/lib/server/db'
+import { getActiveUser, upsertUser, getPlatformSettings } from '@/lib/server/db'
 
 export async function GET(request: NextRequest) {
   try {
@@ -27,8 +27,9 @@ export async function GET(request: NextRequest) {
         bankName: user.bankName || 'Guaranty Trust Bank (GTBank)',
         accountNumber: user.accountNumber || '0123456789',
         accountName: user.accountName || user.fullName || 'Verified Connecta Account',
-        verificationStatus: 'verified',
+        verificationStatus: user.verificationStatus || (user.role === 'provider' ? 'verified' : 'unverified'),
       },
+      platformSettings: getPlatformSettings(),
     })
   } catch (err: any) {
     return errorResponse(err.message || 'Failed to fetch settings', 500)

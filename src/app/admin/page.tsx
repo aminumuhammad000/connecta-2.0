@@ -1,7 +1,7 @@
 import React, { Suspense } from 'react'
 import type { Metadata } from 'next'
 import AdminClientView from './AdminClientView'
-import { readDatabase } from '@/lib/server/db'
+import { readDatabase, DEFAULT_PLATFORM_SETTINGS } from '@/lib/server/db'
 import { getAllUsers } from '@/lib/auth/user-store'
 import { getAllPublicProviders } from '@/lib/server/providers'
 
@@ -430,6 +430,17 @@ export default function AdminPage() {
       }
     : null
 
+  const pendingWithdrawals = (db.wallet_transactions || [])
+    .filter((tx) => tx.type === 'withdrawal' && tx.status === 'pending')
+    .map((tx) => {
+      const u = allUsers.find((user: any) => user.id === tx.userId)
+      return {
+        ...tx,
+        userName: u?.fullName || 'Connecta User',
+        userEmail: u?.email || '',
+      }
+    })
+
   const initialData = {
     adminProfile,
     metrics,
@@ -439,10 +450,13 @@ export default function AdminPage() {
     disputes,
     verificationCases,
     emailDispatches,
+    platformSettings: db.platform_settings || DEFAULT_PLATFORM_SETTINGS,
+    inAppNotifications: db.in_app_notifications || [],
+    pendingWithdrawals,
   }
 
   return (
-    <Suspense fallback={<div className="min-h-screen bg-[#0A1020] text-white flex items-center justify-center font-bold">Loading Admin Portal...</div>}>
+    <Suspense fallback={<div className="min-h-screen bg-[#0A1020] text-white flex items-center justify-center font-medium">Loading Admin Portal...</div>}>
       <AdminClientView initialData={initialData} />
     </Suspense>
   )

@@ -1,5 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { readDatabase, writeDatabase } from '@/lib/server/db'
+import {
+  readDatabase,
+  writeDatabase,
+  DEFAULT_PLATFORM_SETTINGS,
+  getPlatformSettings,
+  updatePlatformSettings,
+  getInAppNotifications,
+  addInAppNotification,
+  getPendingWithdrawals,
+  approveWithdrawal,
+  rejectWithdrawal,
+  settleDisputeWithSplit,
+  adjustUserBalance,
+  moderateServiceRequest,
+  toggleFeaturedProvider,
+} from '@/lib/server/db'
 import { getAllUsers, saveUser } from '@/lib/auth/user-store'
 import { getAllPublicProviders } from '@/lib/server/providers'
 import { verifyAdminToken, ADMIN_COOKIE_NAME } from '@/lib/auth/admin-auth'
@@ -269,6 +284,17 @@ export async function GET(request: NextRequest) {
 
     const usersMap = new Map()
 
+    // Helper to get wallet for a user
+    const getUserWallet = (uid: string) => {
+      const w = db.wallets.find((item) => item.userId === uid)
+      return w ? {
+        balanceMinor: w.balanceMinor,
+        escrowBalanceMinor: w.escrowBalanceMinor,
+        sparksBalance: w.sparksBalance,
+        currency: w.currency,
+      } : null
+    }
+
     // Seed providers
     for (const sp of seedProviders) {
       usersMap.set(sp.id, {
@@ -281,19 +307,25 @@ export async function GET(request: NextRequest) {
         city: sp.city,
         state: sp.state,
         trade: sp.category,
-        verificationStatus: sp.verificationStatus,
-        experienceYears: sp.experienceYears,
-        averageRating: sp.averageRating,
-        completedJobs: sp.completedJobsCount,
-        hourlyRateMinor: sp.hourlyRateMinor,
+        verificationStatus: sp.verificationStatus || 'verified',
+        experienceYears: sp.experienceYears || 8,
+        averageRating: sp.averageRating || 4.9,
+        completedJobs: sp.completedJobsCount || 12,
+        hourlyRateMinor: sp.hourlyRateMinor || 1500000,
         joinedDate: sp.joinedDate,
         accountStatus: 'active',
+        isFeatured: (sp as any).isFeatured || false,
+        badges: sp.badges || ['Verified Pro'],
+        ninNumber: (sp as any).ninNumber || '',
+        wallet: getUserWallet(sp.id),
       })
     }
 
     // Registered users
     for (const ru of registeredUsers) {
+      const existing = usersMap.get(ru.id) || {}
       usersMap.set(ru.id, {
+        ...existing,
         id: ru.id,
         fullName: ru.fullName || `${ru.firstName || ''} ${ru.lastName || ''}`.trim() || 'Connecta User',
         businessName: ru.businessName || `${ru.fullName || 'User'} Services`,
@@ -303,38 +335,44 @@ export async function GET(request: NextRequest) {
         city: ru.city || 'Kano',
         state: ru.city ? `${ru.city} State` : 'Kano State',
         trade: ru.primaryCategory || 'General Handyman',
-        verificationStatus: ru.role === 'provider' ? 'verified' : 'unverified',
+        verificationStatus: (ru as any).verificationStatus || (ru.role === 'provider' ? 'verified' : 'unverified'),
         experienceYears: (ru as any).yearsExperience || 5,
         averageRating: 4.9,
         completedJobs: 12,
         hourlyRateMinor: ru.hourlyRateMinor || 1200000,
         joinedDate: ru.createdAt || new Date().toISOString(),
         accountStatus: (ru as any).accountStatus || 'active',
+        isFeatured: (ru as any).isFeatured || false,
+        badges: (ru as any).badges || [],
+        ninNumber: ru.ninNumber || '',
+        wallet: getUserWallet(ru.id),
       })
     }
 
-    // DB Profiles
+    // DB Profiles (takes precedence)
     for (const dp of dbProfiles) {
-      if (!usersMap.has(dp.id)) {
-        usersMap.set(dp.id, {
-          id: dp.id,
-          fullName: dp.fullName,
-          businessName: dp.companyName || `${dp.fullName} Services`,
-          email: dp.email,
-          phone: dp.phone,
-          role: dp.role,
-          city: dp.city,
-          state: `${dp.city} State`,
-          trade: dp.skills?.[0] || 'Local Services',
-          verificationStatus: dp.role === 'provider' ? 'verified' : 'unverified',
-          experienceYears: 7,
-          averageRating: 4.88,
-          completedJobs: 18,
-          hourlyRateMinor: dp.hourlyRateMinor || 1500000,
-          joinedDate: dp.createdAt,
-          accountStatus: dp.accountStatus || 'active',
-        })
-      }
+      usersMap.set(dp.id, {
+        id: dp.id,
+        fullName: dp.fullName,
+        businessName: dp.companyName || `${dp.fullName} Services`,
+        email: dp.email,
+        phone: dp.phone,
+        role: dp.role,
+        city: dp.city,
+        state: `${dp.city} State`,
+        trade: dp.trade || dp.skills?.[0] || 'Local Services',
+        verificationStatus: dp.verificationStatus || (dp.role === 'provider' ? 'verified' : 'unverified'),
+        experienceYears: dp.experienceYears || 7,
+        averageRating: 4.88,
+        completedJobs: 18,
+        hourlyRateMinor: dp.hourlyRateMinor || 1500000,
+        joinedDate: dp.createdAt,
+        accountStatus: dp.accountStatus || 'active',
+        isFeatured: Boolean(dp.isFeatured),
+        badges: dp.badges || (dp.role === 'provider' ? ['Verified Pro'] : []),
+        ninNumber: dp.ninNumber || '',
+        wallet: getUserWallet(dp.id),
+      })
     }
 
     const allUsers = Array.from(usersMap.values())
@@ -354,8 +392,40 @@ export async function GET(request: NextRequest) {
       ? db.disputes
       : SEED_DISPUTES
 
-    // 5. Verification Cases
-    const verificationCases = INITIAL_VERIFICATION_CASES
+    // 5. Verification Cases (merge real providers + seed cases)
+    const providerCases = allUsers
+      .filter((u: any) => u.role === 'provider')
+      .map((u: any) => ({
+        id: `vc-${u.id}`,
+        providerId: u.id,
+        providerName: u.fullName,
+        businessName: u.businessName || `${u.fullName} Services`,
+        trade: u.trade,
+        city: u.city,
+        status: u.verificationStatus === 'verified' ? ('approved' as const) : ('under_review' as const),
+        submittedAt: u.joinedDate ? u.joinedDate.replace('T', ' ').slice(0, 16) : '2026-10-25 10:00',
+        documentType: u.ninNumber ? 'National Identification Number (NIN) Slip' : 'Trade Guild Master Craftsman License',
+        documentNumber: u.ninNumber || `NIN-${u.id.slice(0, 8).toUpperCase()}`,
+        yearsOfExperience: u.experienceYears || 8,
+      }))
+
+    const verificationCases = providerCases.length > 0 ? providerCases : INITIAL_VERIFICATION_CASES
+
+    // 6. Pending Withdrawals
+    const pendingWithdrawals = db.wallet_transactions
+      .filter((tx) => tx.type === 'withdrawal' && tx.status === 'pending')
+      .map((tx) => {
+        const u = allUsers.find((user: any) => user.id === tx.userId)
+        return {
+          ...tx,
+          userName: u?.fullName || 'Connecta User',
+          userEmail: u?.email || '',
+        }
+      })
+
+    // 7. Platform Settings & In-App Notifications
+    const platformSettings = db.platform_settings || DEFAULT_PLATFORM_SETTINGS
+    const inAppNotifications = db.in_app_notifications || []
 
     // 6. Financial Ledger
     const totalEscrowLockedMinor = bookings
@@ -440,6 +510,9 @@ export async function GET(request: NextRequest) {
         disputes,
         verificationCases,
         emailDispatches,
+        platformSettings,
+        inAppNotifications,
+        pendingWithdrawals,
       },
     })
   } catch (error: any) {
@@ -480,17 +553,106 @@ export async function POST(request: NextRequest) {
       const userProfile = db.profiles.find((p) => p.id === userId)
       if (userProfile) {
         userProfile.accountStatus = newStatus
+        userProfile.updatedAt = new Date().toISOString()
         writeDatabase(db)
+        saveUser({
+          ...userProfile,
+          role: userProfile.role || 'customer',
+          welcomeSparks: userProfile.welcomeSparks || 500,
+        })
       }
       return NextResponse.json({ success: true, message: `User status changed to ${newStatus}` })
     }
 
+    if (action === 'update_user_profile') {
+      const { userId, updates } = payload
+      const profile = db.profiles.find((p) => p.id === userId)
+      if (profile) {
+        if (updates.fullName) {
+          profile.fullName = updates.fullName
+          const parts = updates.fullName.trim().split(/\s+/)
+          profile.firstName = parts[0]
+          profile.lastName = parts.slice(1).join(' ')
+        }
+        if (updates.email) profile.email = updates.email
+        if (updates.phone) profile.phone = updates.phone
+        if (updates.city) profile.city = updates.city
+        if (updates.trade) {
+          profile.trade = updates.trade
+          profile.headline = `${updates.trade} Specialist`
+          profile.skills = [updates.trade]
+        }
+        if (updates.ninNumber) profile.ninNumber = updates.ninNumber
+        if (updates.hourlyRateMinor) profile.hourlyRateMinor = Number(updates.hourlyRateMinor)
+        if (updates.role) {
+          profile.role = updates.role
+          profile.activeRole = updates.role
+        }
+        if (updates.verificationStatus) {
+          profile.verificationStatus = updates.verificationStatus
+        }
+        profile.updatedAt = new Date().toISOString()
+        writeDatabase(db)
+
+        saveUser({
+          ...profile,
+          role: profile.role || 'customer',
+          welcomeSparks: profile.welcomeSparks || 500,
+        })
+        return NextResponse.json({ success: true, message: 'User profile updated successfully', user: profile })
+      }
+      return NextResponse.json({ success: false, message: 'User not found' }, { status: 404 })
+    }
+
+    if (action === 'reset_user_password') {
+      const { userId, newPassword } = payload
+      const profile = db.profiles.find((p) => p.id === userId)
+      if (profile) {
+        profile.password = newPassword
+        profile.updatedAt = new Date().toISOString()
+        writeDatabase(db)
+        saveUser({
+          ...profile,
+          password: newPassword,
+          role: profile.role || 'customer',
+          welcomeSparks: profile.welcomeSparks || 500,
+        })
+        return NextResponse.json({ success: true, message: `Password reset successfully for ${profile.fullName}` })
+      }
+      return NextResponse.json({ success: false, message: 'User not found' }, { status: 404 })
+    }
+
+    if (action === 'adjust_user_wallet') {
+      const { userId, balanceDeltaMinor, sparksDelta, reason } = payload
+      const success = adjustUserBalance(userId, Number(balanceDeltaMinor) || 0, Number(sparksDelta) || 0, reason)
+      if (success) {
+        return NextResponse.json({ success: true, message: 'Wallet balance and Sparks successfully adjusted' })
+      }
+      return NextResponse.json({ success: false, message: 'User wallet not found' }, { status: 404 })
+    }
+
+    if (action === 'toggle_featured_provider') {
+      const { providerId, isFeatured } = payload
+      const success = toggleFeaturedProvider(providerId, isFeatured)
+      return NextResponse.json({ success, message: `Provider featured status updated` })
+    }
+
     if (action === 'update_verification') {
-      const { caseId, status, rejectionReason } = payload
-      // In a real DB this updates the case record and the provider's verified badge
+      const { caseId, status, rejectionReason, providerId } = payload
+      const pId = providerId || (caseId ? caseId.replace(/^vc-/, '') : null)
+      const provider = db.profiles.find((p) => p.id === pId || p.fullName.toLowerCase().includes((caseId || '').toLowerCase()))
+      if (provider) {
+        provider.verificationStatus = status === 'approved' ? 'verified' : 'unverified'
+        if (status === 'approved') {
+          if (!provider.badges) provider.badges = []
+          if (!provider.badges.includes('Verified Pro')) provider.badges.push('Verified Pro')
+        }
+        provider.updatedAt = new Date().toISOString()
+        writeDatabase(db)
+      }
       return NextResponse.json({
         success: true,
-        message: `Verification case ${caseId} updated to ${status}`,
+        message: `Verification ${status === 'approved' ? 'approved' : 'rejected'} successfully`,
         caseId,
         status,
         rejectionReason,
@@ -504,6 +666,9 @@ export async function POST(request: NextRequest) {
         booking.escrowStatus = 'released'
         booking.bookingStatus = 'completed'
         booking.progressPercentage = 100
+        if (booking.milestones) {
+          booking.milestones.forEach((m) => { m.status = 'completed' })
+        }
         writeDatabase(db)
       }
       return NextResponse.json({ success: true, message: `Escrow for booking ${bookingId} released successfully` })
@@ -530,6 +695,51 @@ export async function POST(request: NextRequest) {
         writeDatabase(db)
       }
       return NextResponse.json({ success: true, message: `Dispute ${disputeId} marked as resolved` })
+    }
+
+    if (action === 'settle_dispute_split') {
+      const { disputeId, providerPercent, clientPercent, resolutionNotes } = payload
+      const success = settleDisputeWithSplit(disputeId, Number(providerPercent), Number(clientPercent), resolutionNotes)
+      if (success) {
+        return NextResponse.json({ success: true, message: 'Dispute resolved with split payout successfully' })
+      }
+      return NextResponse.json({ success: false, message: 'Failed to settle dispute' }, { status: 400 })
+    }
+
+    if (action === 'moderate_job') {
+      const { requestId, status, updates } = payload
+      const success = moderateServiceRequest(requestId, status, updates)
+      if (success) {
+        return NextResponse.json({ success: true, message: `Job ${requestId} updated to ${status}` })
+      }
+      return NextResponse.json({ success: false, message: 'Service request not found' }, { status: 404 })
+    }
+
+    if (action === 'process_withdrawal') {
+      const { txId, decision, payoutReference, reason } = payload
+      if (decision === 'approve') {
+        const success = approveWithdrawal(txId, payoutReference)
+        return NextResponse.json({ success, message: 'Withdrawal approved and marked completed' })
+      } else {
+        const success = rejectWithdrawal(txId, reason || 'Rejected by Compliance Desk')
+        return NextResponse.json({ success, message: 'Withdrawal rejected and refunded to user vault' })
+      }
+    }
+
+    if (action === 'send_in_app_notification') {
+      const { userId, title, message, type } = payload
+      const notif = addInAppNotification({
+        userId: userId || 'all',
+        title,
+        message,
+        type: type || 'info',
+      })
+      return NextResponse.json({ success: true, message: 'In-app notification broadcasted successfully', notification: notif })
+    }
+
+    if (action === 'update_platform_settings') {
+      const settings = updatePlatformSettings(payload)
+      return NextResponse.json({ success: true, message: 'Platform settings updated successfully', settings })
     }
 
     if (action === 'update_admin_profile') {

@@ -230,7 +230,7 @@ export default function AdminEmailHub({
           <button
             type="button"
             onClick={() => setShowEmailPreview(!showEmailPreview)}
-            className={`px-4 py-2 rounded-full text-xs font-semibold border transition-all cursor-pointer flex items-center gap-1.5 ${
+            className={`px-4 py-2 rounded-full text-xs font-medium border transition-all cursor-pointer flex items-center gap-1.5 shadow-none ${
               showEmailPreview
                 ? 'bg-[#0A1020] text-white border-transparent'
                 : 'bg-white text-slate-700 border-slate-200 hover:border-slate-400'
@@ -244,7 +244,7 @@ export default function AdminEmailHub({
 
       {/* Success Notification Alert */}
       {emailSuccessMessage && (
-        <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs sm:text-sm font-semibold flex items-center justify-between gap-3 shadow-xs animate-in fade-in duration-200">
+        <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs sm:text-sm font-medium flex items-center justify-between gap-3 shadow-none animate-in fade-in duration-200">
           <div className="flex items-center gap-2.5">
             <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
             <span>{emailSuccessMessage}</span>
@@ -266,11 +266,11 @@ export default function AdminEmailHub({
           {/* Step 1: Target Audience Selection */}
           <div className="bg-white rounded-3xl p-6 border border-slate-200/90 shadow-none space-y-4">
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+              <span className="text-[11px] font-medium uppercase tracking-wider text-slate-500">
                 1. Select Target Audience
               </span>
-              <span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200/60">
-                Matched: <strong>{calculatedRecipientsCount} recipient(s)</strong>
+              <span className="px-3 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200/60">
+                Matched: <span className="font-medium">{calculatedRecipientsCount} recipient(s)</span>
               </span>
             </div>
 
@@ -286,12 +286,12 @@ export default function AdminEmailHub({
                 }}
                 className={`p-3 rounded-2xl text-left border transition-all cursor-pointer ${
                   emailAudience === 'all'
-                    ? 'bg-[#0A1020] text-white border-transparent shadow-sm'
+                    ? 'bg-[#0A1020] text-white border-transparent shadow-none'
                     : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200/80'
                 }`}
               >
                 <Users className={`w-4 h-4 mb-1.5 ${emailAudience === 'all' ? 'text-[#10B981]' : 'text-slate-500'}`} />
-                <div className="text-xs font-semibold leading-tight whitespace-nowrap">All Users</div>
+                <div className="text-xs font-medium leading-tight whitespace-nowrap">All Users</div>
                 <div className={`text-[10px] mt-0.5 ${emailAudience === 'all' ? 'text-slate-300' : 'text-slate-400'}`}>
                   {users.length} total
                 </div>
@@ -307,12 +307,12 @@ export default function AdminEmailHub({
                 }}
                 className={`p-3 rounded-2xl text-left border transition-all cursor-pointer ${
                   emailAudience === 'clients'
-                    ? 'bg-[#0A1020] text-white border-transparent shadow-sm'
+                    ? 'bg-[#0A1020] text-white border-transparent shadow-none'
                     : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200/80'
                 }`}
               >
                 <Building2 className={`w-4 h-4 mb-1.5 ${emailAudience === 'clients' ? 'text-[#10B981]' : 'text-slate-500'}`} />
-                <div className="text-xs font-semibold leading-tight whitespace-nowrap">Clients Only</div>
+                <div className="text-xs font-medium leading-tight whitespace-nowrap">Clients Only</div>
                 <div className={`text-[10px] mt-0.5 ${emailAudience === 'clients' ? 'text-slate-300' : 'text-slate-400'}`}>
                   {users.filter((u) => u.role === 'customer').length} clients
                 </div>
@@ -328,12 +328,12 @@ export default function AdminEmailHub({
                 }}
                 className={`p-3 rounded-2xl text-left border transition-all cursor-pointer ${
                   emailAudience === 'providers'
-                    ? 'bg-[#0A1020] text-white border-transparent shadow-sm'
+                    ? 'bg-[#0A1020] text-white border-transparent shadow-none'
                     : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200/80'
                 }`}
               >
                 <Wrench className={`w-4 h-4 mb-1.5 ${emailAudience === 'providers' ? 'text-[#10B981]' : 'text-slate-500'}`} />
-                <div className="text-xs font-semibold leading-tight whitespace-nowrap">All Artisans</div>
+                <div className="text-xs font-medium leading-tight whitespace-nowrap">All Artisans</div>
                 <div className={`text-[10px] mt-0.5 ${emailAudience === 'providers' ? 'text-slate-300' : 'text-slate-400'}`}>
                   {users.filter((u) => u.role === 'provider').length} providers
                 </div>
@@ -349,12 +349,12 @@ export default function AdminEmailHub({
                 }}
                 className={`p-3 rounded-2xl text-left border transition-all cursor-pointer ${
                   emailAudience === 'trade'
-                    ? 'bg-[#0A1020] text-white border-transparent shadow-sm'
+                    ? 'bg-[#0A1020] text-white border-transparent shadow-none'
                     : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200/80'
                 }`}
               >
                 <SlidersHorizontal className={`w-4 h-4 mb-1.5 ${emailAudience === 'trade' ? 'text-[#10B981]' : 'text-slate-500'}`} />
-                <div className="text-xs font-semibold leading-tight whitespace-nowrap">By Trade</div>
+                <div className="text-xs font-medium leading-tight whitespace-nowrap">By Trade</div>
                 <div className={`text-[10px] mt-0.5 ${emailAudience === 'trade' ? 'text-slate-300' : 'text-slate-400'}`}>
                   Plumber, Electrician...
                 </div>
@@ -366,12 +366,12 @@ export default function AdminEmailHub({
                 onClick={() => setEmailAudience('individual')}
                 className={`p-3 rounded-2xl text-left border transition-all cursor-pointer col-span-2 sm:col-span-1 ${
                   emailAudience === 'individual'
-                    ? 'bg-[#0A1020] text-white border-transparent shadow-sm'
+                    ? 'bg-[#0A1020] text-white border-transparent shadow-none'
                     : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200/80'
                 }`}
               >
                 <UserCheck className={`w-4 h-4 mb-1.5 ${emailAudience === 'individual' ? 'text-[#10B981]' : 'text-slate-500'}`} />
-                <div className="text-xs font-semibold leading-tight whitespace-nowrap">Individual</div>
+                <div className="text-xs font-medium leading-tight whitespace-nowrap">Individual</div>
                 <div className={`text-[10px] mt-0.5 ${emailAudience === 'individual' ? 'text-slate-300' : 'text-slate-400'}`}>
                   Specific person
                 </div>
@@ -381,13 +381,13 @@ export default function AdminEmailHub({
             {/* Conditional: Trade Selector Dropdown */}
             {emailAudience === 'trade' && (
               <div className="pt-2 animate-in fade-in duration-150">
-                <label className="text-xs font-semibold text-slate-700 block mb-1.5">
+                <label className="text-xs font-medium text-slate-700 block mb-1.5">
                   Select Specific Service Trade:
                 </label>
                 <select
                   value={targetTrade}
                   onChange={(e) => setTargetTrade(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-2xl border border-slate-200 bg-white font-semibold text-xs sm:text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#10B981]"
+                  className="w-full px-4 py-2.5 rounded-2xl border border-slate-200 bg-white font-normal text-xs sm:text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#10B981]"
                 >
                   {SERVICE_TRADE_OPTIONS.map((trade) => (
                     <option key={trade.id} value={trade.id}>
@@ -401,23 +401,23 @@ export default function AdminEmailHub({
             {/* Conditional: Individual User Search & Selection */}
             {emailAudience === 'individual' && (
               <div className="pt-2 space-y-2 animate-in fade-in duration-150">
-                <label className="text-xs font-semibold text-slate-700 block">
+                <label className="text-xs font-medium text-slate-700 block">
                   Select or Search Individual User:
                 </label>
                 {selectedEmailUser ? (
                   <div className="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 flex items-center justify-between gap-3">
                     <div className="flex items-center gap-2.5">
-                      <div className="w-9 h-9 rounded-full bg-[#0C513F] text-white flex items-center justify-center text-xs font-bold">
+                      <div className="w-9 h-9 rounded-full bg-[#0C513F] text-white flex items-center justify-center text-xs font-medium">
                         {selectedEmailUser.fullName.charAt(0)}
                       </div>
                       <div>
-                        <div className="text-xs font-semibold text-slate-900 flex items-center gap-1.5">
+                        <div className="text-xs font-medium text-slate-900 flex items-center gap-1.5">
                           <span>{selectedEmailUser.fullName}</span>
-                          <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-emerald-200/80 text-emerald-800 uppercase font-bold">
+                          <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-emerald-200/80 text-emerald-800 uppercase font-medium">
                             {selectedEmailUser.role}
                           </span>
                         </div>
-                        <div className="text-[11px] text-slate-500">
+                        <div className="text-[11px] text-slate-500 font-normal">
                           {selectedEmailUser.email} • {selectedEmailUser.trade} ({selectedEmailUser.city})
                         </div>
                       </div>
@@ -428,7 +428,7 @@ export default function AdminEmailHub({
                         setSelectedEmailUser(null)
                         if (onClearPreselectedUser) onClearPreselectedUser()
                       }}
-                      className="text-xs text-slate-500 hover:text-slate-800 font-bold underline cursor-pointer"
+                      className="text-xs text-slate-500 hover:text-slate-800 font-medium underline cursor-pointer"
                     >
                       Change
                     </button>
@@ -442,7 +442,7 @@ export default function AdminEmailHub({
                         value={userEmailSearch}
                         onChange={(e) => setUserEmailSearch(e.target.value)}
                         placeholder="Search by name, email, or trade (e.g. Ibrahim, Plumber, amina@)..."
-                        className="w-full pl-9 pr-4 py-2.5 rounded-2xl border border-slate-200 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-[#10B981]"
+                        className="w-full pl-9 pr-4 py-2.5 rounded-2xl border border-slate-200 text-xs font-normal focus:outline-none focus:ring-2 focus:ring-[#10B981]"
                       />
                     </div>
                     <div className="max-h-48 overflow-y-auto rounded-2xl border border-slate-200 divide-y divide-slate-100 bg-white">
@@ -454,12 +454,12 @@ export default function AdminEmailHub({
                           className="w-full p-2.5 text-left hover:bg-slate-50 flex items-center justify-between gap-3 transition-colors cursor-pointer"
                         >
                           <div>
-                            <div className="text-xs font-semibold text-slate-900">{u.fullName}</div>
-                            <div className="text-[11px] text-slate-400">
+                            <div className="text-xs font-medium text-slate-900">{u.fullName}</div>
+                            <div className="text-[11px] text-slate-400 font-normal">
                               {u.email} • <span className="capitalize">{u.role === 'provider' ? u.trade : 'Client'}</span> ({u.city})
                             </div>
                           </div>
-                          <span className="text-xs font-semibold text-emerald-600 hover:underline">
+                          <span className="text-xs font-medium text-emerald-600 hover:underline">
                             Select &rarr;
                           </span>
                         </button>
@@ -474,11 +474,11 @@ export default function AdminEmailHub({
           {/* Step 2: Templates & Message Composition */}
           <div className="bg-white rounded-3xl p-6 border border-slate-200/90 shadow-none space-y-5">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-slate-100">
-              <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+              <span className="text-[11px] font-medium uppercase tracking-wider text-slate-500">
                 2. Compose Message
               </span>
               <div className="flex items-center gap-1.5 flex-wrap">
-                <span className="text-[11px] font-semibold text-slate-500">Quick Templates:</span>
+                <span className="text-[11px] font-medium text-slate-500">Quick Templates:</span>
                 {EMAIL_TEMPLATES.map((tpl) => (
                   <button
                     key={tpl.label}
@@ -490,7 +490,7 @@ export default function AdminEmailHub({
                       setEmailCtaText(tpl.ctaText)
                       setEmailCtaUrl(tpl.ctaUrl)
                     }}
-                    className="px-2.5 py-1 rounded-full text-[10px] font-semibold whitespace-nowrap bg-slate-100 hover:bg-emerald-50 hover:text-emerald-700 text-slate-700 transition-colors cursor-pointer"
+                    className="px-2.5 py-1 rounded-full text-[10px] font-medium whitespace-nowrap bg-slate-100 hover:bg-emerald-50 hover:text-emerald-700 text-slate-700 transition-colors cursor-pointer"
                   >
                     {tpl.label}
                   </button>
@@ -501,11 +501,11 @@ export default function AdminEmailHub({
             {/* Category & Subject */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div>
-                <label className="text-xs font-semibold text-slate-700 block mb-1">Category</label>
+                <label className="text-xs font-medium text-slate-700 block mb-1">Category</label>
                 <select
                   value={emailCategory}
                   onChange={(e) => setEmailCategory(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs font-semibold text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-[#10B981]"
+                  className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs font-normal text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-[#10B981]"
                 >
                   <option value="Announcement">Announcement</option>
                   <option value="Service Notice">Service Notice</option>
@@ -515,7 +515,7 @@ export default function AdminEmailHub({
                 </select>
               </div>
               <div className="sm:col-span-2">
-                <label className="text-xs font-semibold text-slate-700 block mb-1">
+                <label className="text-xs font-medium text-slate-700 block mb-1">
                   Email Subject Line
                 </label>
                 <input
@@ -523,7 +523,7 @@ export default function AdminEmailHub({
                   value={emailSubject}
                   onChange={(e) => setEmailSubject(e.target.value)}
                   placeholder="e.g. Important Escrow & Safety Updates for Kano Trades"
-                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 text-xs sm:text-sm font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#10B981]"
+                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 text-xs sm:text-sm font-normal text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#10B981]"
                 />
               </div>
             </div>
@@ -531,9 +531,9 @@ export default function AdminEmailHub({
             {/* Body Textarea */}
             <div>
               <div className="flex items-center justify-between mb-1">
-                <label className="text-xs font-semibold text-slate-700">Message Body</label>
-                <div className="text-[10px] text-slate-400 font-medium space-x-2">
-                  <span>Tags: <code className="text-emerald-600 font-bold">&#123;&#123;name&#125;&#125;</code>, <code className="text-emerald-600 font-bold">&#123;&#123;trade&#125;&#125;</code></span>
+                <label className="text-xs font-medium text-slate-700">Message Body</label>
+                <div className="text-[10px] text-slate-400 font-normal space-x-2">
+                  <span>Tags: <code className="text-emerald-600 font-medium">&#123;&#123;name&#125;&#125;</code>, <code className="text-emerald-600 font-medium">&#123;&#123;trade&#125;&#125;</code></span>
                   <span>•</span>
                   <span>{emailMessage.length} characters</span>
                 </div>
@@ -543,13 +543,13 @@ export default function AdminEmailHub({
                 value={emailMessage}
                 onChange={(e) => setEmailMessage(e.target.value)}
                 placeholder="Write your email announcement or direct notification here..."
-                className="w-full p-3.5 rounded-2xl border border-slate-200 text-xs sm:text-sm font-medium text-slate-800 leading-relaxed focus:outline-none focus:ring-2 focus:ring-[#10B981]"
+                className="w-full p-3.5 rounded-2xl border border-slate-200 text-xs sm:text-sm font-normal text-slate-800 leading-relaxed focus:outline-none focus:ring-2 focus:ring-[#10B981]"
               />
             </div>
 
             {/* Optional Action Button */}
             <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-3">
-              <span className="text-[11px] font-semibold text-slate-700 block">
+              <span className="text-[11px] font-medium text-slate-700 block">
                 Optional Call-to-Action (CTA) Button:
               </span>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -558,28 +558,28 @@ export default function AdminEmailHub({
                   value={emailCtaText}
                   onChange={(e) => setEmailCtaText(e.target.value)}
                   placeholder="Button Text (e.g. Open Dashboard)"
-                  className="w-full px-3 py-1.5 rounded-xl border border-slate-200 bg-white text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-[#10B981]"
+                  className="w-full px-3 py-1.5 rounded-xl border border-slate-200 bg-white text-xs font-normal focus:outline-none focus:ring-2 focus:ring-[#10B981]"
                 />
                 <input
                   type="text"
                   value={emailCtaUrl}
                   onChange={(e) => setEmailCtaUrl(e.target.value)}
                   placeholder="Button URL (e.g. /dashboard)"
-                  className="w-full px-3 py-1.5 rounded-xl border border-slate-200 bg-white text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-[#10B981]"
+                  className="w-full px-3 py-1.5 rounded-xl border border-slate-200 bg-white text-xs font-normal focus:outline-none focus:ring-2 focus:ring-[#10B981]"
                 />
               </div>
             </div>
 
             {/* Dispatch Action Button */}
             <div className="pt-2 flex items-center justify-between gap-4">
-              <div className="text-xs text-slate-500 font-medium">
-                Targeting <strong>{calculatedRecipientsCount} recipient(s)</strong> in Kano.
+              <div className="text-xs text-slate-500 font-normal">
+                Targeting <span className="font-medium text-slate-800">{calculatedRecipientsCount} recipient(s)</span> in Kano.
               </div>
               <button
                 type="button"
                 onClick={handleSendEmail}
                 disabled={isSendingEmail}
-                className="px-6 py-3 rounded-full bg-[#0C513F] hover:bg-[#093e30] text-white text-xs sm:text-sm font-semibold transition-all shadow-xs hover:shadow-sm disabled:opacity-50 cursor-pointer flex items-center gap-2"
+                className="px-6 py-3 rounded-full bg-[#0C513F] hover:bg-[#093e30] text-white text-xs sm:text-sm font-medium transition-all shadow-none disabled:opacity-50 cursor-pointer flex items-center gap-2"
               >
                 {isSendingEmail ? (
                   <>
@@ -601,16 +601,16 @@ export default function AdminEmailHub({
         {showEmailPreview && (
           <div className="lg:col-span-5 bg-white rounded-3xl p-5 border border-slate-200/90 shadow-none space-y-4 sticky top-20 animate-in fade-in zoom-in-95 duration-150">
             <div className="flex items-center justify-between pb-2 border-b border-slate-100">
-              <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+              <span className="text-[11px] font-medium uppercase tracking-wider text-slate-500">
                 Live Recipient Email Preview
               </span>
-              <span className="text-[10px] font-semibold whitespace-nowrap px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">
+              <span className="text-[10px] font-medium whitespace-nowrap px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">
                 Connecta Template
               </span>
             </div>
 
             {/* Email Window Mockup */}
-            <div className="rounded-2xl border border-slate-200 overflow-hidden bg-slate-50 shadow-inner text-xs">
+            <div className="rounded-2xl border border-slate-200 overflow-hidden bg-slate-50 shadow-none text-xs">
               {/* Email Header */}
               <div className="bg-[#0A1020] p-4 text-white flex items-center justify-between border-b-2 border-[#10B981]">
                 <div className="flex items-center gap-2">
@@ -623,9 +623,9 @@ export default function AdminEmailHub({
                       className="object-contain"
                     />
                   </div>
-                  <span className="font-semibold text-sm text-white">Connecta</span>
+                  <span className="font-medium text-sm text-white">Connecta</span>
                 </div>
-                <span className="text-[10px] font-semibold uppercase tracking-wider whitespace-nowrap px-2 py-0.5 rounded-full bg-white/10 text-emerald-300">
+                <span className="text-[10px] font-medium uppercase tracking-wider whitespace-nowrap px-2 py-0.5 rounded-full bg-white/10 text-emerald-300">
                   {emailCategory}
                 </span>
               </div>
@@ -633,17 +633,17 @@ export default function AdminEmailHub({
               {/* Mock Metadata */}
               <div className="p-3 bg-white border-b border-slate-100 space-y-1 text-[11px] text-slate-500">
                 <div>
-                  <strong>From:</strong> Connecta Administration &lt;security@myconnecta.ng&gt;
+                  <span className="font-medium text-slate-700">From:</span> Connecta Administration &lt;security@myconnecta.ng&gt;
                 </div>
                 <div>
-                  <strong>To:</strong>{' '}
+                  <span className="font-medium text-slate-700">To:</span>{' '}
                   {emailAudience === 'individual' && selectedEmailUser
                     ? `${selectedEmailUser.fullName} <${selectedEmailUser.email}>`
                     : `[${calculatedRecipientsCount} Kano Recipients]`}
                 </div>
                 <div>
-                  <strong>Subject:</strong>{' '}
-                  <span className="font-semibold text-slate-900">
+                  <span className="font-medium text-slate-700">Subject:</span>{' '}
+                  <span className="font-medium text-slate-900">
                     {emailSubject || '(Subject not specified yet)'}
                   </span>
                 </div>
@@ -651,14 +651,14 @@ export default function AdminEmailHub({
 
               {/* Email Body */}
               <div className="p-5 bg-white space-y-3">
-                <div className="font-semibold text-slate-800 text-xs">
+                <div className="font-medium text-slate-800 text-xs">
                   Dear{' '}
                   {emailAudience === 'individual' && selectedEmailUser
                     ? selectedEmailUser.fullName
                     : 'Valued Member'}
                   ,
                 </div>
-                <div className="text-slate-600 leading-relaxed text-[11px] whitespace-pre-line">
+                <div className="text-slate-600 leading-relaxed text-[11px] whitespace-pre-line font-normal">
                   {emailMessage ||
                     'Your composed message will appear here with formatting, paragraphs, and personalized variables.'}
                 </div>
@@ -666,7 +666,7 @@ export default function AdminEmailHub({
                 {/* CTA Preview */}
                 {emailCtaText && (
                   <div className="pt-2 text-center">
-                    <span className="inline-block px-5 py-2 rounded-full bg-[#0C513F] text-white font-semibold text-[11px] shadow-xs">
+                    <span className="inline-block px-5 py-2 rounded-full bg-[#0C513F] text-white font-medium text-[11px] shadow-none">
                       {emailCtaText} &rarr;
                     </span>
                   </div>
@@ -674,8 +674,8 @@ export default function AdminEmailHub({
 
                 {/* Footer in Preview */}
                 <div className="mt-6 pt-3 border-t border-slate-100 text-[10px] text-slate-400 text-center space-y-0.5">
-                  <p className="font-semibold text-slate-600">Connecta Technologies • Kano Operations Center</p>
-                  <p>100% Escrow Protected Local Services Marketplace</p>
+                  <p className="font-medium text-slate-600">Connecta Technologies • Kano Operations Center</p>
+                  <p className="font-normal">100% Escrow Protected Local Services Marketplace</p>
                 </div>
               </div>
             </div>
@@ -690,18 +690,18 @@ export default function AdminEmailHub({
             <h3 className="text-lg font-semibold text-slate-900">
               Dispatched Email Logs &amp; Broadcast History
             </h3>
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-slate-500 font-normal">
               Records of authenticated messages sent from the Connecta Admin Command Center.
             </p>
           </div>
-          <span className="text-xs font-bold text-slate-500">
+          <span className="text-xs font-medium text-slate-500">
             {emailDispatches.length} recorded dispatches
           </span>
         </div>
 
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
-            <thead className="bg-slate-50/90 border-b border-slate-200 text-slate-500 uppercase tracking-wider font-semibold text-[11px] whitespace-nowrap">
+            <thead className="bg-slate-50/90 border-b border-slate-200 text-slate-500 uppercase tracking-wider font-medium text-[11px] whitespace-nowrap">
               <tr>
                 <th className="py-3 px-4 whitespace-nowrap">Subject &amp; Category</th>
                 <th className="py-3 px-4 whitespace-nowrap">Target Audience</th>
@@ -715,13 +715,13 @@ export default function AdminEmailHub({
               {emailDispatches.map((disp) => (
                 <tr key={disp.id} className="hover:bg-slate-50/70 transition-colors">
                   <td className="py-3 px-4">
-                    <div className="font-semibold text-slate-900">{disp.subject}</div>
-                    <span className="inline-block mt-0.5 px-2 py-0.2 rounded-full text-[10px] font-semibold whitespace-nowrap bg-slate-100 text-slate-600">
+                    <div className="font-medium text-slate-900">{disp.subject}</div>
+                    <span className="inline-block mt-0.5 px-2 py-0.2 rounded-full text-[10px] font-medium whitespace-nowrap bg-slate-100 text-slate-600">
                       {disp.category}
                     </span>
                   </td>
                   <td className="py-3 px-4 capitalize">
-                    <span className="font-semibold text-slate-800">
+                    <span className="font-medium text-slate-800">
                       {disp.audienceType === 'trade'
                         ? `${disp.targetTrade || 'Trade'} Specialists`
                         : disp.audienceType === 'clients'
@@ -733,14 +733,14 @@ export default function AdminEmailHub({
                         : 'All Users'}
                     </span>
                   </td>
-                  <td className="py-3 px-4 font-semibold text-slate-900">
+                  <td className="py-3 px-4 font-medium text-slate-900">
                     {disp.recipientCount} {disp.recipientCount === 1 ? 'user' : 'users'}
                   </td>
-                  <td className="py-3 px-4 text-slate-500 whitespace-nowrap">
+                  <td className="py-3 px-4 text-slate-500 whitespace-nowrap font-normal">
                     {disp.sentAt}
                   </td>
                   <td className="py-3 px-4">
-                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-semibold whitespace-nowrap bg-emerald-50 text-emerald-700 border border-emerald-200">
+                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-medium whitespace-nowrap bg-emerald-50 text-emerald-700 border border-emerald-200">
                       <CheckCircle2 className="w-3 h-3 text-emerald-600" />
                       <span>Delivered</span>
                     </span>
@@ -749,7 +749,7 @@ export default function AdminEmailHub({
                     <button
                       type="button"
                       onClick={() => setSelectedSentEmail(disp)}
-                      className="px-3 py-1 rounded-full border border-slate-200 hover:border-slate-800 text-slate-700 text-[11px] font-bold transition-all cursor-pointer"
+                      className="px-3 py-1 rounded-full border border-slate-200 hover:border-slate-800 text-slate-700 text-[11px] font-medium transition-all cursor-pointer shadow-none"
                     >
                       View Content
                     </button>
@@ -764,10 +764,10 @@ export default function AdminEmailHub({
       {/* Modal: View Sent Email Content */}
       {selectedSentEmail && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl w-full max-w-lg p-6 sm:p-7 space-y-4 border border-slate-200/90 shadow-lg animate-in fade-in zoom-in-95 duration-150">
+          <div className="bg-white rounded-3xl w-full max-w-lg p-6 sm:p-7 space-y-4 border border-slate-200/90 shadow-sm animate-in fade-in zoom-in-95 duration-150">
             <div className="flex items-start justify-between pb-3 border-b border-slate-100">
               <div>
-                <span className="text-[10px] font-semibold uppercase tracking-wider whitespace-nowrap text-slate-400">
+                <span className="text-[10px] font-medium uppercase tracking-wider whitespace-nowrap text-slate-400">
                   Dispatched Email Record
                 </span>
                 <h3 className="text-lg font-semibold text-slate-900 mt-0.5">
@@ -785,35 +785,35 @@ export default function AdminEmailHub({
 
             <div className="grid grid-cols-2 gap-2.5 text-xs bg-slate-50 p-3.5 rounded-2xl border border-slate-200/80">
               <div>
-                <span className="text-slate-400 block text-[10px] font-semibold whitespace-nowrap uppercase">Audience</span>
-                <strong className="text-slate-900 capitalize">
+                <span className="text-slate-400 block text-[10px] font-medium whitespace-nowrap uppercase">Audience</span>
+                <span className="text-slate-900 capitalize font-medium">
                   {selectedSentEmail.audienceType} ({selectedSentEmail.recipientCount} recipients)
-                </strong>
+                </span>
               </div>
               <div>
-                <span className="text-slate-400 block text-[10px] font-semibold whitespace-nowrap uppercase">Sent At</span>
-                <strong className="text-slate-900">{selectedSentEmail.sentAt}</strong>
+                <span className="text-slate-400 block text-[10px] font-medium whitespace-nowrap uppercase">Sent At</span>
+                <span className="text-slate-900 font-medium">{selectedSentEmail.sentAt}</span>
               </div>
               <div>
-                <span className="text-slate-400 block text-[10px] font-semibold whitespace-nowrap uppercase">Dispatched By</span>
-                <strong className="text-slate-900">{selectedSentEmail.sentBy}</strong>
+                <span className="text-slate-400 block text-[10px] font-medium whitespace-nowrap uppercase">Dispatched By</span>
+                <span className="text-slate-900 font-medium">{selectedSentEmail.sentBy}</span>
               </div>
               <div>
-                <span className="text-slate-400 block text-[10px] font-semibold whitespace-nowrap uppercase">Category</span>
-                <strong className="text-emerald-700">{selectedSentEmail.category}</strong>
+                <span className="text-slate-400 block text-[10px] font-medium whitespace-nowrap uppercase">Category</span>
+                <span className="text-emerald-700 font-medium">{selectedSentEmail.category}</span>
               </div>
             </div>
 
             <div className="space-y-1.5">
-              <span className="text-xs font-semibold text-slate-700 block">Message Body:</span>
-              <div className="p-4 rounded-2xl bg-white border border-slate-200 text-xs text-slate-700 leading-relaxed whitespace-pre-line max-h-56 overflow-y-auto">
+              <span className="text-xs font-medium text-slate-700 block">Message Body:</span>
+              <div className="p-4 rounded-2xl bg-white border border-slate-200 text-xs text-slate-700 leading-relaxed whitespace-pre-line max-h-56 overflow-y-auto font-normal">
                 {selectedSentEmail.message}
               </div>
             </div>
 
             {selectedSentEmail.ctaText && (
-              <div className="text-xs text-slate-500">
-                <strong>Button Link:</strong> {selectedSentEmail.ctaText} ({selectedSentEmail.ctaUrl})
+              <div className="text-xs text-slate-500 font-normal">
+                <span className="font-medium text-slate-700">Button Link:</span> {selectedSentEmail.ctaText} ({selectedSentEmail.ctaUrl})
               </div>
             )}
 
@@ -821,7 +821,7 @@ export default function AdminEmailHub({
               <button
                 type="button"
                 onClick={() => setSelectedSentEmail(null)}
-                className="w-full py-2.5 rounded-full bg-[#0A1020] hover:bg-slate-800 text-white text-xs font-bold transition-all cursor-pointer"
+                className="w-full py-2.5 rounded-full bg-[#0A1020] hover:bg-slate-800 text-white text-xs font-medium transition-all cursor-pointer shadow-none"
               >
                 Close
               </button>

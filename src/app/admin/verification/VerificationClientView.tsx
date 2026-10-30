@@ -126,7 +126,7 @@ export default function VerificationClientView() {
             >
               Back to Command Center
             </Link>
-            <div className="w-8 h-8 rounded-full bg-[#0C513F] flex items-center justify-center font-bold text-white text-xs">
+            <div className="w-8 h-8 rounded-full bg-[#0C513F] flex items-center justify-center font-medium text-white text-xs">
               AD
             </div>
           </div>
@@ -136,11 +136,11 @@ export default function VerificationClientView() {
       <main className="max-w-7xl mx-auto w-full px-6 py-8 flex-1">
         <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+            <h1 className="text-2xl font-semibold text-slate-900 tracking-tight flex items-center gap-2">
               <ShieldCheck className="w-6 h-6 text-[#10B981]" />
               <span>Provider ID & Guild Credential Verification</span>
             </h1>
-            <p className="text-sm text-slate-600 mt-1">
+            <p className="text-sm text-slate-600 mt-1 font-normal">
               Review government IDs, CAC registrations, and trade certificates before granting the Kano Verified Artisan badge.
             </p>
           </div>
@@ -154,7 +154,7 @@ export default function VerificationClientView() {
                 aria-label="Search verification cases"
                 value={searchQuery}
                 onChange={(event) => setSearchQuery(event.target.value)}
-                className="pl-9 pr-9 py-2 rounded-xl bg-white border border-slate-200 text-xs w-full focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/15"
+                className="pl-9 pr-9 py-2 rounded-xl bg-white border border-slate-200 text-xs w-full focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/15 font-normal"
               />
               {searchQuery && (
                 <button
@@ -171,10 +171,10 @@ export default function VerificationClientView() {
         </div>
 
         {/* Case List */}
-        <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
+        <div className="bg-white rounded-2xl border border-slate-200/80 shadow-none overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
-              <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 uppercase tracking-wider font-semibold">
+              <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 uppercase tracking-wider font-medium">
                 <tr>
                   <th className="py-3 px-4">Provider / Business</th>
                   <th className="py-3 px-4">Trade Specialization</th>
@@ -188,28 +188,28 @@ export default function VerificationClientView() {
               <tbody className="divide-y divide-slate-100 font-medium">
                 {filteredCases.map((c) => (
                   <tr key={c.id} className="hover:bg-slate-50/70 transition">
-                    <td className="py-3.5 px-4 font-bold text-slate-900">
+                    <td className="py-3.5 px-4 font-medium text-slate-900">
                       {c.providerName}
                     </td>
-                    <td className="py-3.5 px-4 text-slate-700">{c.trade}</td>
-                    <td className="py-3.5 px-4 text-slate-600 flex items-center gap-1.5">
+                    <td className="py-3.5 px-4 text-slate-700 font-normal">{c.trade}</td>
+                    <td className="py-3.5 px-4 text-slate-600 flex items-center gap-1.5 font-normal">
                       <FileText className="w-3.5 h-3.5 text-slate-400" />
                       <span>{c.documentType}</span>
                     </td>
-                    <td className="py-3.5 px-4 text-slate-600">{c.city}</td>
+                    <td className="py-3.5 px-4 text-slate-600 font-normal">{c.city}</td>
                     <td className="py-3.5 px-4">
                       {c.status === 'under_review' && (
-                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-50 text-amber-700 border border-amber-200 text-[11px] font-bold">
+                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-50 text-amber-700 border border-amber-200 text-[11px] font-medium">
                           <Clock className="w-3 h-3" /> Under Review
                         </span>
                       )}
                       {c.status === 'approved' && (
-                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-[11px] font-bold">
+                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-[11px] font-medium">
                           <CheckCircle2 className="w-3 h-3" /> Approved
                         </span>
                       )}
                       {c.status === 'rejected' && (
-                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-red-50 text-red-700 border border-red-200 text-[11px] font-bold">
+                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-red-50 text-red-700 border border-red-200 text-[11px] font-medium">
                           <XCircle className="w-3 h-3" /> Rejected
                         </span>
                       )}
@@ -220,7 +220,7 @@ export default function VerificationClientView() {
                     <td className="py-3.5 px-4 text-right">
                       <button
                         onClick={() => setSelectedCase(c)}
-                        className="px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white font-semibold inline-flex items-center gap-1 transition"
+                        className="px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white font-medium inline-flex items-center gap-1 transition shadow-none cursor-pointer"
                       >
                         <Eye className="w-3.5 h-3.5" />
                         <span>Inspect</span>
@@ -231,12 +231,12 @@ export default function VerificationClientView() {
                 {filteredCases.length === 0 && (
                   <tr>
                     <td colSpan={7} className="px-4 py-12 text-center">
-                      <p className="text-sm font-semibold text-slate-700">No matching verification cases</p>
+                      <p className="text-sm font-medium text-slate-700">No matching verification cases</p>
                       <p className="mt-1 text-xs text-slate-500">Try another name, ID, trade, location, or document.</p>
                       <button
                         type="button"
                         onClick={() => setSearchQuery('')}
-                        className="mt-3 text-xs font-semibold text-emerald-700 hover:text-emerald-800"
+                        className="mt-3 text-xs font-medium text-emerald-700 hover:text-emerald-800"
                       >
                         Clear search
                       </button>
@@ -251,17 +251,17 @@ export default function VerificationClientView() {
         {/* Modal Inspection */}
         {selectedCase && (
           <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
-            <div className="bg-white rounded-3xl max-w-2xl w-full p-6 border border-slate-200 shadow-2xl animate-in fade-in duration-150">
+            <div className="bg-white rounded-3xl max-w-2xl w-full p-6 border border-slate-200 shadow-sm animate-in fade-in duration-150">
               <div className="flex items-center justify-between pb-4 border-b border-slate-100">
                 <div className="flex items-center gap-2">
                   <ShieldCheck className="w-5 h-5 text-emerald-600" />
-                  <h3 className="font-bold text-slate-900 text-base">
+                  <h3 className="font-semibold text-slate-900 text-base">
                     Document Verification Inspection
                   </h3>
                 </div>
                 <button
                   onClick={() => setSelectedCase(null)}
-                  className="text-slate-400 hover:text-slate-600 text-sm font-bold"
+                  className="text-slate-400 hover:text-slate-600 text-sm font-medium cursor-pointer"
                 >
                   ✕
                 </button>
@@ -271,25 +271,25 @@ export default function VerificationClientView() {
                 <div className="grid grid-cols-2 gap-4 bg-slate-50 p-4 rounded-2xl border border-slate-100 text-xs">
                   <div>
                     <span className="text-slate-500 block">Applicant</span>
-                    <span className="font-bold text-slate-900 text-sm">
+                    <span className="font-medium text-slate-900 text-sm">
                       {selectedCase.providerName}
                     </span>
                   </div>
                   <div>
                     <span className="text-slate-500 block">Trade</span>
-                    <span className="font-bold text-slate-900 text-sm">
+                    <span className="font-medium text-slate-900 text-sm">
                       {selectedCase.trade}
                     </span>
                   </div>
                   <div>
                     <span className="text-slate-500 block">Document Type</span>
-                    <span className="font-bold text-emerald-800">
+                    <span className="font-medium text-emerald-800">
                       {selectedCase.documentType}
                     </span>
                   </div>
                   <div>
                     <span className="text-slate-500 block">Current Status</span>
-                    <span className="font-bold uppercase tracking-wider text-[11px]">
+                    <span className="font-medium uppercase tracking-wider text-[11px]">
                       {selectedCase.status}
                     </span>
                   </div>
@@ -297,13 +297,13 @@ export default function VerificationClientView() {
 
                 <div className="border border-dashed border-slate-200 rounded-2xl p-6 text-center bg-slate-50/50">
                   <FileText className="w-12 h-12 text-slate-300 mx-auto mb-2" />
-                  <p className="text-xs font-bold text-slate-700">
+                  <p className="text-xs font-medium text-slate-700">
                     Document Attachment Preview
                   </p>
-                  <p className="text-[11px] text-slate-500">
+                  <p className="text-[11px] text-slate-500 font-normal">
                     High-resolution scan submitted via provider onboarding portal.
                   </p>
-                  <div className="mt-3 inline-block px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold">
+                  <div className="mt-3 inline-block px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-medium">
                     NIN Slip Verified with NIMC Gateway
                   </div>
                 </div>
@@ -320,7 +320,7 @@ export default function VerificationClientView() {
                       value={rejectionReason}
                       onChange={(e) => setRejectionReason(e.target.value)}
                       placeholder="e.g. Image blurry or document expired. Please re-upload a clear government-issued ID."
-                      className="w-full p-2.5 rounded-xl border border-slate-200 text-xs focus:outline-none focus:border-red-500"
+                      className="w-full p-2.5 rounded-xl border border-slate-200 text-xs focus:outline-none focus:border-red-500 font-normal"
                     />
                   </div>
 
@@ -328,14 +328,14 @@ export default function VerificationClientView() {
                     <button
                       onClick={() => handleReject(selectedCase.id)}
                       disabled={!rejectionReason.trim()}
-                      className="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white text-xs font-semibold flex items-center gap-1.5 cursor-pointer"
+                      className="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white text-xs font-medium flex items-center gap-1.5 cursor-pointer shadow-none"
                     >
                       <XCircle className="w-4 h-4" />
                       <span>Reject Application</span>
                     </button>
                     <button
                       onClick={() => handleApprove(selectedCase.id)}
-                      className="px-4 py-2 rounded-xl bg-[#10B981] hover:bg-[#0ea572] text-white text-xs font-semibold flex items-center gap-1.5 cursor-pointer"
+                      className="px-4 py-2 rounded-xl bg-[#10B981] hover:bg-[#0ea572] text-white text-xs font-medium flex items-center gap-1.5 cursor-pointer shadow-none"
                     >
                       <CheckCircle2 className="w-4 h-4" />
                       <span>Approve & Grant Badge</span>

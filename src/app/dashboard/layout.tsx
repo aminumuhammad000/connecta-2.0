@@ -34,6 +34,8 @@ interface ServerUserData {
   email: string
   role: 'customer' | 'provider'
   activeRole: 'customer' | 'provider'
+  accountStatus?: 'active' | 'suspended'
+  isSuspended?: boolean
   city: string
   currency: string
   avatarUrl?: string | null
@@ -47,6 +49,16 @@ interface ServerWalletData {
   escrowBalanceMinor: number
   sparksBalance: number
   currency: string
+}
+
+interface LiveNotificationItem {
+  id: string
+  title: string
+  message?: string
+  desc?: string
+  time?: string
+  type?: 'info' | 'success' | 'warning' | 'alert'
+  createdAt?: string
 }
 
 type Tone = 'azure' | 'success' | 'warn'
@@ -94,6 +106,11 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const [commandQuery, setCommandQuery] = useState('')
   const [commandIndex, setCommandIndex] = useState(0)
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false)
+  const [notificationsList, setNotificationsList] = useState<LiveNotificationItem[]>([])
+  const [unreadCount, setUnreadCount] = useState(0)
+  const [systemAnnouncement, setSystemAnnouncement] = useState<string | null>(null)
+  const [announcementDismissed, setAnnouncementDismissed] = useState(false)
+  const [isSuspended, setIsSuspended] = useState(false)
   const notificationsRef = useRef<HTMLDivElement>(null)
   const [activeProjectsCount, setActiveProjectsCount] = useState(0)
   const [menuPath, setMenuPath] = useState(pathname)
@@ -140,6 +157,21 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             setUser(body.data.user || null)
             setWallet(body.data.wallet || null)
             setActiveProjectsCount(body.data.activeMilestonesCount || 0)
+            setIsSuspended(Boolean(body.data.user?.isSuspended || body.data.user?.accountStatus === 'suspended'))
+
+            if (body.data.platformSettings?.announcementActive && body.data.platformSettings?.systemAnnouncement) {
+              setSystemAnnouncement(body.data.platformSettings.systemAnnouncement)
+            } else {
+              setSystemAnnouncement(null)
+            }
+
+            if (Array.isArray(body.data.notifications) && body.data.notifications.length > 0) {
+              setNotificationsList(body.data.notifications)
+              setUnreadCount(body.data.unreadNotifications ?? body.data.notifications.length)
+            } else {
+              setNotificationsList(NOTIFICATIONS)
+              setUnreadCount(NOTIFICATIONS.length)
+            }
           }
         }
       } catch (err) {
@@ -404,35 +436,43 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             <div className="relative" ref={notificationsRef}>
               <button
                 type="button"
-                onClick={() => setIsNotificationsOpen((prev) => !prev)}
+                onClick={() => {
+                  setIsNotificationsOpen((prev) => !prev)
+                  setUnreadCount(0)
+                }}
                 className={`relative w-9 h-9 rounded-lg flex items-center justify-center transition-colors cursor-pointer ${
                   isNotificationsOpen ? 'bg-sunken text-ink' : 'text-muted hover:text-ink hover:bg-sunken'
                 }`}
                 aria-label="Notifications"
               >
                 <Bell className="w-4 h-4" />
-                <span className="absolute top-2 right-2 w-1.5 h-1.5 rounded-full bg-azure ring-2 ring-canvas" />
+                {unreadCount > 0 && (
+                  <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-azure ring-2 ring-canvas animate-pulse" />
+                )}
               </button>
 
               {isNotificationsOpen && (
                 <div className="absolute right-0 mt-2 w-[340px] max-w-[calc(100vw-2rem)] bg-surface rounded-2xl border border-line shadow-[0_20px_40px_-16px_rgba(17,24,39,0.22)] z-50 cn-pop origin-top-right overflow-hidden">
                   <div className="flex items-center justify-between px-4 py-3 border-b border-line">
                     <span className="text-sm font-medium text-ink">Notifications</span>
-                    <span className="text-xs text-muted">{NOTIFICATIONS.length} new</span>
+                    <span className="text-xs text-muted">{notificationsList.length} updates</span>
                   </div>
-                  <ul className="py-1.5">
-                    {NOTIFICATIONS.map((n) => (
-                      <li key={n.id} className="px-4 py-2.5 flex gap-3 hover:bg-canvas transition-colors">
-                        <span className={`mt-1.5 w-2 h-2 rounded-full shrink-0 ${n.tone}`} />
-                        <div className="min-w-0 flex-1">
-                          <div className="flex items-center justify-between gap-2">
-                            <span className="text-[13px] font-medium text-ink">{n.title}</span>
-                            <span className="text-xs text-subtle">{n.time}</span>
+                  <ul className="py-1.5 max-h-[300px] overflow-y-auto">
+                    {notificationsList.map((n) => {
+                      const toneClass = n.type === 'warning' ? 'bg-warn' : n.type === 'success' ? 'bg-success' : n.type === 'alert' ? 'bg-rose-500' : 'bg-azure'
+                      return (
+                        <li key={n.id} className="px-4 py-2.5 flex gap-3 hover:bg-canvas transition-colors border-b border-line/40 last:border-b-0">
+                          <span className={`mt-1.5 w-2 h-2 rounded-full shrink-0 ${toneClass}`} />
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center justify-between gap-2">
+                              <span className="text-[13px] font-medium text-ink truncate">{n.title}</span>
+                              <span className="text-[11px] text-subtle shrink-0">{n.time || (n.createdAt ? n.createdAt.slice(11, 16) : 'Now')}</span>
+                            </div>
+                            <p className="text-[12px] text-muted mt-0.5 leading-snug">{n.message || n.desc}</p>
                           </div>
-                          <p className="text-[13px] text-muted mt-0.5 leading-snug">{n.desc}</p>
-                        </div>
-                      </li>
-                    ))}
+                        </li>
+                      )
+                    })}
                   </ul>
                 </div>
               )}
@@ -449,6 +489,35 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             </Link>
           </div>
         </header>
+
+        {isSuspended && (
+          <div className="bg-rose-50 border-b border-rose-200 px-5 sm:px-8 py-2.5 text-rose-800 text-xs sm:text-sm font-medium flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-rose-600 animate-pulse shrink-0" />
+              <span><strong>Account Suspended:</strong> Your Connecta account is under administrative compliance review. Payouts and bookings are on hold.</span>
+            </div>
+            <Link href="/dashboard/support" className="underline font-semibold hover:text-rose-900 ml-4 shrink-0 text-xs">
+              Resolve with Desk →
+            </Link>
+          </div>
+        )}
+
+        {systemAnnouncement && !announcementDismissed && (
+          <div className="bg-azure-50/90 border-b border-azure-100 px-5 sm:px-8 py-2 text-azure-900 text-xs sm:text-sm flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <Sparkles className="w-4 h-4 text-azure shrink-0" />
+              <span>{systemAnnouncement}</span>
+            </div>
+            <button
+              type="button"
+              onClick={() => setAnnouncementDismissed(true)}
+              className="text-azure-600 hover:text-azure-900 p-1 rounded-md cursor-pointer ml-3 shrink-0"
+              aria-label="Dismiss banner"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        )}
 
         {isAiPage ? (
           <main className="flex-1 flex flex-col min-h-0 h-[calc(100vh-3.5rem)] overflow-hidden">{children}</main>

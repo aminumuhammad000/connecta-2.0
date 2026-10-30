@@ -42,6 +42,14 @@ import {
   Phone,
   Edit3,
   Save,
+  Bell,
+  KeyRound,
+  Coins,
+  Flame,
+  ShieldAlert,
+  Split,
+  ToggleLeft,
+  ToggleRight,
 } from 'lucide-react'
 import AdminEmailHub, { EmailDispatchItem } from './AdminEmailHub'
 import { Spinner } from '@/components/brand/ConnectaLoader'
@@ -79,6 +87,50 @@ interface UserItem {
   hourlyRateMinor: number
   joinedDate: string
   accountStatus: 'active' | 'suspended'
+  isFeatured?: boolean
+  badges?: string[]
+  ninNumber?: string
+  wallet?: {
+    balanceMinor: number
+    escrowBalanceMinor: number
+    sparksBalance: number
+    currency: string
+  } | null
+}
+
+export interface PlatformSettings {
+  hubCity: string
+  commissionRatePercent: number
+  currency: string
+  supportPhone: string
+  supportEmail: string
+  supportWhatsapp: string
+  welcomeSparks: number
+  systemAnnouncement?: string
+  announcementActive?: boolean
+}
+
+export interface InAppNotificationItem {
+  id: string
+  userId: string
+  title: string
+  message: string
+  type: 'info' | 'success' | 'warning' | 'alert'
+  createdAt: string
+}
+
+export interface PendingWithdrawalItem {
+  id: string
+  userId: string
+  userName?: string
+  userEmail?: string
+  amountMinor: number
+  currency: string
+  bankName?: string
+  accountNumber?: string
+  date: string
+  reference: string
+  status: string
 }
 
 interface ServiceRequestItem {
@@ -202,6 +254,7 @@ type TabType =
   | 'disputes'
   | 'settings'
   | 'email'
+  | 'notifications'
 
 export default function AdminClientView({
   initialData,
@@ -215,6 +268,9 @@ export default function AdminClientView({
     disputes: DisputeItem[]
     verificationCases: VerificationCaseItem[]
     emailDispatches?: EmailDispatchItem[]
+    platformSettings?: PlatformSettings
+    inAppNotifications?: InAppNotificationItem[]
+    pendingWithdrawals?: PendingWithdrawalItem[]
   }
 }) {
   const [activeTab, setActiveTab] = useState<TabType>('overview')
@@ -626,10 +682,10 @@ export default function AdminClientView({
     <div className="min-h-screen bg-[#F5F7FC] text-[#0A1020] flex flex-col font-sans selection:bg-[#10B981]/20">
       {/* Unified Professional Floating Header - Exact Match to Landing Page Design */}
       <div className="sticky top-0 left-0 right-0 z-50 pt-2 sm:pt-4 px-2.5 sm:px-6">
-        <header className="max-w-7xl mx-auto flex items-center justify-between gap-4 transition-all duration-300 rounded-full px-4 sm:px-6 py-2.5 bg-white/95 backdrop-blur-xl border border-slate-200/90 shadow-xs">
+        <header className="max-w-7xl mx-auto flex items-center justify-between gap-4 transition-all duration-300 rounded-full px-4 sm:px-6 py-2.5 bg-white/95 backdrop-blur-xl border border-slate-200/90 shadow-none">
           {/* Left: Brand Logo Only */}
           <Link href="/" className="flex items-center gap-2 sm:gap-2.5 group shrink-0">
-            <div className="w-8 h-8 rounded-full bg-[#0C513F] flex items-center justify-center p-1.5 shadow-2xs transition-transform group-hover:scale-105 shrink-0">
+            <div className="w-8 h-8 rounded-full bg-[#0C513F] flex items-center justify-center p-1.5 shadow-none transition-transform group-hover:scale-105 shrink-0">
               <div className="relative w-4.5 h-4.5">
                 <Image
                   src="/brand/connecta-header-icon.svg"
@@ -653,7 +709,7 @@ export default function AdminClientView({
               title="Administrator session is active"
             >
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span className="font-semibold">Live Admin</span>
+              <span className="font-medium">Live Admin</span>
             </div>
 
             {/* Mobile menu toggle for sidebar tabs */}
@@ -675,7 +731,7 @@ export default function AdminClientView({
                 aria-expanded={profileMenuOpen}
                 aria-haspopup="true"
               >
-                <div className="w-7 h-7 rounded-full bg-[#0C513F] text-white flex items-center justify-center text-xs font-bold shadow-xs overflow-hidden relative">
+                <div className="w-7 h-7 rounded-full bg-[#0C513F] text-white flex items-center justify-center text-xs font-medium shadow-none overflow-hidden relative">
                   {currentAdmin.avatarUrl ? (
                     <Image
                       src={currentAdmin.avatarUrl}
@@ -688,7 +744,7 @@ export default function AdminClientView({
                   )}
                 </div>
                 <div className="hidden sm:flex flex-col text-left">
-                  <span className="text-xs font-bold text-slate-900 leading-tight">
+                  <span className="text-xs font-medium text-slate-900 leading-tight">
                     {currentAdmin.fullName.split(' ')[0] || 'Admin'}
                   </span>
                 </div>
@@ -701,11 +757,11 @@ export default function AdminClientView({
 
               {/* Profile Dropdown Menu */}
               {profileMenuOpen && (
-                <div className="absolute right-0 mt-2 w-60 bg-white rounded-2xl shadow-xl border border-slate-200/90 py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
+                <div className="absolute right-0 mt-2 w-60 bg-white rounded-2xl shadow-sm border border-slate-200/90 py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
                   <div className="px-4 py-2.5 border-b border-slate-100">
-                    <p className="text-xs font-bold text-slate-900 truncate">{currentAdmin.fullName}</p>
-                    <p className="text-[11px] font-medium text-slate-500 truncate">{currentAdmin.email}</p>
-                    <span className="inline-block mt-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">
+                    <p className="text-xs font-semibold text-slate-900 truncate">{currentAdmin.fullName}</p>
+                    <p className="text-[11px] font-normal text-slate-500 truncate">{currentAdmin.email}</p>
+                    <span className="inline-block mt-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-emerald-100 text-emerald-800">
                       {currentAdmin.role === 'admin' ? 'Super Administrator' : currentAdmin.role}
                     </span>
                   </div>
@@ -715,7 +771,7 @@ export default function AdminClientView({
                       <span className="w-2 h-2 rounded-full bg-emerald-500" />
                       <span>Session</span>
                     </span>
-                    <span className="font-semibold text-emerald-700">
+                    <span className="font-medium text-emerald-700">
                       Active
                     </span>
                   </div>
@@ -724,7 +780,7 @@ export default function AdminClientView({
                     <button
                       type="button"
                       onClick={handleOpenProfileModal}
-                      className="w-full px-4 py-2 text-left text-xs font-bold text-slate-700 hover:bg-slate-50 hover:text-emerald-700 flex items-center gap-2.5 transition-colors cursor-pointer"
+                      className="w-full px-4 py-2 text-left text-xs font-medium text-slate-700 hover:bg-slate-50 hover:text-emerald-700 flex items-center gap-2.5 transition-colors cursor-pointer"
                     >
                       <User className="w-4 h-4 text-slate-400" />
                       <span>Profile</span>
@@ -735,7 +791,7 @@ export default function AdminClientView({
                         setProfileMenuOpen(false)
                         setActiveTab('settings')
                       }}
-                      className="w-full px-4 py-2 text-left text-xs font-bold text-slate-700 hover:bg-slate-50 hover:text-emerald-700 flex items-center gap-2.5 transition-colors cursor-pointer"
+                      className="w-full px-4 py-2 text-left text-xs font-medium text-slate-700 hover:bg-slate-50 hover:text-emerald-700 flex items-center gap-2.5 transition-colors cursor-pointer"
                     >
                       <Settings className="w-4 h-4 text-slate-400" />
                       <span>Setting</span>
@@ -749,7 +805,7 @@ export default function AdminClientView({
                         setProfileMenuOpen(false)
                         setShowLogoutModal(true)
                       }}
-                      className="w-full px-4 py-2 text-left text-xs font-bold text-rose-600 hover:bg-rose-50 flex items-center gap-2.5 transition-colors cursor-pointer"
+                      className="w-full px-4 py-2 text-left text-xs font-medium text-rose-600 hover:bg-rose-50 flex items-center gap-2.5 transition-colors cursor-pointer"
                     >
                       <LogOut className="w-4 h-4 text-rose-500" />
                       <span>Logout</span>
@@ -783,9 +839,9 @@ export default function AdminClientView({
             <button
               type="button"
               onClick={() => { setActiveTab('overview'); setMobileMenuOpen(false); }}
-              className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl text-xs sm:text-sm font-semibold transition-all cursor-pointer ${
+              className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl text-xs sm:text-sm font-medium transition-all cursor-pointer ${
                 activeTab === 'overview'
-                  ? 'bg-[#0A1020] text-white shadow-sm'
+                  ? 'bg-[#0A1020] text-white shadow-none'
                   : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
               }`}
             >
@@ -798,9 +854,9 @@ export default function AdminClientView({
             <button
               type="button"
               onClick={() => { setActiveTab('users'); setMobileMenuOpen(false); }}
-              className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl text-xs sm:text-sm font-semibold transition-all cursor-pointer ${
+              className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl text-xs sm:text-sm font-medium transition-all cursor-pointer ${
                 activeTab === 'users'
-                  ? 'bg-[#0A1020] text-white shadow-sm'
+                  ? 'bg-[#0A1020] text-white shadow-none'
                   : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
               }`}
             >
@@ -808,7 +864,7 @@ export default function AdminClientView({
                 <Users className="w-4 h-4 text-[#4D78FF]" />
                 <span>Users &amp; Artisans</span>
               </div>
-              <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full whitespace-nowrap bg-slate-100 text-slate-700">
+              <span className="text-[10px] font-medium px-2 py-0.5 rounded-full whitespace-nowrap bg-slate-100 text-slate-700">
                 {users.length}
               </span>
             </button>
@@ -816,9 +872,9 @@ export default function AdminClientView({
             <button
               type="button"
               onClick={() => { setActiveTab('jobs'); setMobileMenuOpen(false); }}
-              className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl text-xs sm:text-sm font-semibold transition-all cursor-pointer ${
+              className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl text-xs sm:text-sm font-medium transition-all cursor-pointer ${
                 activeTab === 'jobs'
-                  ? 'bg-[#0A1020] text-white shadow-sm'
+                  ? 'bg-[#0A1020] text-white shadow-none'
                   : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
               }`}
             >
@@ -826,7 +882,7 @@ export default function AdminClientView({
                 <Briefcase className="w-4 h-4 text-[#F59E0B]" />
                 <span>Service Requests</span>
               </div>
-              <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full whitespace-nowrap bg-slate-100 text-slate-700">
+              <span className="text-[10px] font-medium px-2 py-0.5 rounded-full whitespace-nowrap bg-slate-100 text-slate-700">
                 {serviceRequests.length}
               </span>
             </button>
@@ -834,9 +890,9 @@ export default function AdminClientView({
             <button
               type="button"
               onClick={() => { setActiveTab('contracts'); setMobileMenuOpen(false); }}
-              className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl text-xs sm:text-sm font-semibold transition-all cursor-pointer ${
+              className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl text-xs sm:text-sm font-medium transition-all cursor-pointer ${
                 activeTab === 'contracts'
-                  ? 'bg-[#0A1020] text-white shadow-sm'
+                  ? 'bg-[#0A1020] text-white shadow-none'
                   : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
               }`}
             >
@@ -844,7 +900,7 @@ export default function AdminClientView({
                 <Building2 className="w-4 h-4 text-emerald-600" />
                 <span>Escrow Contracts</span>
               </div>
-              <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full whitespace-nowrap bg-emerald-100 text-emerald-800">
+              <span className="text-[10px] font-medium px-2 py-0.5 rounded-full whitespace-nowrap bg-emerald-100 text-emerald-800">
                 {bookings.length}
               </span>
             </button>
@@ -852,9 +908,9 @@ export default function AdminClientView({
             <button
               type="button"
               onClick={() => { setActiveTab('verifications'); setMobileMenuOpen(false); }}
-              className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl text-xs sm:text-sm font-semibold transition-all cursor-pointer ${
+              className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl text-xs sm:text-sm font-medium transition-all cursor-pointer ${
                 activeTab === 'verifications'
-                  ? 'bg-[#0A1020] text-white shadow-sm'
+                  ? 'bg-[#0A1020] text-white shadow-none'
                   : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
               }`}
             >
@@ -863,7 +919,7 @@ export default function AdminClientView({
                 <span>Verifications Queue</span>
               </div>
               {metrics.pendingVerificationsCount > 0 && (
-                <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full whitespace-nowrap bg-rose-500 text-white animate-pulse">
+                <span className="text-[10px] font-medium px-2 py-0.5 rounded-full whitespace-nowrap bg-rose-500 text-white animate-pulse">
                   {metrics.pendingVerificationsCount}
                 </span>
               )}
@@ -872,9 +928,9 @@ export default function AdminClientView({
             <button
               type="button"
               onClick={() => { setActiveTab('payments'); setMobileMenuOpen(false); }}
-              className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl text-xs sm:text-sm font-semibold transition-all cursor-pointer ${
+              className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl text-xs sm:text-sm font-medium transition-all cursor-pointer ${
                 activeTab === 'payments'
-                  ? 'bg-[#0A1020] text-white shadow-sm'
+                  ? 'bg-[#0A1020] text-white shadow-none'
                   : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
               }`}
             >
@@ -887,9 +943,9 @@ export default function AdminClientView({
             <button
               type="button"
               onClick={() => { setActiveTab('disputes'); setMobileMenuOpen(false); }}
-              className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl text-xs sm:text-sm font-semibold transition-all cursor-pointer ${
+              className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl text-xs sm:text-sm font-medium transition-all cursor-pointer ${
                 activeTab === 'disputes'
-                  ? 'bg-[#0A1020] text-white shadow-sm'
+                  ? 'bg-[#0A1020] text-white shadow-none'
                   : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
               }`}
             >
@@ -898,7 +954,7 @@ export default function AdminClientView({
                 <span>Dispute Resolution</span>
               </div>
               {metrics.openDisputesCount > 0 && (
-                <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full whitespace-nowrap bg-amber-500 text-white">
+                <span className="text-[10px] font-medium px-2 py-0.5 rounded-full whitespace-nowrap bg-amber-500 text-white">
                   {metrics.openDisputesCount}
                 </span>
               )}
@@ -907,9 +963,9 @@ export default function AdminClientView({
             <button
               type="button"
               onClick={() => { setActiveTab('email'); setMobileMenuOpen(false); }}
-              className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl text-xs sm:text-sm font-semibold transition-all cursor-pointer ${
+              className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl text-xs sm:text-sm font-medium transition-all cursor-pointer ${
                 activeTab === 'email'
-                  ? 'bg-[#0A1020] text-white shadow-sm'
+                  ? 'bg-[#0A1020] text-white shadow-none'
                   : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
               }`}
             >
@@ -917,7 +973,7 @@ export default function AdminClientView({
                 <Mail className={`w-4 h-4 ${activeTab === 'email' ? 'text-[#10B981]' : 'text-emerald-500'}`} />
                 <span>Send Email</span>
               </div>
-              <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full whitespace-nowrap bg-emerald-100 text-emerald-800">
+              <span className="text-[10px] font-medium px-2 py-0.5 rounded-full whitespace-nowrap bg-emerald-100 text-emerald-800">
                 Hub
               </span>
             </button>
@@ -925,9 +981,9 @@ export default function AdminClientView({
             <button
               type="button"
               onClick={() => { setActiveTab('settings'); setMobileMenuOpen(false); }}
-              className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl text-xs sm:text-sm font-semibold transition-all cursor-pointer ${
+              className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl text-xs sm:text-sm font-medium transition-all cursor-pointer ${
                 activeTab === 'settings'
-                  ? 'bg-[#0A1020] text-white shadow-sm'
+                  ? 'bg-[#0A1020] text-white shadow-none'
                   : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
               }`}
             >
@@ -950,14 +1006,14 @@ export default function AdminClientView({
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
                   <div className="flex items-center gap-2 mb-1">
-                    <div className="w-6 h-6 rounded-full border border-[#0A1020] bg-white flex items-center justify-center font-bold text-xs text-[#0A1020]">
+                    <div className="w-6 h-6 rounded-full border border-[#0A1020] bg-white flex items-center justify-center font-medium text-xs text-[#0A1020]">
                       ↓
                     </div>
-                    <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-600">
+                    <span className="text-[11px] font-medium uppercase tracking-wider text-slate-600">
                       Operations Dashboard
                     </span>
                   </div>
-                  <h1 className="text-2xl sm:text-3xl font-bold text-[#0A1020] tracking-tight">
+                  <h1 className="text-2xl sm:text-3xl font-semibold text-[#0A1020] tracking-tight">
                     Connecta Admin Command Center
                   </h1>
                   <p className="text-xs sm:text-sm text-slate-500 mt-1">
@@ -969,7 +1025,7 @@ export default function AdminClientView({
                   <button
                     type="button"
                     onClick={() => setActiveTab('verifications')}
-                    className="px-4 py-2 rounded-full bg-[#10B981] hover:bg-[#059669] text-white text-xs font-semibold shadow-sm transition-all flex items-center gap-1.5 cursor-pointer"
+                    className="px-4 py-2 rounded-full bg-[#10B981] hover:bg-[#059669] text-white text-xs font-medium shadow-none transition-all flex items-center gap-1.5 cursor-pointer"
                   >
                     <ShieldCheck className="w-4 h-4" />
                     <span>Verifications ({metrics.pendingVerificationsCount})</span>
@@ -977,7 +1033,7 @@ export default function AdminClientView({
                   <button
                     type="button"
                     onClick={() => setActiveTab('contracts')}
-                    className="px-4 py-2 rounded-full bg-[#0A1020] hover:bg-slate-800 text-white text-xs font-semibold shadow-sm transition-all flex items-center gap-1.5 cursor-pointer"
+                    className="px-4 py-2 rounded-full bg-[#0A1020] hover:bg-slate-800 text-white text-xs font-medium shadow-none transition-all flex items-center gap-1.5 cursor-pointer"
                   >
                     <Building2 className="w-4 h-4" />
                     <span>Escrow Vault</span>
@@ -990,10 +1046,10 @@ export default function AdminClientView({
                 {/* Total Users */}
                 <div className="bg-gradient-to-br from-[#1E3A8A] to-[#3B82F6] rounded-3xl p-6 text-white shadow-none relative overflow-hidden group">
                   <div className="relative z-10 space-y-2">
-                    <p className="text-[11px] font-semibold text-blue-100 uppercase tracking-wider whitespace-nowrap">
+                    <p className="text-[11px] font-medium text-blue-100 uppercase tracking-wider whitespace-nowrap">
                       Total Platform Users
                     </p>
-                    <p className="text-2xl sm:text-3xl font-bold tracking-tight">
+                    <p className="text-2xl sm:text-3xl font-semibold tracking-tight">
                       {metrics.totalUsers}
                     </p>
                     <div className="flex items-center gap-2 text-xs text-blue-100 pt-1">
@@ -1008,14 +1064,14 @@ export default function AdminClientView({
                 {/* Service Requests */}
                 <div className="bg-gradient-to-br from-[#B45309] to-[#F59E0B] rounded-3xl p-6 text-white shadow-none relative overflow-hidden group">
                   <div className="relative z-10 space-y-2">
-                    <p className="text-[11px] font-semibold text-amber-100 uppercase tracking-wider whitespace-nowrap">
+                    <p className="text-[11px] font-medium text-amber-100 uppercase tracking-wider whitespace-nowrap">
                       Service Requests
                     </p>
-                    <p className="text-2xl sm:text-3xl font-bold tracking-tight">
+                    <p className="text-2xl sm:text-3xl font-semibold tracking-tight">
                       {metrics.totalJobs}
                     </p>
                     <div className="flex items-center gap-2 text-xs text-amber-100 pt-1">
-                      <span className="font-bold text-white">{metrics.activeJobs} Active</span>
+                      <span className="font-medium text-white">{metrics.activeJobs} Active</span>
                       <span>in Kano &amp; Nigeria</span>
                     </div>
                   </div>
@@ -1025,10 +1081,10 @@ export default function AdminClientView({
                 {/* Escrow Locked */}
                 <div className="bg-gradient-to-br from-[#0C513F] to-[#10B981] rounded-3xl p-6 text-white shadow-none relative overflow-hidden group">
                   <div className="relative z-10 space-y-2">
-                    <p className="text-[11px] font-semibold text-emerald-100 uppercase tracking-wider whitespace-nowrap">
+                    <p className="text-[11px] font-medium text-emerald-100 uppercase tracking-wider whitespace-nowrap">
                       Locked in Escrow Vault
                     </p>
-                    <p className="text-xl sm:text-2xl font-bold tracking-tight">
+                    <p className="text-xl sm:text-2xl font-semibold tracking-tight">
                       {formatNaira(metrics.totalEscrowLockedMinor)}
                     </p>
                     <div className="flex items-center gap-2 text-xs text-emerald-100 pt-1">
@@ -1041,10 +1097,10 @@ export default function AdminClientView({
                 {/* Platform Revenue (5% Fee) */}
                 <div className="bg-gradient-to-br from-[#0A1020] to-[#1E293B] rounded-3xl p-6 text-white shadow-none relative overflow-hidden group">
                   <div className="relative z-10 space-y-2">
-                    <p className="text-[11px] font-semibold text-slate-300 uppercase tracking-wider whitespace-nowrap">
+                    <p className="text-[11px] font-medium text-slate-300 uppercase tracking-wider whitespace-nowrap">
                       Connecta Revenue (5%)
                     </p>
-                    <p className="text-xl sm:text-2xl font-bold tracking-tight text-[#10B981]">
+                    <p className="text-xl sm:text-2xl font-semibold tracking-tight text-[#10B981]">
                       {formatNaira(metrics.totalPlatformFeeRevenueMinor)}
                     </p>
                     <div className="flex items-center gap-2 text-xs text-slate-300 pt-1">
@@ -1062,14 +1118,14 @@ export default function AdminClientView({
                   <div className="flex items-center justify-between pb-3 border-b border-slate-100">
                     <div className="flex items-center gap-2">
                       <ShieldCheck className="w-5 h-5 text-emerald-600" />
-                      <h3 className="font-bold text-slate-900 text-sm sm:text-base">
+                      <h3 className="font-semibold text-slate-900 text-sm sm:text-base">
                         Verification Requests
                       </h3>
                     </div>
                     <button
                       type="button"
                       onClick={() => setActiveTab('verifications')}
-                      className="text-xs font-bold text-[#0C513F] hover:underline cursor-pointer"
+                      className="text-xs font-medium text-[#0C513F] hover:underline cursor-pointer"
                     >
                       View All →
                     </button>
@@ -1082,13 +1138,13 @@ export default function AdminClientView({
                         className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-center justify-between gap-3 hover:bg-slate-100/70 transition-colors"
                       >
                         <div className="space-y-1 min-w-0">
-                          <p className="font-semibold text-xs text-slate-900 truncate">
+                          <p className="font-medium text-xs text-slate-900 truncate">
                             {v.providerName}
                           </p>
                           <p className="text-[11px] text-slate-500 truncate">
                             {v.trade} • {v.city}
                           </p>
-                          <span className="text-[10px] font-bold text-slate-400">
+                          <span className="text-[10px] font-normal text-slate-400">
                             {v.documentType}
                           </span>
                         </div>
@@ -1097,7 +1153,7 @@ export default function AdminClientView({
                           <button
                             type="button"
                             onClick={() => setSelectedCase(v)}
-                            className="px-3 py-1.5 rounded-full bg-[#0A1020] text-white text-[11px] font-bold hover:bg-[#10B981] transition-colors cursor-pointer"
+                            className="px-3 py-1.5 rounded-full bg-[#0A1020] text-white text-[11px] font-medium hover:bg-[#10B981] transition-colors cursor-pointer"
                           >
                             Review
                           </button>
@@ -1112,14 +1168,14 @@ export default function AdminClientView({
                   <div className="flex items-center justify-between pb-3 border-b border-slate-100">
                     <div className="flex items-center gap-2">
                       <Briefcase className="w-5 h-5 text-amber-600" />
-                      <h3 className="font-bold text-slate-900 text-sm sm:text-base">
+                      <h3 className="font-semibold text-slate-900 text-sm sm:text-base">
                         Recent Local Service Requests
                       </h3>
                     </div>
                     <button
                       type="button"
                       onClick={() => setActiveTab('jobs')}
-                      className="text-xs font-bold text-[#0C513F] hover:underline cursor-pointer"
+                      className="text-xs font-medium text-[#0C513F] hover:underline cursor-pointer"
                     >
                       View All →
                     </button>
@@ -1133,22 +1189,22 @@ export default function AdminClientView({
                       >
                         <div className="space-y-1 min-w-0">
                           <div className="flex items-center gap-2">
-                            <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full whitespace-nowrap bg-emerald-100 text-emerald-800 uppercase">
+                            <span className="text-[10px] font-medium px-2 py-0.5 rounded-full whitespace-nowrap bg-emerald-100 text-emerald-800 uppercase">
                               {j.category}
                             </span>
-                            <span className="text-[10px] font-bold text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded">
+                            <span className="text-[10px] font-medium text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded">
                               {j.urgency}
                             </span>
                           </div>
-                          <p className="font-bold text-xs text-slate-900 truncate">
+                          <p className="font-medium text-xs text-slate-900 truncate">
                             {j.title}
                           </p>
                           <p className="text-[11px] text-slate-500">
-                            Budget: <strong className="text-slate-800">{formatNaira(j.budgetMinMinor)} - {formatNaira(j.budgetMaxMinor)}</strong> • {j.city}
+                            Budget: <span className="font-medium text-slate-800">{formatNaira(j.budgetMinMinor)} - {formatNaira(j.budgetMaxMinor)}</span> • {j.city}
                           </p>
                         </div>
 
-                        <span className="text-[10px] font-semibold px-2.5 py-1 rounded-full whitespace-nowrap bg-white border border-slate-200 text-slate-700 shrink-0">
+                        <span className="text-[10px] font-medium px-2.5 py-1 rounded-full whitespace-nowrap bg-white border border-slate-200 text-slate-700 shrink-0">
                           {j.status}
                         </span>
                       </div>
@@ -1166,7 +1222,7 @@ export default function AdminClientView({
             <div className="space-y-6">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                  <h2 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
+                  <h2 className="text-xl sm:text-2xl font-semibold text-slate-900 tracking-tight">
                     Users &amp; Service Providers
                   </h2>
                   <p className="text-xs sm:text-sm text-slate-500 mt-1">
@@ -1178,9 +1234,9 @@ export default function AdminClientView({
                   <button
                     type="button"
                     onClick={() => setUserRoleFilter('all')}
-                    className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${
+                    className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
                       userRoleFilter === 'all'
-                        ? 'bg-[#0A1020] text-white shadow-xs'
+                        ? 'bg-[#0A1020] text-white shadow-none'
                         : 'bg-white text-slate-700 border border-slate-200'
                     }`}
                   >
@@ -1189,9 +1245,9 @@ export default function AdminClientView({
                   <button
                     type="button"
                     onClick={() => setUserRoleFilter('provider')}
-                    className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${
+                    className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
                       userRoleFilter === 'provider'
-                        ? 'bg-[#0A1020] text-white shadow-xs'
+                        ? 'bg-[#0A1020] text-white shadow-none'
                         : 'bg-white text-slate-700 border border-slate-200'
                     }`}
                   >
@@ -1200,9 +1256,9 @@ export default function AdminClientView({
                   <button
                     type="button"
                     onClick={() => setUserRoleFilter('customer')}
-                    className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${
+                    className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
                       userRoleFilter === 'customer'
-                        ? 'bg-[#0A1020] text-white shadow-xs'
+                        ? 'bg-[#0A1020] text-white shadow-none'
                         : 'bg-white text-slate-700 border border-slate-200'
                     }`}
                   >
@@ -1219,7 +1275,7 @@ export default function AdminClientView({
                   value={userSearch}
                   onChange={(e) => setUserSearch(e.target.value)}
                   placeholder="Search by name, trade (e.g. Plumber, Electrician), email, or city..."
-                  className="w-full bg-transparent text-xs sm:text-sm font-semibold text-slate-800 focus:outline-none"
+                  className="w-full bg-transparent text-xs sm:text-sm font-normal text-slate-800 focus:outline-none"
                 />
                 {userSearch && (
                   <button
@@ -1236,7 +1292,7 @@ export default function AdminClientView({
               <div className="bg-white rounded-3xl border border-slate-200/90 shadow-none overflow-hidden">
                 <div className="overflow-x-auto">
                   <table className="w-full text-left text-xs">
-                    <thead className="bg-slate-50/90 border-b border-slate-200 text-slate-500 uppercase tracking-wider font-semibold text-[11px] whitespace-nowrap">
+                    <thead className="bg-slate-50/90 border-b border-slate-200 text-slate-500 uppercase tracking-wider font-medium text-[11px] whitespace-nowrap">
                       <tr>
                         <th className="py-3.5 px-5 whitespace-nowrap">Name &amp; Business</th>
                         <th className="py-3.5 px-4 whitespace-nowrap">Role / Trade</th>
@@ -1250,10 +1306,10 @@ export default function AdminClientView({
                       {filteredUsers.map((u) => (
                         <tr key={u.id} className="hover:bg-slate-50/70 transition-colors">
                           <td className="py-3.5 px-5">
-                            <div className="font-semibold text-slate-900 text-xs">
+                            <div className="font-medium text-slate-900 text-xs">
                               {u.fullName}
                             </div>
-                            <div className="text-[11px] text-slate-400">
+                            <div className="text-[11px] text-slate-400 font-normal">
                               {u.email} • {u.phone}
                             </div>
                           </td>
@@ -1263,14 +1319,14 @@ export default function AdminClientView({
                             </span>
                           </td>
                           <td className="py-3.5 px-4">
-                            <span className="inline-flex items-center gap-1 text-slate-600">
+                            <span className="inline-flex items-center gap-1 text-slate-600 font-normal">
                               <MapPin className="w-3 h-3 text-slate-400" />
                               <span>{u.city}</span>
                             </span>
                           </td>
                           <td className="py-3.5 px-4">
                             <span
-                              className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
+                              className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-medium ${
                                 u.verificationStatus === 'verified'
                                   ? 'bg-emerald-100 text-emerald-800'
                                   : 'bg-slate-100 text-slate-600'
@@ -1284,7 +1340,7 @@ export default function AdminClientView({
                           </td>
                           <td className="py-3.5 px-4">
                             <span
-                              className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                              className={`px-2 py-0.5 rounded-full text-[10px] font-medium ${
                                 u.accountStatus === 'active'
                                   ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
                                   : 'bg-rose-50 text-rose-700 border border-rose-200'
@@ -1343,7 +1399,7 @@ export default function AdminClientView({
             <div className="space-y-6">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                  <h2 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
+                  <h2 className="text-xl sm:text-2xl font-semibold text-slate-900 tracking-tight">
                     Service Requests &amp; Jobs
                   </h2>
                   <p className="text-xs sm:text-sm text-slate-500 mt-1">
@@ -1355,7 +1411,7 @@ export default function AdminClientView({
                 <select
                   value={jobTradeFilter}
                   onChange={(e) => setJobTradeFilter(e.target.value)}
-                  className="px-3.5 py-2 rounded-full border border-slate-200 bg-white font-bold text-xs text-slate-700 cursor-pointer"
+                  className="px-3.5 py-2 rounded-full border border-slate-200 bg-white font-medium text-xs text-slate-700 cursor-pointer"
                 >
                   <option value="all">All Local Trades</option>
                   <option value="plumbing">Plumbing &amp; Water Systems</option>
@@ -1373,7 +1429,7 @@ export default function AdminClientView({
                   value={jobSearch}
                   onChange={(e) => setJobSearch(e.target.value)}
                   placeholder="Search job title, customer, or location..."
-                  className="w-full bg-transparent text-xs sm:text-sm font-semibold text-slate-800 focus:outline-none"
+                  className="w-full bg-transparent text-xs sm:text-sm font-normal text-slate-800 focus:outline-none"
                 />
               </div>
 
@@ -1386,15 +1442,15 @@ export default function AdminClientView({
                   >
                     <div className="space-y-2">
                       <div className="flex items-center justify-between gap-2">
-                        <span className="text-[10px] font-semibold px-2.5 py-1 rounded-full whitespace-nowrap bg-[#10B981]/10 text-[#0C513F] uppercase tracking-wider">
+                        <span className="text-[10px] font-medium px-2.5 py-1 rounded-full whitespace-nowrap bg-[#10B981]/10 text-[#0C513F] uppercase tracking-wider">
                           {j.category}
                         </span>
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200 uppercase">
+                        <span className="text-[10px] font-medium px-2 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200 uppercase">
                           {j.urgency}
                         </span>
                       </div>
 
-                      <h3 className="font-semibold text-sm text-slate-900 leading-snug">
+                      <h3 className="font-medium text-sm text-slate-900 leading-snug">
                         {j.title}
                       </h3>
 
@@ -1406,7 +1462,7 @@ export default function AdminClientView({
                         {j.requiredSkills.map((sk, i) => (
                           <span
                             key={i}
-                            className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-slate-100 text-slate-600"
+                            className="text-[10px] font-medium px-2 py-0.5 rounded-md bg-slate-100 text-slate-600"
                           >
                             {sk}
                           </span>
@@ -1416,15 +1472,15 @@ export default function AdminClientView({
 
                     <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
                       <div>
-                        <div className="text-[10px] font-bold text-slate-400 uppercase">
+                        <div className="text-[10px] font-medium text-slate-400 uppercase">
                           Budget Escrow
                         </div>
-                        <div className="font-semibold text-slate-900 text-xs sm:text-sm">
+                        <div className="font-medium text-slate-900 text-xs sm:text-sm">
                           {formatNaira(j.budgetMinMinor)} - {formatNaira(j.budgetMaxMinor)}
                         </div>
                       </div>
 
-                      <span className="text-[10px] font-semibold px-3 py-1 rounded-full whitespace-nowrap bg-slate-100 text-slate-700">
+                      <span className="text-[10px] font-medium px-3 py-1 rounded-full whitespace-nowrap bg-slate-100 text-slate-700">
                         {j.proposalsCount} Proposals
                       </span>
                     </div>
@@ -1441,7 +1497,7 @@ export default function AdminClientView({
             <div className="space-y-6">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                  <h2 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
+                  <h2 className="text-xl sm:text-2xl font-semibold text-slate-900 tracking-tight">
                     Active Contracts &amp; Escrow Vault
                   </h2>
                   <p className="text-xs sm:text-sm text-slate-500 mt-1">
@@ -1453,9 +1509,9 @@ export default function AdminClientView({
                   <button
                     type="button"
                     onClick={() => setBookingFilter('all')}
-                    className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${
+                    className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
                       bookingFilter === 'all'
-                        ? 'bg-[#0A1020] text-white'
+                        ? 'bg-[#0A1020] text-white shadow-none'
                         : 'bg-white text-slate-700 border border-slate-200'
                     }`}
                   >
@@ -1464,9 +1520,9 @@ export default function AdminClientView({
                   <button
                     type="button"
                     onClick={() => setBookingFilter('locked')}
-                    className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${
+                    className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
                       bookingFilter === 'locked'
-                        ? 'bg-[#0A1020] text-white'
+                        ? 'bg-[#0A1020] text-white shadow-none'
                         : 'bg-white text-slate-700 border border-slate-200'
                     }`}
                   >
@@ -1475,9 +1531,9 @@ export default function AdminClientView({
                   <button
                     type="button"
                     onClick={() => setBookingFilter('released')}
-                    className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${
+                    className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
                       bookingFilter === 'released'
-                        ? 'bg-[#0A1020] text-white'
+                        ? 'bg-[#0A1020] text-white shadow-none'
                         : 'bg-white text-slate-700 border border-slate-200'
                     }`}
                   >
@@ -1496,11 +1552,11 @@ export default function AdminClientView({
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
                       <div>
                         <div className="flex items-center gap-2">
-                          <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider whitespace-nowrap">
+                          <span className="text-[11px] font-medium text-slate-500 uppercase tracking-wider whitespace-nowrap">
                             {b.bookingNumber}
                           </span>
                           <span
-                            className={`px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase whitespace-nowrap ${
+                            className={`px-2 py-0.5 rounded-full text-[10px] font-medium uppercase whitespace-nowrap ${
                               b.escrowStatus === 'locked'
                                 ? 'bg-amber-100 text-amber-800'
                                 : 'bg-emerald-100 text-emerald-800'
@@ -1509,16 +1565,16 @@ export default function AdminClientView({
                             Escrow: {b.escrowStatus}
                           </span>
                         </div>
-                        <h3 className="text-base font-bold text-slate-900 mt-1">
+                        <h3 className="text-base font-semibold text-slate-900 mt-1">
                           {b.title}
                         </h3>
                       </div>
 
                       <div className="text-left sm:text-right">
-                        <div className="text-[10px] font-bold text-slate-400 uppercase">
+                        <div className="text-[10px] font-medium text-slate-400 uppercase">
                           Contract Value
                         </div>
-                        <div className="text-base sm:text-lg font-bold text-[#0C513F]">
+                        <div className="text-base sm:text-lg font-semibold text-[#0C513F]">
                           {formatNaira(b.totalAmountMinor)}
                         </div>
                       </div>
@@ -1527,25 +1583,25 @@ export default function AdminClientView({
                     {/* Parties involved */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
                       <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200/70">
-                        <span className="text-[10px] font-semibold uppercase text-slate-500 whitespace-nowrap block mb-0.5">
+                        <span className="text-[10px] font-medium uppercase text-slate-500 whitespace-nowrap block mb-0.5">
                           Client / Homeowner
                         </span>
-                        <strong className="text-slate-900 font-bold block">{b.clientName}</strong>
-                        <span className="text-slate-500 text-[11px]">{b.clientCompany || 'Residential'} • {b.location}</span>
+                        <span className="text-slate-900 font-medium block">{b.clientName}</span>
+                        <span className="text-slate-500 text-[11px] font-normal">{b.clientCompany || 'Residential'} • {b.location}</span>
                       </div>
 
                       <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200/70">
-                        <span className="text-[10px] font-semibold uppercase text-slate-500 whitespace-nowrap block mb-0.5">
+                        <span className="text-[10px] font-medium uppercase text-slate-500 whitespace-nowrap block mb-0.5">
                           Assigned Artisan
                         </span>
-                        <strong className="text-slate-900 font-bold block">{b.providerName}</strong>
-                        <span className="text-slate-500 text-[11px]">{b.providerTitle}</span>
+                        <span className="text-slate-900 font-medium block">{b.providerName}</span>
+                        <span className="text-slate-500 text-[11px] font-normal">{b.providerTitle}</span>
                       </div>
                     </div>
 
                     {/* Milestones list */}
                     <div className="space-y-2">
-                      <div className="flex items-center justify-between text-xs font-bold text-slate-700">
+                      <div className="flex items-center justify-between text-xs font-medium text-slate-700">
                         <span>Milestones Progress</span>
                         <span>{b.progressPercentage}% Completed</span>
                       </div>
@@ -1564,12 +1620,12 @@ export default function AdminClientView({
                               m.status === 'completed'
                                 ? 'bg-emerald-50 border-emerald-200 text-emerald-900'
                                 : m.status === 'current'
-                                ? 'bg-amber-50 border-amber-200 text-amber-900 font-bold'
+                                ? 'bg-amber-50 border-amber-200 text-amber-900 font-medium'
                                 : 'bg-slate-50 border-slate-200 text-slate-500'
                             }`}
                           >
                             <div className="truncate">{m.title}</div>
-                            <div className="font-bold text-[10px] mt-0.5">{formatNaira(m.amountMinor)}</div>
+                            <div className="font-medium text-[10px] mt-0.5">{formatNaira(m.amountMinor)}</div>
                           </div>
                         ))}
                       </div>
@@ -1581,14 +1637,14 @@ export default function AdminClientView({
                         <button
                           type="button"
                           onClick={() => setActionBooking({ booking: b, type: 'refund' })}
-                          className="px-4 py-2 rounded-full border border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-semibold transition-all cursor-pointer"
+                          className="px-4 py-2 rounded-full border border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-medium transition-all cursor-pointer"
                         >
                           Refund to Client
                         </button>
                         <button
                           type="button"
                           onClick={() => setActionBooking({ booking: b, type: 'release' })}
-                          className="px-5 py-2 rounded-full bg-[#10B981] hover:bg-[#059669] text-white text-xs font-semibold shadow-sm transition-all cursor-pointer"
+                          className="px-5 py-2 rounded-full bg-[#10B981] hover:bg-[#059669] text-white text-xs font-medium shadow-none transition-all cursor-pointer"
                         >
                           Release Escrow to Artisan
                         </button>
@@ -1606,7 +1662,7 @@ export default function AdminClientView({
           {activeTab === 'verifications' && (
             <div className="space-y-6">
               <div>
-                <h2 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
+                <h2 className="text-xl sm:text-2xl font-semibold text-slate-900 tracking-tight">
                   Artisan Verification Queue
                 </h2>
                 <p className="text-xs sm:text-sm text-slate-500 mt-1">
@@ -1622,11 +1678,11 @@ export default function AdminClientView({
                   >
                     <div className="space-y-1.5">
                       <div className="flex items-center gap-2.5">
-                        <h4 className="font-bold text-sm text-slate-900">
+                        <h4 className="font-semibold text-sm text-slate-900">
                           {c.providerName}
                         </h4>
                         <span
-                          className={`text-[10px] font-semibold px-2.5 py-0.5 rounded-full whitespace-nowrap uppercase ${
+                          className={`text-[10px] font-medium px-2.5 py-0.5 rounded-full whitespace-nowrap uppercase ${
                             c.status === 'approved'
                               ? 'bg-emerald-100 text-emerald-800'
                               : c.status === 'rejected'
@@ -1639,11 +1695,11 @@ export default function AdminClientView({
                       </div>
 
                       <p className="text-xs text-slate-600">
-                        <strong>{c.businessName}</strong> • {c.trade} • {c.city}
+                        <span className="font-medium text-slate-800">{c.businessName}</span> • {c.trade} • {c.city}
                       </p>
 
                       <div className="flex flex-wrap items-center gap-2 text-[11px] text-slate-500">
-                        <span className="font-semibold text-slate-700">{c.documentType}</span>
+                        <span className="font-medium text-slate-700">{c.documentType}</span>
                         <span>•</span>
                         <span>ID: {c.documentNumber}</span>
                         <span>•</span>
@@ -1651,7 +1707,7 @@ export default function AdminClientView({
                       </div>
 
                       {c.rejectionReason && (
-                        <p className="text-xs text-rose-600 bg-rose-50 p-2 rounded-lg mt-1 font-semibold">
+                        <p className="text-xs text-rose-600 bg-rose-50 p-2 rounded-lg mt-1 font-medium">
                           Reason: {c.rejectionReason}
                         </p>
                       )}
@@ -1663,21 +1719,21 @@ export default function AdminClientView({
                           <button
                             type="button"
                             onClick={() => setSelectedCase(c)}
-                            className="px-4 py-2 rounded-full border border-slate-200 hover:border-slate-800 text-slate-700 text-xs font-semibold transition-all cursor-pointer"
+                            className="px-4 py-2 rounded-full border border-slate-200 hover:border-slate-800 text-slate-700 text-xs font-medium transition-all cursor-pointer"
                           >
                             Inspect &amp; Reject
                           </button>
                           <button
                             type="button"
                             onClick={() => handleApproveCase(c.id)}
-                            className="px-4 py-2 rounded-full bg-[#10B981] hover:bg-[#059669] text-white text-xs font-semibold shadow-sm transition-all cursor-pointer flex items-center gap-1"
+                            className="px-4 py-2 rounded-full bg-[#10B981] hover:bg-[#059669] text-white text-xs font-medium shadow-none transition-all cursor-pointer flex items-center gap-1"
                           >
                             <Check className="w-3.5 h-3.5" />
                             <span>Approve</span>
                           </button>
                         </>
                       ) : (
-                        <span className="text-xs font-bold text-slate-400">
+                        <span className="text-xs font-medium text-slate-400">
                           Processed
                         </span>
                       )}
@@ -1694,7 +1750,7 @@ export default function AdminClientView({
           {activeTab === 'payments' && (
             <div className="space-y-6">
               <div>
-                <h2 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
+                <h2 className="text-xl sm:text-2xl font-semibold text-slate-900 tracking-tight">
                   Financial Ledger &amp; Platform Fees
                 </h2>
                 <p className="text-xs sm:text-sm text-slate-500 mt-1">
@@ -1705,37 +1761,37 @@ export default function AdminClientView({
               {/* Financial KPI stats */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div className="bg-white rounded-3xl p-5 border border-slate-200/90 shadow-none">
-                  <span className="text-[11px] font-semibold uppercase text-slate-500 whitespace-nowrap">
+                  <span className="text-[11px] font-medium uppercase text-slate-500 whitespace-nowrap">
                     Active Locked Escrow
                   </span>
-                  <div className="text-xl sm:text-2xl font-bold text-[#0C513F] mt-1">
+                  <div className="text-xl sm:text-2xl font-semibold text-[#0C513F] mt-1">
                     {formatNaira(metrics.totalEscrowLockedMinor)}
                   </div>
-                  <span className="text-[11px] text-slate-500 mt-1 block">
+                  <span className="text-[11px] text-slate-500 mt-1 block font-normal">
                     Safeguarded in Custody
                   </span>
                 </div>
 
                 <div className="bg-white rounded-3xl p-5 border border-slate-200/90 shadow-none">
-                  <span className="text-[11px] font-semibold uppercase text-slate-500 whitespace-nowrap">
+                  <span className="text-[11px] font-medium uppercase text-slate-500 whitespace-nowrap">
                     Total Released to Artisans
                   </span>
-                  <div className="text-xl sm:text-2xl font-bold text-[#10B981] mt-1">
+                  <div className="text-xl sm:text-2xl font-semibold text-[#10B981] mt-1">
                     {formatNaira(metrics.totalEscrowReleasedMinor)}
                   </div>
-                  <span className="text-[11px] text-slate-500 mt-1 block">
+                  <span className="text-[11px] text-slate-500 mt-1 block font-normal">
                     Successful Milestone Payouts
                   </span>
                 </div>
 
                 <div className="bg-white rounded-3xl p-5 border border-slate-200/90 shadow-none">
-                  <span className="text-[11px] font-semibold uppercase text-slate-500 whitespace-nowrap">
+                  <span className="text-[11px] font-medium uppercase text-slate-500 whitespace-nowrap">
                     Platform Revenue (5%)
                   </span>
-                  <div className="text-xl sm:text-2xl font-bold text-[#4D78FF] mt-1">
+                  <div className="text-xl sm:text-2xl font-semibold text-[#4D78FF] mt-1">
                     {formatNaira(metrics.totalPlatformFeeRevenueMinor)}
                   </div>
-                  <span className="text-[11px] text-slate-500 mt-1 block">
+                  <span className="text-[11px] text-slate-500 mt-1 block font-normal">
                     Connecta Operations Fee
                   </span>
                 </div>
@@ -1743,21 +1799,21 @@ export default function AdminClientView({
 
               {/* Ledger Summary */}
               <div className="bg-white rounded-3xl p-6 border border-slate-200/90 shadow-none space-y-4">
-                <h3 className="font-bold text-slate-900 text-sm">
+                <h3 className="font-semibold text-slate-900 text-sm">
                   Recent Milestone Transactions
                 </h3>
                 <div className="divide-y divide-slate-100">
                   {bookings.map((b) => (
                     <div key={b.id} className="py-3.5 flex items-center justify-between text-xs">
                       <div>
-                        <div className="font-bold text-slate-900">{b.title}</div>
-                        <div className="text-slate-400 text-[11px]">
+                        <div className="font-medium text-slate-900">{b.title}</div>
+                        <div className="text-slate-400 text-[11px] font-normal">
                           {b.bookingNumber} • Client: {b.clientName} → Provider: {b.providerName}
                         </div>
                       </div>
                       <div className="text-right">
-                        <div className="font-bold text-slate-900">{formatNaira(b.totalAmountMinor)}</div>
-                        <div className="text-[10px] text-emerald-600 font-bold uppercase">
+                        <div className="font-medium text-slate-900">{formatNaira(b.totalAmountMinor)}</div>
+                        <div className="text-[10px] text-emerald-600 font-medium uppercase">
                           Fee: {formatNaira(Math.round(b.totalAmountMinor * 0.05))} (5%)
                         </div>
                       </div>
@@ -1774,7 +1830,7 @@ export default function AdminClientView({
           {activeTab === 'disputes' && (
             <div className="space-y-6">
               <div>
-                <h2 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
+                <h2 className="text-xl sm:text-2xl font-semibold text-slate-900 tracking-tight">
                   Dispute &amp; Mediation Center
                 </h2>
                 <p className="text-xs sm:text-sm text-slate-500 mt-1">
@@ -1790,11 +1846,11 @@ export default function AdminClientView({
                   >
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b border-slate-100">
                       <div>
-                        <span className="text-xs font-bold text-slate-500">{d.disputeNumber}</span>
-                        <h4 className="font-semibold text-sm text-slate-900 mt-0.5">{d.bookingTitle}</h4>
+                        <span className="text-xs font-medium text-slate-500">{d.disputeNumber}</span>
+                        <h4 className="font-medium text-sm text-slate-900 mt-0.5">{d.bookingTitle}</h4>
                       </div>
                       <span
-                        className={`text-[10px] font-semibold px-2.5 py-1 rounded-full whitespace-nowrap uppercase ${
+                        className={`text-[10px] font-medium px-2.5 py-1 rounded-full whitespace-nowrap uppercase ${
                           d.status === 'resolved'
                             ? 'bg-emerald-100 text-emerald-800'
                             : 'bg-amber-100 text-amber-800'
@@ -1806,7 +1862,7 @@ export default function AdminClientView({
 
                     <div className="text-xs space-y-1.5">
                       <p className="text-slate-700">
-                        <strong>Claimant:</strong> {d.claimantName} vs <strong>Respondent:</strong> {d.respondentName}
+                        <span className="font-medium">Claimant:</span> {d.claimantName} vs <span className="font-medium">Respondent:</span> {d.respondentName}
                       </p>
                       <p className="text-slate-600 bg-slate-50 p-3 rounded-2xl border border-slate-200/70">
                         {d.reason}
@@ -1821,7 +1877,7 @@ export default function AdminClientView({
                         <button
                           type="button"
                           onClick={() => setSelectedDispute(d)}
-                          className="px-4 py-2 rounded-full bg-[#0A1020] hover:bg-[#10B981] text-white text-xs font-semibold transition-all cursor-pointer"
+                          className="px-4 py-2 rounded-full bg-[#0A1020] hover:bg-[#10B981] text-white text-xs font-medium transition-all cursor-pointer shadow-none"
                         >
                           Resolve Dispute
                         </button>
@@ -1839,7 +1895,7 @@ export default function AdminClientView({
           {activeTab === 'settings' && (
             <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-none space-y-6">
               <div>
-                <h2 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
+                <h2 className="text-xl sm:text-2xl font-semibold text-slate-900 tracking-tight">
                   Platform Parameters
                 </h2>
                 <p className="text-xs sm:text-sm text-slate-500 mt-1">
@@ -1849,44 +1905,44 @@ export default function AdminClientView({
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 text-xs">
                 <div className="space-y-1.5">
-                  <label className="font-bold text-slate-700">Primary Hub City</label>
+                  <label className="font-medium text-slate-700">Primary Hub City</label>
                   <input
                     type="text"
                     defaultValue="Kano, Nigeria"
                     disabled
-                    className="w-full px-4 py-2.5 rounded-2xl border border-slate-200 bg-slate-50 font-bold text-slate-700"
+                    className="w-full px-4 py-2.5 rounded-2xl border border-slate-200 bg-slate-50 font-medium text-slate-700"
                   />
                   <p className="text-[11px] text-slate-400">Initial strategic target market.</p>
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="font-bold text-slate-700">Platform Escrow Commission</label>
+                  <label className="font-medium text-slate-700">Platform Escrow Commission</label>
                   <input
                     type="text"
                     defaultValue="5.0% of Completed Contract Value"
                     disabled
-                    className="w-full px-4 py-2.5 rounded-2xl border border-slate-200 bg-slate-50 font-bold text-slate-700"
+                    className="w-full px-4 py-2.5 rounded-2xl border border-slate-200 bg-slate-50 font-medium text-slate-700"
                   />
                   <p className="text-[11px] text-slate-400">Automatically deducted upon milestone release.</p>
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="font-bold text-slate-700">Supported Currencies</label>
+                  <label className="font-medium text-slate-700">Supported Currencies</label>
                   <input
                     type="text"
                     defaultValue="NGN (₦ Nigerian Naira)"
                     disabled
-                    className="w-full px-4 py-2.5 rounded-2xl border border-slate-200 bg-slate-50 font-bold text-slate-700"
+                    className="w-full px-4 py-2.5 rounded-2xl border border-slate-200 bg-slate-50 font-medium text-slate-700"
                   />
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="font-bold text-slate-700">Connecta Trust Desk Hotline</label>
+                  <label className="font-medium text-slate-700">Connecta Trust Desk Hotline</label>
                   <input
                     type="text"
                     defaultValue="+234 812 345 6789"
                     disabled
-                    className="w-full px-4 py-2.5 rounded-2xl border border-slate-200 bg-slate-50 font-bold text-slate-700"
+                    className="w-full px-4 py-2.5 rounded-2xl border border-slate-200 bg-slate-50 font-medium text-slate-700"
                   />
                 </div>
               </div>
@@ -1912,13 +1968,13 @@ export default function AdminClientView({
       {/* ===================================================================== */}
       {selectedUser && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl w-full max-w-lg p-6 sm:p-8 space-y-5 border border-slate-200/90 shadow-lg animate-in fade-in zoom-in-95 duration-200">
+          <div className="bg-white rounded-3xl w-full max-w-lg p-6 sm:p-8 space-y-5 border border-slate-200/90 shadow-sm animate-in fade-in zoom-in-95 duration-200">
             <div className="flex items-start justify-between pb-3 border-b border-slate-100">
               <div>
-                <span className="text-[10px] font-semibold uppercase tracking-wider whitespace-nowrap text-slate-400">
+                <span className="text-[10px] font-medium uppercase tracking-wider whitespace-nowrap text-slate-400">
                   User Details
                 </span>
-                <h3 className="text-lg sm:text-xl font-bold text-slate-900">{selectedUser.fullName}</h3>
+                <h3 className="text-lg sm:text-xl font-semibold text-slate-900">{selectedUser.fullName}</h3>
                 <p className="text-xs text-slate-500">{selectedUser.businessName}</p>
               </div>
               <button
@@ -1932,28 +1988,28 @@ export default function AdminClientView({
 
             <div className="grid grid-cols-2 gap-3 text-xs">
               <div className="p-3 rounded-2xl bg-slate-50">
-                <span className="text-[10px] font-bold text-slate-400 uppercase block">Role</span>
-                <strong className="text-slate-900 capitalize">{selectedUser.role}</strong>
+                <span className="text-[10px] font-medium text-slate-400 uppercase block">Role</span>
+                <span className="font-medium text-slate-900 capitalize">{selectedUser.role}</span>
               </div>
               <div className="p-3 rounded-2xl bg-slate-50">
-                <span className="text-[10px] font-bold text-slate-400 uppercase block">Trade</span>
-                <strong className="text-slate-900">{selectedUser.trade}</strong>
+                <span className="text-[10px] font-medium text-slate-400 uppercase block">Trade</span>
+                <span className="font-medium text-slate-900">{selectedUser.trade}</span>
               </div>
               <div className="p-3 rounded-2xl bg-slate-50">
-                <span className="text-[10px] font-bold text-slate-400 uppercase block">City</span>
-                <strong className="text-slate-900">{selectedUser.city}</strong>
+                <span className="text-[10px] font-medium text-slate-400 uppercase block">City</span>
+                <span className="font-medium text-slate-900">{selectedUser.city}</span>
               </div>
               <div className="p-3 rounded-2xl bg-slate-50">
-                <span className="text-[10px] font-bold text-slate-400 uppercase block">Phone</span>
-                <strong className="text-slate-900">{selectedUser.phone}</strong>
+                <span className="text-[10px] font-medium text-slate-400 uppercase block">Phone</span>
+                <span className="font-medium text-slate-900">{selectedUser.phone}</span>
               </div>
               <div className="p-3 rounded-2xl bg-slate-50">
-                <span className="text-[10px] font-bold text-slate-400 uppercase block">Rating</span>
-                <strong className="text-slate-900">★ {selectedUser.averageRating.toFixed(2)}</strong>
+                <span className="text-[10px] font-medium text-slate-400 uppercase block">Rating</span>
+                <span className="font-medium text-slate-900">★ {selectedUser.averageRating.toFixed(2)}</span>
               </div>
               <div className="p-3 rounded-2xl bg-slate-50">
-                <span className="text-[10px] font-bold text-slate-400 uppercase block">Jobs Done</span>
-                <strong className="text-slate-900">{selectedUser.completedJobs} completed</strong>
+                <span className="text-[10px] font-medium text-slate-400 uppercase block">Jobs Done</span>
+                <span className="font-medium text-slate-900">{selectedUser.completedJobs} completed</span>
               </div>
             </div>
 
@@ -1966,7 +2022,7 @@ export default function AdminClientView({
                   setPreselectedEmailUser(target)
                   setActiveTab('email')
                 }}
-                className="flex-1 py-3 rounded-full bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-xs font-semibold transition-all cursor-pointer flex items-center justify-center gap-1.5"
+                className="flex-1 py-3 rounded-full bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-xs font-medium transition-all cursor-pointer flex items-center justify-center gap-1.5"
               >
                 <Mail className="w-3.5 h-3.5" />
                 <span>Send Email</span>
@@ -1974,7 +2030,7 @@ export default function AdminClientView({
               <button
                 type="button"
                 onClick={() => handleToggleUserStatus(selectedUser)}
-                className={`flex-1 py-3 rounded-full text-xs font-semibold transition-all cursor-pointer ${
+                className={`flex-1 py-3 rounded-full text-xs font-medium transition-all cursor-pointer ${
                   selectedUser.accountStatus === 'active'
                     ? 'bg-rose-50 hover:bg-rose-100 text-rose-700'
                     : 'bg-emerald-50 hover:bg-emerald-100 text-emerald-700'
@@ -1985,7 +2041,7 @@ export default function AdminClientView({
               <button
                 type="button"
                 onClick={() => setSelectedUser(null)}
-                className="px-5 py-3 rounded-full bg-[#0A1020] hover:bg-slate-800 text-white text-xs font-semibold transition-all cursor-pointer"
+                className="px-5 py-3 rounded-full bg-[#0A1020] hover:bg-slate-800 text-white text-xs font-medium transition-all cursor-pointer shadow-none"
               >
                 Close
               </button>
@@ -1999,13 +2055,13 @@ export default function AdminClientView({
       {/* ===================================================================== */}
       {selectedCase && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl w-full max-w-md p-6 sm:p-7 space-y-4 border border-slate-200/90 shadow-lg">
+          <div className="bg-white rounded-3xl w-full max-w-md p-6 sm:p-7 space-y-4 border border-slate-200/90 shadow-sm">
             <div className="flex items-start justify-between pb-2 border-b border-slate-100">
               <div>
-                <span className="text-[10px] font-semibold uppercase tracking-wider whitespace-nowrap text-rose-500">
+                <span className="text-[10px] font-medium uppercase tracking-wider whitespace-nowrap text-rose-500">
                   Verification Rejection
                 </span>
-                <h3 className="text-base sm:text-lg font-bold text-slate-900">{selectedCase.providerName}</h3>
+                <h3 className="text-base sm:text-lg font-semibold text-slate-900">{selectedCase.providerName}</h3>
                 <p className="text-xs text-slate-500">{selectedCase.documentType}</p>
               </div>
               <button
@@ -2018,13 +2074,13 @@ export default function AdminClientView({
             </div>
 
             <div className="space-y-1.5 text-xs">
-              <label className="font-bold text-slate-700">Reason for Rejection</label>
+              <label className="font-medium text-slate-700">Reason for Rejection</label>
               <textarea
                 rows={3}
                 value={rejectionReason}
                 onChange={(e) => setRejectionReason(e.target.value)}
                 placeholder="e.g. Blurred document photograph, NIN name mismatch, or expired trade license..."
-                className="w-full p-3 rounded-2xl border border-slate-200 font-medium text-slate-800 focus:outline-none focus:border-rose-500"
+                className="w-full p-3 rounded-2xl border border-slate-200 font-normal text-slate-800 focus:outline-none focus:border-rose-500"
               />
             </div>
 
@@ -2032,7 +2088,7 @@ export default function AdminClientView({
               <button
                 type="button"
                 onClick={() => setSelectedCase(null)}
-                className="flex-1 py-2.5 rounded-full border border-slate-200 text-slate-700 text-xs font-bold"
+                className="flex-1 py-2.5 rounded-full border border-slate-200 text-slate-700 text-xs font-medium"
               >
                 Cancel
               </button>
@@ -2040,7 +2096,7 @@ export default function AdminClientView({
                 type="button"
                 onClick={() => handleRejectCase(selectedCase.id)}
                 disabled={!rejectionReason.trim()}
-                className="flex-1 py-2.5 rounded-full bg-rose-600 hover:bg-rose-700 disabled:opacity-40 text-white text-xs font-semibold transition-all cursor-pointer"
+                className="flex-1 py-2.5 rounded-full bg-rose-600 hover:bg-rose-700 disabled:opacity-40 text-white text-xs font-medium transition-all cursor-pointer shadow-none"
               >
                 Confirm Rejection
               </button>
@@ -2054,7 +2110,7 @@ export default function AdminClientView({
       {/* ===================================================================== */}
       {actionBooking && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl w-full max-w-sm p-6 text-center space-y-4 border border-slate-200/90 shadow-lg">
+          <div className="bg-white rounded-3xl w-full max-w-sm p-6 text-center space-y-4 border border-slate-200/90 shadow-sm">
             <div
               className={`w-12 h-12 rounded-full mx-auto flex items-center justify-center ${
                 actionBooking.type === 'release'
@@ -2070,13 +2126,13 @@ export default function AdminClientView({
             </div>
 
             <div>
-              <h3 className="text-base sm:text-lg font-bold text-slate-900">
+              <h3 className="text-base sm:text-lg font-semibold text-slate-900">
                 {actionBooking.type === 'release' ? 'Release Escrow Vault' : 'Refund Escrow to Client'}
               </h3>
               <p className="text-xs text-slate-500 mt-1 leading-relaxed">
                 Confirm {actionBooking.type === 'release' ? 'payout of' : 'refund of'}{' '}
-                <strong>{formatNaira(actionBooking.booking.totalAmountMinor)}</strong> for contract{' '}
-                <strong>{actionBooking.booking.bookingNumber}</strong>?
+                <span className="font-medium text-slate-800">{formatNaira(actionBooking.booking.totalAmountMinor)}</span> for contract{' '}
+                <span className="font-medium text-slate-800">{actionBooking.booking.bookingNumber}</span>?
               </p>
             </div>
 
@@ -2084,14 +2140,14 @@ export default function AdminClientView({
               <button
                 type="button"
                 onClick={() => setActionBooking(null)}
-                className="flex-1 py-2.5 rounded-full border border-slate-200 text-slate-700 text-xs font-bold cursor-pointer"
+                className="flex-1 py-2.5 rounded-full border border-slate-200 text-slate-700 text-xs font-medium cursor-pointer"
               >
                 Cancel
               </button>
               <button
                 type="button"
                 onClick={handleEscrowAction}
-                className={`flex-1 py-2.5 rounded-full text-white text-xs font-semibold transition-all cursor-pointer ${
+                className={`flex-1 py-2.5 rounded-full text-white text-xs font-medium transition-all cursor-pointer shadow-none ${
                   actionBooking.type === 'release'
                     ? 'bg-[#10B981] hover:bg-[#059669]'
                     : 'bg-rose-600 hover:bg-rose-700'
@@ -2109,25 +2165,25 @@ export default function AdminClientView({
       {/* ===================================================================== */}
       {selectedDispute && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl w-full max-w-md p-6 sm:p-7 space-y-4 border border-slate-200/90 shadow-lg">
+          <div className="bg-white rounded-3xl w-full max-w-md p-6 sm:p-7 space-y-4 border border-slate-200/90 shadow-sm">
             <div>
-              <span className="text-[10px] font-semibold uppercase tracking-wider whitespace-nowrap text-amber-600">
+              <span className="text-[10px] font-medium uppercase tracking-wider whitespace-nowrap text-amber-600">
                 Resolution Terms
               </span>
-              <h3 className="text-base sm:text-lg font-bold text-slate-900">
+              <h3 className="text-base sm:text-lg font-semibold text-slate-900">
                 Resolve {selectedDispute.disputeNumber}
               </h3>
               <p className="text-xs text-slate-500">{selectedDispute.bookingTitle}</p>
             </div>
 
             <div className="space-y-1.5 text-xs">
-              <label className="font-bold text-slate-700">Resolution Summary</label>
+              <label className="font-medium text-slate-700">Resolution Summary</label>
               <textarea
                 rows={3}
                 value={disputeResolutionText}
                 onChange={(e) => setDisputeResolutionText(e.target.value)}
                 placeholder="Enter agreed settlement terms (e.g. 50% refund, or re-performance within 48 hours)..."
-                className="w-full p-3 rounded-2xl border border-slate-200 font-medium text-slate-800 focus:outline-none focus:border-[#10B981]"
+                className="w-full p-3 rounded-2xl border border-slate-200 font-normal text-slate-800 focus:outline-none focus:border-[#10B981]"
               />
             </div>
 
@@ -2135,7 +2191,7 @@ export default function AdminClientView({
               <button
                 type="button"
                 onClick={() => setSelectedDispute(null)}
-                className="flex-1 py-2.5 rounded-full border border-slate-200 text-slate-700 text-xs font-bold"
+                className="flex-1 py-2.5 rounded-full border border-slate-200 text-slate-700 text-xs font-medium"
               >
                 Cancel
               </button>
@@ -2143,7 +2199,7 @@ export default function AdminClientView({
                 type="button"
                 onClick={handleResolveDispute}
                 disabled={!disputeResolutionText.trim()}
-                className="flex-1 py-2.5 rounded-full bg-[#10B981] hover:bg-[#059669] disabled:opacity-40 text-white text-xs font-semibold transition-all cursor-pointer"
+                className="flex-1 py-2.5 rounded-full bg-[#10B981] hover:bg-[#059669] disabled:opacity-40 text-white text-xs font-medium transition-all cursor-pointer shadow-none"
               >
                 Mark Resolved
               </button>
@@ -2157,7 +2213,7 @@ export default function AdminClientView({
       {/* ===================================================================== */}
       {showAdminProfileModal && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-white rounded-3xl w-full max-w-lg p-6 sm:p-8 space-y-6 border border-slate-200/90 shadow-lg relative animate-in fade-in zoom-in-95 duration-150 my-8">
+          <div className="bg-white rounded-3xl w-full max-w-lg p-6 sm:p-8 space-y-6 border border-slate-200/90 shadow-sm relative animate-in fade-in zoom-in-95 duration-150 my-8">
             <button
               type="button"
               onClick={() => {
@@ -2179,7 +2235,7 @@ export default function AdminClientView({
             {!isEditingAdminProfile ? (
               <>
                 <div className="flex items-center gap-4">
-                  <div className="w-16 h-16 rounded-full bg-[#0C513F] text-white flex items-center justify-center text-xl font-bold ring-4 ring-emerald-500/20 shadow-none overflow-hidden relative shrink-0">
+                  <div className="w-16 h-16 rounded-full bg-[#0C513F] text-white flex items-center justify-center text-xl font-semibold ring-4 ring-emerald-500/20 shadow-none overflow-hidden relative shrink-0">
                     {currentAdmin.avatarUrl ? (
                       <Image
                         src={currentAdmin.avatarUrl}
@@ -2193,10 +2249,10 @@ export default function AdminClientView({
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
-                      <h3 className="text-lg sm:text-xl font-bold text-slate-900">{currentAdmin.fullName}</h3>
+                      <h3 className="text-lg sm:text-xl font-semibold text-slate-900">{currentAdmin.fullName}</h3>
                       <BadgeCheck className="w-5 h-5 text-[#10B981]" />
                     </div>
-                    <p className="text-xs font-semibold text-emerald-700">
+                    <p className="text-xs font-medium text-emerald-700">
                       {currentAdmin.headline || 'Lead Platform Administrator & Escrow Supervisor'}
                     </p>
                     <p className="text-xs text-slate-500 mt-0.5">{currentAdmin.email}</p>
@@ -2206,41 +2262,41 @@ export default function AdminClientView({
                 <div className="grid grid-cols-2 gap-3 bg-slate-50 p-4 rounded-2xl border border-slate-200/80 text-xs">
                   <div>
                     <span className="text-slate-500 block">Operations Hub</span>
-                    <span className="font-bold text-slate-900 flex items-center gap-1 mt-0.5">
+                    <span className="font-medium text-slate-900 flex items-center gap-1 mt-0.5">
                       <MapPin className="w-3.5 h-3.5 text-emerald-600" />
                       {currentAdmin.city}, {currentAdmin.country}
                     </span>
                   </div>
                   <div>
                     <span className="text-slate-500 block">Official Phone</span>
-                    <span className="font-bold text-slate-900 flex items-center gap-1 mt-0.5">
+                    <span className="font-medium text-slate-900 flex items-center gap-1 mt-0.5">
                       <Phone className="w-3.5 h-3.5 text-emerald-600" />
                       {currentAdmin.phone}
                     </span>
                   </div>
                   <div>
                     <span className="text-slate-500 block">Security Clearance</span>
-                    <span className="font-bold text-emerald-700 flex items-center gap-1 mt-0.5">
+                    <span className="font-medium text-emerald-700 flex items-center gap-1 mt-0.5">
                       <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
                       Level 4 Root Authority
                     </span>
                   </div>
                   <div>
                     <span className="text-slate-500 block">Organization</span>
-                    <span className="font-bold text-slate-900 mt-0.5 block truncate">
+                    <span className="font-medium text-slate-900 mt-0.5 block truncate">
                       {currentAdmin.companyName || 'Connecta Kano Administration'}
                     </span>
                   </div>
                   <div>
                     <span className="text-slate-500 block">Sparks Balance</span>
-                    <span className="font-bold text-emerald-700 mt-0.5 flex items-center gap-1">
+                    <span className="font-medium text-emerald-700 mt-0.5 flex items-center gap-1">
                       <Sparkles className="w-3.5 h-3.5 text-amber-500" />
                       {currentAdmin.wallet?.sparksBalance ?? currentAdmin.welcomeSparks ?? 500} Sparks
                     </span>
                   </div>
                   <div>
                     <span className="text-slate-500 block">Account Status</span>
-                    <span className="font-bold text-emerald-600 mt-0.5 flex items-center gap-1 capitalize">
+                    <span className="font-medium text-emerald-600 mt-0.5 flex items-center gap-1 capitalize">
                       <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
                       {currentAdmin.accountStatus || 'active'}
                     </span>
@@ -2249,16 +2305,16 @@ export default function AdminClientView({
 
                 {currentAdmin.bio && (
                   <div className="space-y-1">
-                    <h4 className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Bio & Administrative Scope</h4>
-                    <p className="text-xs text-slate-700 leading-relaxed bg-slate-50 p-3 rounded-2xl border border-slate-200/80">
+                    <h4 className="text-[11px] font-medium uppercase tracking-wider text-slate-500">Bio & Administrative Scope</h4>
+                    <p className="text-xs text-slate-700 leading-relaxed bg-slate-50 p-3 rounded-2xl border border-slate-200/80 font-normal">
                       {currentAdmin.bio}
                     </p>
                   </div>
                 )}
 
                 <div className="space-y-2">
-                  <h4 className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Platform Responsibilities</h4>
-                  <ul className="space-y-1.5 text-xs text-slate-700">
+                  <h4 className="text-[11px] font-medium uppercase tracking-wider text-slate-500">Platform Responsibilities</h4>
+                  <ul className="space-y-1.5 text-xs text-slate-700 font-normal">
                     {(currentAdmin.skills && currentAdmin.skills.length > 0
                       ? currentAdmin.skills
                       : ['Platform Administration', 'Escrow Oversight', 'Dispute Resolution']
@@ -2286,7 +2342,7 @@ export default function AdminClientView({
                       })
                       setIsEditingAdminProfile(true)
                     }}
-                    className="flex-1 py-2.5 rounded-full border border-slate-300 text-slate-700 text-xs font-bold hover:bg-slate-50 flex items-center justify-center gap-2 transition-colors cursor-pointer"
+                    className="flex-1 py-2.5 rounded-full border border-slate-300 text-slate-700 text-xs font-medium hover:bg-slate-50 flex items-center justify-center gap-2 transition-colors cursor-pointer shadow-none"
                   >
                     <Edit3 className="w-3.5 h-3.5" />
                     <span>Edit Profile</span>
@@ -2294,7 +2350,7 @@ export default function AdminClientView({
                   <button
                     type="button"
                     onClick={() => setShowAdminProfileModal(false)}
-                    className="flex-1 py-2.5 rounded-full bg-[#0A1020] hover:bg-slate-800 text-white text-xs font-bold transition-colors cursor-pointer"
+                    className="flex-1 py-2.5 rounded-full bg-[#0A1020] hover:bg-slate-800 text-white text-xs font-medium transition-colors cursor-pointer shadow-none"
                   >
                     Done
                   </button>
@@ -2303,82 +2359,82 @@ export default function AdminClientView({
             ) : (
               <form onSubmit={handleSaveAdminProfile} className="space-y-4">
                 <div className="border-b border-slate-100 pb-3">
-                  <h3 className="text-base font-bold text-slate-900">Edit Administrator Profile</h3>
+                  <h3 className="text-base font-semibold text-slate-900">Edit Administrator Profile</h3>
                   <p className="text-xs text-slate-500 mt-0.5">Update administrator details in the server database</p>
                 </div>
 
                 <div className="space-y-3 text-xs">
                   <div>
-                    <label className="font-semibold text-slate-700 block mb-1">Full Name</label>
+                    <label className="font-medium text-slate-700 block mb-1">Full Name</label>
                     <input
                       type="text"
                       required
                       value={editAdminForm.fullName}
                       onChange={(e) => setEditAdminForm({ ...editAdminForm, fullName: e.target.value })}
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-900"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-900 font-normal"
                     />
                   </div>
 
                   <div>
-                    <label className="font-semibold text-slate-700 block mb-1">Headline / Title</label>
+                    <label className="font-medium text-slate-700 block mb-1">Headline / Title</label>
                     <input
                       type="text"
                       value={editAdminForm.headline}
                       onChange={(e) => setEditAdminForm({ ...editAdminForm, headline: e.target.value })}
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-900"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-900 font-normal"
                     />
                   </div>
 
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="font-semibold text-slate-700 block mb-1">Phone Number</label>
+                      <label className="font-medium text-slate-700 block mb-1">Phone Number</label>
                       <input
                         type="text"
                         required
                         value={editAdminForm.phone}
                         onChange={(e) => setEditAdminForm({ ...editAdminForm, phone: e.target.value })}
-                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-900"
+                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-900 font-normal"
                       />
                     </div>
                     <div>
-                      <label className="font-semibold text-slate-700 block mb-1">WhatsApp Number</label>
+                      <label className="font-medium text-slate-700 block mb-1">WhatsApp Number</label>
                       <input
                         type="text"
                         value={editAdminForm.whatsapp}
                         onChange={(e) => setEditAdminForm({ ...editAdminForm, whatsapp: e.target.value })}
-                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-900"
+                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-900 font-normal"
                       />
                     </div>
                   </div>
 
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="font-semibold text-slate-700 block mb-1">City</label>
+                      <label className="font-medium text-slate-700 block mb-1">City</label>
                       <input
                         type="text"
                         value={editAdminForm.city}
                         onChange={(e) => setEditAdminForm({ ...editAdminForm, city: e.target.value })}
-                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-900"
+                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-900 font-normal"
                       />
                     </div>
                     <div>
-                      <label className="font-semibold text-slate-700 block mb-1">Country</label>
+                      <label className="font-medium text-slate-700 block mb-1">Country</label>
                       <input
                         type="text"
                         value={editAdminForm.country}
                         onChange={(e) => setEditAdminForm({ ...editAdminForm, country: e.target.value })}
-                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-900"
+                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-900 font-normal"
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label className="font-semibold text-slate-700 block mb-1">Bio / Administrative Overview</label>
+                    <label className="font-medium text-slate-700 block mb-1">Bio / Administrative Overview</label>
                     <textarea
                       rows={3}
                       value={editAdminForm.bio}
                       onChange={(e) => setEditAdminForm({ ...editAdminForm, bio: e.target.value })}
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-900 resize-none"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-900 resize-none font-normal"
                     />
                   </div>
                 </div>
@@ -2387,14 +2443,14 @@ export default function AdminClientView({
                   <button
                     type="button"
                     onClick={() => setIsEditingAdminProfile(false)}
-                    className="flex-1 py-2.5 rounded-full border border-slate-300 text-slate-700 text-xs font-bold hover:bg-slate-50 transition-colors cursor-pointer"
+                    className="flex-1 py-2.5 rounded-full border border-slate-300 text-slate-700 text-xs font-medium hover:bg-slate-50 transition-colors cursor-pointer shadow-none"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={isSavingAdminProfile}
-                    className="flex-1 py-2.5 rounded-full bg-[#0C513F] hover:bg-emerald-700 disabled:opacity-50 text-white text-xs font-bold flex items-center justify-center gap-2 transition-colors cursor-pointer"
+                    className="flex-1 py-2.5 rounded-full bg-[#0C513F] hover:bg-emerald-700 disabled:opacity-50 text-white text-xs font-medium flex items-center justify-center gap-2 transition-colors cursor-pointer shadow-none"
                   >
                     <Save className="w-3.5 h-3.5" />
                     <span>{isSavingAdminProfile ? 'Saving...' : 'Save to Database'}</span>
@@ -2411,12 +2467,12 @@ export default function AdminClientView({
       {/* ===================================================================== */}
       {showLogoutModal && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl w-full max-w-sm p-6 text-center space-y-4 border border-slate-200/90 shadow-lg animate-in fade-in zoom-in-95 duration-150">
+          <div className="bg-white rounded-3xl w-full max-w-sm p-6 text-center space-y-4 border border-slate-200/90 shadow-sm animate-in fade-in zoom-in-95 duration-150">
             <div className="w-12 h-12 rounded-full bg-rose-100 text-rose-600 mx-auto flex items-center justify-center">
               <LogOut className="w-6 h-6" />
             </div>
             <div>
-              <h3 className="text-base sm:text-lg font-bold text-slate-900">Sign Out of Admin Portal</h3>
+              <h3 className="text-base sm:text-lg font-semibold text-slate-900">Sign Out of Admin Portal</h3>
               <p className="text-xs text-slate-500 mt-1">
                 Are you sure you want to exit the Connecta Admin Command Center? Your encrypted session token will be cleared.
               </p>
@@ -2426,7 +2482,7 @@ export default function AdminClientView({
                 type="button"
                 onClick={() => setShowLogoutModal(false)}
                 disabled={isLoggingOut}
-                className="flex-1 py-2.5 rounded-full border border-slate-200 text-slate-700 text-xs font-bold hover:bg-slate-50 transition-colors cursor-pointer disabled:opacity-50"
+                className="flex-1 py-2.5 rounded-full border border-slate-200 text-slate-700 text-xs font-medium hover:bg-slate-50 transition-colors cursor-pointer disabled:opacity-50 shadow-none"
               >
                 Cancel
               </button>
@@ -2434,7 +2490,7 @@ export default function AdminClientView({
                 type="button"
                 onClick={handleAdminLogout}
                 disabled={isLoggingOut}
-                className="flex-1 py-2.5 rounded-full bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold inline-flex items-center justify-center gap-1.5 transition-colors cursor-pointer disabled:opacity-50"
+                className="flex-1 py-2.5 rounded-full bg-rose-600 hover:bg-rose-700 text-white text-xs font-medium inline-flex items-center justify-center gap-1.5 transition-colors cursor-pointer disabled:opacity-50 shadow-none"
               >
                 {isLoggingOut ? (
                   <Spinner className="w-4 h-4 text-white" />
@@ -2452,23 +2508,23 @@ export default function AdminClientView({
       {/* ===================================================================== */}
       {inactivityModalOpen && (
         <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="bg-[#0A1020] border border-amber-500/40 rounded-3xl w-full max-w-md p-6 sm:p-8 text-center space-y-4 shadow-lg text-white">
+          <div className="bg-[#0A1020] border border-amber-500/40 rounded-3xl w-full max-w-md p-6 sm:p-8 text-center space-y-4 shadow-sm text-white">
             <div className="w-14 h-14 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-400 mx-auto flex items-center justify-center">
               <Clock className="w-7 h-7" />
             </div>
             <div>
-              <span className="inline-block px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 text-[10px] font-bold uppercase tracking-wider mb-2">
+              <span className="inline-block px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 text-[10px] font-medium uppercase tracking-wider mb-2">
                 Security Auto-Lock
               </span>
-              <h3 className="text-xl font-black text-white">Session Timed Out</h3>
+              <h3 className="text-xl font-semibold text-white">Session Timed Out</h3>
               <p className="text-xs text-slate-400 mt-2 leading-relaxed">
-                You have been inactive for <span className="text-white font-bold">2 hours</span>. For the safety of user escrows and platform administration, your session has been securely locked.
+                You have been inactive for <span className="text-white font-medium">2 hours</span>. For the safety of user escrows and platform administration, your session has been securely locked.
               </p>
             </div>
             <div className="pt-2">
               <Link
                 href="/admin/login?reason=inactivity"
-                className="w-full py-3 px-4 rounded-full bg-[#0C513F] hover:bg-emerald-700 text-white font-bold text-xs flex items-center justify-center gap-2 transition-colors"
+                className="w-full py-3 px-4 rounded-full bg-[#0C513F] hover:bg-emerald-700 text-white font-medium text-xs flex items-center justify-center gap-2 transition-colors shadow-none"
               >
                 <span>Re-Authenticate to Resume</span>
                 <ChevronRight className="w-4 h-4" />
