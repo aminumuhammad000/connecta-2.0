@@ -41,7 +41,11 @@ export async function POST(request: NextRequest) {
 
     // Prepare Whisper API request
     const whisperFormData = new FormData()
-    const blob = new Blob([audioBuffer], { type: mimeType })
+    const arrayBuffer = audioBuffer.buffer.slice(
+      audioBuffer.byteOffset,
+      audioBuffer.byteOffset + audioBuffer.byteLength
+    ) as ArrayBuffer
+    const blob = new Blob([arrayBuffer], { type: mimeType })
     whisperFormData.append('file', blob, filename)
     whisperFormData.append('model', 'whisper-1')
     whisperFormData.append(

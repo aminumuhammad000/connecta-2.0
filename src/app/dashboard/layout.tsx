@@ -439,7 +439,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                 type="button"
                 onClick={() => {
                   setIsNotificationsOpen((prev) => !prev)
-                  setUnreadCount(0)
+                  setUnreadNotificationsCount(0)
                 }}
                 className={`relative w-9 h-9 rounded-lg flex items-center justify-center transition-colors cursor-pointer ${
                   isNotificationsOpen ? 'bg-sunken text-ink' : 'text-muted hover:text-ink hover:bg-sunken'

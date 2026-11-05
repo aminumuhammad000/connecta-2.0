@@ -173,7 +173,11 @@ export async function processAttachment(
     if (apiKey && !apiKey.startsWith('placeholder')) {
       try {
         const whisperFormData = new FormData()
-        const blob = new Blob([buffer], { type: validatedMime })
+        const arrayBuffer = buffer.buffer.slice(
+          buffer.byteOffset,
+          buffer.byteOffset + buffer.byteLength
+        ) as ArrayBuffer
+        const blob = new Blob([arrayBuffer], { type: validatedMime })
         whisperFormData.append('file', blob, name || 'audio.webm')
         whisperFormData.append('model', 'whisper-1')
         whisperFormData.append(
