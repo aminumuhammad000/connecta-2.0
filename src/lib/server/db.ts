@@ -229,6 +229,20 @@ export interface ServerEmailDispatch {
   status: 'sent' | 'delivered'
 }
 
+export interface ServerNotification {
+  id: string
+  userId: string
+  title: string
+  desc: string
+  category: 'milestone' | 'quote' | 'escrow' | 'payment' | 'security' | 'general'
+  tone: 'azure' | 'success' | 'warn' | 'danger'
+  read: boolean
+  deleted?: boolean
+  link?: string
+  createdAt: string
+  time?: string
+}
+
 export interface ServerDatabaseSchema {
   profiles: ServerUserProfile[]
   wallets: ServerUserWallet[]
@@ -241,6 +255,7 @@ export interface ServerDatabaseSchema {
   email_dispatches?: ServerEmailDispatch[]
   platform_settings?: PlatformSettings
   in_app_notifications?: InAppNotification[]
+  notifications?: ServerNotification[]
 }
 
 // =============================================================================
@@ -279,6 +294,7 @@ function getInitialDatabase(): ServerDatabaseSchema {
     email_dispatches: [],
     platform_settings: { ...DEFAULT_PLATFORM_SETTINGS },
     in_app_notifications: [],
+    notifications: [],
   }
 }
 
@@ -343,6 +359,7 @@ export function readDatabase(): ServerDatabaseSchema {
       email_dispatches: parsed.email_dispatches || [],
       platform_settings: parsed.platform_settings || { ...DEFAULT_PLATFORM_SETTINGS },
       in_app_notifications: parsed.in_app_notifications || [],
+      notifications: parsed.notifications || [],
     }
 
     // Sync from registered-users store if profiles are missing
@@ -776,17 +793,248 @@ export function addInAppNotification(notification: Omit<InAppNotification, 'id' 
   return newNotif
 }
 
-export function markNotificationRead(notificationId: string, userId: string): boolean {
+function formatFriendlyTime(isoString: string): string {
+  try {
+    const diffMs = Date.now() - new Date(isoString).getTime()
+    if (isNaN(diffMs)) return 'Recently'
+    const diffMins = Math.floor(diffMs / (1000 * 60))
+    if (diffMins < 1) return 'Just now'
+    if (diffMins < 60) return `${diffMins}m ago`
+    const diffHours = Math.floor(diffMins / 60)
+    if (diffHours < 24) return `${diffHours}h ago`
+    const diffDays = Math.floor(diffHours / 24)
+    if (diffDays === 1) return 'Yesterday'
+    if (diffDays < 30) return `${diffDays}d ago`
+    return new Date(isoString).toLocaleDateString('en-NG', { month: 'short', day: 'numeric' })
+  } catch {
+    return 'Recently'
+  }
+}
+
+export function getNotifications(userId: string): ServerNotification[] {
   const db = readDatabase()
-  if (!db.in_app_notifications) return false
-  const notif = db.in_app_notifications.find((n) => n.id === notificationId)
-  if (!notif) return false
-  if (!notif.readBy) notif.readBy = []
-  if (!notif.readBy.includes(userId)) {
-    notif.readBy.push(userId)
+  if (!db.notifications) {
+    db.notifications = []
+  }
+
+  // Scrub any legacy mock notifications
+  if (db.notifications.some((n) => n.id.startsWith('notif-1793627936673-') || n.title.includes('Inverter Mounting') || n.desc.includes('Inverter Mounting') || n.desc.includes('Tunde Electrical'))) {
+    db.notifications = db.notifications.filter(
+      (n) => !n.id.startsWith('notif-1793627936673-') && !n.title.includes('Inverter Mounting') && !n.desc.includes('Inverter Mounting') && !n.desc.includes('Tunde Electrical')
+    )
     writeDatabase(db)
   }
-  return true
+
+  const user = db.profiles.find((p) => p.id === userId)
+  const wallet = db.wallets.find((w) => w.userId === userId)
+  const transactions = db.wallet_transactions.filter((tx) => tx.userId === userId)
+  const bookings = db.bookings.filter((b) => b.customerId === userId || b.providerId === userId)
+  const requests = db.service_requests.filter((r) => r.customerId === userId)
+  const disputes = db.disputes.filter(
+    (d) => d.claimantName.includes(userId) || d.respondentName.includes(userId) || (user && d.claimantName === user.fullName)
+  )
+  const dispatches = (db.email_dispatches || []).filter(
+    (disp) =>
+      disp.audienceType === 'all' ||
+      (disp.audienceType === 'clients' && user?.activeRole === 'customer') ||
+      (disp.audienceType === 'providers' && user?.activeRole === 'provider') ||
+      (disp.audienceType === 'trade' && disp.targetTrade === user?.trade)
+  )
+
+  const realEvents: ServerNotification[] = []
+
+  // 1. Real Account Registration event
+  if (user) {
+    realEvents.push({
+      id: `notif-reg-${user.id}`,
+      userId,
+      title: `Welcome to Connecta, ${user.firstName || user.fullName}!`,
+      desc: `Your ${user.activeRole === 'provider' ? 'Trade Specialist' : 'Client'} account is active in ${user.city || 'Nigeria'}.`,
+      category: 'general',
+      tone: 'azure',
+      read: false,
+      link: user.activeRole === 'provider' ? '/dashboard/settings' : '/dashboard/jobs',
+      createdAt: user.createdAt || new Date().toISOString(),
+      time: formatFriendlyTime(user.createdAt || new Date().toISOString()),
+    })
+  }
+
+  // 2. Real Wallet & Sparks event
+  if (wallet && wallet.sparksBalance > 0) {
+    realEvents.push({
+      id: `notif-sparks-${wallet.id}`,
+      userId,
+      title: 'Sparks Balance Credited',
+      desc: `${wallet.sparksBalance} Connecta Sparks available to connect with specialists and post jobs.`,
+      category: 'payment',
+      tone: 'success',
+      read: false,
+      link: '/dashboard/payment',
+      createdAt: wallet.updatedAt || user?.createdAt || new Date().toISOString(),
+      time: formatFriendlyTime(wallet.updatedAt || user?.createdAt || new Date().toISOString()),
+    })
+  }
+
+  // 3. Real Wallet Transactions
+  for (const tx of transactions) {
+    const amtStr = `₦${Math.round(tx.amountMinor / 100).toLocaleString('en-NG')}`
+    let title = tx.title || 'Transaction'
+    let desc = `${amtStr} (${tx.status}) - Ref: ${tx.reference}`
+    let tone: ServerNotification['tone'] = 'azure'
+    let category: ServerNotification['category'] = 'payment'
+    let link = '/dashboard/payment'
+
+    if (tx.type === 'deposit') {
+      title = 'Wallet Deposit Confirmed'
+      desc = `${amtStr} funded into your Connecta wallet balance (Ref: ${tx.reference}).`
+      tone = 'success'
+      category = 'payment'
+    } else if (tx.type === 'escrow_lock') {
+      title = 'Funds Secured in Escrow'
+      desc = `${amtStr} placed into Connecta Escrow Vault for project security.`
+      tone = 'warn'
+      category = 'escrow'
+    } else if (tx.type === 'escrow_release') {
+      title = 'Milestone Escrow Released'
+      desc = `${amtStr} released from Escrow Vault.`
+      tone = 'success'
+      category = 'milestone'
+      link = '/dashboard/projects'
+    } else if (tx.type === 'withdrawal') {
+      title = `Withdrawal ${tx.status === 'completed' ? 'Completed' : 'Pending'}`
+      desc = `${amtStr} payout to registered bank account.`
+      tone = tx.status === 'completed' ? 'success' : 'warn'
+    } else if (tx.type === 'sparks_grant') {
+      title = 'Sparks Bonus Credited'
+      desc = `${tx.amountMinor} Sparks added to your account.`
+      tone = 'success'
+    }
+
+    realEvents.push({
+      id: `notif-tx-${tx.id}`,
+      userId,
+      title,
+      desc,
+      category,
+      tone,
+      read: false,
+      link,
+      createdAt: tx.date || new Date().toISOString(),
+      time: formatFriendlyTime(tx.date || new Date().toISOString()),
+    })
+  }
+
+  // 4. Real Bookings & Contracts
+  for (const b of bookings) {
+    const amtStr = `₦${Math.round(b.totalAmountMinor / 100).toLocaleString('en-NG')}`
+    realEvents.push({
+      id: `notif-booking-${b.id}`,
+      userId,
+      title: `Contract #${b.bookingNumber}: ${b.title}`,
+      desc: `Status: ${b.bookingStatus.replace('_', ' ')}. Total contract value: ${amtStr} with escrow ${b.escrowStatus}.`,
+      category: 'milestone',
+      tone: b.bookingStatus === 'completed' ? 'success' : b.escrowStatus === 'locked' ? 'warn' : 'azure',
+      read: false,
+      link: '/dashboard/projects',
+      createdAt: b.createdAt || new Date().toISOString(),
+      time: formatFriendlyTime(b.createdAt || new Date().toISOString()),
+    })
+  }
+
+  // 5. Real Service Requests
+  for (const r of requests) {
+    realEvents.push({
+      id: `notif-req-${r.id}`,
+      userId,
+      title: `Service Request: ${r.title}`,
+      desc: `Your request in ${r.city} is ${r.status} with ${r.proposalsCount || 0} quotes received.`,
+      category: 'quote',
+      tone: 'azure',
+      read: false,
+      link: '/dashboard/jobs',
+      createdAt: r.createdAt || new Date().toISOString(),
+      time: formatFriendlyTime(r.createdAt || new Date().toISOString()),
+    })
+  }
+
+  // 6. Real Disputes
+  for (const d of disputes) {
+    realEvents.push({
+      id: `notif-disp-${d.id}`,
+      userId,
+      title: `Support Dispute #${d.disputeNumber}`,
+      desc: `Status: ${d.status.replace('_', ' ')} for "${d.bookingTitle}".`,
+      category: 'security',
+      tone: 'warn',
+      read: false,
+      link: '/dashboard/support',
+      createdAt: d.filedDate || new Date().toISOString(),
+      time: formatFriendlyTime(d.filedDate || new Date().toISOString()),
+    })
+  }
+
+  // 7. Real Platform Notices
+  for (const disp of dispatches) {
+    const created = disp.sentAt.includes('T') ? disp.sentAt : new Date(disp.sentAt).toISOString()
+    realEvents.push({
+      id: `notif-email-${disp.id}`,
+      userId,
+      title: `Platform Notice: ${disp.subject}`,
+      desc: disp.message,
+      category: 'general',
+      tone: 'azure',
+      read: false,
+      link: disp.ctaUrl || '/dashboard',
+      createdAt: created,
+      time: formatFriendlyTime(created),
+    })
+  }
+
+  // Merge with existing notifications in DB
+  let dirty = false
+  for (const ev of realEvents) {
+    const existing = db.notifications.find((n) => n.id === ev.id && n.userId === userId)
+    if (!existing) {
+      db.notifications.push(ev)
+      dirty = true
+    }
+  }
+
+  if (dirty) {
+    writeDatabase(db)
+  }
+
+  // Return active (non-deleted) notifications for this user, sorted newest first
+  return db.notifications
+    .filter((n) => n.userId === userId && !n.deleted)
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+}
+
+export function addNotification(
+  notif: Omit<ServerNotification, 'id' | 'createdAt'> & { id?: string; createdAt?: string }
+): ServerNotification {
+  const db = readDatabase()
+  if (!db.notifications) {
+    db.notifications = []
+  }
+
+  const newNotif: ServerNotification = {
+    id: notif.id || `notif-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
+    createdAt: notif.createdAt || new Date().toISOString(),
+    userId: notif.userId,
+    title: notif.title,
+    desc: notif.desc,
+    category: notif.category,
+    tone: notif.tone,
+    read: notif.read ?? false,
+    deleted: false,
+    link: notif.link,
+    time: notif.time || 'Just now',
+  }
+
+  db.notifications.unshift(newNotif)
+  writeDatabase(db)
+  return newNotif
 }
 
 export function getPendingWithdrawals(): ServerWalletTransaction[] {
@@ -1013,5 +1261,88 @@ export function moderateServiceRequest(
   }
   writeDatabase(db)
   return true
+}
+
+export function markNotificationRead(firstArg: string, secondArg?: string): boolean {
+  const db = readDatabase()
+  let modified = false
+
+  let userId = firstArg
+  let notificationId = secondArg
+
+  if (firstArg && firstArg.startsWith('notif-') && secondArg) {
+    notificationId = firstArg
+    userId = secondArg
+  }
+
+  if (db.in_app_notifications) {
+    for (const n of db.in_app_notifications) {
+      if (!notificationId || n.id === notificationId) {
+        if (!n.readBy) n.readBy = []
+        if (userId && !n.readBy.includes(userId)) {
+          n.readBy.push(userId)
+          modified = true
+        }
+      }
+    }
+  }
+
+  if (db.notifications) {
+    for (const n of db.notifications) {
+      if ((!userId || n.userId === userId) && !n.deleted) {
+        if (!notificationId || n.id === notificationId) {
+          if (!n.read) {
+            n.read = true
+            modified = true
+          }
+        }
+      }
+    }
+  }
+
+  if (modified) {
+    writeDatabase(db)
+  }
+  return modified
+}
+
+export function deleteNotification(userId: string, notificationId: string): boolean {
+  const db = readDatabase()
+  if (!db.notifications) return false
+
+  let modified = false
+  for (const n of db.notifications) {
+    if (n.userId === userId && n.id === notificationId) {
+      n.deleted = true
+      modified = true
+    }
+  }
+
+  if (modified) {
+    writeDatabase(db)
+    return true
+  }
+  return false
+}
+
+export function clearNotifications(userId: string, onlyRead = false): boolean {
+  const db = readDatabase()
+  if (!db.notifications) return false
+
+  let modified = false
+  for (const n of db.notifications) {
+    if (n.userId === userId && !n.deleted) {
+      if (!onlyRead || n.read) {
+        n.deleted = true
+        modified = true
+      }
+    }
+  }
+
+  if (modified) {
+    writeDatabase(db)
+    return true
+  }
+  return false
 }
 

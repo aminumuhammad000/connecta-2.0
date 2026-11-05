@@ -7,10 +7,8 @@ import {
   CheckCircle2,
   Lock,
   RefreshCw,
-  CreditCard,
   Wallet,
   ShieldCheck,
-  Check,
   ChevronDown,
 } from 'lucide-react'
 import { formatMinorToNaira } from '@/lib/dashboard/data'
@@ -82,8 +80,6 @@ export default function DashboardPaymentPage() {
   const [isDepositModalOpen, setIsDepositModalOpen] = useState(false)
   const [isWithdrawModalOpen, setIsWithdrawModalOpen] = useState(false)
   const [amountInput, setAmountInput] = useState('50000')
-  const [isEscrowDeposit, setIsEscrowDeposit] = useState(false)
-  const [depositGateway, setDepositGateway] = useState<'flutterwave' | 'instant'>('flutterwave')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [statusNotice, setStatusNotice] = useState<string | null>(null)
   const [errorNotice, setErrorNotice] = useState<string | null>(null)
@@ -195,41 +191,25 @@ export default function DashboardPaymentPage() {
     setErrorNotice(null)
 
     try {
-      if (depositGateway === 'flutterwave') {
-        const res = await fetch('/api/payments/flutterwave/initialize', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            amountMinor: numeric * 100,
-            title: isEscrowDeposit ? 'Milestone Contract Deposit' : 'Connecta Wallet Deposit',
-            isEscrow: isEscrowDeposit,
-          }),
-        })
-        const body = await res.json()
-        if (!res.ok || !body.data?.link) throw new Error(body.error?.message || 'Could not open the payment page')
-        window.location.href = body.data.link
-        return
-      }
-
-      const res = await fetch('/api/dashboard/wallet/deposit', {
+      const res = await fetch('/api/payments/flutterwave/initialize', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          amount: numeric,
           amountMinor: numeric * 100,
-          isEscrow: isEscrowDeposit,
-          notes: isEscrowDeposit ? 'Protected vault milestone lock' : 'Wallet balance credit',
+          currency: wallet?.currency || 'NGN',
+          title: 'Connecta Wallet Deposit',
+          isEscrow: false,
+          redirectUrl: `${window.location.origin}/dashboard/payment`,
         }),
       })
       const body = await res.json()
-      if (!res.ok) throw new Error(body.error?.message || body.error || 'Deposit failed')
-
-      setIsDepositModalOpen(false)
-      setStatusNotice(`${formatMinorToNaira(numeric * 100)} added to your ${isEscrowDeposit ? 'vault' : 'balance'}.`)
-      await fetchWalletData()
-      setTimeout(() => setStatusNotice(null), 4000)
+      if (!res.ok || !body.data?.link) {
+        throw new Error(body.error?.message || body.error || 'Could not open Flutterwave payment checkout')
+      }
+      window.location.href = body.data.link
     } catch (err: unknown) {
-      setErrorNotice(err instanceof Error ? err.message : 'Deposit failed')
-    } finally {
+      setErrorNotice(err instanceof Error ? err.message : 'Deposit initialization failed')
       setIsSubmitting(false)
     }
   }
@@ -302,7 +282,6 @@ export default function DashboardPaymentPage() {
               variant="success"
               onClick={() => {
                 setAmountInput('50000')
-                setIsEscrowDeposit(false)
                 setErrorNotice(null)
                 setIsDepositModalOpen(true)
               }}
@@ -434,7 +413,7 @@ export default function DashboardPaymentPage() {
         open={isDepositModalOpen}
         onClose={() => setIsDepositModalOpen(false)}
         title="Add funds"
-        description="Top up your balance or protect money for an upcoming job."
+        description="Top up your balance instantly with Flutterwave."
       >
         <form onSubmit={handleDeposit} className="space-y-5">
           {errorNotice && <Notice tone="danger">{errorNotice}</Notice>}
@@ -468,58 +447,12 @@ export default function DashboardPaymentPage() {
             ))}
           </div>
 
-          <Field label="Pay with">
-            <div className="grid grid-cols-2 gap-2">
-              {(
-                [
-                  { id: 'flutterwave', icon: CreditCard, title: 'Flutterwave', sub: 'Card, transfer, USSD' },
-                  { id: 'instant', icon: Wallet, title: 'Test credit', sub: 'Sandbox only' },
-                ] as const
-              ).map((opt) => {
-                const active = depositGateway === opt.id
-                const Icon = opt.icon
-                return (
-                  <button
-                    key={opt.id}
-                    type="button"
-                    onClick={() => setDepositGateway(opt.id)}
-                    className={`relative p-3.5 rounded-xl border text-left transition-all duration-200 cursor-pointer ${
-                      active ? 'border-success ring-4 ring-success/15 bg-surface' : 'border-line hover:border-line-strong'
-                    }`}
-                  >
-                    <Icon className={`w-4 h-4 ${active ? 'text-success-ink' : 'text-muted'}`} />
-                    <div className="text-sm font-medium text-ink mt-2.5">{opt.title}</div>
-                    <div className="text-xs text-muted">{opt.sub}</div>
-                    {active && (
-                      <span className="absolute top-3 right-3 w-4 h-4 rounded-full bg-success-ink text-white flex items-center justify-center cn-pop">
-                        <Check className="w-2.5 h-2.5" strokeWidth={3} />
-                      </span>
-                    )}
-                  </button>
-                )
-              })}
-            </div>
-          </Field>
-
-          <label className="flex items-start gap-3 p-3.5 rounded-xl bg-canvas border border-line cursor-pointer select-none">
-            <input
-              type="checkbox"
-              checked={isEscrowDeposit}
-              onChange={(e) => setIsEscrowDeposit(e.target.checked)}
-              className="mt-0.5 w-4 h-4 accent-[#047857] cursor-pointer"
-            />
-            <span>
-              <span className="block text-sm text-ink">Protect this for a job</span>
-              <span className="block text-xs text-muted mt-0.5">The money goes straight into your vault for an upcoming stage.</span>
-            </span>
-          </label>
-
           <div className="flex items-center justify-end gap-2 pt-1">
             <Button variant="ghost" onClick={() => setIsDepositModalOpen(false)}>
               Cancel
             </Button>
             <Button type="submit" variant="success" loading={isSubmitting}>
-              {isSubmitting ? 'Processing' : depositGateway === 'flutterwave' ? 'Continue to payment' : 'Add funds'}
+              {isSubmitting ? 'Opening Flutterwave…' : 'Proceed to Flutterwave'}
             </Button>
           </div>
         </form>

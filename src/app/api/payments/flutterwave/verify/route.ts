@@ -6,7 +6,8 @@ import { getActiveUser, updateWalletBalance, addTransaction } from '@/lib/server
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { txRef, isEscrowDeposit } = body
+    const txRef = body.txRef || body.tx_ref || body.transactionId || body.transaction_id
+    const isEscrowDeposit = body.isEscrowDeposit
 
     if (!txRef) {
       return errorResponse('Transaction reference (txRef) is required', 400)
@@ -14,12 +15,16 @@ export async function POST(request: NextRequest) {
 
     const verification = await flutterwaveService.verifyTransactionByRef(txRef)
     const amount = Number(verification.data?.amount || 0)
-    const amountMinor = amount > 0 ? Math.round(amount * 100) : 5000000 // default 50k NGN minor if simulated
+    const amountMinor = amount > 0 ? Math.round(amount * 100) : 0
+
+    if (amountMinor <= 0) {
+      return errorResponse('Transaction amount could not be verified by Flutterwave', 400)
+    }
 
     try {
       const user = await getActiveUser()
       if (user) {
-        const isEscrow = Boolean(isEscrowDeposit)
+        const isEscrow = Boolean(isEscrowDeposit || (typeof txRef === 'string' && txRef.includes('_ESC_')))
         updateWalletBalance(
           user.id,
           isEscrow ? 0 : amountMinor,
@@ -46,7 +51,7 @@ export async function POST(request: NextRequest) {
         status: verification.data?.status || 'successful',
         amount: verification.data?.amount,
         currency: verification.data?.currency || 'NGN',
-        message: 'Deposit verified and credited to escrow vault.',
+        message: 'Deposit verified and credited via Flutterwave.',
       },
       200
     )

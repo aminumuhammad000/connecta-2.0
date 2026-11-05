@@ -83,15 +83,10 @@ const COMMANDS: Array<{ label: string; description: string; path: string; icon: 
   { label: 'Projects', description: 'Milestones, approvals and receipts', path: '/dashboard/projects', icon: FolderKanban, tone: 'azure' },
   { label: 'Find professionals', description: 'Electricians, plumbers, technicians and more', path: '/dashboard/jobs', icon: Search, tone: 'azure' },
   { label: 'Payment', description: 'Deposits, withdrawals and history', path: '/dashboard/payment', icon: Wallet, tone: 'success' },
+  { label: 'Notifications', description: 'Milestones, payments, quotes and security alerts', path: '/dashboard/notifications', icon: Bell, tone: 'azure' },
   { label: 'AI assistant', description: 'Describe a problem, get matched', path: '/ai', icon: Sparkles, tone: 'warn' },
   { label: 'Settings', description: 'Profile and payout account', path: '/dashboard/settings', icon: Settings, tone: 'success' },
   { label: 'Help and support', description: 'FAQs and open an inquiry', path: '/dashboard/support', icon: HelpCircle, tone: 'warn' },
-]
-
-const NOTIFICATIONS = [
-  { id: '1', title: 'Milestone paid out', desc: '₦180,000 for Inverter Mounting was released.', time: '12m', tone: 'bg-success' },
-  { id: '2', title: 'New quote received', desc: 'Tunde Electrical quoted on Solar Installation.', time: '1h', tone: 'bg-azure' },
-  { id: '3', title: 'Funds secured', desc: '₦450,000 held for Commercial Rewiring.', time: '3h', tone: 'bg-warn' },
 ]
 
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
@@ -106,8 +101,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const [commandQuery, setCommandQuery] = useState('')
   const [commandIndex, setCommandIndex] = useState(0)
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false)
-  const [notificationsList, setNotificationsList] = useState<LiveNotificationItem[]>([])
-  const [unreadCount, setUnreadCount] = useState(0)
+  const [notificationsList, setNotificationsList] = useState<any[]>([])
+  const [unreadNotificationsCount, setUnreadNotificationsCount] = useState(0)
   const [systemAnnouncement, setSystemAnnouncement] = useState<string | null>(null)
   const [announcementDismissed, setAnnouncementDismissed] = useState(false)
   const [isSuspended, setIsSuspended] = useState(false)
@@ -165,12 +160,14 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               setSystemAnnouncement(null)
             }
 
-            if (Array.isArray(body.data.notifications) && body.data.notifications.length > 0) {
+            if (Array.isArray(body.data.recentNotifications) && body.data.recentNotifications.length > 0) {
+              setNotificationsList(body.data.recentNotifications)
+            } else if (Array.isArray(body.data.notifications) && body.data.notifications.length > 0) {
               setNotificationsList(body.data.notifications)
-              setUnreadCount(body.data.unreadNotifications ?? body.data.notifications.length)
-            } else {
-              setNotificationsList(NOTIFICATIONS)
-              setUnreadCount(NOTIFICATIONS.length)
+            }
+            if (typeof body.data.unreadNotifications === 'number') {
+              setUnreadNotificationsCount(body.data.unreadNotifications)
+            }
             }
           }
         }
@@ -224,7 +221,12 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const isActive = (path: string) =>
     path === '/dashboard' ? pathname === '/dashboard' : pathname === path || pathname.startsWith(`${path}/`)
 
-  const allNav = [...navGroups.flatMap((g) => g.items), { label: 'Settings', path: '/dashboard/settings' }, { label: 'Support', path: '/dashboard/support' }]
+  const allNav = [
+    ...navGroups.flatMap((g) => g.items),
+    { label: 'Settings', path: '/dashboard/settings' },
+    { label: 'Support', path: '/dashboard/support' },
+    { label: 'Notifications', path: '/dashboard/notifications' },
+  ]
   const currentSection = allNav.find((item) => isActive(item.path))?.label || 'Overview'
   const isAiPage = pathname === '/ai' || pathname.startsWith('/ai/')
 
@@ -446,34 +448,82 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                 aria-label="Notifications"
               >
                 <Bell className="w-4 h-4" />
-                {unreadCount > 0 && (
+                {unreadNotificationsCount > 0 && (
                   <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-azure ring-2 ring-canvas animate-pulse" />
                 )}
               </button>
 
               {isNotificationsOpen && (
                 <div className="absolute right-0 mt-2 w-[340px] max-w-[calc(100vw-2rem)] bg-surface rounded-2xl border border-line shadow-[0_20px_40px_-16px_rgba(17,24,39,0.22)] z-50 cn-pop origin-top-right overflow-hidden">
-                  <div className="flex items-center justify-between px-4 py-3 border-b border-line">
-                    <span className="text-sm font-medium text-ink">Notifications</span>
-                    <span className="text-xs text-muted">{notificationsList.length} updates</span>
+                  <div className="flex items-center justify-between px-4 py-3 border-b border-line bg-canvas/40">
+                    <Link
+                      href="/dashboard/notifications"
+                      onClick={() => setIsNotificationsOpen(false)}
+                      className="text-sm font-medium text-ink hover:text-azure transition-colors"
+                    >
+                      Notifications
+                    </Link>
+                    <span className="text-xs text-muted">
+                      {unreadNotificationsCount > 0
+                        ? `${unreadNotificationsCount} unread`
+                        : `${notificationsList.length} updates`}
+                    </span>
                   </div>
-                  <ul className="py-1.5 max-h-[300px] overflow-y-auto">
-                    {notificationsList.map((n) => {
-                      const toneClass = n.type === 'warning' ? 'bg-warn' : n.type === 'success' ? 'bg-success' : n.type === 'alert' ? 'bg-rose-500' : 'bg-azure'
-                      return (
-                        <li key={n.id} className="px-4 py-2.5 flex gap-3 hover:bg-canvas transition-colors border-b border-line/40 last:border-b-0">
-                          <span className={`mt-1.5 w-2 h-2 rounded-full shrink-0 ${toneClass}`} />
-                          <div className="min-w-0 flex-1">
-                            <div className="flex items-center justify-between gap-2">
-                              <span className="text-[13px] font-medium text-ink truncate">{n.title}</span>
-                              <span className="text-[11px] text-subtle shrink-0">{n.time || (n.createdAt ? n.createdAt.slice(11, 16) : 'Now')}</span>
-                            </div>
-                            <p className="text-[12px] text-muted mt-0.5 leading-snug">{n.message || n.desc}</p>
-                          </div>
-                        </li>
-                      )
-                    })}
-                  </ul>
+                  {notificationsList.length === 0 ? (
+                    <div className="py-8 px-4 text-center">
+                      <Bell className="w-6 h-6 text-subtle mx-auto mb-2 opacity-60" />
+                      <p className="text-xs font-medium text-ink">No new notifications</p>
+                      <p className="text-[11.5px] text-muted mt-0.5">You are completely up to date.</p>
+                    </div>
+                  ) : (
+                    <ul className="py-1 divide-y divide-line/30 max-h-[320px] overflow-y-auto">
+                      {notificationsList.map((n) => {
+                        const toneClass =
+                          n.tone === 'success' || n.type === 'success'
+                            ? 'bg-success'
+                            : n.tone === 'warn' || n.type === 'warning'
+                            ? 'bg-warn'
+                            : n.tone === 'danger' || n.type === 'alert'
+                            ? 'bg-danger'
+                            : 'bg-azure'
+
+                        return (
+                          <li key={n.id}>
+                            <Link
+                              href={n.link || '/dashboard/notifications'}
+                              onClick={() => setIsNotificationsOpen(false)}
+                              className="px-4 py-2.5 flex gap-3 hover:bg-canvas transition-colors group"
+                            >
+                              <span className={`mt-1.5 w-2 h-2 rounded-full shrink-0 ${toneClass}`} />
+                              <div className="min-w-0 flex-1">
+                                <div className="flex items-center justify-between gap-2">
+                                  <span className="text-[13px] font-medium text-ink group-hover:text-azure transition-colors truncate">
+                                    {n.title}
+                                  </span>
+                                  <span className="text-xs text-subtle shrink-0">
+                                    {n.time || (n.createdAt ? n.createdAt.slice(11, 16) : 'now')}
+                                  </span>
+                                </div>
+                                <p className="text-[12.5px] text-muted mt-0.5 leading-snug line-clamp-2">
+                                  {n.desc || n.message}
+                                </p>
+                              </div>
+                            </Link>
+                          </li>
+                        )
+                      })}
+                    </ul>
+                  )}
+                  <div className="border-t border-line bg-canvas/60 p-2">
+                    <Link
+                      href="/dashboard/notifications"
+                      onClick={() => setIsNotificationsOpen(false)}
+                      className="flex items-center justify-center gap-1.5 w-full py-2 rounded-lg text-xs font-medium text-azure hover:text-ink hover:bg-sunken transition-colors"
+                    >
+                      <span>View all notifications</span>
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </Link>
+                  </div>
                 </div>
               )}
             </div>

@@ -2,7 +2,20 @@ import zlib from 'zlib'
 
 export const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp']
 export const ALLOWED_DOCUMENT_TYPES = ['application/pdf', 'text/plain']
-export const ALL_ALLOWED_TYPES = [...ALLOWED_IMAGE_TYPES, ...ALLOWED_DOCUMENT_TYPES]
+export const ALLOWED_AUDIO_TYPES = [
+  'audio/webm',
+  'audio/mp4',
+  'audio/mpeg',
+  'audio/mp3',
+  'audio/wav',
+  'audio/wave',
+  'audio/x-wav',
+  'audio/ogg',
+  'audio/x-m4a',
+  'audio/m4a',
+  'audio/aac',
+]
+export const ALL_ALLOWED_TYPES = [...ALLOWED_IMAGE_TYPES, ...ALLOWED_DOCUMENT_TYPES, ...ALLOWED_AUDIO_TYPES]
 
 export const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024 // 10MB
 export const MAX_EXTRACTED_TEXT_LENGTH = 8000
@@ -12,8 +25,9 @@ export interface ProcessedAttachment {
   mimeType: string
   sizeBytes: number
   isImage: boolean
-  base64Data?: string // for image vision analysis (e.g. data:image/jpeg;base64,...)
-  extractedText?: string // for PDF/TXT
+  isAudio?: boolean
+  base64Data?: string // for image vision analysis or audio
+  extractedText?: string // for PDF/TXT or transcribed voice note
 }
 
 /**
@@ -34,6 +48,12 @@ export function validateAttachment(name: string, mimeType: string, sizeBytes: nu
     else if (lowerName.endsWith('.webp')) resolvedMime = 'image/webp'
     else if (lowerName.endsWith('.pdf')) resolvedMime = 'application/pdf'
     else if (lowerName.endsWith('.txt')) resolvedMime = 'text/plain'
+    else if (lowerName.endsWith('.mp3')) resolvedMime = 'audio/mpeg'
+    else if (lowerName.endsWith('.m4a')) resolvedMime = 'audio/m4a'
+    else if (lowerName.endsWith('.wav')) resolvedMime = 'audio/wav'
+    else if (lowerName.endsWith('.ogg') || lowerName.endsWith('.opus')) resolvedMime = 'audio/ogg'
+    else if (lowerName.endsWith('.webm')) resolvedMime = 'audio/webm'
+    else if (lowerName.endsWith('.aac')) resolvedMime = 'audio/aac'
   }
 
   if (!ALL_ALLOWED_TYPES.includes(resolvedMime)) {
@@ -132,6 +152,7 @@ export async function processAttachment(
 ): Promise<ProcessedAttachment> {
   const validatedMime = validateAttachment(name, mimeType, buffer.length)
   const isImage = ALLOWED_IMAGE_TYPES.includes(validatedMime)
+  const isAudio = ALLOWED_AUDIO_TYPES.includes(validatedMime)
 
   if (isImage) {
     const base64 = buffer.toString('base64')
@@ -140,7 +161,47 @@ export async function processAttachment(
       mimeType: validatedMime,
       sizeBytes: buffer.length,
       isImage: true,
+      isAudio: false,
       base64Data: `data:${validatedMime};base64,${base64}`,
+    }
+  }
+
+  if (isAudio) {
+    const base64 = buffer.toString('base64')
+    let transcript = ''
+    const apiKey = process.env.OPENAI_API_KEY
+    if (apiKey && !apiKey.startsWith('placeholder')) {
+      try {
+        const whisperFormData = new FormData()
+        const blob = new Blob([buffer], { type: validatedMime })
+        whisperFormData.append('file', blob, name || 'audio.webm')
+        whisperFormData.append('model', 'whisper-1')
+        whisperFormData.append(
+          'prompt',
+          'Connecta Nigerian artisan technical fault description, electrician, plumber, solar inverter, generator, AC repair, Lagos, Kano, Abuja.'
+        )
+        const wRes = await fetch('https://api.openai.com/v1/audio/transcriptions', {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${apiKey}` },
+          body: whisperFormData,
+        })
+        if (wRes.ok) {
+          const wData = await wRes.json()
+          transcript = wData.text || ''
+        }
+      } catch (wErr) {
+        console.warn('[Audio Process] Whisper transcription failed:', wErr)
+      }
+    }
+
+    return {
+      name,
+      mimeType: validatedMime,
+      sizeBytes: buffer.length,
+      isImage: false,
+      isAudio: true,
+      base64Data: `data:${validatedMime};base64,${base64}`,
+      extractedText: transcript ? `[User Voice Note Transcription]: "${transcript}"` : '',
     }
   }
 
@@ -157,6 +218,7 @@ export async function processAttachment(
     mimeType: validatedMime,
     sizeBytes: buffer.length,
     isImage: false,
+    isAudio: false,
     extractedText,
   }
 }

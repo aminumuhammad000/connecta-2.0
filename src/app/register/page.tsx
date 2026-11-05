@@ -3,17 +3,12 @@
 import React, { Suspense, useState } from 'react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { Eye, EyeOff, Hammer, Search } from 'lucide-react'
+import { Eye, EyeOff } from 'lucide-react'
 import { AuthRedirecting, AuthShell, GoogleButton, OrDivider } from '@/components/auth/AuthShell'
 import { useGoogleAuth } from '@/components/auth/useGoogleAuth'
 import { Button, Field, Notice, inputClass } from '@/components/dashboard/ui'
 
 type Role = 'client' | 'provider'
-
-const ROLES: Array<{ value: Role; title: string; icon: React.ComponentType<{ className?: string }>; active: string }> = [
-  { value: 'client', title: 'I need a pro', icon: Search, active: 'border-azure ring-4 ring-azure/10 [&_.role-icon]:bg-azure [&_.role-icon]:text-white' },
-  { value: 'provider', title: "I'm a professional", icon: Hammer, active: 'border-warn ring-4 ring-warn/15 [&_.role-icon]:bg-warn [&_.role-icon]:text-ink' },
-]
 
 function passwordStrength(pw: string) {
   let score = 0
@@ -34,7 +29,7 @@ function RegisterForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
 
-  const [role, setRole] = useState<Role>(searchParams.get('role') === 'provider' ? 'provider' : 'client')
+  const role: Role = (searchParams.get('role') as Role) || 'client'
   const [fullName, setFullName] = useState('')
   const [email, setEmail] = useState(searchParams.get('email') || '')
   const [password, setPassword] = useState('')
@@ -115,31 +110,7 @@ function RegisterForm() {
         <p className="text-[15px] text-muted mt-2">One minute, and you&apos;re in.</p>
       </div>
 
-      <div className="grid grid-cols-2 gap-2 mt-7 cn-rise" style={{ ['--d' as string]: '60ms' }} role="radiogroup" aria-label="Account type">
-        {ROLES.map((r) => {
-          const Icon = r.icon
-          const active = role === r.value
-          return (
-            <button
-              key={r.value}
-              type="button"
-              role="radio"
-              aria-checked={active}
-              onClick={() => setRole(r.value)}
-              className={`flex items-center gap-2.5 h-14 px-3 rounded-xl border bg-surface text-left transition-all duration-200 cursor-pointer ${
-                active ? r.active : 'border-line hover:border-line-strong'
-              }`}
-            >
-              <span className="role-icon w-8 h-8 rounded-lg bg-sunken text-muted flex items-center justify-center shrink-0 transition-colors duration-200">
-                <Icon className="w-4 h-4" />
-              </span>
-              <span className="text-sm font-medium text-ink">{r.title}</span>
-            </button>
-          )
-        })}
-      </div>
-
-      <div className="mt-5 cn-rise" style={{ ['--d' as string]: '120ms' }}>
+      <div className="mt-7 cn-rise" style={{ ['--d' as string]: '60ms' }}>
         <GoogleButton onClick={startGoogle} loading={isGoogleLoading} label="Sign up with Google" />
       </div>
 

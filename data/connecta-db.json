@@ -1651,6 +1651,31 @@
       "updatedAt": "2026-10-29T14:43:02.005Z"
     },
     {
+      "id": "37d6e642-4f5d-4266-b143-ae65c94ec064",
+      "fullName": "Musa Ida",
+      "firstName": "Musa",
+      "lastName": "Ida",
+      "email": "usmanumarjm533@gmail.com",
+      "phone": "",
+      "whatsapp": "",
+      "password": "@Mangoro123",
+      "role": "customer",
+      "activeRole": "customer",
+      "accountStatus": "active",
+      "country": "Nigeria",
+      "city": "Lagos",
+      "currency": "NGN",
+      "avatarUrl": null,
+      "headline": "Hiring Client",
+      "bio": "",
+      "skills": [],
+      "hourlyRateMinor": 0,
+      "companyName": "Musa Ida Workspace",
+      "companyBio": "",
+      "createdAt": "2026-11-02T12:22:42.641Z",
+      "updatedAt": "2026-11-02T12:22:42.641Z"
+    },
+    {
       "id": "aa2be01e-ae73-45cb-9374-a3a24fbebb58",
       "fullName": "Sani Umar",
       "firstName": "Sani",
@@ -2532,6 +2557,15 @@
       "sparksBalance": 25,
       "currency": "NGN",
       "updatedAt": "2026-10-29T14:43:02.005Z"
+    },
+    {
+      "id": "76064d6d-0e8c-48c2-8192-444906f56d73",
+      "userId": "37d6e642-4f5d-4266-b143-ae65c94ec064",
+      "balanceMinor": 0,
+      "escrowBalanceMinor": 0,
+      "sparksBalance": 25,
+      "currency": "NGN",
+      "updatedAt": "2026-11-02T12:22:42.643Z"
     },
     {
       "id": "5564b281-49ed-49d5-9eca-4529d1603e2b",
@@ -3437,6 +3471,44 @@
       "type": "success",
       "createdAt": "2026-10-26T08:05:00.000Z",
       "readBy": []
+    }
+  ],
+  "notifications": [
+    {
+      "id": "notif-reg-37d6e642-4f5d-4266-b143-ae65c94ec064",
+      "userId": "37d6e642-4f5d-4266-b143-ae65c94ec064",
+      "title": "Welcome to Connecta, Musa!",
+      "desc": "Your Client account is active in Lagos.",
+      "category": "general",
+      "tone": "azure",
+      "read": true,
+      "link": "/dashboard/jobs",
+      "createdAt": "2026-11-02T12:22:42.641Z",
+      "time": "1h ago"
+    },
+    {
+      "id": "notif-sparks-76064d6d-0e8c-48c2-8192-444906f56d73",
+      "userId": "37d6e642-4f5d-4266-b143-ae65c94ec064",
+      "title": "Sparks Balance Credited",
+      "desc": "25 Connecta Sparks available to connect with specialists and post jobs.",
+      "category": "payment",
+      "tone": "success",
+      "read": true,
+      "link": "/dashboard/payment",
+      "createdAt": "2026-11-02T12:22:42.643Z",
+      "time": "1h ago"
+    },
+    {
+      "id": "notif-email-disp-102",
+      "userId": "37d6e642-4f5d-4266-b143-ae65c94ec064",
+      "title": "Platform Notice: Emergency Handyman & Trade Coverage Now Active in Sabon Gari & Nassarawa",
+      "desc": "We are proud to announce enhanced 45-minute arrival time guarantees for all certified plumbers, air conditioning technicians, and emergency electricians booked in Kano central districts.",
+      "category": "general",
+      "tone": "azure",
+      "read": false,
+      "link": "/discover",
+      "createdAt": "2026-10-25T10:15:00.000Z",
+      "time": "8d ago"
     }
   ]
 }

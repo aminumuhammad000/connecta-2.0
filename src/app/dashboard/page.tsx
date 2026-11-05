@@ -18,6 +18,7 @@ import {
   stagger,
 } from '@/components/dashboard/ui'
 import { MilestoneTimeline, ProgressBar, type MilestoneLike } from '@/components/dashboard/milestones'
+import { SERVICE_CATEGORIES } from '@/lib/categories'
 
 interface ServerOverviewData {
   user: {
@@ -75,6 +76,8 @@ interface ServerOverviewData {
     city?: string
     hourlyRateMinor?: number
   }>
+  tradesCount?: number
+  completedProjectsCount?: number
 }
 
 const FEATURED_PROS = [
@@ -223,7 +226,9 @@ export default function DashboardOverviewPage() {
               </div>
               <div className="border-l-2 border-success pl-3">
                 <dt className="text-xs text-muted">Trades covered</dt>
-                <dd className="mt-1 text-base sm:text-lg font-medium text-ink">10+</dd>
+                <dd className="mt-1 text-base sm:text-lg font-medium text-ink tabular-nums">
+                  {data?.tradesCount ?? SERVICE_CATEGORIES.length}
+                </dd>
               </div>
             </dl>
           </div>

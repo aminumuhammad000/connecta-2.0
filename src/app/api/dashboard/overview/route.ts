@@ -8,8 +8,10 @@ import {
   getSquads,
   getPlatformSettings,
   getInAppNotifications,
+  getNotifications,
 } from '@/lib/server/db'
 import { getFeaturedSpecialists } from '@/lib/server/providers'
+import { SERVICE_CATEGORIES } from '@/lib/categories'
 
 export async function GET(request: NextRequest) {
   try {
@@ -118,7 +120,8 @@ export async function GET(request: NextRequest) {
     // Platform settings & notifications
     const platformSettings = getPlatformSettings()
     const userNotifications = getInAppNotifications(user.id)
-    const unreadCount = userNotifications.filter((n) => !n.readBy || !n.readBy.includes(user.id)).length
+    const userNotifs = getNotifications(user.id)
+    const unreadCount = userNotifs.filter((n) => !n.read).length
 
     return successResponse({
       user: {
@@ -147,6 +150,8 @@ export async function GET(request: NextRequest) {
         currency: wallet.currency,
       },
       metrics: roleMode === 'client' ? clientMetrics : providerMetrics,
+      tradesCount: SERVICE_CATEGORIES.length,
+      completedProjectsCount: completedContractsCount,
       activeBooking,
       recentJobs,
       squads: allSquads,
@@ -154,6 +159,7 @@ export async function GET(request: NextRequest) {
       platformSettings,
       notifications: userNotifications,
       unreadNotifications: unreadCount,
+      recentNotifications: userNotifs.slice(0, 5),
     })
   } catch (err: any) {
     return errorResponse(err.message || 'Failed to fetch dashboard overview', 500)

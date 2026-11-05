@@ -50,4 +50,5 @@ data/*.json
 !data/registered-users.json
 !data/connecta-db.json
 
+.claude/
 connecta old/

@@ -108,12 +108,20 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    if (!text.trim() && processedAttachments.length === 0) {
-      return errorResponse('Please provide text or an image to start a conversation.', 400)
+    // Merge any transcribed voice notes into text
+    let fullUserText = text.trim()
+    for (const att of processedAttachments) {
+      if (att.isAudio && att.extractedText) {
+        fullUserText = fullUserText ? `${fullUserText}\n\n${att.extractedText}` : att.extractedText
+      }
+    }
+
+    if (!fullUserText && processedAttachments.length === 0) {
+      return errorResponse('Please provide text, an image, or a voice note to start a conversation.', 400)
     }
 
     const cityContext = city && city !== 'All Locations' ? city : 'Kano'
-    const isServiceRequest = detectIsServiceRequest(text, processedAttachments.length > 0)
+    const isServiceRequest = detectIsServiceRequest(fullUserText, processedAttachments.length > 0)
     const apiKey = process.env.OPENAI_API_KEY
     const isLlmAvailable = !!(apiKey && !apiKey.startsWith('placeholder'))
 
@@ -198,7 +206,7 @@ Guidelines:
 
     // 1. Analyze request with multimodal understanding
     const analysis = await analyzeServiceRequest({
-      text,
+      text: fullUserText,
       attachments: processedAttachments,
       cityContext,
     })
@@ -283,14 +291,49 @@ ${analysis.budget ? `- Stated budget: ${analysis.budget}` : ''}
 Top vetted local artisans in ${cityName} from Connecta database:
 ${topProvidersSummary}
 
-Guidelines for your response:
-1. Speak in a helpful, knowledgeable, warm, and professional tone in standard Nigerian English.
-2. Directly address the user's specific problem: explain the likely technical cause in practical, clear terms.
-3. If matched artisans are available above, recommend the top specialist by name, rating, and proximity.
-4. Mention that client payments are protected in Connecta Vault (funds are released only after personal inspection).
-5. Suggest a helpful next step or clarifying question to help narrow down quotes.
-6. Format cleanly using Markdown with bold highlights and clear paragraphs.
-7. STRICT RULE: DO NOT use any emojis anywhere in your response. Keep the tone minimalist, refined, and clean.`
+Multimodal Image & Voice Guidelines:
+1. If the user provided a photo, examine it in detail. Identify the exact appliance, machine, breaker, wire, pipe, pump, vehicle part, or structural element visible in the picture.
+2. Call out specific visual details: signs of burns, scorch marks, leaks, cracked joints, worn insulation, corrosion, brand names, or error codes.
+3. If the user provided a voice note, address the points and questions they spoke about in their audio.
+4. Give a practical, realistic technical fault diagnosis and immediate safety precautions (e.g. isolating power or water).
+5. If matched artisans are available above, recommend the top specialist by name, rating, and proximity.
+6. Mention that client payments are protected in Connecta Vault (funds are released only after personal inspection).
+7. Suggest a helpful next step or clarifying question to help narrow down quotes.
+8. FORMATTING RULE: Write in clean, modern, readable text with clear paragraphs and clean numbered lists (1., 2., 3.) or bullet points (- ). DO NOT use markdown asterisks or stars (no **bold** or *stars* anywhere). Never output star symbols.
+9. STRICT RULE: DO NOT use any emojis anywhere in your response. Keep the tone minimalist, refined, and clean.`
+
+        const imageAttachments = processedAttachments.filter((a) => a.isImage && a.base64Data)
+
+        let finalUserMessageContent: any
+        if (imageAttachments.length > 0) {
+          const parts: any[] = [
+            {
+              type: 'text',
+              text:
+                fullUserText ||
+                'Please inspect the photo I uploaded. Tell me what equipment or fault you see, explain the cause, and tell me who can fix it.',
+            },
+          ]
+          for (const img of imageAttachments) {
+            parts.push({
+              type: 'image_url',
+              image_url: {
+                url: img.base64Data,
+                detail: 'auto',
+              },
+            })
+          }
+          finalUserMessageContent = parts
+        } else {
+          finalUserMessageContent = fullUserText || 'Please advise on this technical issue.'
+        }
+
+        const historyBeforeLatest = chatHistoryForLlm.slice(0, -1)
+        const messagesForLlm = [
+          { role: 'system', content: technicalSystemPrompt },
+          ...historyBeforeLatest,
+          { role: 'user', content: finalUserMessageContent },
+        ]
 
         const llmResponse = await fetch('https://api.openai.com/v1/chat/completions', {
           method: 'POST',
@@ -300,18 +343,22 @@ Guidelines for your response:
           },
           body: JSON.stringify({
             model: 'gpt-4o-mini',
-            messages: [
-              { role: 'system', content: technicalSystemPrompt },
-              ...chatHistoryForLlm,
-            ],
+            messages: messagesForLlm,
             temperature: 0.6,
-            max_tokens: 600,
+            max_tokens: 700,
           }),
         })
 
         if (llmResponse.ok) {
           const llmData = await llmResponse.json()
           assistantContent = llmData.choices?.[0]?.message?.content || ''
+          // Sanitize any remaining asterisks/stars from the response
+          if (assistantContent) {
+            assistantContent = assistantContent
+              .replace(/\*\*([^*]+)\*\*/g, '$1')
+              .replace(/\*([^*]+)\*/g, '$1')
+              .replace(/\*\*/g, '')
+          }
         }
       } catch (llmErr) {
         console.warn('[AI Chat API] LLM technical generation error:', llmErr)
@@ -320,21 +367,21 @@ Guidelines for your response:
 
     // Deterministic fallback if LLM is offline
     if (!assistantContent) {
-      let greeting = `I've analyzed your request for **${categoryName}** in **${cityName}**.`
+      let greeting = `I have analyzed your request for ${categoryName} in ${cityName}.`
       if (hasImages) {
-        greeting = `I've inspected the photo you shared and identified this as a **${categoryName}** issue in **${cityName}**.`
+        greeting = `I have inspected the photo you shared and identified this as a ${categoryName} issue in ${cityName}.`
       }
 
       let providerSummary = ''
       if (topProviders.length > 0) {
         const topPro = topProviders[0]
         const distanceNote = topPro.distanceFormatted ? ` (~${topPro.distanceFormatted} away)` : ''
-        providerSummary = `\n\nFound **${topProviders.length} vetted local specialist${topProviders.length > 1 ? 's' : ''}** near you. Top recommendation: **${topPro.fullName}** from **${topPro.businessName}**${distanceNote}, rated **${topPro.averageRating}/5**.`
+        providerSummary = `\n\nFound ${topProviders.length} vetted local specialist${topProviders.length > 1 ? 's' : ''} near you. Top recommendation: ${topPro.fullName} from ${topPro.businessName}${distanceNote}, rated ${topPro.averageRating}/5.`
       } else {
         providerSummary = `\n\nNo direct category match found immediately in your specific area. You can post a service request or browse the directory.`
       }
 
-      const vaultAssurance = `\n\n**Connecta Vault Protection**: Funds are locked safely and released solely after you inspect and approve the completed job.`
+      const vaultAssurance = `\n\nConnecta Vault Protection: Funds are locked safely and released solely after you inspect and approve the completed job.`
 
       assistantContent = `${greeting}${providerSummary}${vaultAssurance}`
     }

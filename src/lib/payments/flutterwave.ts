@@ -1,9 +1,10 @@
 /**
  * Connecta 2.0 - Flutterwave Multi-Currency Payment & Escrow Service
- * Supports v4 OAuth authentication, standard v3 API endpoints, and comprehensive African bank lists.
+ * Seamlessly supports Flutterwave v4 OAuth Live (f4bexperience) & v3 API standard.
  */
 
 const FLW_BASE_URL = 'https://api.flutterwave.com/v3'
+const FLW_V4_URL = 'https://f4bexperience.flutterwave.com'
 const FLW_OAUTH_URL = 'https://idp.flutterwave.com/realms/flutterwave/protocol/openid-connect/token'
 
 const getSecretKey = () => process.env.FLUTTERWAVE_SECRET_KEY || ''
@@ -20,6 +21,10 @@ let tokenExpiresAt = 0
 export async function getFlutterwaveAuthToken(): Promise<string> {
   const clientId = getClientId()
   const secretKey = getSecretKey()
+
+  if (secretKey && secretKey.startsWith('FLWSECK')) {
+    return secretKey
+  }
 
   if (clientId && secretKey) {
     if (cachedToken && Date.now() < tokenExpiresAt) {
@@ -64,13 +69,114 @@ export interface InitializePaymentParams {
   description?: string
 }
 
+async function resolveV4Customer(email: string, headers: Record<string, string>): Promise<string> {
+  const cleanEmail = email.toLowerCase().trim()
+  try {
+    const custRes = await fetch(`${FLW_V4_URL}/customers`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({ email: cleanEmail }),
+    })
+    const custData = await custRes.json()
+    if (custData?.data?.id) return custData.data.id
+  } catch {
+    // Fall through to query
+  }
+
+  // If customer already exists or creation failed, look up by email
+  const listRes = await fetch(`${FLW_V4_URL}/customers?email=${encodeURIComponent(cleanEmail)}`, {
+    headers: {
+      Authorization: headers.Authorization,
+      Accept: headers.Accept,
+      'X-Trace-Id': headers['X-Trace-Id'],
+    },
+  })
+  const listData = await listRes.json()
+  const found = Array.isArray(listData?.data)
+    ? listData.data.find((c: { email?: string }) => c.email?.toLowerCase() === cleanEmail) || listData.data[0]
+    : listData?.data
+
+  if (found?.id) return found.id
+
+  throw new Error('Failed to resolve customer identifier on Flutterwave')
+}
+
 export const flutterwaveService = {
   /**
    * Initialize a standard Multi-Currency Flutterwave Checkout link
+   * Automatically routes through v4 (f4bexperience) or v3 standard based on credentials.
    */
   initializePayment: async (params: InitializePaymentParams) => {
     try {
+      const clientId = getClientId()
+      const secretKey = getSecretKey()
+      const isV4 = clientId && secretKey && !secretKey.startsWith('FLWSECK')
       const token = await getFlutterwaveAuthToken()
+
+      if (isV4) {
+        const traceId = `trace_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`
+        const idempKey = `idemp_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`
+        const headers = {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+          'X-Trace-Id': traceId,
+          'X-Idempotency-Key': idempKey,
+        }
+
+        // 1. Ensure customer on Flutterwave v4
+        const customerId = await resolveV4Customer(params.email || 'customer@myconnecta.ng', headers)
+
+        // 2. Register payment method on Flutterwave v4 (bank_account generates hosted payment session)
+        const pmRes = await fetch(`${FLW_V4_URL}/payment-methods`, {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({
+            type: 'bank_account',
+            customer_id: customerId,
+          }),
+        })
+        const pmData = await pmRes.json()
+        const paymentMethodId = pmData?.data?.id
+        if (!paymentMethodId) {
+          throw new Error(pmData?.error?.message || pmData?.message || 'Failed to setup payment method on Flutterwave')
+        }
+
+        // 3. Create charge on Flutterwave v4 and obtain checkout link
+        const cleanRef = params.txRef.replace(/[^a-zA-Z0-9]/g, '')
+        const chargeRes = await fetch(`${FLW_V4_URL}/charges`, {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({
+            amount: params.amount,
+            currency: (params.currency || 'NGN').toUpperCase(),
+            reference: cleanRef,
+            customer_id: customerId,
+            payment_method_id: paymentMethodId,
+            redirect_url: params.redirectUrl,
+          }),
+        })
+        const chargeData = await chargeRes.json()
+        const checkoutUrl =
+          chargeData?.data?.next_action?.redirect_url?.url ||
+          chargeData?.data?.redirect_url
+
+        if (!checkoutUrl) {
+          throw new Error(chargeData?.error?.message || chargeData?.message || 'Failed to generate checkout link from Flutterwave')
+        }
+
+        return {
+          status: 'success',
+          message: 'Checkout initialized successfully',
+          data: {
+            link: checkoutUrl,
+            txRef: params.txRef,
+            chargeId: chargeData?.data?.id,
+          },
+        }
+      }
+
+      // Legacy v3 flow (when FLWSECK is used)
       const payload = {
         tx_ref: params.txRef,
         amount: params.amount,
@@ -99,65 +205,81 @@ export const flutterwaveService = {
 
       const data = await res.json()
       if (data.status !== 'success' || !data.data?.link) {
-        // Fallback simulated checkout for sandbox testing if live key is in activation
-        const checkoutLink = `${params.redirectUrl}?status=successful&tx_ref=${params.txRef}&transaction_id=flw_tx_${Date.now()}&amount=${params.amount}`
-        return {
-          status: 'success',
-          message: 'Checkout initialized successfully',
-          data: {
-            link: checkoutLink,
-            txRef: params.txRef,
-          },
-        }
+        throw new Error(data.message || 'Could not initialize payment checkout link with Flutterwave')
       }
 
       return data
     } catch (err: any) {
       console.error('[Flutterwave Initialize Error]', err)
-      const checkoutLink = `${params.redirectUrl}?status=successful&tx_ref=${params.txRef}&transaction_id=flw_tx_${Date.now()}&amount=${params.amount}`
-      return {
-        status: 'success',
-        message: 'Checkout initialized',
-        data: { link: checkoutLink, txRef: params.txRef },
-      }
+      throw new Error(err.message || 'Payment initialization failed with Flutterwave')
     }
   },
 
   /**
-   * Verify a Flutterwave Transaction by Reference
+   * Verify a Flutterwave Transaction by Reference or Transaction ID
    */
   verifyTransactionByRef: async (txRef: string) => {
     try {
+      const clientId = getClientId()
+      const secretKey = getSecretKey()
+      const isV4 = clientId && secretKey && !secretKey.startsWith('FLWSECK')
       const token = await getFlutterwaveAuthToken()
-      const res = await fetch(
-        `${FLW_BASE_URL}/transactions/verify_by_reference?tx_ref=${encodeURIComponent(txRef)}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
+
+      if (isV4) {
+        const headers = {
+          Authorization: `Bearer ${token}`,
+          Accept: 'application/json',
+          'X-Trace-Id': `trace_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`,
         }
-      )
+
+        const isChargeId = txRef.startsWith('chg_')
+        const url = isChargeId
+          ? `${FLW_V4_URL}/charges/${encodeURIComponent(txRef.trim())}`
+          : `${FLW_V4_URL}/charges?reference=${encodeURIComponent(txRef.trim())}`
+
+        const res = await fetch(url, { headers })
+        const data = await res.json()
+
+        const charge = isChargeId ? data?.data : (Array.isArray(data?.data) ? data.data[0] : data?.data)
+        if (charge) {
+          const isSuccessful =
+            charge.status === 'successful' ||
+            charge.status === 'completed' ||
+            charge.status === 'pending' ||
+            charge.settled === true
+
+          return {
+            status: 'success',
+            data: {
+              status: isSuccessful ? 'successful' : charge.status,
+              tx_ref: charge.reference || txRef,
+              amount: charge.amount,
+              currency: charge.currency || 'NGN',
+              chargeId: charge.id,
+            },
+          }
+        }
+      }
+
+      // v3 verification
+      const isId = /^\d+$/.test(txRef.trim())
+      const url = isId
+        ? `${FLW_BASE_URL}/transactions/${encodeURIComponent(txRef.trim())}/verify`
+        : `${FLW_BASE_URL}/transactions/verify_by_reference?tx_ref=${encodeURIComponent(txRef.trim())}`
+
+      const res = await fetch(url, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
 
       const data = await res.json()
       if (data && data.status === 'success' && data.data) {
         return data
       }
 
-      // Simulated success verification if txRef exists
-      return {
-        status: 'success',
-        data: {
-          status: 'successful',
-          tx_ref: txRef,
-          currency: 'NGN',
-          amount: 50000,
-          charged_amount: 50000,
-        },
-      }
+      throw new Error(data?.message || 'Transaction could not be verified by Flutterwave')
     } catch (err: any) {
-      console.warn('[Flutterwave Verify Warning]', err.message)
-      return {
-        status: 'success',
-        data: { status: 'successful', tx_ref: txRef },
-      }
+      console.warn('[Flutterwave Verify Error]', err.message)
+      throw err
     }
   },
 
@@ -169,55 +291,38 @@ export const flutterwaveService = {
     const fallbackBanks: Record<string, { code: string; name: string }[]> = {
       NG: [
         { code: '044', name: 'Access Bank' },
-        { code: '035A', name: 'ALAT by Wema' },
-        { code: '050', name: 'Ecobank Nigeria' },
-        { code: '070', name: 'Fidelity Bank' },
+        { code: '058', name: 'GTBank (Guaranty Trust Bank)' },
+        { code: '057', name: 'Zenith Bank' },
+        { code: '033', name: 'United Bank for Africa (UBA)' },
         { code: '011', name: 'First Bank of Nigeria (FBN)' },
         { code: '214', name: 'First City Monument Bank (FCMB)' },
-        { code: '058', name: 'GTBank (Guaranty Trust Bank)' },
-        { code: '301', name: 'Jaiz Bank' },
-        { code: '50211', name: 'Kuda Bank' },
-        { code: '50515', name: 'Moniepoint Microfinance Bank' },
         { code: '999992', name: 'OPay Digital Services' },
+        { code: '50515', name: 'Moniepoint Microfinance Bank' },
+        { code: '50211', name: 'Kuda Bank' },
         { code: '999991', name: 'PalmPay' },
-        { code: '076', name: 'Polaris Bank' },
-        { code: '101', name: 'Providus Bank' },
-        { code: '221', name: 'Stanbic IBTC Bank' },
-        { code: '232', name: 'Sterling Bank' },
-        { code: '302', name: 'TAJ Bank' },
-        { code: '032', name: 'Union Bank of Nigeria' },
-        { code: '033', name: 'United Bank for Africa (UBA)' },
-        { code: '215', name: 'Unity Bank' },
-        { code: '035', name: 'Wema Bank' },
-        { code: '057', name: 'Zenith Bank' },
-      ],
-      KE: [
-        { code: 'MPESA', name: 'M-Pesa Kenya Mobile Money' },
-        { code: '01', name: 'KCB Bank Kenya' },
-        { code: '63', name: 'Diamond Trust Bank' },
-        { code: '68', name: 'Equity Bank Kenya' },
-      ],
-      GH: [
-        { code: 'MTN', name: 'MTN Mobile Money Ghana' },
-        { code: 'VODA', name: 'Vodafone Cash Ghana' },
-        { code: 'ATL', name: 'AirtelTigo Money' },
-        { code: '030100', name: 'Absa Bank Ghana' },
-      ],
-      UG: [
-        { code: 'MTN_UG', name: 'MTN Mobile Money Uganda' },
-        { code: 'AIRTEL_UG', name: 'Airtel Money Uganda' },
-        { code: '01', name: 'Stanbic Bank Uganda' },
-      ],
-      ZA: [
-        { code: '632005', name: 'Absa Bank South Africa' },
-        { code: '470010', name: 'Capitec Bank' },
-        { code: '250655', name: 'First National Bank (FNB)' },
-        { code: '051001', name: 'Standard Bank South Africa' },
       ],
     }
 
     try {
+      const clientId = getClientId()
+      const secretKey = getSecretKey()
+      const isV4 = clientId && secretKey && !secretKey.startsWith('FLWSECK')
       const token = await getFlutterwaveAuthToken()
+
+      if (isV4) {
+        const res = await fetch(`${FLW_V4_URL}/banks?country=${code}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            Accept: 'application/json',
+            'X-Trace-Id': `trace_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`,
+          },
+        })
+        const data = await res.json()
+        if (data && data.status === 'success' && Array.isArray(data.data) && data.data.length > 0) {
+          return data.data
+        }
+      }
+
       const res = await fetch(`${FLW_BASE_URL}/banks/${code}`, {
         headers: { Authorization: `Bearer ${token}` },
       })
@@ -261,7 +366,6 @@ export const flutterwaveService = {
       console.warn('[Resolve Account Warning]', err.message)
     }
 
-    // Default formatting if offline
     return {
       accountName: 'Verified Account Holder',
       accountNumber,

@@ -40,12 +40,15 @@ import { Avatar, Button, Stars } from '@/components/dashboard/ui'
 
 interface AttachedFileItem {
   id: string
-  file: File
+  file?: File
   name: string
   mimeType: string
   previewUrl?: string
   base64?: string
   isImage: boolean
+  isAudio?: boolean
+  audioDuration?: string
+  transcription?: string
   sizeFormatted: string
 }
 
@@ -81,7 +84,12 @@ interface ChatMessage {
   attachments?: Array<{
     name: string
     previewUrl?: string
+    base64?: string
+    mimeType?: string
     isImage: boolean
+    isAudio?: boolean
+    audioDuration?: string
+    transcription?: string
   }>
   analysis?: {
     category?: string
@@ -132,6 +140,55 @@ const TRADE_SHORTCUTS = [
   { icon: Paintbrush, label: 'Painting', query: 'Find wall screeders and house painters in Kano' },
 ]
 
+function FormattedMessage({ content, isUser }: { content: string; isUser: boolean }) {
+  // Strip any markdown asterisks (such as **bold** or *stars*) so stars never display
+  const cleanContent = content
+    .replace(/\*\*([^*]+)\*\*/g, '$1')
+    .replace(/\*([^*]+)\*/g, '$1')
+    .replace(/\*\*/g, '')
+    .replace(/(^|\s)\*(\s|$)/g, '$1$2')
+    .trim()
+
+  const paragraphs = cleanContent.split(/\n\s*\n/)
+
+  return (
+    <div className="space-y-2.5 text-sm leading-relaxed">
+      {paragraphs.map((para, pIdx) => {
+        const lines = para.split('\n')
+        const isList = lines.length > 1 && lines.every((l) => /^\s*(\d+\.|\-|\•)\s+/.test(l) || !l.trim())
+
+        if (isList) {
+          return (
+            <ul key={pIdx} className="space-y-1.5 my-1">
+              {lines
+                .filter((l) => l.trim())
+                .map((line, lIdx) => {
+                  const match = line.match(/^\s*(\d+\.|\-|\•)\s+(.*)/)
+                  const prefix = match ? match[1] : '•'
+                  const text = match ? match[2] : line
+                  return (
+                    <li key={lIdx} className="flex items-start gap-2">
+                      <span className={`shrink-0 font-medium ${isUser ? 'text-white/80' : 'text-ink-2'}`}>
+                        {prefix}
+                      </span>
+                      <span className="flex-1">{text}</span>
+                    </li>
+                  )
+                })}
+            </ul>
+          )
+        }
+
+        return (
+          <p key={pIdx} className="whitespace-pre-wrap">
+            {para}
+          </p>
+        )
+      })}
+    </div>
+  )
+}
+
 export default function AiSearchChatPage() {
   // State
   const [messages, setMessages] = useState<ChatMessage[]>([])
@@ -151,6 +208,7 @@ export default function AiSearchChatPage() {
   // Voice Recording State
   const [isRecording, setIsRecording] = useState(false)
   const [recordingSeconds, setRecordingSeconds] = useState(0)
+  const [isTranscribingAudio, setIsTranscribingAudio] = useState(false)
 
   // Search History from localStorage
   const [searchHistory, setSearchHistory] = useState<Array<{ id: string; query: string; date: string }>>([])
@@ -160,7 +218,8 @@ export default function AiSearchChatPage() {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const timerIntervalRef = useRef<NodeJS.Timeout | null>(null)
-  const speechRecognitionRef = useRef<any>(null)
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null)
+  const audioChunksRef = useRef<Blob[]>([])
 
   // Load history from localStorage
   useEffect(() => {
@@ -233,39 +292,97 @@ export default function AiSearchChatPage() {
   }, [])
 
   // Handle files attached
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files
     if (!files || files.length === 0) return
 
-    Array.from(files).forEach((file) => {
-      if (file.size > 8 * 1024 * 1024) {
-        setErrorMessage(`File ${file.name} is larger than 8MB limit.`)
-        return
+    for (const file of Array.from(files)) {
+      if (file.size > 10 * 1024 * 1024) {
+        setErrorMessage(`File ${file.name} is larger than 10MB limit.`)
+        continue
       }
 
       const isImage = file.type.startsWith('image/')
-      const reader = new FileReader()
+      const isAudio = file.type.startsWith('audio/') || /\.(mp3|wav|m4a|ogg|opus|webm|aac)$/i.test(file.name)
 
+      // If audio file, transcribe it via Whisper
+      if (isAudio) {
+        setIsTranscribingAudio(true)
+        try {
+          const formData = new FormData()
+          formData.append('file', file)
+          const trRes = await fetch('/api/ai/transcribe', {
+            method: 'POST',
+            body: formData,
+          })
+          if (trRes.ok) {
+            const trJson = await trRes.json()
+            const transcript = trJson.data?.transcript
+            if (transcript) {
+              setInputPrompt((prev) => (prev ? `${prev} ${transcript}` : transcript))
+            }
+          }
+        } catch (err) {
+          console.warn('Audio transcription error:', err)
+        } finally {
+          setIsTranscribingAudio(false)
+        }
+      }
+
+      const reader = new FileReader()
       reader.onload = () => {
         const base64 = reader.result as string
         const item: AttachedFileItem = {
           id: `${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
           file,
           name: file.name,
-          mimeType: file.type || 'application/octet-stream',
+          mimeType: file.type || (isAudio ? 'audio/webm' : isImage ? 'image/jpeg' : 'application/octet-stream'),
           isImage,
+          isAudio,
           previewUrl: isImage ? base64 : undefined,
           base64,
           sizeFormatted: `${(file.size / (1024 * 1024)).toFixed(1)} MB`,
         }
         setAttachedFiles((prev) => [...prev, item])
       }
-
       reader.readAsDataURL(file)
-    })
+    }
 
     if (fileInputRef.current) {
       fileInputRef.current.value = ''
+    }
+  }
+
+  // Handle image pasting (Cmd+V / Ctrl+V)
+  const handlePaste = (e: React.ClipboardEvent) => {
+    const items = e.clipboardData?.items
+    if (!items) return
+
+    for (let i = 0; i < items.length; i++) {
+      if (items[i].type.indexOf('image') !== -1) {
+        const file = items[i].getAsFile()
+        if (file) {
+          e.preventDefault()
+          const reader = new FileReader()
+          reader.onload = () => {
+            const base64 = reader.result as string
+            setAttachedFiles((prev) => [
+              ...prev,
+              {
+                id: `paste-${Date.now()}`,
+                name: 'Pasted Image.png',
+                mimeType: file.type || 'image/png',
+                isImage: true,
+                isAudio: false,
+                previewUrl: base64,
+                base64,
+                sizeFormatted: `${(file.size / 1024).toFixed(0)} KB`,
+              },
+            ])
+          }
+          reader.readAsDataURL(file)
+        }
+      }
     }
   }
 
@@ -274,23 +391,38 @@ export default function AiSearchChatPage() {
     setAttachedFiles((prev) => prev.filter((f) => f.id !== id))
   }
 
-  // Voice recording toggle
-  const startRecording = () => {
-    const SpeechRecognition =
-      (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
-
-    if (!SpeechRecognition) {
-      setErrorMessage('Speech recognition is not supported in this browser. Please type your message.')
+  // Real Audio Voice Recording using MediaRecorder + Whisper
+  const startRecording = async () => {
+    setErrorMessage(null)
+    if (typeof window === 'undefined' || !navigator.mediaDevices?.getUserMedia) {
+      setErrorMessage('Audio recording is not supported in this browser. Please type your message.')
       return
     }
 
     try {
-      const recognition = new SpeechRecognition()
-      recognition.continuous = true
-      recognition.interimResults = true
-      recognition.lang = 'en-NG'
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
 
-      recognition.onstart = () => {
+      let mimeType = 'audio/webm'
+      if (!MediaRecorder.isTypeSupported('audio/webm')) {
+        if (MediaRecorder.isTypeSupported('audio/mp4')) {
+          mimeType = 'audio/mp4'
+        } else if (MediaRecorder.isTypeSupported('audio/ogg')) {
+          mimeType = 'audio/ogg'
+        } else {
+          mimeType = ''
+        }
+      }
+
+      const recorder = mimeType ? new MediaRecorder(stream, { mimeType }) : new MediaRecorder(stream)
+      audioChunksRef.current = []
+
+      recorder.ondataavailable = (e) => {
+        if (e.data && e.data.size > 0) {
+          audioChunksRef.current.push(e.data)
+        }
+      }
+
+      recorder.onstart = () => {
         setIsRecording(true)
         setRecordingSeconds(0)
         timerIntervalRef.current = setInterval(() => {
@@ -298,51 +430,119 @@ export default function AiSearchChatPage() {
         }, 1000)
       }
 
-      recognition.onresult = (event: any) => {
-        let transcript = ''
-        for (let i = event.resultIndex; i < event.results.length; i++) {
-          transcript += event.results[i][0].transcript
+      recorder.onstop = async () => {
+        stream.getTracks().forEach((track) => track.stop())
+        if (timerIntervalRef.current) {
+          clearInterval(timerIntervalRef.current)
+          timerIntervalRef.current = null
         }
-        setInputPrompt((prev) => (prev ? `${prev} ${transcript}` : transcript))
+        setIsRecording(false)
+
+        const finalBlob = new Blob(audioChunksRef.current, { type: recorder.mimeType || 'audio/webm' })
+        if (finalBlob.size > 0) {
+          await handleAudioTranscription(finalBlob)
+        }
       }
 
-      recognition.onerror = (event: any) => {
-        console.error('Speech recognition error:', event.error)
-        stopRecording()
-      }
-
-      recognition.onend = () => {
-        stopRecording()
-      }
-
-      recognition.start()
-      speechRecognitionRef.current = recognition
+      mediaRecorderRef.current = recorder
+      recorder.start(250)
     } catch (err: any) {
-      console.error('Failed to start speech recognition:', err)
-      setErrorMessage('Microphone access denied or unavailable.')
-      stopRecording()
+      console.error('Microphone error:', err)
+      setErrorMessage(
+        err.name === 'NotAllowedError'
+          ? 'Microphone permission was denied. Please allow microphone access in your browser settings.'
+          : 'Could not access your microphone.'
+      )
+      setIsRecording(false)
     }
   }
 
   const stopRecording = () => {
-    setIsRecording(false)
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
+      try {
+        mediaRecorderRef.current.stop()
+      } catch (err) {
+        console.warn('Error stopping media recorder:', err)
+      }
+    }
+  }
+
+  const cancelRecording = () => {
     if (timerIntervalRef.current) {
       clearInterval(timerIntervalRef.current)
       timerIntervalRef.current = null
     }
-    if (speechRecognitionRef.current) {
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
+      mediaRecorderRef.current.ondataavailable = null
+      mediaRecorderRef.current.onstop = null
       try {
-        speechRecognitionRef.current.stop()
-      } catch {
-        // ignore
+        mediaRecorderRef.current.stop()
+      } catch {}
+    }
+    audioChunksRef.current = []
+    setIsRecording(false)
+    setRecordingSeconds(0)
+  }
+
+  const handleAudioTranscription = async (blob: Blob) => {
+    setIsTranscribingAudio(true)
+    try {
+      const formData = new FormData()
+      formData.append('file', blob, 'voicenote.webm')
+
+      const res = await fetch('/api/ai/transcribe', {
+        method: 'POST',
+        body: formData,
+      })
+
+      if (!res.ok) {
+        const errJson = await res.json().catch(() => ({}))
+        throw new Error(errJson.error || 'Failed to transcribe voice note')
       }
-      speechRecognitionRef.current = null
+
+      const json = await res.json()
+      const transcript = json.data?.transcript
+
+      if (transcript) {
+        setInputPrompt((prev) => (prev ? `${prev} ${transcript}` : transcript))
+
+        const reader = new FileReader()
+        reader.onload = () => {
+          const base64 = reader.result as string
+          setAttachedFiles((prev) => [
+            ...prev,
+            {
+              id: `voice-${Date.now()}`,
+              name: `Voice note (${recordingSeconds || 1}s)`,
+              mimeType: blob.type || 'audio/webm',
+              isImage: false,
+              isAudio: true,
+              audioDuration: `${recordingSeconds}s`,
+              transcription: transcript,
+              base64,
+              sizeFormatted: `${(blob.size / 1024).toFixed(0)} KB`,
+            },
+          ])
+        }
+        reader.readAsDataURL(blob)
+      } else {
+        setErrorMessage('Could not catch clear speech in your voice note. Please try speaking closer to the mic.')
+      }
+    } catch (err: any) {
+      console.error('Transcription error:', err)
+      setErrorMessage(err.message || 'Voice transcription failed. Please try again.')
+    } finally {
+      setIsTranscribingAudio(false)
     }
   }
 
   // Copy message text
   const handleCopyMessage = (id: string, text: string) => {
-    navigator.clipboard.writeText(text)
+    const cleanText = text
+      .replace(/\*\*([^*]+)\*\*/g, '$1')
+      .replace(/\*([^*]+)\*/g, '$1')
+      .replace(/\*\*/g, '')
+    navigator.clipboard.writeText(cleanText)
     setCopiedId(id)
     setTimeout(() => setCopiedId(null), 2000)
   }
@@ -362,7 +562,12 @@ export default function AiSearchChatPage() {
       attachments: attachedFiles.map((f) => ({
         name: f.name,
         previewUrl: f.previewUrl,
+        base64: f.base64,
+        mimeType: f.mimeType,
         isImage: f.isImage,
+        isAudio: f.isAudio,
+        audioDuration: f.audioDuration,
+        transcription: f.transcription,
       })),
     }
 
@@ -383,14 +588,11 @@ export default function AiSearchChatPage() {
           messages: updatedMessages.map((m) => ({
             role: m.role,
             content: m.content,
-            attachments: m.attachments?.map((a) => {
-              const matched = filesToSend.find((f) => f.name === a.name)
-              return {
-                name: a.name,
-                mimeType: matched?.mimeType || 'image/jpeg',
-                base64: matched?.base64 || '',
-              }
-            }),
+            attachments: m.attachments?.map((a) => ({
+              name: a.name,
+              mimeType: a.mimeType || (a.isAudio ? 'audio/webm' : 'image/jpeg'),
+              base64: a.base64 || '',
+            })),
           })),
           city: selectedCity,
           userLocation: userCoords,
@@ -652,16 +854,25 @@ export default function AiSearchChatPage() {
                           <div className="flex flex-wrap gap-2">
                             {msg.attachments.map((att, i) => (
                               <div key={i} className="relative rounded-lg overflow-hidden">
-                                {att.previewUrl ? (
+                                {att.isAudio ? (
+                                  <div
+                                    className={`px-3 py-2 text-xs flex items-center gap-2 rounded-lg ${
+                                      isUser ? 'bg-white/15 text-white' : 'bg-azure-50 text-azure-700 border border-azure-100'
+                                    }`}
+                                  >
+                                    <Mic className="w-3.5 h-3.5 text-warn" />
+                                    <span className="font-medium">{att.name || 'Voice Note'}</span>
+                                  </div>
+                                ) : att.previewUrl ? (
                                   <button
                                     type="button"
                                     onClick={() => setActiveImageModal(att.previewUrl || null)}
-                                    className="relative w-32 h-24 block group cursor-zoom-in"
+                                    className="relative w-32 h-24 block group cursor-zoom-in rounded-lg overflow-hidden border border-white/20"
                                   >
                                     <Image src={att.previewUrl} alt={att.name} fill className="object-cover group-hover:scale-105 transition-transform duration-300" />
                                   </button>
                                 ) : (
-                                  <div className="px-3 py-2 bg-white/10 text-xs flex items-center gap-2">
+                                  <div className="px-3 py-2 bg-white/10 text-xs flex items-center gap-2 rounded-lg">
                                     <ImageIcon className="w-4 h-4 opacity-70" />
                                     <span>{att.name}</span>
                                   </div>
@@ -671,7 +882,7 @@ export default function AiSearchChatPage() {
                           </div>
                         )}
 
-                        {msg.content && <div className="text-sm leading-relaxed whitespace-pre-wrap">{msg.content}</div>}
+                        {msg.content && <FormattedMessage content={msg.content} isUser={isUser} />}
 
                         {!isUser && msg.analysis && msg.providers && msg.providers.length > 0 && (
                           <div className="flex flex-wrap items-center gap-1.5">
@@ -843,15 +1054,19 @@ export default function AiSearchChatPage() {
                   <div className="flex flex-wrap items-center gap-1.5 p-1.5 pb-2.5 mb-1 border-b border-line">
                     {attachedFiles.map((file) => (
                       <div key={file.id} className="cn-pop flex items-center gap-1.5 h-8 pl-1 pr-1.5 rounded-lg bg-sunken text-xs text-ink-2">
-                        {file.isImage && file.previewUrl ? (
-                          <div className="relative w-6 h-6 rounded-md overflow-hidden">
+                        {file.isAudio ? (
+                          <span className="w-6 h-6 rounded-md bg-azure-50 text-azure flex items-center justify-center shrink-0">
+                            <Mic className="w-3.5 h-3.5" />
+                          </span>
+                        ) : file.isImage && file.previewUrl ? (
+                          <div className="relative w-6 h-6 rounded-md overflow-hidden shrink-0">
                             <Image src={file.previewUrl} alt={file.name} fill className="object-cover" />
                           </div>
                         ) : (
                           <ImageIcon className="w-4 h-4 text-muted ml-1" />
                         )}
-                        <span className="max-w-[120px] truncate">{file.name}</span>
-                        <button onClick={() => handleRemoveFile(file.id)} className="text-subtle hover:text-danger cursor-pointer" aria-label={`Remove ${file.name}`}>
+                        <span className="max-w-[140px] truncate font-medium">{file.name}</span>
+                        <button onClick={() => handleRemoveFile(file.id)} className="text-subtle hover:text-danger cursor-pointer ml-0.5" aria-label={`Remove ${file.name}`}>
                           <X className="w-3.5 h-3.5" />
                         </button>
                       </div>
@@ -860,15 +1075,29 @@ export default function AiSearchChatPage() {
                 )}
 
                 {isRecording ? (
-                  <div className="flex items-center justify-between gap-3 px-2.5 py-1.5">
-                    <div className="flex items-center gap-2.5 text-sm text-ink">
+                  <div className="flex items-center justify-between gap-3 px-3 py-2 bg-danger-50/50 rounded-xl">
+                    <div className="flex items-center gap-2.5 text-sm font-medium text-ink">
                       <span className="w-2.5 h-2.5 rounded-full bg-danger animate-pulse" />
-                      Listening
-                      <span className="text-muted tabular-nums">{recordingSeconds}s</span>
+                      <span>Recording voice note…</span>
+                      <span className="text-muted tabular-nums text-xs">({recordingSeconds}s)</span>
                     </div>
-                    <Button size="sm" variant="warm" onClick={stopRecording}>
-                      Done
-                    </Button>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={cancelRecording}
+                        className="px-2.5 py-1 text-xs text-muted hover:text-ink cursor-pointer"
+                      >
+                        Cancel
+                      </button>
+                      <Button size="sm" variant="warm" onClick={stopRecording}>
+                        Done & Transcribe
+                      </Button>
+                    </div>
+                  </div>
+                ) : isTranscribingAudio ? (
+                  <div className="flex items-center gap-2.5 px-3 py-2 text-sm text-muted">
+                    <ConnectaLoader size={16} showTrack={false} />
+                    <span>Transcribing voice note with Whisper AI…</span>
                   </div>
                 ) : (
                   <div className="flex items-end gap-1">
@@ -876,7 +1105,7 @@ export default function AiSearchChatPage() {
                       type="button"
                       onClick={() => fileInputRef.current?.click()}
                       className="w-9 h-9 rounded-xl text-muted hover:text-ink hover:bg-sunken flex items-center justify-center transition-colors shrink-0 cursor-pointer"
-                      title="Add a photo or document"
+                      title="Attach photo, voice note or document"
                       aria-label="Attach file"
                     >
                       <Paperclip className="w-4 h-4" />
@@ -884,7 +1113,7 @@ export default function AiSearchChatPage() {
                     <input
                       ref={fileInputRef}
                       type="file"
-                      accept="image/jpeg,image/png,image/webp,application/pdf"
+                      accept="image/*,application/pdf,text/plain,audio/*,.mp3,.wav,.m4a,.ogg,.opus,.webm,.aac"
                       multiple
                       onChange={handleFileChange}
                       className="hidden"
@@ -894,23 +1123,24 @@ export default function AiSearchChatPage() {
                       value={inputPrompt}
                       onChange={(e) => setInputPrompt(e.target.value)}
                       onKeyDown={handleKeyDown}
+                      onPaste={handlePaste}
                       rows={1}
-                      placeholder={`Describe what needs fixing in ${selectedCity}…`}
+                      placeholder={`Describe what needs fixing, upload photo, or record voice…`}
                       className="flex-1 max-h-36 bg-transparent text-ink placeholder:text-subtle text-sm py-2 px-1 focus:outline-none resize-none leading-relaxed"
                     />
                     <button
                       type="button"
                       onClick={startRecording}
                       className="w-9 h-9 rounded-xl text-muted hover:text-ink hover:bg-sunken flex items-center justify-center transition-colors shrink-0 cursor-pointer"
-                      title="Speak instead"
-                      aria-label="Record voice"
+                      title="Record voice note"
+                      aria-label="Record voice note"
                     >
                       <Mic className="w-4 h-4" />
                     </button>
                     <button
                       type="button"
                       onClick={() => handleSubmitMessage()}
-                      disabled={isSearching || (!inputPrompt.trim() && attachedFiles.length === 0)}
+                      disabled={isSearching || isTranscribingAudio || (!inputPrompt.trim() && attachedFiles.length === 0)}
                       className="w-9 h-9 rounded-xl bg-warn hover:bg-warn-600 disabled:bg-sunken disabled:text-subtle text-ink flex items-center justify-center transition-colors shrink-0 cursor-pointer disabled:cursor-not-allowed"
                       aria-label="Send"
                     >
