@@ -168,7 +168,6 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             if (typeof body.data.unreadNotifications === 'number') {
               setUnreadNotificationsCount(body.data.unreadNotifications)
             }
-            }
           }
         }
       } catch (err) {
