@@ -1115,11 +1115,6 @@ export default function HomePage() {
                 </span>
               </h1>
 
-              {/* Subtitle */}
-              <p className="text-base sm:text-lg lg:text-xl font-medium leading-relaxed text-slate-600 max-w-2xl mx-auto">
-                Connecta connects you with vetted plumbers, electricians, AC technicians, carpenters, and skilled artisans across Kano. Identity verified, honest reviews, and milestone escrow security.
-              </p>
-
               {/* Search Capsule with Real-time Suggestions Dropdown */}
               <div ref={searchContainerRef} className="pt-1 sm:pt-2 max-w-3xl mx-auto relative z-40 w-full">
                 <div
@@ -1249,59 +1244,6 @@ export default function HomePage() {
                   </div>
                 )}
               </div>
-
-              {/* Real Verified Metrics from Connecta Old */}
-              <ScrollReveal variant="fade-up">
-                <div className="pt-2 sm:pt-3 flex flex-wrap items-center justify-center gap-2.5 sm:gap-3 text-xs font-bold">
-                  {/* Card 1: Emerald Green */}
-                  <div className="flex items-center gap-2 bg-[#10B981] text-white px-3.5 py-2 rounded-full shadow-md shadow-emerald-500/20 border border-white/20 hover:scale-105 transition-all cursor-default">
-                    <div className="w-5 h-5 rounded-full bg-white/20 text-white flex items-center justify-center shrink-0">
-                      <svg className="w-3 h-3" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M12 2l1.9 3.9 4.3-.6.5 4.3 4 1.7-1.8 3.9 1.8 3.9-4 1.7-.5 4.3-4.3-.6L12 22l-1.9-3.9-4.3.6-.5-4.3-4-1.7 1.8-3.9-1.8-3.9 4-1.7.5-4.3 4.3.6z" />
-                      </svg>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      <span className="font-black text-white tracking-tight">2,548+</span>
-                      <span className="text-white/90 font-medium">Local Artisans Onboard</span>
-                    </div>
-                  </div>
-
-                  {/* Card 2: Electric Azure Blue */}
-                  <div className="flex items-center gap-2 bg-[#4D78FF] text-white px-3.5 py-2 rounded-full shadow-md shadow-blue-500/20 border border-white/20 hover:scale-105 transition-all cursor-default">
-                    <div className="w-5 h-5 rounded-full bg-white/20 text-white flex items-center justify-center shrink-0">
-                      <Globe className="w-3 h-3 stroke-[2.5]" />
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      <span className="font-black text-white tracking-tight">Kano</span>
-                      <span className="text-white/90 font-medium">&amp; Key Northern Hubs</span>
-                    </div>
-                  </div>
-
-                  {/* Card 3: Deep Royal Purple */}
-                  <div className="flex items-center gap-2 bg-[#2E1A47] text-white px-3.5 py-2 rounded-full shadow-md shadow-purple-950/25 border border-white/20 hover:scale-105 transition-all cursor-default">
-                    <div className="w-5 h-5 rounded-full bg-white/20 text-white flex items-center justify-center shrink-0">
-                      <ShieldCheck className="w-3 h-3 stroke-[2.5]" />
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      <span className="font-black text-white tracking-tight">100%</span>
-                      <span className="text-white/90 font-medium">Escrow Protected</span>
-                    </div>
-                  </div>
-
-                  {/* Card 4: Vibrant Golden Amber */}
-                  <div className="flex items-center gap-2 bg-[#F59E0B] text-white px-3.5 py-2 rounded-full shadow-md shadow-amber-500/20 border border-white/20 hover:scale-105 transition-all cursor-default">
-                    <div className="w-5 h-5 rounded-full bg-white/20 text-white flex items-center justify-center shrink-0">
-                      <svg className="w-3 h-3" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M12 2l1.9 3.9 4.3-.6.5 4.3 4 1.7-1.8 3.9 1.8 3.9-4 1.7-.5 4.3-4.3-.6L12 22l-1.9-3.9-4.3.6-.5-4.3-4-1.7 1.8-3.9-1.8-3.9 4-1.7.5-4.3 4.3.6z" />
-                      </svg>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      <span className="font-black text-white tracking-tight">&lt;1s</span>
-                      <span className="text-white/90 font-medium">Avg. AI Match Time</span>
-                    </div>
-                  </div>
-                </div>
-              </ScrollReveal>
             </div>
           </div>
         </section>
