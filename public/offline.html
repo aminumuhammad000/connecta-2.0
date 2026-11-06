@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Offline — Connecta</title>
+  <meta name="theme-color" content="#0A1020">
+  <link rel="icon" href="/icons/icon-192x192.png">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: #0A1020;
+      color: #FFFFFF;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+    }
+    .card {
+      background: rgba(17, 25, 40, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 1.5rem;
+      padding: 2rem;
+      max-width: 26rem;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+    }
+    .icon {
+      width: 4rem;
+      height: 4rem;
+      border-radius: 1rem;
+      background: rgba(245, 158, 11, 0.12);
+      border: 1px solid rgba(245, 158, 11, 0.25);
+      color: #F59E0B;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1.25rem;
+    }
+    h1 { font-size: 1.35rem; font-weight: 700; margin-bottom: 0.5rem; }
+    p { font-size: 0.875rem; color: rgba(255, 255, 255, 0.65); line-height: 1.5; margin-bottom: 1.5rem; }
+    button {
+      width: 100%;
+      padding: 0.875rem 1rem;
+      border-radius: 0.75rem;
+      background: #2563EB;
+      color: #FFFFFF;
+      font-weight: 600;
+      font-size: 0.9rem;
+      border: none;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    button:active { transform: scale(0.98); }
+    .footer { font-size: 0.75rem; color: rgba(255, 255, 255, 0.35); margin-top: 1.25rem; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="icon">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="1" y1="1" x2="23" y2="23"></line>
+        <path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55"></path>
+        <path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39"></path>
+        <path d="M10.71 5.05A16 16 0 0 1 22.58 9"></path>
+        <path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88"></path>
+        <path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path>
+        <line x1="12" y1="20" x2="12.01" y2="20"></line>
+      </svg>
+    </div>
+    <h1>You are currently offline</h1>
+    <p>Please check your mobile data or Wi-Fi connection. Connecta will reconnect as soon as signal is detected.</p>
+    <button onclick="window.location.reload()">Retry Connection</button>
+    <div class="footer">Connecta Progressive Web App</div>
+  </div>
+</body>
+</html>

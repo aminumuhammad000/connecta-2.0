@@ -2,6 +2,7 @@ import Link from 'next/link'
 import type { ReactNode } from 'react'
 import { ArrowLeft } from 'lucide-react'
 import { BrandStripe, ConnectaMark } from '@/components/brand/ConnectaLoader'
+import InstallAppButton from '@/components/pwa/InstallAppButton'
 
 export function PublicShell({
   children,
@@ -37,7 +38,10 @@ export function PublicShell({
               <span className="text-[17px] font-medium tracking-[-0.02em]">connecta</span>
             </Link>
           </div>
-          {actions && <div className="flex items-center gap-2">{actions}</div>}
+          <div className="flex items-center gap-2">
+            <InstallAppButton variant="outline" className="hidden sm:inline-flex text-xs py-1.5 px-3" />
+            {actions}
+          </div>
         </div>
       </header>
 

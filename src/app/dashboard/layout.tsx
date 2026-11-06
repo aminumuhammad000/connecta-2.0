@@ -21,6 +21,7 @@ import {
 } from 'lucide-react'
 import { BrandStripe, ConnectaMark } from '@/components/brand/ConnectaLoader'
 import { AnimatedNumber, Avatar, Skeleton } from '@/components/dashboard/ui'
+import InstallAppButton from '@/components/pwa/InstallAppButton'
 
 interface DashboardLayoutProps {
   children: React.ReactNode
@@ -344,6 +345,10 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           </div>
         </Link>
 
+        <div className="px-1.5 pb-2">
+          <InstallAppButton variant="menu-item" />
+        </div>
+
         <div className="flex items-center gap-2.5 px-1.5 py-1.5">
           {isLoadingUser ? (
             <>
@@ -433,6 +438,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             >
               <Search className="w-4 h-4" />
             </button>
+
+            <InstallAppButton variant="outline" className="hidden sm:inline-flex" />
 
             <div className="relative" ref={notificationsRef}>
               <button

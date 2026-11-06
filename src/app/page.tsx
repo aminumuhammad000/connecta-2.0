@@ -48,6 +48,7 @@ import {
 } from 'lucide-react'
 import { SectionBorderDivider } from '@/components/Connecta3DDecoration'
 import ScrollReveal from '@/components/ScrollReveal'
+import InstallAppButton from '@/components/pwa/InstallAppButton'
 
 const DYNAMIC_PHRASES = [
   'trusted local services',
@@ -920,6 +921,7 @@ export default function HomePage() {
 
           {/* Right Action: Clean single primary CTA on desktop, only hamburger menu on mobile */}
           <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
+            <InstallAppButton variant="outline" className="hidden lg:inline-flex rounded-full text-xs py-1.5 px-3" />
             {hasAccount ? (
               <Link
                 href="/dashboard"
@@ -1026,6 +1028,10 @@ export default function HomePage() {
               <span className="font-bold text-slate-900 group-hover:text-emerald-900">About Connecta</span>
               <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-emerald-600 transition-transform group-hover:translate-x-0.5" />
             </Link>
+
+            <div className="pt-2">
+              <InstallAppButton variant="menu-item" />
+            </div>
 
             <div className="pt-3 mt-1 border-t border-slate-100 flex flex-col gap-2">
               {hasAccount ? (

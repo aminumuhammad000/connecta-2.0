@@ -5,6 +5,7 @@ import SmoothScrollProvider from "@/components/SmoothScrollProvider";
 import Script from "next/script";
 import SplashScreen from "@/components/brand/SplashScreen";
 import { splashBootScript } from "@/components/brand/splash-boot";
+import PwaManager from "@/components/pwa/PwaManager";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -17,13 +18,19 @@ const geistMono = Geist_Mono({
 });
 
 export const viewport: Viewport = {
-  themeColor: "#0A1020",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#1A73E8" },
+    { media: "(prefers-color-scheme: dark)", color: "#0A1020" },
+  ],
   width: "device-width",
   initialScale: 1,
+  maximumScale: 5,
+  viewportFit: "cover",
 };
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://myconnecta.ng"),
+  applicationName: "Connecta",
   title: {
     default: "Connecta | Find Trusted Local Service Professionals in Kano",
     template: "%s | Connecta",
@@ -49,13 +56,23 @@ export const metadata: Metadata = {
     icon: [
       { url: "/brand/favicon/favicon.ico", sizes: "any" },
       { url: "/brand/favicon/favicon.svg", type: "image/svg+xml" },
-      { url: "/brand/favicon/connecta-icon-32.png", sizes: "32x32", type: "image/png" },
+      { url: "/icons/icon-192x192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icons/icon-512x512.png", sizes: "512x512", type: "image/png" },
     ],
     apple: [
-      { url: "/brand/app-icons/connecta-icon-180.png", sizes: "180x180", type: "image/png" },
+      { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
+      { url: "/icons/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
     ],
   },
-  manifest: "/brand/app-icons/site.webmanifest",
+  manifest: "/manifest.webmanifest",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "Connecta",
+  },
+  formatDetection: {
+    telephone: false,
+  },
   openGraph: {
     title: "Connecta | Find Trusted Local Service Professionals in Kano",
     description:
@@ -156,6 +173,7 @@ export default function RootLayout({
           {splashBootScript}
         </Script>
         <SplashScreen />
+        <PwaManager />
         <SmoothScrollProvider>
           {children}
         </SmoothScrollProvider>
