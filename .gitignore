@@ -47,5 +47,6 @@ next-env.d.ts
 
 # local runtime server database files
 data/*.json
+!data/seed-connecta-db.json
 
 connecta old/

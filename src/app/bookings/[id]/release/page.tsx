@@ -1,10 +1,10 @@
 'use client'
 
 import { useParams } from 'next/navigation'
-import { useState } from 'react'
+import { useState, Suspense } from 'react'
 import { ShieldCheck, CheckCircle2, Star, ThumbsUp } from 'lucide-react'
 
-export default function EscrowReleasePage() {
+function EscrowReleaseContent() {
   const params = useParams()
   const bookingNumber = (params?.id as string) || 'CN-KN'
   const [released, setReleased] = useState(false)
@@ -92,5 +92,13 @@ export default function EscrowReleasePage() {
         )}
       </div>
     </div>
+  )
+}
+
+export default function EscrowReleasePage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-slate-950 text-white flex items-center justify-center">Loading...</div>}>
+      <EscrowReleaseContent />
+    </Suspense>
   )
 }

@@ -49,6 +49,7 @@ export interface ServerUserProfile {
   welcomeSparks?: number
   language?: 'ha' | 'en'
   propertyType?: 'residential' | 'commercial'
+  availability?: 'full_time' | 'part_time' | 'emergency'
   trustTier?: 'tier1' | 'tier2' | 'certified_master'
   verificationStatus?: 'unverified' | 'verified_tier1' | 'verified_tier2' | 'certified_master'
   onboardingCompleted?: boolean

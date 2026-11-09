@@ -250,9 +250,9 @@ export async function handleIncomingWhatsAppMessage(message: any, contact: any) 
       const { serviceRequest, booking, artisan } = createWhatsAppOrder({
         phone: cleanFrom,
         name: userName,
-        category: session.selectedCategory,
+        category: session.selectedCategory || 'Gyara',
         neighborhood: session.neighborhood,
-        description: session.description,
+        description: session.description || 'Bincike da Gyara',
         slot: session.slot,
         subTrade: session.subTrade,
         equipment: session.equipment,
