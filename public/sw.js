@@ -1,5 +1,5 @@
 // Connecta Progressive Web App Service Worker
-const CACHE_NAME = 'connecta-pwa-v1.1'
+const CACHE_NAME = 'connecta-pwa-v1.2'
 const PRECACHE_ASSETS = [
   '/',
   '/offline.html',
