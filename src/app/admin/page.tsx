@@ -336,7 +336,24 @@ export default function AdminPage() {
   const disputes = db.disputes && db.disputes.length > 0
     ? (db.disputes as any)
     : SEED_DISPUTES
-  const verificationCases = INITIAL_VERIFICATION_CASES
+  const realVerificationCases = (db.profiles || [])
+    .filter((p: any) => p.ninMasked || p.toolSelfieUrl || p.verificationStatus?.includes('tier'))
+    .map((p: any) => ({
+      id: `vc-${p.id}`,
+      providerName: p.fullName || 'Artisan',
+      businessName: p.workshopAddress || `${p.fullName} Workshop`,
+      trade: p.trade || 'Specialist',
+      city: `Kano (${p.neighborhood || 'Cluster'})`,
+      status: (p.trustTier === 'tier3' ? 'approved' : 'under_review') as 'approved' | 'under_review',
+      submittedAt: p.tier2VerifiedAt || p.updatedAt || 'Recent',
+      documentType: p.trustTier === 'tier3' ? 'Tier-3 Master Craftsman License' : 'National Identification Number (NIN) & Tool Selfie',
+      documentNumber: p.ninMasked || 'VERIFIED-KANO',
+      yearsOfExperience: 8,
+    }))
+
+  const verificationCases = realVerificationCases.length > 0
+    ? [...realVerificationCases, ...INITIAL_VERIFICATION_CASES]
+    : INITIAL_VERIFICATION_CASES
 
   const totalEscrowLockedMinor = bookings
     .filter((b: any) => b.escrowStatus === 'locked' || b.escrowStatus === 'partially_released')

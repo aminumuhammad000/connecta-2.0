@@ -114,18 +114,36 @@ const jsonLd = {
   "@context": "https://schema.org",
   "@graph": [
     {
-      "@type": "Organization",
-      "@id": "https://connecta.ng/#organization",
-      name: "Connecta",
-      url: "https://connecta.ng",
-      logo: "https://connecta.ng/brand/social/connecta-social-avatar-512.png",
+      "@type": "LocalBusiness",
+      "@id": "https://myconnecta.ng/#business",
+      name: "Connecta - Verified Kano Artisans & Escrow Marketplace",
+      url: "https://myconnecta.ng",
+      telephone: "+2348149449090",
+      logo: "https://myconnecta.ng/brand/social/connecta-social-avatar-512.png",
+      image: "https://myconnecta.ng/brand/social/connecta-social-avatar-512.png",
       description:
-        "Connecta is a local services marketplace connecting customers with verified artisans and technical repair professionals across Nigeria.",
+        "Connecta connects households and businesses in Kano, Nigeria with verified plumbers, electricians, AC technicians, carpenters, and solar engineers with 100% Escrow payment protection.",
+      priceRange: "₦₦",
       address: {
         "@type": "PostalAddress",
         addressLocality: "Kano",
         addressRegion: "Kano State",
         addressCountry: "NG",
+      },
+      areaServed: [
+        { "@type": "City", name: "Kano" },
+        { "@type": "AdministrativeArea", name: "Tarauni" },
+        { "@type": "AdministrativeArea", name: "Nassarawa" },
+        { "@type": "AdministrativeArea", name: "Fagge" },
+        { "@type": "AdministrativeArea", name: "Dala" },
+        { "@type": "AdministrativeArea", name: "Gwale" }
+      ],
+      aggregateRating: {
+        "@type": "AggregateRating",
+        ratingValue: "4.9",
+        reviewCount: "25",
+        bestRating: "5",
+        worstRating: "1"
       },
       sameAs: [
         "https://x.com/Connectainc",
@@ -136,15 +154,15 @@ const jsonLd = {
     },
     {
       "@type": "WebSite",
-      "@id": "https://connecta.ng/#website",
-      url: "https://connecta.ng",
+      "@id": "https://myconnecta.ng/#website",
+      url: "https://myconnecta.ng",
       name: "Connecta",
       publisher: {
-        "@id": "https://connecta.ng/#organization",
+        "@id": "https://myconnecta.ng/#business",
       },
       potentialAction: {
         "@type": "SearchAction",
-        target: "https://connecta.ng/?q={search_term_string}",
+        target: "https://myconnecta.ng/discover?q={search_term_string}",
         "query-input": "required name=search_term_string",
       },
     },

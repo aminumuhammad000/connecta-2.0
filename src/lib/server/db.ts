@@ -30,6 +30,11 @@ export interface ServerUserProfile {
   skills?: string[]
   hourlyRateMinor?: number
   workshopAddress?: string
+  neighborhood?: string
+  rating?: number
+  reviewCount?: number
+  completedJobs?: number
+  badges?: string[]
   ninNumber?: string
   experienceYears?: number
   yearsExperience?: number
@@ -44,8 +49,16 @@ export interface ServerUserProfile {
   accountName?: string
   welcomeSparks?: number
   isFeatured?: boolean
-  verificationStatus?: 'verified' | 'unverified'
   badges?: string[]
+  language?: 'ha' | 'en'
+  propertyType?: 'residential' | 'commercial'
+  availability?: 'full_time' | 'part_time' | 'emergency'
+  trustTier?: 'tier1' | 'tier2' | 'certified_master'
+  verificationStatus?: 'unverified' | 'verified_tier1' | 'verified_tier2' | 'certified_master' | 'verified'
+  onboardingCompleted?: boolean
+  workshopGeoCoordinates?: { lat: number; lng: number }
+  guildAssociation?: string
+  guarantorContact?: string
   createdAt: string
   updatedAt: string
 }
@@ -146,6 +159,9 @@ export interface ServerBookingContract {
   providerAvatar?: string
   title: string
   category: string
+  equipment?: string
+  mediaUrl?: string
+  visualAttachment?: any
   location: string
   totalAmountMinor: number
   currency: string
@@ -241,6 +257,21 @@ export interface ServerNotification {
   link?: string
   createdAt: string
   time?: string
+export interface ServerWhatsAppSession {
+  phone: string
+  name: string
+  language?: 'ha' | 'en'
+  step: 'GREETING' | 'CATEGORY' | 'NEIGHBORHOOD' | 'SLOT' | 'DESCRIPTION' | 'MATCHED' | 'CHOOSE_LANGUAGE' | 'WAITING_DISPATCH'
+  selectedCategory?: string
+  subTrade?: string
+  equipment?: string
+  neighborhood?: string
+  slot?: string
+  description?: string
+  lastActive: string
+  requestId?: string
+  bookingNumber?: string
+  matchedArtisanId?: string
 }
 
 export interface ServerDatabaseSchema {
@@ -252,6 +283,7 @@ export interface ServerDatabaseSchema {
   squads: ServerSquad[]
   community_posts: ServerCommunityPost[]
   disputes: ServerDispute[]
+  whatsapp_sessions?: ServerWhatsAppSession[]
   email_dispatches?: ServerEmailDispatch[]
   platform_settings?: PlatformSettings
   in_app_notifications?: InAppNotification[]
@@ -291,6 +323,7 @@ function getInitialDatabase(): ServerDatabaseSchema {
     squads: [],
     community_posts: [],
     disputes: [],
+    whatsapp_sessions: [],
     email_dispatches: [],
     platform_settings: { ...DEFAULT_PLATFORM_SETTINGS },
     in_app_notifications: [],
@@ -336,7 +369,10 @@ export function readDatabase(): ServerDatabaseSchema {
       }
     } else {
       // Check if project data directory has a seed file
-      const projectDataFile = path.resolve(process.cwd(), 'data', 'connecta-db.json')
+      let projectDataFile = path.resolve(process.cwd(), 'data', 'connecta-db.json')
+      if (!fs.existsSync(projectDataFile)) {
+        projectDataFile = path.resolve(process.cwd(), 'data', 'seed-connecta-db.json')
+      }
       if (fs.existsSync(projectDataFile)) {
         try {
           const raw = fs.readFileSync(projectDataFile, 'utf-8')
@@ -356,6 +392,7 @@ export function readDatabase(): ServerDatabaseSchema {
       squads: parsed.squads || [],
       community_posts: parsed.community_posts || [],
       disputes: parsed.disputes || [],
+      whatsapp_sessions: parsed.whatsapp_sessions || [],
       email_dispatches: parsed.email_dispatches || [],
       platform_settings: parsed.platform_settings || { ...DEFAULT_PLATFORM_SETTINGS },
       in_app_notifications: parsed.in_app_notifications || [],
@@ -1346,3 +1383,265 @@ export function clearNotifications(userId: string, onlyRead = false): boolean {
   return false
 }
 
+// =============================================================================
+// WHATSAPP PERSISTENCE & INTAKE ORDER ENGINE
+// =============================================================================
+
+export function getWhatsAppSession(phone: string): ServerWhatsAppSession | null {
+  const db = readDatabase()
+  const cleanPhone = phone.replace(/[^0-9]/g, '')
+  return db.whatsapp_sessions?.find((s) => s.phone.replace(/[^0-9]/g, '') === cleanPhone) || null
+}
+
+export function saveWhatsAppSession(session: ServerWhatsAppSession): ServerWhatsAppSession {
+  const db = readDatabase()
+  if (!db.whatsapp_sessions) db.whatsapp_sessions = []
+  const cleanPhone = session.phone.replace(/[^0-9]/g, '')
+  const idx = db.whatsapp_sessions.findIndex((s) => s.phone.replace(/[^0-9]/g, '') === cleanPhone)
+  const updated: ServerWhatsAppSession = {
+    ...session,
+    phone: cleanPhone,
+    lastActive: new Date().toISOString(),
+  }
+  if (idx >= 0) {
+    db.whatsapp_sessions[idx] = updated
+  } else {
+    db.whatsapp_sessions.push(updated)
+  }
+  writeDatabase(db)
+  return updated
+}
+
+export function getOrCreateWhatsAppCustomer(phone: string, name = 'WhatsApp Customer'): ServerUserProfile {
+  const db = readDatabase()
+  const cleanPhone = phone.replace(/[^0-9]/g, '')
+  let user = db.profiles.find((p) => (p.whatsapp || p.phone || '').replace(/[^0-9]/g, '') === cleanPhone)
+  if (!user) {
+    user = {
+      id: `usr_wa_${cleanPhone}`,
+      fullName: name,
+      firstName: name.split(' ')[0] || 'Customer',
+      lastName: name.split(' ').slice(1).join(' ') || '',
+      email: `${cleanPhone}@whatsapp.myconnecta.ng`,
+      phone: `+${cleanPhone}`,
+      whatsapp: `+${cleanPhone}`,
+      role: 'customer',
+      activeRole: 'customer',
+      accountStatus: 'active',
+      country: 'Nigeria',
+      city: 'Kano',
+      currency: 'NGN',
+      headline: 'WhatsApp Customer',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    }
+    db.profiles.push(user)
+    getOrCreateWallet(user.id, 25, 'NGN')
+    writeDatabase(db)
+  }
+  return user
+}
+
+export function findMatchingArtisans(
+  category: string,
+  neighborhood?: string,
+  subTrade?: string,
+  equipment?: string
+): ServerUserProfile[] {
+  const db = readDatabase()
+  const providers = db.profiles.filter((p) => p.role === 'provider' && (p.city || '').toLowerCase() === 'kano')
+
+  const lowerCat = (category || '').toLowerCase()
+  const lowerSub = (subTrade || '').toLowerCase()
+  const lowerEquip = (equipment || '').toLowerCase()
+  const lowerHood = (neighborhood || '').toLowerCase()
+
+  // Normalize canonical category across Hausa and English
+  let canonicalCat = ''
+  if (lowerCat.includes('solar') || lowerCat.includes('batir') || lowerCat.includes('inverter') || lowerCat.includes('inbata')) canonicalCat = 'solar'
+  else if (lowerCat.includes('gen') || lowerCat.includes('inji') || lowerCat.includes('fetur') || lowerCat.includes('dizal') || lowerCat.includes('mikano')) canonicalCat = 'generator'
+  else if (lowerCat.includes('ac') || lowerCat.includes('firiji') || lowerCat.includes('fridge') || lowerCat.includes('cooling') || lowerCat.includes('sanyi')) canonicalCat = 'ac'
+  else if (lowerCat.includes('elec') || lowerCat.includes('waya') || lowerCat.includes('lantarki') || lowerCat.includes('wuta')) canonicalCat = 'electrical'
+  else if (lowerCat.includes('plumb') || lowerCat.includes('famfo') || lowerCat.includes('ruwa') || lowerCat.includes('borehole') || lowerCat.includes('tanka')) canonicalCat = 'plumbing'
+
+  // Score each artisan using the multi-factor matching formula
+  const scored = providers.map((artisan) => {
+    const trade = (artisan.trade || artisan.category || artisan.primaryCategory || '').toLowerCase()
+    const headline = (artisan.headline || '').toLowerCase()
+    const bio = (artisan.bio || '').toLowerCase()
+    const skills = (artisan.skills || []).map((s) => s.toLowerCase()).join(' ')
+    const artisanHood = (artisan.neighborhood || artisan.workshopAddress || '').toLowerCase()
+    const artisanAllText = `${trade} ${headline} ${bio} ${skills}`
+
+    // 1. Trade & Sub-trade Affinity (35%)
+    let tradeAffinity = 0.0
+    let isCategoryMatch = false
+
+    if (canonicalCat === 'solar' && (trade.includes('solar') || trade.includes('inverter') || headline.includes('solar') || headline.includes('inverter'))) isCategoryMatch = true
+    else if (canonicalCat === 'generator' && (trade.includes('gen') || trade.includes('diesel') || trade.includes('lister') || headline.includes('gen'))) isCategoryMatch = true
+    else if (canonicalCat === 'ac' && (trade.includes('ac') || trade.includes('cooling') || trade.includes('refriger') || headline.includes('cooling'))) isCategoryMatch = true
+    else if (canonicalCat === 'electrical' && (trade.includes('electr') || trade.includes('wiring') || headline.includes('electric') || headline.includes('wiring'))) isCategoryMatch = true
+    else if (canonicalCat === 'plumbing' && (trade.includes('plumb') || trade.includes('water') || trade.includes('pipe') || trade.includes('famfo') || headline.includes('plumb'))) isCategoryMatch = true
+
+    if (isCategoryMatch) {
+      tradeAffinity = 0.70
+      // Boost if artisan specialized in the exact sub-trade or equipment
+      if (lowerSub && (skills.includes(lowerSub) || headline.includes(lowerSub) || bio.includes(lowerSub))) {
+        tradeAffinity += 0.20
+      }
+      if (lowerEquip && (skills.includes(lowerEquip) || headline.includes(lowerEquip) || bio.includes(lowerEquip))) {
+        tradeAffinity += 0.10
+      }
+    } else {
+      tradeAffinity = 0.05 // Strict non-match penalty
+    }
+
+    // 2. Proximity & Kano Neighborhood Clustering (30%)
+    let proximity = 0.30
+    if (lowerHood && artisanHood) {
+      const hoodClean = lowerHood.split(' ')[0]
+      if (artisanHood.includes(hoodClean)) {
+        proximity = 1.0 // Exact neighborhood match
+      } else if (
+        (lowerHood.includes('nassarawa') && artisanHood.includes('fagge')) ||
+        (lowerHood.includes('tarauni') && artisanHood.includes('municipal')) ||
+        (lowerHood.includes('dala') && artisanHood.includes('gwale'))
+      ) {
+        proximity = 0.75 // Neighboring cluster
+      } else {
+        proximity = 0.50 // Metropolitan Kano
+      }
+    }
+
+    // 3. Availability & Active Status (20%)
+    const availability = artisan.accountStatus === 'active' ? 1.0 : 0.4
+
+    // 4. Reputation & Escrow Track Record (15%)
+    const ratingScore = Math.min((artisan.rating || 4.8) / 5.0, 1.0)
+
+    const finalScore =
+      tradeAffinity * 0.35 +
+      proximity * 0.30 +
+      availability * 0.20 +
+      ratingScore * 0.15
+
+    return { artisan, score: finalScore }
+  })
+
+  // Sort by highest weighted match score
+  scored.sort((a, b) => b.score - a.score)
+  return scored.map((s) => s.artisan)
+}
+
+export function createWhatsAppOrder(params: {
+  phone: string
+  name: string
+  category: string
+  neighborhood: string
+  description: string
+  slot?: string
+  subTrade?: string
+  equipment?: string
+  visualAttachment?: any
+}): { serviceRequest: ServerServiceRequest; booking: ServerBookingContract; artisan: ServerUserProfile } {
+  const customer = getOrCreateWhatsAppCustomer(params.phone, params.name)
+  const matchedArtisans = findMatchingArtisans(
+    params.category,
+    params.neighborhood,
+    params.subTrade,
+    params.equipment
+  )
+  const artisan = matchedArtisans[0] || customer
+
+  const trackingNum = Math.floor(1000 + Math.random() * 9000)
+  const bookingNumber = `CN-KN-${trackingNum}`
+  const requestId = `req_${Date.now()}`
+  const bookingId = `book_${Date.now()}`
+
+  const slotLabel = params.slot || 'Immediate'
+
+  const serviceRequest: ServerServiceRequest = {
+    id: requestId,
+    customerId: customer.id,
+    customerName: customer.fullName,
+    title: `${params.category} Service in ${params.neighborhood} (${slotLabel})`,
+    category: params.category,
+    categorySlug: params.category.toLowerCase().replace(/[^a-z0-9]/g, '-'),
+    description: params.description,
+    urgency: slotLabel.toLowerCase().includes('yanzu') || slotLabel.toLowerCase().includes('immediate') ? 'emergency' : 'today',
+    serviceMode: 'onsite',
+    city: 'Kano',
+    state: 'Kano State',
+    budgetMinMinor: 500000, // ₦5,000 diagnostic
+    budgetMaxMinor: 2500000,
+    currency: 'NGN',
+    status: 'matching',
+    requiredSkills: artisan.skills || [],
+    proposalsCount: 1,
+    createdAt: new Date().toISOString(),
+  }
+
+  const booking: ServerBookingContract = {
+    id: bookingId,
+    bookingNumber,
+    requestId,
+    customerId: customer.id,
+    clientName: customer.fullName,
+    providerId: artisan.id,
+    providerName: artisan.fullName,
+    providerTitle: artisan.headline || 'Certified Specialist',
+    providerAvatar: artisan.avatarUrl || undefined,
+    title: `${params.category} Diagnostic & Repair`,
+    category: params.category,
+    equipment: params.equipment || params.visualAttachment?.equipmentIdentified,
+    mediaUrl: params.visualAttachment?.mediaUrl,
+    visualAttachment: params.visualAttachment,
+    location: `${params.neighborhood}, Kano`,
+    totalAmountMinor: 500000, // ₦5,000 diagnostic callout fee in escrow
+    currency: 'NGN',
+    escrowStatus: 'locked',
+    bookingStatus: 'pending',
+    progressPercentage: 0,
+    appointmentDate: slotLabel,
+    milestones: [
+      { id: 'm1', title: 'Onsite Diagnostics & Fault Isolation', amountMinor: 500000, status: 'current' },
+      { id: 'm2', title: 'Repair Completion & Verification', amountMinor: 0, status: 'pending' },
+    ],
+    createdAt: new Date().toISOString(),
+  }
+
+  addServiceRequest(serviceRequest)
+  addBooking(booking)
+
+  saveWhatsAppSession({
+    phone: params.phone,
+    name: params.name,
+    step: 'MATCHED',
+    selectedCategory: params.category,
+    neighborhood: params.neighborhood,
+    description: params.description,
+    lastActive: new Date().toISOString(),
+    requestId,
+    bookingNumber,
+    matchedArtisanId: artisan.id,
+  })
+
+  return { serviceRequest, booking, artisan }
+}
+
+export function getBookingByNumber(bookingNumber: string): ServerBookingContract | null {
+  const db = readDatabase()
+  return db.bookings.find((b) => b.bookingNumber === bookingNumber) || null
+}
+
+export function updateBooking(bookingNumber: string, updates: Partial<ServerBookingContract>): ServerBookingContract | null {
+  const db = readDatabase()
+  const idx = db.bookings.findIndex((b) => b.bookingNumber === bookingNumber)
+  if (idx >= 0) {
+    db.bookings[idx] = { ...db.bookings[idx], ...updates }
+    writeDatabase(db)
+    return db.bookings[idx]
+  }
+  return null
+}
+>>>>>>> feature/kano-vernacular-escrow
