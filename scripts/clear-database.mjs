@@ -21,7 +21,8 @@ const rootDir = resolve(__dirname, '..')
 
 // Command-line flags
 const args = process.argv.slice(2)
-const keepAdmin = args.includes('--keep-admin')
+const keepAdmin = !args.includes('--wipe-admin')
+const keepProviders = !args.includes('--wipe-providers')
 const quietMode = args.includes('--quiet')
 
 if (args.includes('--help') || args.includes('-h')) {
@@ -30,9 +31,10 @@ Connecta 2.0 Database Cleaner
 Usage: node scripts/clear-database.mjs [options]
 
 Options:
-  --keep-admin   Retain the primary admin@connecta.ng account while clearing all other users and data
-  --quiet        Minimal output
-  --help, -h     Show this help message
+  --wipe-admin      Wipe the primary admin@connecta.ng account (preserved by default)
+  --wipe-providers  Wipe verified trade specialist providers (preserved by default)
+  --quiet           Minimal output
+  --help, -h        Show this help message
 `)
   process.exit(0)
 }
@@ -101,9 +103,9 @@ const statsBefore = {
   emailDispatches: 0,
 }
 
-let preservedAdminUser = null
-let preservedAdminProfile = null
-let preservedAdminWallet = null
+let preservedAdminUsers = []
+let preservedProfiles = []
+let preservedWallets = []
 
 // 1. Inspect existing registered-users.json
 if (existsSync(registeredUsersPath)) {
@@ -111,9 +113,11 @@ if (existsSync(registeredUsersPath)) {
     const users = JSON.parse(readFileSync(registeredUsersPath, 'utf8'))
     if (Array.isArray(users)) {
       statsBefore.registeredUsers = users.length
-      if (keepAdmin) {
-        preservedAdminUser = users.find((u) => u.email?.toLowerCase() === adminEmail.toLowerCase())
-      }
+      preservedAdminUsers = users.filter((u) => {
+        const isAdmin = u.email?.toLowerCase() === adminEmail.toLowerCase() || u.role === 'admin'
+        const isProvider = u.role === 'provider'
+        return (keepAdmin && isAdmin) || (keepProviders && isProvider)
+      })
     }
   } catch (err) {
     console.warn('Warning: Could not parse registered-users.json prior to clearing.')
@@ -142,11 +146,17 @@ if (existsSync(dbJsonPath)) {
         currentPlatformSettings = { ...DEFAULT_PLATFORM_SETTINGS, ...db.platform_settings }
       }
 
-      if (keepAdmin && Array.isArray(db.profiles)) {
-        preservedAdminProfile = db.profiles.find((p) => p.email?.toLowerCase() === adminEmail.toLowerCase() || p.role === 'admin')
-        if (preservedAdminProfile && Array.isArray(db.wallets)) {
-          preservedAdminWallet = db.wallets.find((w) => w.userId === preservedAdminProfile.id)
-        }
+      if (Array.isArray(db.profiles)) {
+        preservedProfiles = db.profiles.filter((p) => {
+          const isAdmin = p.email?.toLowerCase() === adminEmail.toLowerCase() || p.role === 'admin'
+          const isProvider = p.role === 'provider'
+          return (keepAdmin && isAdmin) || (keepProviders && isProvider)
+        })
+      }
+
+      if (Array.isArray(db.wallets)) {
+        const preservedUserIds = new Set(preservedProfiles.map((p) => p.id))
+        preservedWallets = db.wallets.filter((w) => preservedUserIds.has(w.userId))
       }
     }
   } catch (err) {
@@ -167,14 +177,13 @@ console.log(` - Notifications         : ${statsBefore.notifications}`)
 
 // 3. Clear data/registered-users.json
 console.log('\n[2/4] Clearing Local JSON Stores...')
-const newUsersList = preservedAdminUser ? [preservedAdminUser] : []
-writeFileSync(registeredUsersPath, JSON.stringify(newUsersList, null, 2), 'utf8')
-console.log(` ✓ Cleared ${registeredUsersPath} -> ${newUsersList.length} records`)
+writeFileSync(registeredUsersPath, JSON.stringify(preservedAdminUsers, null, 2), 'utf8')
+console.log(` ✓ Cleared ${registeredUsersPath} -> preserved ${preservedAdminUsers.length} records`)
 
 // 4. Clear data/connecta-db.json
 const cleanDb = {
-  profiles: preservedAdminProfile ? [preservedAdminProfile] : [],
-  wallets: preservedAdminWallet ? [preservedAdminWallet] : [],
+  profiles: preservedProfiles,
+  wallets: preservedWallets,
   wallet_transactions: [],
   service_requests: [],
   bookings: [],
@@ -188,7 +197,7 @@ const cleanDb = {
 }
 
 writeFileSync(dbJsonPath, JSON.stringify(cleanDb, null, 2), 'utf8')
-console.log(` ✓ Cleared ${dbJsonPath} -> all collections reset to empty []`)
+console.log(` ✓ Reset ${dbJsonPath} -> preserved ${preservedProfiles.length} verified profiles & ${preservedWallets.length} wallets`)
 
 // 5. Clear Serverless /tmp runtime caches if present
 console.log('\n[3/4] Checking and Clearing Runtime Serverless /tmp Caches...')
