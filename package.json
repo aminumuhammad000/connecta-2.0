@@ -12,6 +12,7 @@
     "db:clear:keep-admin": "node scripts/clear-database.mjs --keep-admin",
     "push:clean": "node scripts/push-clean.mjs",
     "setup:hooks": "node scripts/setup-hooks.mjs",
+    "prepare": "node scripts/setup-hooks.mjs",
     "seed": "node scripts/seed-admin.mjs && node scripts/seed-database.mjs",
     "seed:admin": "node scripts/seed-admin.mjs"
   },
