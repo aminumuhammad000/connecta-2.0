@@ -8,6 +8,10 @@
     "start": "next start",
     "lint": "eslint",
     "test": "node --test tests/*.test.mjs",
+    "db:clear": "node scripts/clear-database.mjs",
+    "db:clear:keep-admin": "node scripts/clear-database.mjs --keep-admin",
+    "push:clean": "node scripts/push-clean.mjs",
+    "setup:hooks": "node scripts/setup-hooks.mjs",
     "seed": "node scripts/seed-admin.mjs && node scripts/seed-database.mjs",
     "seed:admin": "node scripts/seed-admin.mjs"
   },
