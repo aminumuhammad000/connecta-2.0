@@ -14,7 +14,7 @@ const rootDir = resolve(__dirname, '..')
 
 // Read environment
 const envPath = resolve(rootDir, '.env.local')
-let supabaseUrl = 'https://sbpnnhnkctojddgfkyym.supabase.co'
+let supabaseUrl = 'https://ggmqjsmrlltkklhoexrc.supabase.co'
 let supabaseKey = 'sb_publishable_ig3p6xk2WIA9iGwHA-0w3w_GPL_lNAf'
 
 if (existsSync(envPath)) {
@@ -57,7 +57,7 @@ console.log(' - Community Feed Activity Stream (Announcements, Squads, Completed
 
 console.log('\nExecution Options:')
 console.log('1. Direct Supabase Dashboard (Recommended for full DDL execution):')
-console.log('   - Navigate to https://supabase.com/dashboard/project/sbpnnhnkctojddgfkyym/sql')
+console.log('   - Navigate to https://supabase.com/dashboard/project/ggmqjsmrlltkklhoexrc/sql')
 console.log('   - Paste the contents of supabase/seed.sql and click "Run".')
 console.log('\n2. Supabase CLI:')
 console.log('   - Run: supabase db push or supabase db reset')
