@@ -52,14 +52,6 @@ try {
   }
 
   console.log(`✓ Local branch '${currentBranch}' is fully up to date with origin.`)
-
-  // Run database clear with keep-admin
-  try {
-    execSync('node scripts/clear-database.mjs --keep-admin', { cwd: rootDir, stdio: 'inherit' })
-  } catch (err) {
-    // Non-fatal
-  }
-
   console.log('✓ Shield check passed. Safe to push.\n==================================================================\n')
   process.exit(0)
 } catch (err) {
